@@ -7,7 +7,6 @@ import {
   formatPercent,
   formatPrice,
   formatNumber,
-  formatDate,
   getChangeColor,
 } from '../utils/formatters'
 

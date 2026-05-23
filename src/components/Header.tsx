@@ -1,5 +1,5 @@
 import React from 'react'
-import { TrendingUp, Home } from 'lucide-react'
+import { TrendingUp } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Header: React.FC = () => {
