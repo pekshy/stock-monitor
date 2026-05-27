@@ -1,57 +1,41 @@
-import React, { useState } from 'react'
-import { RefreshCw, TrendingUp, TrendingDown } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { useStockContext } from '../context/StockContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
 import IndustryCard from '../components/IndustryCard'
-import StockTable from '../components/StockTable'
+import StockList from '../components/StockList'
 import { StockWithQuote } from '../types'
 
-type Period = '1d' | '5d' | '10d' | '20d' | '60d'
+type SortOrder = 'change_desc' | 'change_asc'
 
 const Home: React.FC = () => {
   const { stocks, loading, refresh } = useStockContext()
   const industrySummaries = useIndustrySummaries(stocks)
-  const [selectedPeriod, setSelectedPeriod] = useState<Period>('1d')
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('all')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('change_desc')
 
-  const getSortedStocks = (stocks: StockWithQuote[], period: Period, ascending: boolean) => {
-    return [...stocks].sort((a, b) => {
-      let aVal = 0, bVal = 0
-      switch (period) {
-        case '1d':
-          aVal = a.latest_quote?.pct_change || 0
-          bVal = b.latest_quote?.pct_change || 0
-          break
-        case '5d':
-          aVal = a.latest_quote?.pct_change_5d || 0
-          bVal = b.latest_quote?.pct_change_5d || 0
-          break
-        case '10d':
-          aVal = a.latest_quote?.pct_change_10d || 0
-          bVal = b.latest_quote?.pct_change_10d || 0
-          break
-        case '20d':
-          aVal = a.latest_quote?.pct_change_20d || 0
-          bVal = b.latest_quote?.pct_change_20d || 0
-          break
-        case '60d':
-          aVal = a.latest_quote?.pct_change_60d || 0
-          bVal = b.latest_quote?.pct_change_60d || 0
-          break
+  const industryOptions = useMemo(() => {
+    const industries = industrySummaries.map(s => s.industry1)
+    return ['all', ...industries]
+  }, [industrySummaries])
+
+  const filteredStocks = useMemo(() => {
+    let filtered = stocks
+    if (selectedIndustry !== 'all') {
+      filtered = stocks.filter(s => s.industry1 === selectedIndustry)
+    }
+    
+    return filtered.sort((a, b) => {
+      const aChange = a.latest_quote?.pct_change || 0
+      const bChange = b.latest_quote?.pct_change || 0
+      
+      if (sortOrder === 'change_desc') {
+        return bChange - aChange
+      } else {
+        return aChange - bChange
       }
-      return ascending ? aVal - bVal : bVal - aVal
     })
-  }
-
-  const topGainers = getSortedStocks(stocks, selectedPeriod, false).slice(0, 10)
-  const topLosers = getSortedStocks(stocks, selectedPeriod, true).slice(0, 10)
-
-  const periodLabels: Record<Period, string> = {
-    '1d': '1日',
-    '5d': '5日',
-    '10d': '10日',
-    '20d': '20日',
-    '60d': '60日',
-  }
+  }, [stocks, selectedIndustry, sortOrder])
 
   if (loading) {
     return (
@@ -81,41 +65,35 @@ const Home: React.FC = () => {
       </div>
 
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">热门涨跌</h2>
-          <div className="flex gap-2">
-            {(Object.keys(periodLabels) as Period[]).map((period) => (
-              <button
-                key={period}
-                onClick={() => setSelectedPeriod(period)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  selectedPeriod === period
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {periodLabels[period]}
-              </button>
-            ))}
+        <div className="flex flex-wrap items-center gap-4 justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">股票列表</h2>
+          <div className="flex flex-wrap gap-3">
+            <select
+              value={selectedIndustry}
+              onChange={(e) => setSelectedIndustry(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {industryOptions.map(industry => (
+                <option key={industry} value={industry}>
+                  {industry === 'all' ? '全部行业' : industry}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => setSortOrder(sortOrder === 'change_desc' ? 'change_asc' : 'change_desc')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                sortOrder === 'change_desc'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-green-100 text-green-700'
+              }`}
+            >
+              {sortOrder === 'change_desc' ? '涨幅优先 ↓' : '跌幅优先 ↑'}
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="h-5 w-5 text-up" />
-              <h3 className="text-lg font-bold text-gray-900">涨幅榜</h3>
-            </div>
-            <StockTable stocks={topGainers} />
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingDown className="h-5 w-5 text-down" />
-              <h3 className="text-lg font-bold text-gray-900">跌幅榜</h3>
-            </div>
-            <StockTable stocks={topLosers} />
-          </div>
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <StockList stocks={filteredStocks} />
         </div>
       </div>
     </div>
