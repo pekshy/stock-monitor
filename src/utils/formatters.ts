@@ -33,7 +33,7 @@ export function getChangeColor(value: number | null | undefined): string {
 
 export function getChangeBgColor(value: number | null | undefined): string {
   if (value == null) return 'bg-gray-100'
-  if (value > 0) return 'bg-green-50'
-  if (value < 0) return 'bg-red-50'
+  if (value > 0) return 'bg-red-50'
+  if (value < 0) return 'bg-green-50'
   return 'bg-gray-100'
 }
