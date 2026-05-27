@@ -4,7 +4,6 @@ import { useStockContext } from '../context/StockContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
 import IndustryCard from '../components/IndustryCard'
 import StockList from '../components/StockList'
-import { StockWithQuote } from '../types'
 
 type SortOrder = 'change_desc' | 'change_asc'
 
