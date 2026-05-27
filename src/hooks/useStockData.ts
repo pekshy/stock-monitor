@@ -4,6 +4,7 @@ import { WatchlistItem, DailyQuote, DailyValuation, StockWithQuote } from '../ty
 
 export function useStocks() {
   const [stocks, setStocks] = useState<StockWithQuote[]>([])
+  const [latestDate, setLatestDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -61,6 +62,10 @@ export function useStocks() {
       }))
 
       setStocks(stocksWithData)
+      
+      if (quotes.length > 0) {
+        setLatestDate(quotes[0].trade_date)
+      }
     } catch (error) {
       console.error('Error fetching stocks:', error)
     } finally {
@@ -68,7 +73,7 @@ export function useStocks() {
     }
   }
 
-  return { stocks, loading, refresh: fetchStocks }
+  return { stocks, latestDate, loading, refresh: fetchStocks }
 }
 
 export function useStockDetail(stockCode: string) {

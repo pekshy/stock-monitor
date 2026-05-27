@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { RefreshCw, TrendingUp, TrendingDown } from 'lucide-react'
-import { useStocks } from '../hooks/useStockData'
+import { useStockContext } from '../context/StockContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
 import IndustryCard from '../components/IndustryCard'
 import StockTable from '../components/StockTable'
@@ -9,7 +9,7 @@ import { StockWithQuote } from '../types'
 type Period = '1d' | '5d' | '10d' | '20d' | '60d'
 
 const Home: React.FC = () => {
-  const { stocks, loading, refresh } = useStocks()
+  const { stocks, loading, refresh } = useStockContext()
   const industrySummaries = useIndustrySummaries(stocks)
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('1d')
 

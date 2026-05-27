@@ -1,7 +1,7 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import { useStocks } from '../hooks/useStockData'
+import { useStockContext } from '../context/StockContext'
 import { useIndustryStocks, useIndustrySummaries } from '../hooks/useIndustryData'
 import StockTable from '../components/StockTable'
 import { formatPercent, formatValuation } from '../utils/formatters'
@@ -9,7 +9,7 @@ import { formatPercent, formatValuation } from '../utils/formatters'
 const IndustryDetail: React.FC = () => {
   const { industry1 } = useParams<{ industry1: string }>()
   const navigate = useNavigate()
-  const { stocks, loading } = useStocks()
+  const { stocks, loading } = useStockContext()
   const industryName = decodeURIComponent(industry1 || '')
   const industryStocks = useIndustryStocks(stocks, industryName)
   const industrySummaries = useIndustrySummaries(stocks)
