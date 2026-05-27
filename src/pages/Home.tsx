@@ -6,7 +6,7 @@ import IndustryCard from '../components/IndustryCard'
 import StockTable from '../components/StockTable'
 import { StockWithQuote } from '../types'
 
-type Period = '1d' | '5d' | '10d' | '20d'
+type Period = '1d' | '5d' | '10d' | '20d' | '60d'
 
 const Home: React.FC = () => {
   const { stocks, loading, refresh } = useStocks()
@@ -33,6 +33,10 @@ const Home: React.FC = () => {
           aVal = a.latest_quote?.pct_change_20d || 0
           bVal = b.latest_quote?.pct_change_20d || 0
           break
+        case '60d':
+          aVal = a.latest_quote?.pct_change_60d || 0
+          bVal = b.latest_quote?.pct_change_60d || 0
+          break
       }
       return ascending ? aVal - bVal : bVal - aVal
     })
@@ -46,6 +50,7 @@ const Home: React.FC = () => {
     '5d': '5日',
     '10d': '10日',
     '20d': '20日',
+    '60d': '60日',
   }
 
   if (loading) {
@@ -97,23 +102,23 @@ const Home: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-up" />
-            <h3 className="text-lg font-bold text-gray-900">涨幅榜</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="h-5 w-5 text-up" />
+              <h3 className="text-lg font-bold text-gray-900">涨幅榜</h3>
+            </div>
+            <StockTable stocks={topGainers} />
           </div>
-          <StockTable stocks={topGainers} />
-        </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingDown className="h-5 w-5 text-down" />
-            <h3 className="text-lg font-bold text-gray-900">跌幅榜</h3>
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingDown className="h-5 w-5 text-down" />
+              <h3 className="text-lg font-bold text-gray-900">跌幅榜</h3>
+            </div>
+            <StockTable stocks={topLosers} />
           </div>
-          <StockTable stocks={topLosers} />
         </div>
       </div>
-        </div>
-      </div>
+    </div>
   )
 }
 

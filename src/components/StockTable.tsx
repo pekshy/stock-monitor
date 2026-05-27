@@ -23,6 +23,7 @@ const StockTable: React.FC<StockTableProps> = ({ stocks }) => {
             <th className="text-right py-3 px-4 font-semibold text-gray-700">5日</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">10日</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">20日</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">60日</th>
           </tr>
         </thead>
         <tbody>
@@ -56,6 +57,9 @@ const StockTable: React.FC<StockTableProps> = ({ stocks }) => {
               </td>
               <td className={`text-right py-4 px-4 ${getChangeColor(stock.latest_quote?.pct_change_20d)}`}>
                 {formatPercent(stock.latest_quote?.pct_change_20d)}
+              </td>
+              <td className={`text-right py-4 px-4 ${getChangeColor(stock.latest_quote?.pct_change_60d)}`}>
+                {formatPercent(stock.latest_quote?.pct_change_60d)}
               </td>
             </tr>
           ))}
