@@ -10,18 +10,47 @@ type SortOrder = 'change_desc' | 'change_asc'
 const Home: React.FC = () => {
   const { stocks, loading, refresh } = useStockContext()
   const industrySummaries = useIndustrySummaries(stocks)
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('all')
+  const [selectedIndustry1, setSelectedIndustry1] = useState<string>('all')
+  const [selectedIndustry2, setSelectedIndustry2] = useState<string>('all')
+  const [selectedMarket, setSelectedMarket] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<SortOrder>('change_desc')
 
-  const industryOptions = useMemo(() => {
-    const industries = industrySummaries.map(s => s.industry1)
+  const industry1Options = useMemo(() => {
+    const industries = [...new Set(stocks.map(s => s.industry1).filter(Boolean))]
     return ['all', ...industries]
-  }, [industrySummaries])
+  }, [stocks])
+
+  const industry2Options = useMemo(() => {
+    let filtered = stocks
+    if (selectedIndustry1 !== 'all') {
+      filtered = stocks.filter(s => s.industry1 === selectedIndustry1)
+    }
+    const industries = [...new Set(filtered.map(s => s.industry2).filter(Boolean))]
+    return ['all', ...industries]
+  }, [stocks, selectedIndustry1])
+
+  const marketOptions = useMemo(() => {
+    let filtered = stocks
+    if (selectedIndustry1 !== 'all') {
+      filtered = filtered.filter(s => s.industry1 === selectedIndustry1)
+    }
+    if (selectedIndustry2 !== 'all') {
+      filtered = filtered.filter(s => s.industry2 === selectedIndustry2)
+    }
+    const markets = [...new Set(filtered.map(s => s.market).filter(Boolean))]
+    return ['all', ...markets]
+  }, [stocks, selectedIndustry1, selectedIndustry2])
 
   const filteredStocks = useMemo(() => {
     let filtered = stocks
-    if (selectedIndustry !== 'all') {
-      filtered = stocks.filter(s => s.industry1 === selectedIndustry)
+    if (selectedIndustry1 !== 'all') {
+      filtered = filtered.filter(s => s.industry1 === selectedIndustry1)
+    }
+    if (selectedIndustry2 !== 'all') {
+      filtered = filtered.filter(s => s.industry2 === selectedIndustry2)
+    }
+    if (selectedMarket !== 'all') {
+      filtered = filtered.filter(s => s.market === selectedMarket)
     }
     
     return filtered.sort((a, b) => {
@@ -34,7 +63,13 @@ const Home: React.FC = () => {
         return aChange - bChange
       }
     })
-  }, [stocks, selectedIndustry, sortOrder])
+  }, [stocks, selectedIndustry1, selectedIndustry2, selectedMarket, sortOrder])
+
+  const resetFilters = () => {
+    setSelectedIndustry1('all')
+    setSelectedIndustry2('all')
+    setSelectedMarket('all')
+  }
 
   if (loading) {
     return (
@@ -66,18 +101,53 @@ const Home: React.FC = () => {
       <div className="space-y-6">
         <div className="flex flex-wrap items-center gap-4 justify-between">
           <h2 className="text-2xl font-bold text-gray-900">股票列表</h2>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 items-center">
             <select
-              value={selectedIndustry}
-              onChange={(e) => setSelectedIndustry(e.target.value)}
+              value={selectedIndustry1}
+              onChange={(e) => {
+                setSelectedIndustry1(e.target.value)
+                setSelectedIndustry2('all')
+                setSelectedMarket('all')
+              }}
               className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              {industryOptions.map(industry => (
+              {industry1Options.map(industry => (
                 <option key={industry} value={industry}>
-                  {industry === 'all' ? '全部行业' : industry}
+                  {industry === 'all' ? '全部行业1' : industry}
                 </option>
               ))}
             </select>
+            <select
+              value={selectedIndustry2}
+              onChange={(e) => {
+                setSelectedIndustry2(e.target.value)
+                setSelectedMarket('all')
+              }}
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {industry2Options.map(industry => (
+                <option key={industry} value={industry}>
+                  {industry === 'all' ? '全部行业2' : industry}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedMarket}
+              onChange={(e) => setSelectedMarket(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {marketOptions.map(market => (
+                <option key={market} value={market}>
+                  {market === 'all' ? '全部市场' : market}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={resetFilters}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              重置
+            </button>
             <button
               onClick={() => setSortOrder(sortOrder === 'change_desc' ? 'change_asc' : 'change_desc')}
               className={`px-4 py-2 rounded-lg transition-colors ${
