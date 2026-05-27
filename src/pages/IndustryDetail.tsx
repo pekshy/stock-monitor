@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { useStocks } from '../hooks/useStockData'
 import { useIndustryStocks, useIndustrySummaries } from '../hooks/useIndustryData'
 import StockTable from '../components/StockTable'
-import { formatPercent } from '../utils/formatters'
+import { formatPercent, formatValuation } from '../utils/formatters'
 
 const IndustryDetail: React.FC = () => {
   const { industry1 } = useParams<{ industry1: string }>()
@@ -36,7 +36,7 @@ const IndustryDetail: React.FC = () => {
       {industrySummary && (
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">{industrySummary.industry1}</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             <div>
               <div className="text-gray-500 text-sm">股票数量</div>
               <div className="text-2xl font-bold text-gray-900">{industrySummary.stock_count} 只</div>
@@ -45,6 +45,18 @@ const IndustryDetail: React.FC = () => {
               <div className="text-gray-500 text-sm">平均涨跌幅</div>
               <div className={`text-2xl font-bold ${industrySummary.avg_pct_change >= 0 ? 'text-up' : 'text-down'}`}>
                 {formatPercent(industrySummary.avg_pct_change)}
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-500 text-sm">平均PE(TTM)</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {formatValuation(industrySummary.avg_pe_ttm)}
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-500 text-sm">平均PB</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {formatValuation(industrySummary.avg_pb)}
               </div>
             </div>
             <div>

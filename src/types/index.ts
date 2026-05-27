@@ -55,4 +55,6 @@ export interface IndustrySummary {
   avg_pct_change: number
   up_count: number
   down_count: number
+  avg_pe_ttm: number | null
+  avg_pb: number | null
 }

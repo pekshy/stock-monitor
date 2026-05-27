@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StockWithQuote } from '../types'
-import { formatPercent, formatPrice, getChangeColor } from '../utils/formatters'
+import { formatPercent, formatPrice, formatValuation, getChangeColor } from '../utils/formatters'
 
 interface StockTableProps {
   stocks: StockWithQuote[]
@@ -18,6 +18,8 @@ const StockTable: React.FC<StockTableProps> = ({ stocks }) => {
             <th className="text-left py-3 px-4 font-semibold text-gray-700">股票名称</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">最新价</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">涨跌幅</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">PE(TTM)</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">PB</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">5日</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">10日</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">20日</th>
@@ -39,6 +41,12 @@ const StockTable: React.FC<StockTableProps> = ({ stocks }) => {
               </td>
               <td className={`text-right py-4 px-4 font-semibold ${getChangeColor(stock.latest_quote?.pct_change)}`}>
                 {formatPercent(stock.latest_quote?.pct_change)}
+              </td>
+              <td className="text-right py-4 px-4 text-gray-700">
+                {formatValuation(stock.latest_valuation?.pe_ttm)}
+              </td>
+              <td className="text-right py-4 px-4 text-gray-700">
+                {formatValuation(stock.latest_valuation?.pb)}
               </td>
               <td className={`text-right py-4 px-4 ${getChangeColor(stock.latest_quote?.pct_change_5d)}`}>
                 {formatPercent(stock.latest_quote?.pct_change_5d)}
