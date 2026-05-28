@@ -1,6 +1,6 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Building2, TrendingUp } from 'lucide-react'
+import { ArrowLeft, Building2, TrendingUp, Star } from 'lucide-react'
 import { useStockDetail } from '../hooks/useStockData'
 import PriceChart from '../components/PriceChart'
 import {
@@ -68,6 +68,18 @@ const StockDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {stock.highlights && (
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500" />
+            核心亮点
+          </h3>
+          <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+            {stock.highlights}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-md p-4">

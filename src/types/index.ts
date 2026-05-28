@@ -5,6 +5,7 @@ export interface WatchlistItem {
   industry1: string | null
   industry2: string | null
   market: string | null
+  highlights: string | null
   created_at: string
   updated_at: string
 }
