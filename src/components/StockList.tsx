@@ -17,10 +17,13 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
           <tr className="border-b-2 border-gray-200">
             <th className="text-left py-3 px-4 font-semibold text-gray-700">股票名称</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">最新价</th>
-            <th className="text-right py-3 px-4 font-semibold text-gray-700">涨跌幅</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">1日</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">5日</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">10日</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">20日</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">60日</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">PE(TTM)</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">PB</th>
-            <th className="text-right py-3 px-4 font-semibold text-gray-700">60日</th>
           </tr>
         </thead>
         <tbody>
@@ -40,14 +43,23 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
               <td className={`text-right py-4 px-4 font-semibold ${getChangeColor(stock.latest_quote?.pct_change)}`}>
                 {formatPercent(stock.latest_quote?.pct_change)}
               </td>
+              <td className={`text-right py-4 px-4 ${getChangeColor(stock.latest_quote?.pct_change_5d)}`}>
+                {formatPercent(stock.latest_quote?.pct_change_5d)}
+              </td>
+              <td className={`text-right py-4 px-4 ${getChangeColor(stock.latest_quote?.pct_change_10d)}`}>
+                {formatPercent(stock.latest_quote?.pct_change_10d)}
+              </td>
+              <td className={`text-right py-4 px-4 ${getChangeColor(stock.latest_quote?.pct_change_20d)}`}>
+                {formatPercent(stock.latest_quote?.pct_change_20d)}
+              </td>
+              <td className={`text-right py-4 px-4 ${getChangeColor(stock.latest_quote?.pct_change_60d)}`}>
+                {formatPercent(stock.latest_quote?.pct_change_60d)}
+              </td>
               <td className="text-right py-4 px-4 text-gray-700">
                 {formatValuation(stock.latest_valuation?.pe_ttm)}
               </td>
               <td className="text-right py-4 px-4 text-gray-700">
                 {formatValuation(stock.latest_valuation?.pb)}
-              </td>
-              <td className={`text-right py-4 px-4 ${getChangeColor(stock.latest_quote?.pct_change_60d)}`}>
-                {formatPercent(stock.latest_quote?.pct_change_60d)}
               </td>
             </tr>
           ))}

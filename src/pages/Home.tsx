@@ -6,6 +6,7 @@ import IndustryCard from '../components/IndustryCard'
 import StockList from '../components/StockList'
 
 type SortOrder = 'change_desc' | 'change_asc'
+type SortPeriod = '1d' | '5d' | '10d' | '20d' | '60d'
 
 const Home: React.FC = () => {
   const { stocks, loading, refresh } = useStockContext()
@@ -13,6 +14,7 @@ const Home: React.FC = () => {
   const [selectedIndustry1, setSelectedIndustry1] = useState<string>('all')
   const [selectedIndustry2, setSelectedIndustry2] = useState<string>('all')
   const [selectedMarket, setSelectedMarket] = useState<string>('all')
+  const [sortPeriod, setSortPeriod] = useState<SortPeriod>('1d')
   const [sortOrder, setSortOrder] = useState<SortOrder>('change_desc')
 
   const industry1Options = useMemo(() => {
@@ -41,6 +43,23 @@ const Home: React.FC = () => {
     return ['all', ...markets]
   }, [stocks, selectedIndustry1, selectedIndustry2])
 
+  const getChangeValue = (stock: any, period: SortPeriod) => {
+    switch (period) {
+      case '1d':
+        return stock.latest_quote?.pct_change || 0
+      case '5d':
+        return stock.latest_quote?.pct_change_5d || 0
+      case '10d':
+        return stock.latest_quote?.pct_change_10d || 0
+      case '20d':
+        return stock.latest_quote?.pct_change_20d || 0
+      case '60d':
+        return stock.latest_quote?.pct_change_60d || 0
+      default:
+        return 0
+    }
+  }
+
   const filteredStocks = useMemo(() => {
     let filtered = stocks
     if (selectedIndustry1 !== 'all') {
@@ -54,8 +73,8 @@ const Home: React.FC = () => {
     }
     
     return filtered.sort((a, b) => {
-      const aChange = a.latest_quote?.pct_change || 0
-      const bChange = b.latest_quote?.pct_change || 0
+      const aChange = getChangeValue(a, sortPeriod)
+      const bChange = getChangeValue(b, sortPeriod)
       
       if (sortOrder === 'change_desc') {
         return bChange - aChange
@@ -63,12 +82,20 @@ const Home: React.FC = () => {
         return aChange - bChange
       }
     })
-  }, [stocks, selectedIndustry1, selectedIndustry2, selectedMarket, sortOrder])
+  }, [stocks, selectedIndustry1, selectedIndustry2, selectedMarket, sortPeriod, sortOrder])
 
   const resetFilters = () => {
     setSelectedIndustry1('all')
     setSelectedIndustry2('all')
     setSelectedMarket('all')
+  }
+
+  const periodLabels: Record<SortPeriod, string> = {
+    '1d': '1日',
+    '5d': '5日',
+    '10d': '10日',
+    '20d': '20日',
+    '60d': '60日'
   }
 
   if (loading) {
@@ -148,6 +175,21 @@ const Home: React.FC = () => {
             >
               重置
             </button>
+            <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              {(Object.keys(periodLabels) as SortPeriod[]).map(period => (
+                <button
+                  key={period}
+                  onClick={() => setSortPeriod(period)}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    sortPeriod === period
+                      ? 'bg-white text-primary shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {periodLabels[period]}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => setSortOrder(sortOrder === 'change_desc' ? 'change_asc' : 'change_desc')}
               className={`px-4 py-2 rounded-lg transition-colors ${
