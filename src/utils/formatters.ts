@@ -24,6 +24,18 @@ export function formatNumber(value: number | null | undefined): string {
   return value.toFixed(0)
 }
 
+export function formatMarketCap(value: number | null | undefined): string {
+  if (value == null) return '--'
+  if (value >= 100000000000) {
+    return (value / 100000000000).toFixed(2) + '万亿'
+  } else if (value >= 100000000) {
+    return (value / 100000000).toFixed(2) + '亿'
+  } else if (value >= 10000) {
+    return (value / 10000).toFixed(2) + '万'
+  }
+  return value.toFixed(0)
+}
+
 export function formatDate(date: string | Date): string {
   const d = new Date(date)
   return d.toLocaleDateString('zh-CN')

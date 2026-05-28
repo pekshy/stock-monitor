@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StockWithQuote } from '../types'
-import { formatPercent, formatPrice, formatValuation, getChangeColor } from '../utils/formatters'
+import { formatPercent, formatPrice, formatValuation, formatMarketCap, getChangeColor } from '../utils/formatters'
 
 interface StockListProps {
   stocks: StockWithQuote[]
@@ -24,6 +24,7 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
             <th className="text-right py-3 px-4 font-semibold text-gray-700">60日</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">PE(TTM)</th>
             <th className="text-right py-3 px-4 font-semibold text-gray-700">PB</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-700">总市值</th>
           </tr>
         </thead>
         <tbody>
@@ -60,6 +61,9 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
               </td>
               <td className="text-right py-4 px-4 text-gray-700">
                 {formatValuation(stock.latest_valuation?.pb)}
+              </td>
+              <td className="text-right py-4 px-4 text-gray-700">
+                {formatMarketCap(stock.latest_valuation?.total_market_cap)}
               </td>
             </tr>
           ))}
