@@ -192,12 +192,12 @@ const EtfBoard: React.FC = () => {
                       <div className="flex flex-col gap-1">
                         {etf.latest_signal?.buy_signals && etf.latest_signal.buy_signals.length > 0 && (
                           <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
-                            买入信号: {etf.latest_signal.buy_signals}
+                            买入信号({etf.latest_signal.buy_count || 0}): {etf.latest_signal.buy_signals}
                           </div>
                         )}
                         {etf.latest_signal?.sell_signals && etf.latest_signal.sell_signals.length > 0 && (
                           <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
-                            卖出信号: {etf.latest_signal.sell_signals}
+                            卖出信号({etf.latest_signal.sell_count || 0}): {etf.latest_signal.sell_signals}
                           </div>
                         )}
                         {(!etf.latest_signal?.buy_signals || etf.latest_signal.buy_signals.length === 0) &&
