@@ -145,7 +145,7 @@ const EtfBoard: React.FC = () => {
               <thead>
                 <tr className="border-b-2 border-gray-200">
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">ETF名称</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700 min-w-[60px]">最新价</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 min-w-[75px]">最新价</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">涨跌</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">MA5</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">MA20</th>
@@ -153,7 +153,7 @@ const EtfBoard: React.FC = () => {
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">PE</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">PB</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700">估值</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700 min-w-[70px]">操作信号</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700 min-w-[85px]">操作信号</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">触发信号</th>
                 </tr>
               </thead>
