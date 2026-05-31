@@ -133,6 +133,33 @@ export interface EtfClawSignal {
   created_at: string
 }
 
+export interface EtfTrackedIndexHistory {
+  id: number
+  index_code: string
+  index_name: string
+  trade_date: string
+  price: number | null
+  change_percent: number | null
+  pe: number | null
+  pe_percent: number | null
+  pb: number | null
+  pb_percent: number | null
+  peg: number | null
+  roe: number | null
+  revenue: number | null
+  revenue_growth: number | null
+  net_profit: number | null
+  net_profit_growth: number | null
+  valuation: string | null
+  this_year: number | null
+  one_year: number | null
+  three_years: number | null
+  five_years: number | null
+  scale: number | null
+  etf_scale: number | null
+  created_at: string
+}
+
 export interface ChinaIndicator {
   id: number
   indicator_id: string
@@ -153,4 +180,5 @@ export interface EtfWithData extends EtfInfo {
   latest_daily?: EtfDailyData
   latest_indicator?: EtfIndicators
   latest_signal?: EtfClawSignal
+  latest_index_valuation?: EtfTrackedIndexHistory
 }

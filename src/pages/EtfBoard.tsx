@@ -28,6 +28,21 @@ const EtfBoard: React.FC = () => {
     return 'bg-blue-100 text-blue-600'
   }
 
+  const getValuationColor = (valuation: string | null | undefined) => {
+    if (!valuation) return 'bg-gray-100 text-gray-600'
+    const v = valuation.toLowerCase()
+    if (v.includes('极度低估') || v.includes('低估') || v.includes('低')) {
+      return 'bg-green-100 text-green-600'
+    }
+    if (v.includes('极度高估') || v.includes('高估') || v.includes('高')) {
+      return 'bg-red-100 text-red-600'
+    }
+    if (v.includes('正常') || v.includes('适中')) {
+      return 'bg-yellow-100 text-yellow-600'
+    }
+    return 'bg-gray-100 text-gray-600'
+  }
+
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -135,6 +150,9 @@ const EtfBoard: React.FC = () => {
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">MA5</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">MA20</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">RSI</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700">PE</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700">PB</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700">估值</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700">操作信号</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">触发信号</th>
                 </tr>
@@ -177,6 +195,25 @@ const EtfBoard: React.FC = () => {
                         : (etf.latest_indicator?.rsi6 !== null && etf.latest_indicator?.rsi6 !== undefined
                           ? etf.latest_indicator.rsi6.toFixed(1)
                           : '--')}
+                    </td>
+                    <td className="text-right py-4 px-4 text-gray-700">
+                      {etf.latest_index_valuation?.pe !== null && etf.latest_index_valuation?.pe !== undefined
+                        ? etf.latest_index_valuation.pe.toFixed(2)
+                        : '--'}
+                    </td>
+                    <td className="text-right py-4 px-4 text-gray-700">
+                      {etf.latest_index_valuation?.pb !== null && etf.latest_index_valuation?.pb !== undefined
+                        ? etf.latest_index_valuation.pb.toFixed(2)
+                        : '--'}
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      {etf.latest_index_valuation?.valuation ? (
+                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${getValuationColor(etf.latest_index_valuation.valuation)}`}>
+                          {etf.latest_index_valuation.valuation}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">--</span>
+                      )}
                     </td>
                     <td className="text-center py-4 px-4">
                       {etf.latest_signal?.action ? (

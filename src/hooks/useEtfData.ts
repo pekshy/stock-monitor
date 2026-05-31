@@ -5,6 +5,7 @@ import {
   EtfDailyData,
   EtfIndicators,
   EtfClawSignal,
+  EtfTrackedIndexHistory,
   ChinaIndicator,
   FredIndicator,
   EtfWithData
@@ -59,6 +60,7 @@ export function useEtfData() {
       
       if (etfInfo.length > 0) {
         const symbols = etfInfo.map(e => e.symbol)
+        const indexCodes = etfInfo.map(e => e.tracking_index_code).filter((c): c is string => !!c)
         
         // 获取ETF日数据
         const { data: dailyData, error: dailyErr } = await supabase
@@ -87,10 +89,24 @@ export function useEtfData() {
         if (signalsErr) throw signalsErr
         console.log('ETF signals:', signalsData)
 
+        // 获取指数估值
+        let indexValuations: EtfTrackedIndexHistory[] = []
+        if (indexCodes.length > 0) {
+          const { data: indexData, error: indexErr } = await supabase
+            .from('etf_tracked_index_history')
+            .select('*')
+            .in('index_code', indexCodes)
+            .order('trade_date', { ascending: false })
+          if (indexErr) throw indexErr
+          indexValuations = indexData || []
+          console.log('Index valuations:', indexValuations)
+        }
+
         // 为每个ETF整理最新数据
         const latestDaily = new Map<string, EtfDailyData>()
         const latestIndicators = new Map<string, EtfIndicators>()
         const latestSignal = new Map<string, EtfClawSignal>()
+        const latestIndexValuation = new Map<string, EtfTrackedIndexHistory>()
 
         dailyData?.forEach(d => {
           if (!latestDaily.has(d.symbol)) {
@@ -110,11 +126,18 @@ export function useEtfData() {
           }
         })
 
+        indexValuations?.forEach(v => {
+          if (!latestIndexValuation.has(v.index_code)) {
+            latestIndexValuation.set(v.index_code, v)
+          }
+        })
+
         etfsWithData = etfInfo.map(e => ({
           ...e,
           latest_daily: latestDaily.get(e.symbol),
           latest_indicator: latestIndicators.get(e.symbol),
-          latest_signal: latestSignal.get(e.symbol)
+          latest_signal: latestSignal.get(e.symbol),
+          latest_index_valuation: e.tracking_index_code ? latestIndexValuation.get(e.tracking_index_code) : undefined
         }))
 
         // 设置最新日期
