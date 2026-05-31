@@ -101,6 +101,8 @@ export function useEtfData() {
         console.log('Daily data:', dailyData)
         console.log('Indicators:', indicators)
         console.log('Signals:', signals)
+      } else {
+        console.log('etf_info表中没有数据，只获取宏观指标数据')
       }
 
       const latestDaily = new Map<string, EtfDailyData>()
@@ -138,8 +140,37 @@ export function useEtfData() {
       setChinaIndicators(chinaInd || [])
       setFredIndicators(fredInd || [])
       
+      // 找出所有数据中最新的交易日
+      let foundLatestDate: string | null = null
+      
+      // 检查ETF日数据
       if (dailyData && dailyData.length > 0) {
-        setLatestDate(dailyData[0].trade_date)
+        foundLatestDate = dailyData[0].trade_date
+      }
+      
+      // 如果没有，检查ETF指标数据
+      if (!foundLatestDate && indicators && indicators.length > 0) {
+        foundLatestDate = indicators[0].trade_date
+      }
+      
+      // 如果没有，检查ETF信号数据
+      if (!foundLatestDate && signals && signals.length > 0) {
+        foundLatestDate = signals[0].signal_date
+      }
+      
+      // 如果还是没有，检查中国宏观指标数据
+      if (!foundLatestDate && chinaInd && chinaInd.length > 0) {
+        foundLatestDate = chinaInd[0].value_date
+      }
+      
+      // 如果还是没有，检查FRED指标数据
+      if (!foundLatestDate && fredInd && fredInd.length > 0) {
+        foundLatestDate = fredInd[0].value_date
+      }
+      
+      if (foundLatestDate) {
+        console.log('找到最近交易日:', foundLatestDate)
+        setLatestDate(foundLatestDate)
       }
     } catch (error) {
       console.error('Error fetching ETF data:', error)
