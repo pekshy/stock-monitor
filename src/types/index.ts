@@ -62,87 +62,91 @@ export interface IndustrySummary {
 
 // ETF相关类型
 export interface EtfInfo {
-  id: number
-  etf_code: string
-  etf_name: string
-  index_code: string | null
-  index_name: string | null
-  fund_company: string | null
-  fund_type: string | null
+  symbol: string
+  name: string | null
+  category: string | null
+  tracking_index_name: string | null
+  tracking_index_code: string | null
   created_at: string
   updated_at: string
 }
 
 export interface EtfDailyData {
   id: number
-  etf_code: string
+  symbol: string
   trade_date: string
   open: number | null
-  close: number | null
   high: number | null
   low: number | null
+  close: number | null
   volume: number | null
   amount: number | null
-  pct_change: number | null
-  price_change: number | null
-  turnover_rate: number | null
-  pct_change_5d: number | null
-  pct_change_10d: number | null
-  pct_change_20d: number | null
-  pct_change_60d: number | null
+  change_pct: number | null
   created_at: string
 }
 
 export interface EtfIndicators {
   id: number
-  etf_code: string
+  symbol: string
   trade_date: string
-  pe: number | null
-  pb: number | null
-  ps: number | null
-  pc: number | null
-  dividend_yield: number | null
+  data_type: string
+  ma5: number | null
+  ma10: number | null
+  ma20: number | null
+  ma60: number | null
+  macd: number | null
+  macd_signal: number | null
+  macd_hist: number | null
+  k: number | null
+  d: number | null
+  j: number | null
+  rsi6: number | null
+  rsi12: number | null
+  rsi24: number | null
+  boll_upper: number | null
+  boll_middle: number | null
+  boll_lower: number | null
+  plus_di: number | null
+  minus_di: number | null
+  adx: number | null
+  adxr: number | null
   created_at: string
 }
 
 export interface EtfClawSignal {
   id: number
-  etf_code: string
-  signal_date: string
-  signal_type: string | null
-  signal_level: string | null
-  signal_score: number | null
-  signal_desc: string | null
-  created_at: string
-}
-
-export interface EtfTrackedIndexHistory {
-  id: number
-  index_code: string
+  symbol: string
   trade_date: string
+  name: string | null
   close: number | null
-  pct_change: number | null
+  k: number | null
+  d: number | null
+  j: number | null
+  rsi: number | null
+  macd_hist: number | null
+  buy_count: number | null
+  sell_count: number | null
+  buy_signals: string | null
+  sell_signals: string | null
+  action: string | null
+  action_type: string | null
   created_at: string
 }
 
 export interface ChinaIndicator {
   id: number
-  indicator_name: string
-  indicator_code: string
-  value: number | null
-  value_date: string
-  unit: string | null
-  created_at: string
+  indicator_id: string
+  date: string
+  value: number
+  updated_at: string | null
 }
 
 export interface FredIndicator {
   id: number
-  indicator_name: string
-  indicator_code: string
-  value: number | null
-  value_date: string
-  unit: string | null
-  created_at: string
+  indicator_id: string
+  date: string
+  value: number
+  updated_at: string | null
 }
 
 export interface EtfWithData extends EtfInfo {
