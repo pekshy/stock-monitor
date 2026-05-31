@@ -15,6 +15,7 @@ export function useEtfData() {
   const [fredIndicators, setFredIndicators] = useState<FredIndicator[]>([])
   const [latestDate, setLatestDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAllData()
@@ -23,6 +24,8 @@ export function useEtfData() {
   async function fetchAllData() {
     try {
       setLoading(true)
+      setError(null)
+      console.log('开始获取ETF数据...')
       
       const [
         { data: etfInfo, error: etfError },
@@ -34,34 +37,71 @@ export function useEtfData() {
         supabase.from('fred_indicators').select('*').order('value_date', { ascending: false })
       ])
 
-      if (etfError) throw etfError
-      if (chinaError) throw chinaError
-      if (fredError) throw fredError
+      if (etfError) {
+        console.error('ETF info error:', etfError)
+        throw etfError
+      }
+      if (chinaError) {
+        console.error('China indicators error:', chinaError)
+        throw chinaError
+      }
+      if (fredError) {
+        console.error('FRED indicators error:', fredError)
+        throw fredError
+      }
+
+      console.log('ETF info:', etfInfo)
+      console.log('China indicators:', chinaInd)
+      console.log('FRED indicators:', fredInd)
 
       const etfCodes = etfInfo?.map(e => e.etf_code) || []
+      console.log('ETF codes:', etfCodes)
       
-      const [
-        { data: dailyData, error: dailyError },
-        { data: indicators, error: indicatorsError },
-        { data: signals, error: signalsError }
-      ] = await Promise.all([
-        supabase.from('etf_daily_data')
-          .select('*')
-          .in('etf_code', etfCodes)
-          .order('trade_date', { ascending: false }),
-        supabase.from('etf_indicators')
-          .select('*')
-          .in('etf_code', etfCodes)
-          .order('trade_date', { ascending: false }),
-        supabase.from('etf_claw_signals')
-          .select('*')
-          .in('etf_code', etfCodes)
-          .order('signal_date', { ascending: false })
-      ])
+      let dailyData: EtfDailyData[] | null = null
+      let indicators: EtfIndicators[] | null = null
+      let signals: EtfClawSignal[] | null = null
 
-      if (dailyError) throw dailyError
-      if (indicatorsError) throw indicatorsError
-      if (signalsError) throw signalsError
+      if (etfCodes.length > 0) {
+        const [
+          { data: dData, error: dailyError },
+          { data: iData, error: indicatorsError },
+          { data: sData, error: signalsError }
+        ] = await Promise.all([
+          supabase.from('etf_daily_data')
+            .select('*')
+            .in('etf_code', etfCodes)
+            .order('trade_date', { ascending: false }),
+          supabase.from('etf_indicators')
+            .select('*')
+            .in('etf_code', etfCodes)
+            .order('trade_date', { ascending: false }),
+          supabase.from('etf_claw_signals')
+            .select('*')
+            .in('etf_code', etfCodes)
+            .order('signal_date', { ascending: false })
+        ])
+
+        if (dailyError) {
+          console.error('Daily data error:', dailyError)
+          throw dailyError
+        }
+        if (indicatorsError) {
+          console.error('Indicators error:', indicatorsError)
+          throw indicatorsError
+        }
+        if (signalsError) {
+          console.error('Signals error:', signalsError)
+          throw signalsError
+        }
+
+        dailyData = dData
+        indicators = iData
+        signals = sData
+
+        console.log('Daily data:', dailyData)
+        console.log('Indicators:', indicators)
+        console.log('Signals:', signals)
+      }
 
       const latestDaily = new Map<string, EtfDailyData>()
       const latestIndicators = new Map<string, EtfIndicators>()
@@ -92,6 +132,8 @@ export function useEtfData() {
         latest_signal: latestSignal.get(e.etf_code)
       })) || []
 
+      console.log('Final ETFs with data:', etfsWithData)
+
       setEtfs(etfsWithData)
       setChinaIndicators(chinaInd || [])
       setFredIndicators(fredInd || [])
@@ -101,6 +143,7 @@ export function useEtfData() {
       }
     } catch (error) {
       console.error('Error fetching ETF data:', error)
+      setError(error instanceof Error ? error.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -112,6 +155,7 @@ export function useEtfData() {
     fredIndicators,
     latestDate,
     loading,
+    error,
     refresh: fetchAllData
   }
 }
