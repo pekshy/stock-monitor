@@ -145,6 +145,7 @@ const EtfBoard: React.FC = () => {
               <thead>
                 <tr className="border-b-2 border-gray-200">
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">ETF名称</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700">日期</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">最新价</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">涨跌</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">MA5</th>
@@ -170,6 +171,15 @@ const EtfBoard: React.FC = () => {
                         {etf.tracking_index_name && ` · ${etf.tracking_index_name}`}
                         {etf.category && ` [${etf.category}]`}
                       </div>
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      {etf.latest_daily?.trade_date ? (
+                        <div className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs">
+                          {formatDate(etf.latest_daily.trade_date)}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">--</span>
+                      )}
                     </td>
                     <td className="text-right py-4 px-4 text-gray-900">
                       {etf.latest_daily?.close !== null && etf.latest_daily?.close !== undefined
