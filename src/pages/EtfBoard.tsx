@@ -164,18 +164,12 @@ const EtfBoard: React.FC = () => {
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
                     <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className="font-semibold text-gray-900">{etf.name || etf.symbol}</div>
-                        {etf.latest_daily?.trade_date && (
-                          <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md text-xs">
-                            {formatDate(etf.latest_daily.trade_date)}
-                          </span>
-                        )}
-                      </div>
+                      <div className="font-semibold text-gray-900">{etf.name || etf.symbol}</div>
                       <div className="text-sm text-gray-500">
                         {etf.symbol}
                         {etf.tracking_index_name && ` · ${etf.tracking_index_name}`}
                         {etf.category && ` [${etf.category}]`}
+                        {etf.latest_daily?.trade_date && ` · ${formatDate(etf.latest_daily.trade_date)}`}
                       </div>
                     </td>
                     <td className="text-right py-4 px-4 text-gray-900">
