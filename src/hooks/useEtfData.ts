@@ -123,6 +123,15 @@ export function useEtfData() {
         }
       }
 
+      // 如果还没有日期，从宏观指标中获取
+      if (!latestDate) {
+        if (chinaData && chinaData.length > 0) {
+          setLatestDate(chinaData[0].date)
+        } else if (fredData && fredData.length > 0) {
+          setLatestDate(fredData[0].date)
+        }
+      }
+
       setEtfs(etfsWithData)
       console.log('完成！ETF列表:', etfsWithData)
 

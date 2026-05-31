@@ -136,6 +136,7 @@ const EtfBoard: React.FC = () => {
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">MA20</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700">RSI</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700">操作信号</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">触发信号</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,6 +187,24 @@ const EtfBoard: React.FC = () => {
                       ) : (
                         <span className="text-gray-400 text-sm">--</span>
                       )}
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex flex-col gap-1">
+                        {etf.latest_signal?.buy_signals && etf.latest_signal.buy_signals.length > 0 && (
+                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                            买入信号: {etf.latest_signal.buy_signals}
+                          </div>
+                        )}
+                        {etf.latest_signal?.sell_signals && etf.latest_signal.sell_signals.length > 0 && (
+                          <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                            卖出信号: {etf.latest_signal.sell_signals}
+                          </div>
+                        )}
+                        {(!etf.latest_signal?.buy_signals || etf.latest_signal.buy_signals.length === 0) &&
+                         (!etf.latest_signal?.sell_signals || etf.latest_signal.sell_signals.length === 0) && (
+                          <span className="text-gray-400 text-sm">--</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
