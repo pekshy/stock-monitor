@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
 import {
-  EtfInfo,
   EtfDailyData,
   EtfIndicators,
   EtfClawSignal,

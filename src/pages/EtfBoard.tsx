@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, TrendingUp, TrendingDown, Target, DollarSign, Globe, BarChart2, Activity, Zap, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Target, Globe, BarChart2, Activity } from 'lucide-react'
 import { useEtfData } from '../hooks/useEtfData'
 import { formatPercent, formatValuation, getChangeColor } from '../utils/formatters'
 
