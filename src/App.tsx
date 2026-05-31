@@ -4,6 +4,7 @@ import Header from './components/Header'
 import Home from './pages/Home'
 import IndustryDetail from './pages/IndustryDetail'
 import StockDetail from './pages/StockDetail'
+import EtfBoard from './pages/EtfBoard'
 
 function AppContent() {
   const { latestDate } = useStockContext()
@@ -16,6 +17,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/industry/:industry1" element={<IndustryDetail />} />
           <Route path="/stock/:stockCode" element={<StockDetail />} />
+          <Route path="/etf" element={<EtfBoard />} />
         </Routes>
       </main>
     </div>

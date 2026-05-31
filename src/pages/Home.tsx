@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, DollarSign } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
 import IndustryCard from '../components/IndustryCard'
@@ -109,7 +110,16 @@ const Home: React.FC = () => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">行业概览</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-bold text-gray-900">行业概览</h2>
+          <Link
+            to="/etf"
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            <DollarSign className="h-4 w-4" />
+            ETF看板
+          </Link>
+        </div>
         <button
           onClick={refresh}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-800 transition-colors"
