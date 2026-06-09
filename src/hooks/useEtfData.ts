@@ -302,10 +302,12 @@ export function useEtfData() {
       console.log('Fed forecasts:', fedForecastData)
 
       // 4. 分组为时序数据
-      setChinaIndicatorSeries(groupIndicatorsBySeries(chinaData || []))
+      const chinaSeries = groupIndicatorsBySeries(chinaData || [])
+      setChinaIndicatorSeries(chinaSeries)
       setGlobalIndicatorSeries(mergeIndicatorSeries(
         groupIndicatorsBySeries(fredData || []),
-        groupIndicatorsBySeries(marketData || [])
+        groupIndicatorsBySeries(marketData || []),
+        chinaSeries
       ))
 
       // 4. 如果有ETF，获取它们的数据
