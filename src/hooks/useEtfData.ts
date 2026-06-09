@@ -306,35 +306,10 @@ export function useEtfData() {
       console.log('Fed forecasts:', fedForecastData)
 
       // 4. 分组为时序数据
-      // 兼容宽表结构：如果 chinaData 中的记录没有 indicator_id 字段，
-      // 则把各数字列视为独立指标
-      const normalizeChinaData = (rows: any[]): any[] => {
-        if (!rows || rows.length === 0) return []
-        // 如果第一条记录已有 indicator_id，视为长表，直接用
-        if (rows[0].indicator_id && rows[0].value !== undefined) return rows
-        // 否则视为宽表：展开各数字列为独立指标
-        const expanded: any[] = []
-        const reservedKeys = new Set(['id', 'date', 'created_at', 'updated_at', 'indicator_id', 'value'])
-        rows.forEach(row => {
-          Object.keys(row).forEach(key => {
-            if (reservedKeys.has(key)) return
-            const val = row[key]
-            if (val === null || val === undefined) return
-            if (typeof val === 'number' || (!isNaN(parseFloat(val)) && isFinite(val))) {
-              expanded.push({
-                indicator_id: key,
-                date: row.date,
-                value: typeof val === 'number' ? val : parseFloat(val),
-                updated_at: row.updated_at
-              })
-            }
-          })
-        })
-        return expanded
-      }
-
-      const normalizedChinaData = normalizeChinaData(chinaData || [])
-      const chinaSeries = groupIndicatorsBySeries(normalizedChinaData)
+      // china_indicators 为长表结构（indicator_id + date + value）
+      // 例如 indicator_id='cny_exchange_rate' 表示人民币汇率
+      const chinaSeries = groupIndicatorsBySeries(chinaData || [])
+      console.log('China indicator series (IDs):', chinaSeries.map(s => s.indicator_id))
       setChinaIndicatorSeries(chinaSeries)
       setGlobalIndicatorSeries(mergeIndicatorSeries(
         groupIndicatorsBySeries(fredData || []),
