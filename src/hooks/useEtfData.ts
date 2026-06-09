@@ -11,8 +11,7 @@ import {
   MarketIndicator,
   EtfWithData,
   IndicatorSeries,
-  IndicatorCategory,
-  FedForecast
+  IndicatorCategory
 } from '../types'
 
 type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator
@@ -243,7 +242,6 @@ export function useEtfData() {
   const [chinaIndicators, setChinaIndicators] = useState<ChinaIndicator[]>([])
   const [fredIndicators, setFredIndicators] = useState<FredIndicator[]>([])
   const [marketIndicators, setMarketIndicators] = useState<MarketIndicator[]>([])
-  const [fedForecasts, setFedForecasts] = useState<FedForecast[]>([])
   const [chinaIndicatorSeries, setChinaIndicatorSeries] = useState<IndicatorSeries[]>([])
   const [globalIndicatorSeries, setGlobalIndicatorSeries] = useState<IndicatorSeries[]>([])
   const [latestDate, setLatestDate] = useState<string | null>(null)
@@ -302,7 +300,6 @@ export function useEtfData() {
         .order('date', { ascending: false })
       if (fedForecastErr) throw fedForecastErr
       console.log('Fed forecasts:', fedForecastData)
-      setFedForecasts(fedForecastData || [])
 
       // 4. 分组为时序数据
       setChinaIndicatorSeries(groupIndicatorsBySeries(chinaData || []))
