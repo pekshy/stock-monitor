@@ -197,3 +197,11 @@ export interface IndicatorSeries {
   latest_date: string | null
   history: { date: string; value: number }[]
 }
+
+export interface IndicatorCategory {
+  id: string             // 类别内部标识
+  label: string        // 类别显示名
+  color: string       // 图表/标签颜色
+  members: IndicatorSeries[]  // 该类下的所有指标时序数据
+  default_indicator_id: string | null  // 默认展示的 indicator_id
+}

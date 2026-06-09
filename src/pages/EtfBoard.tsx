@@ -1,39 +1,18 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Target, Globe, Activity, TrendingUp } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Target, Globe, Activity, ChevronDown } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { useEtfData, PRIORITY_INDICATORS } from '../hooks/useEtfData'
-import { IndicatorSeries } from '../types'
+import {
+  useEtfData,
+  GLOBAL_CATEGORIES,
+  CHINA_CATEGORIES,
+  buildIndicatorCategories
+} from '../hooks/useEtfData'
+import { IndicatorSeries, IndicatorCategory } from '../types'
 import { formatPercent, getChangeColor } from '../utils/formatters'
 
-// 指标显示名称映射
-const INDICATOR_LABELS: Record<string, string> = {
-  'DXY': '美元指数 (DXY)',
-  'DTWEXBGS': '美元指数 (广义)',
-  'DTWEXM': '美元指数 (主要货币)',
-  'DTWEXO': '美元指数 (其他重要贸易伙伴)',
-  'DGS1MO': '1个月美国国债收益率',
-  'DGS3MO': '3个月美国国债收益率',
-  'DGS6MO': '6个月美国国债收益率',
-  'DGS1': '1年期美国国债收益率',
-  'DGS2': '2年期美国国债收益率',
-  'DGS5': '5年期美国国债收益率',
-  'DGS7': '7年期美国国债收益率',
-  'DGS10': '10年期美国国债收益率',
-  'DGS20': '20年期美国国债收益率',
-  'DGS30': '30年期美国国债收益率',
-  'GOLD': '黄金价格',
-  'XAU': '黄金 (XAU)',
-  'SILVER': '白银价格',
-  'XAG': '白银 (XAG)',
-  'BTC': '比特币 (BTC)',
-  'BITCOIN': '比特币',
-  'BTCUSD': '比特币/美元'
-}
+// --- 通用辅助函数 ---
 
-const getIndicatorLabel = (id: string) => INDICATOR_LABELS[id] || id
-
-// 格式化日期，仅显示 月-日
 const formatShortDate = (dateStr: string) => {
   const date = new Date(dateStr)
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -41,144 +20,256 @@ const formatShortDate = (dateStr: string) => {
   return `${month}-${day}`
 }
 
-// 格式化数值显示
+// 根据 indicator_id 判断格式化规则
 const formatValue = (value: number | null, indicatorId: string): string => {
   if (value === null || value === undefined) return '--'
-  // 国债收益率使用百分比显示
-  if (indicatorId.startsWith('DGS')) {
+  const u = indicatorId.toUpperCase()
+  // 国债收益率
+  if (u.startsWith('DGS') || u === 'FED.FUNDS.RATE' || u === 'FED_FUNDS_RATE') {
     return value.toFixed(2) + '%'
   }
   // 美元指数
-  if (indicatorId.startsWith('DXY') || indicatorId.startsWith('DTWEX')) {
+  if (u === 'DXY' || u.startsWith('DTWEX')) {
     return value.toFixed(2)
   }
   // 黄金
-  if (indicatorId === 'GOLD' || indicatorId === 'XAU') {
+  if (u === 'GOLD' || u === 'XAU') {
     return '$' + value.toLocaleString(undefined, { maximumFractionDigits: 2 })
   }
   // 白银
-  if (indicatorId === 'SILVER' || indicatorId === 'XAG') {
+  if (u === 'SILVER' || u === 'XAG') {
     return '$' + value.toFixed(2)
   }
   // 比特币
-  if (indicatorId === 'BTC' || indicatorId === 'BITCOIN' || indicatorId === 'BTCUSD') {
+  if (u.includes('BTC') || u.includes('BITCOIN')) {
     return '$' + value.toLocaleString(undefined, { maximumFractionDigits: 2 })
+  }
+  // 油价
+  if (u.includes('CRUDE') || u.includes('BRENT') || u.includes('WTI') || u.includes('OIL')) {
+    return '$' + value.toFixed(2)
   }
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 
-// 为图表颜色分组：利率一组、美元指数一组、黄金/白银一组、比特币一组
-const getSeriesColor = (indicatorId: string): string => {
-  if (indicatorId.startsWith('DGS')) return '#f59e0b'
-  if (indicatorId.startsWith('DXY') || indicatorId.startsWith('DTWEX')) return '#3b82f6'
-  if (indicatorId === 'GOLD' || indicatorId === 'XAU') return '#eab308'
-  if (indicatorId === 'SILVER' || indicatorId === 'XAG') return '#94a3b8'
-  if (indicatorId === 'BTC' || indicatorId === 'BITCOIN' || indicatorId === 'BTCUSD') return '#f97316'
-  return '#10b981'
+const getIndicatorLabel = (id: string): string => {
+  const map: Record<string, string> = {
+    'DXY': '美元指数',
+    'DTWEXBGS': '美元指数（广义）',
+    'DTWEXM': '美元指数（主要货币）',
+    'DTWEXO': '美元指数（其他贸易伙伴）',
+    'DGS1MO': '1个月美债收益率',
+    'DGS3MO': '3个月美债收益率',
+    'DGS6MO': '6个月美债收益率',
+    'DGS1': '1年期美债收益率',
+    'DGS2': '2年期美债收益率',
+    'DGS5': '5年期美债收益率',
+    'DGS7': '7年期美债收益率',
+    'DGS10': '10年期美债收益率',
+    'DGS20': '20年期美债收益率',
+    'DGS30': '30年期美债收益率',
+    'FED.FUNDS.RATE': '联邦基金利率',
+    'FED_FUNDS_RATE': '联邦基金利率',
+    'GOLD': '黄金',
+    'XAU': '黄金 (XAU)',
+    'SILVER': '白银',
+    'XAG': '白银 (XAG)',
+    'BITCOIN': '比特币',
+    'BTC': '比特币',
+    'BTCUSD': '比特币/美元',
+    'BRENT.CRUDE': '布伦特原油',
+    'CRUDE.OIL': 'WTI原油',
+    'SHIBOR': 'SHIBOR',
+    'LPR': 'LPR',
+    'MONEY.SUPPLY': '货币供给',
+    'CPI': 'CPI',
+    'CORE.CPI': '核心CPI',
+    'PPI': 'PPI',
+    'GDP': 'GDP',
+    'DURABLE.ORDERS': '耐用品订单',
+    'CAPACITY.UTILIZATION': '产能利用率',
+    'TRADE.BALANCE': '贸易差额',
+    'SOCIAL.FINANCING': '社融规模'
+  }
+  return map[id] || id
 }
 
-// 单个指标曲线图组件
-interface IndicatorChartProps {
+// --- 单个指标曲线图（迷你） ---
+
+interface MiniChartProps {
   series: IndicatorSeries
   color: string
 }
 
-const IndicatorChart: React.FC<IndicatorChartProps> = ({ series, color }) => {
-  // 最多展示近365个数据点，避免图表过于密集
+const MiniChart: React.FC<MiniChartProps> = ({ series, color }) => {
   const data = series.history.slice(-365).map(h => ({
     date: formatShortDate(h.date),
     value: h.value
   }))
 
+  return (
+    <div className="h-16 w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 2, right: 4, left: 0, bottom: 2 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+          <XAxis
+            dataKey="date"
+            tick={false}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            tick={false}
+            axisLine={false}
+            tickLine={false}
+            domain={['auto', 'auto']}
+            width={0}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#fff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              fontSize: '12px',
+              padding: '6px 10px'
+            }}
+            formatter={(value: number) => [formatValue(value, series.indicator_id), '']}
+            labelFormatter={(label) => label}
+          />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke={color}
+            strokeWidth={1.5}
+            dot={false}
+            activeDot={{ r: 3, stroke: color, strokeWidth: 1, fill: '#fff' }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+// --- 单个类别卡片（含下拉切换） ---
+
+interface CategoryCardProps {
+  category: IndicatorCategory
+}
+
+const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
+  // 初始化选中的 indicator：使用 category.default_indicator_id
+  const [selectedId, setSelectedId] = useState<string | null>(
+    category.default_indicator_id || category.members[0]?.indicator_id || null
+  )
+
+  const selectedSeries = useMemo(
+    () => category.members.find(m => m.indicator_id === selectedId) || category.members[0],
+    [category, selectedId]
+  )
+
+  if (!selectedSeries) return null
+
   // 计算最新值变化
   const changeInfo = (() => {
-    if (series.history.length < 2) return { change: 0, changePct: 0 }
-    const latest = series.history[series.history.length - 1].value
-    const prev = series.history[series.history.length - 2].value
+    if (selectedSeries.history.length < 2) return { change: 0, changePct: 0 }
+    const latest = selectedSeries.history[selectedSeries.history.length - 1].value
+    const prev = selectedSeries.history[selectedSeries.history.length - 2].value
     const change = latest - prev
     const changePct = prev !== 0 ? (change / prev) * 100 : 0
-    return { change, changePct, latest }
+    return { change, changePct }
   })()
 
-  const changeClass = changeInfo.changePct > 0 ? 'text-red-600' : changeInfo.changePct < 0 ? 'text-green-600' : 'text-gray-600'
-  const arrowClass = changeInfo.changePct > 0 ? 'text-red-600' : changeInfo.changePct < 0 ? 'text-green-600' : 'text-gray-600'
+  const changeClass = changeInfo.changePct > 0
+    ? 'text-red-600'
+    : changeInfo.changePct < 0
+    ? 'text-green-600'
+    : 'text-gray-600'
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-3">
+    <div
+      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
+      style={{ borderTop: `3px solid ${category.color}` }}
+    >
+      {/* 顶部：类别名 + 下拉切换 */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-sm font-bold text-gray-800" style={{ color: category.color }}>
+          {category.label}
+        </div>
+        {category.members.length > 1 && (
+          <div className="relative">
+            <select
+              value={selectedSeries.indicator_id}
+              onChange={(e) => setSelectedId(e.target.value)}
+              className="appearance-none bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-medium py-1 pl-2 pr-6 rounded-md cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-300 transition-colors"
+            >
+              {category.members.map((m) => (
+                <option key={m.indicator_id} value={m.indicator_id}>
+                  {getIndicatorLabel(m.indicator_id)}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-500 pointer-events-none" />
+          </div>
+        )}
+      </div>
+
+      {/* 指标名 + 最新值 */}
+      <div className="flex items-start justify-between mb-2">
         <div>
           <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-            {series.indicator_id}
+            {selectedSeries.indicator_id}
           </div>
-          <div className="text-sm font-semibold text-gray-800 mt-0.5">
-            {getIndicatorLabel(series.indicator_id)}
+          <div className="text-xs text-gray-600 mt-0.5">
+            {getIndicatorLabel(selectedSeries.indicator_id)}
           </div>
         </div>
         <div className="text-right">
           <div className="text-lg font-bold text-gray-900">
-            {formatValue(series.latest_value, series.indicator_id)}
+            {formatValue(selectedSeries.latest_value, selectedSeries.indicator_id)}
           </div>
           {changeInfo.changePct !== 0 && (
-            <div className={`text-xs font-medium ${changeClass} flex items-center justify-end gap-0.5 mt-0.5`}>
-              <TrendingUp className={`h-3 w-3 ${arrowClass}`} style={{ transform: changeInfo.changePct < 0 ? 'rotate(180deg)' : 'none' }} />
+            <div className={`text-xs font-medium ${changeClass} mt-0.5`}>
               {changeInfo.changePct > 0 ? '+' : ''}{changeInfo.changePct.toFixed(2)}%
             </div>
           )}
         </div>
       </div>
 
-      <div className="h-24">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 2, right: 4, left: 0, bottom: 2 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-            <XAxis
-              dataKey="date"
-              tick={false}
-              axisLine={false}
-              tickLine={false}
-              minTickGap={10}
-            />
-            <YAxis
-              tick={false}
-              axisLine={false}
-              tickLine={false}
-              domain={['auto', 'auto']}
-              width={0}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#fff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '12px',
-                padding: '8px 12px'
-              }}
-              formatter={(value: number) => [formatValue(value, series.indicator_id), '']}
-              labelFormatter={(label) => label}
-            />
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke={color}
-              strokeWidth={1.5}
-              dot={false}
-              activeDot={{ r: 3, stroke: color, strokeWidth: 1, fill: '#fff' }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {/* 曲线图 */}
+      <MiniChart series={selectedSeries} color={category.color} />
 
-      {series.latest_date && (
-        <div className="text-xs text-gray-400 mt-2 text-right">
-          更新于 {series.latest_date}
+      {/* 更新时间 */}
+      {selectedSeries.latest_date && (
+        <div className="text-xs text-gray-400 mt-1 text-right">
+          更新于 {selectedSeries.latest_date}
         </div>
       )}
     </div>
   )
 }
 
+// --- 主组件 ---
+
 const EtfBoard: React.FC = () => {
-  const { etfs, chinaIndicatorSeries, globalIndicatorSeries, latestDate, loading, error, refresh } = useEtfData()
+  const {
+    etfs,
+    chinaIndicatorSeries,
+    globalIndicatorSeries,
+    latestDate,
+    loading,
+    error,
+    refresh
+  } = useEtfData()
+
+  // 构建分类
+  const globalCategories = useMemo(
+    () => buildIndicatorCategories(globalIndicatorSeries, GLOBAL_CATEGORIES),
+    [globalIndicatorSeries]
+  )
+
+  const chinaCategories = useMemo(
+    () => buildIndicatorCategories(chinaIndicatorSeries, CHINA_CATEGORIES),
+    [chinaIndicatorSeries]
+  )
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -216,22 +307,6 @@ const EtfBoard: React.FC = () => {
     return 'bg-gray-100 text-gray-600'
   }
 
-  // 从全球指标中筛选优先级高的指标（美元指数、美债利率、黄金、白银、比特币）
-  const priorityIndicatorIds = PRIORITY_INDICATORS.map(id => id.toUpperCase())
-
-  // 优先展示优先级高的指标；若优先级指标未找到，则按字母排序展示其他
-  const sortedGlobalSeries = [...globalIndicatorSeries].sort((a, b) => {
-    const aPriority = priorityIndicatorIds.indexOf(a.indicator_id.toUpperCase())
-    const bPriority = priorityIndicatorIds.indexOf(b.indicator_id.toUpperCase())
-    if (aPriority === -1 && bPriority === -1) return a.indicator_id.localeCompare(b.indicator_id)
-    if (aPriority === -1) return 1
-    if (bPriority === -1) return -1
-    return aPriority - bPriority
-  })
-
-  const displayGlobalSeries = sortedGlobalSeries.slice(0, 12)
-  const displayChinaSeries = chinaIndicatorSeries.slice(0, 6)
-
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -256,6 +331,7 @@ const EtfBoard: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      {/* 顶部导航 */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Link to="/" className="text-gray-500 hover:text-gray-700 transition-colors">
@@ -277,20 +353,21 @@ const EtfBoard: React.FC = () => {
         </button>
       </div>
 
-      {/* 全球市场指标曲线模块 */}
+      {/* 全球市场指标 —— 分类卡片 + 下拉切换 */}
       <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Activity className="h-5 w-5 text-blue-600" />
-          全球市场指标（美元指数、美债利率、黄金、白银、比特币）
-        </h2>
-        {displayGlobalSeries.length > 0 ? (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <Activity className="h-5 w-5 text-blue-600" />
+            全球市场指标
+          </h2>
+          <span className="text-xs text-gray-500">
+            共 {globalCategories.length} 个分类 · 每类默认展示 1 个指标，可切换查看
+          </span>
+        </div>
+        {globalCategories.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {displayGlobalSeries.map((series) => (
-              <IndicatorChart
-                key={series.indicator_id}
-                series={series}
-                color={getSeriesColor(series.indicator_id)}
-              />
+            {globalCategories.map((category) => (
+              <CategoryCard key={category.id} category={category} />
             ))}
           </div>
         ) : (
@@ -298,20 +375,21 @@ const EtfBoard: React.FC = () => {
         )}
       </div>
 
-      {/* 中国宏观指标曲线模块 */}
+      {/* 中国宏观指标 —— 分类卡片 + 下拉切换 */}
       <div className="bg-gradient-to-br from-slate-50 to-red-50 rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Globe className="h-5 w-5 text-red-600" />
-          中国宏观指标
-        </h2>
-        {displayChinaSeries.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {displayChinaSeries.map((series) => (
-              <IndicatorChart
-                key={series.indicator_id}
-                series={series}
-                color="#10b981"
-              />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <Globe className="h-5 w-5 text-red-600" />
+            中国宏观指标
+          </h2>
+          <span className="text-xs text-gray-500">
+            共 {chinaCategories.length} 个分类 · 每类默认展示 1 个指标，可切换查看
+          </span>
+        </div>
+        {chinaCategories.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {chinaCategories.map((category) => (
+              <CategoryCard key={category.id} category={category} />
             ))}
           </div>
         ) : (

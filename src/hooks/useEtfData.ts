@@ -10,7 +10,8 @@ import {
   FredIndicator,
   MarketIndicator,
   EtfWithData,
-  IndicatorSeries
+  IndicatorSeries,
+  IndicatorCategory
 } from '../types'
 
 type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator
@@ -78,23 +79,193 @@ function mergeIndicatorSeries(...seriesList: IndicatorSeries[][]): IndicatorSeri
   return Array.from(merged.values())
 }
 
-// 定义优先展示的指标（美元指数、美债短期/中期/长期利率、黄金、白银、比特币）
-export const PRIORITY_INDICATORS = [
-  // 美元指数相关
-  'DXY', 'DTWEXBGS', 'DTWEXM', 'DTWEXO',
-  // 美债短期利率
-  'DGS1MO', 'DGS3MO', 'DGS6MO', 'DGS1',
-  // 美债中期利率
-  'DGS2', 'DGS5', 'DGS7',
-  // 美债长期利率
-  'DGS10', 'DGS20', 'DGS30',
-  // 黄金
-  'GOLD', 'XAU',
-  // 白银
-  'SILVER', 'XAG',
-  // 比特币
-  'BTC', 'BITCOIN', 'BTCUSD'
+// --- 指标分类系统 ---
+// 规则：匹配 indicator_id（大小写不敏感）进行归类。
+// 每类包含若干规则，任一命中即归属该类；命中多个时以第一个匹配类别为准。
+
+type CategoryRule = {
+  id: string            // 类别内部标识
+  label: string         // 界面显示名
+  color: string         // 图表颜色
+  matches: (id: string) => boolean
+  defaultIndicator?: string // 该类别默认展示的 indicator_id（优先级最高）
+}
+
+// 全球指标分类
+const GLOBAL_CATEGORIES: CategoryRule[] = [
+  {
+    id: 'dollar_index',
+    label: '美元指数',
+    color: '#2563eb',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'DXY' || u.startsWith('DTWEX') || u.includes('DOLLAR') || u.includes('USD')
+    },
+    defaultIndicator: 'DXY'
+  },
+  {
+    id: 'treasury_short',
+    label: '美债短期利率',
+    color: '#f59e0b',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'DGS1MO' || u === 'DGS3MO' || u === 'DGS6MO' || u === 'DGS1' || u === 'DGS1Y'
+    },
+    defaultIndicator: 'DGS3MO'
+  },
+  {
+    id: 'treasury_mid',
+    label: '美债中期利率',
+    color: '#ea580c',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'DGS2' || u === 'DGS5' || u === 'DGS7' || u === 'DGS2Y' || u === 'DGS5Y' || u === 'DGS7Y'
+    },
+    defaultIndicator: 'DGS5'
+  },
+  {
+    id: 'treasury_long',
+    label: '美债长期利率',
+    color: '#dc2626',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'DGS10' || u === 'DGS20' || u === 'DGS30' || u === 'DGS10Y' || u === 'DGS20Y' || u === 'DGS30Y'
+    },
+    defaultIndicator: 'DGS10'
+  },
+  {
+    id: 'fed_funds',
+    label: '美联储政策利率',
+    color: '#7c3aed',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('FED') || u.includes('FUNDS') || u.includes('FF')
+    },
+    defaultIndicator: 'FED.FUNDS.RATE'
+  },
+  {
+    id: 'precious_metals',
+    label: '贵金属（黄金/白银）',
+    color: '#ca8a04',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'GOLD' || u === 'XAU' || u === 'SILVER' || u === 'XAG' || u.includes('GOLD') || u.includes('SILVER')
+    },
+    defaultIndicator: 'GOLD'
+  },
+  {
+    id: 'commodities',
+    label: '大宗商品（能源等）',
+    color: '#16a34a',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('CRUDE') || u.includes('BRENT') || u.includes('OIL') || u.includes('WTI')
+    },
+    defaultIndicator: 'BRENT.CRUDE'
+  },
+  {
+    id: 'crypto',
+    label: '加密货币',
+    color: '#f97316',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('BTC') || u.includes('BITCOIN') || u.includes('ETH') || u.includes('ETHEREUM')
+    },
+    defaultIndicator: 'BITCOIN'
+  }
 ]
+
+// 中国宏观指标分类
+const CHINA_CATEGORIES: CategoryRule[] = [
+  {
+    id: 'interest_rate',
+    label: '货币/利率',
+    color: '#0891b2',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('SHIBOR') || u.includes('LPR') || u.includes('MONEY') || u.includes('SUPPLY') || u.includes('M1') || u.includes('M2')
+    },
+    defaultIndicator: 'SHIBOR'
+  },
+  {
+    id: 'inflation',
+    label: '物价/通胀',
+    color: '#dc2626',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('CPI') || u.includes('PPI') || u.includes('CORE')
+    },
+    defaultIndicator: 'CPI'
+  },
+  {
+    id: 'growth',
+    label: '经济增长/总需求',
+    color: '#7c3aed',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('GDP') || u.includes('DURABLE') || u.includes('CAPACITY') || u.includes('UTILIZATION')
+    },
+    defaultIndicator: 'GDP'
+  },
+  {
+    id: 'trade_finance',
+    label: '外贸/金融',
+    color: '#16a34a',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('TRADE') || u.includes('SOCIAL') || u.includes('FINANC') || u.includes('EXPORT') || u.includes('IMPORT')
+    },
+    defaultIndicator: 'SOCIAL.FINANCING'
+  }
+]
+
+// 根据 indicator_id 找分类
+function categorizeIndicator(id: string, categories: CategoryRule[]): CategoryRule | null {
+  for (const rule of categories) {
+    if (rule.matches(id)) return rule
+  }
+  return null
+}
+
+// 将 series 按类别分组，返回结构化的 IndicatorCategory[]
+function buildIndicatorCategories(
+  series: IndicatorSeries[],
+  categories: CategoryRule[]
+): IndicatorCategory[] {
+  return categories.map(rule => {
+    // 先找精确匹配 defaultIndicator
+    let memberSeries: IndicatorSeries[] = []
+    series.forEach(s => {
+      if (categorizeIndicator(s.indicator_id, [rule]) === rule) {
+        memberSeries.push(s)
+      }
+    })
+
+    // 按历史数据量（新鲜度）排序，优先选有数据的
+    memberSeries.sort((a, b) => b.history.length - a.history.length)
+
+    // 选中默认展示的 series：优先 defaultIndicator，否则选数据最多的
+    let defaultSelected: IndicatorSeries | undefined = memberSeries.find(
+      s => s.indicator_id.toUpperCase() === rule.defaultIndicator?.toUpperCase()
+    )
+    if (!defaultSelected) {
+      // 尝试模糊匹配
+      defaultSelected = memberSeries.find(s =>
+        rule.defaultIndicator && s.indicator_id.toUpperCase().includes(rule.defaultIndicator.toUpperCase())
+      ) || memberSeries[0]
+    }
+
+    return {
+      id: rule.id,
+      label: rule.label,
+      color: rule.color,
+      members: memberSeries,
+      default_indicator_id: defaultSelected?.indicator_id || memberSeries[0]?.indicator_id || null
+    }
+  }).filter(cat => cat.members.length > 0)
+}
+
+export { buildIndicatorCategories, GLOBAL_CATEGORIES, CHINA_CATEGORIES }
 
 export function useEtfData() {
   const [etfs, setEtfs] = useState<EtfWithData[]>([])
