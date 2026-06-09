@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Target, Globe, Activity } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Target, Activity } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
   useEtfData,
@@ -460,47 +460,28 @@ const EtfBoard: React.FC = () => {
         </button>
       </div>
 
-      {/* 全球市场指标 —— 分类卡片 + 下拉切换 */}
+      {/* 市场指标 —— 全球市场指标与中国宏观指标合并展示 */}
       <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Activity className="h-5 w-5 text-blue-600" />
-            全球市场指标
+            市场指标
           </h2>
           <span className="text-xs text-gray-500">
-            共 {globalCategories.length} 个分类 · 每类默认展示 1 个指标，可切换查看
+            共 {globalCategories.length + chinaCategories.length} 个分类 · 每类默认展示 1 个指标，可切换查看
           </span>
         </div>
-        {globalCategories.length > 0 ? (
+        {(globalCategories.length + chinaCategories.length) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {globalCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             ))}
-          </div>
-        ) : (
-          <div className="text-gray-500 text-center py-8">暂无全球市场指标数据</div>
-        )}
-      </div>
-
-      {/* 中国宏观指标 —— 分类卡片 + 下拉切换 */}
-      <div className="bg-gradient-to-br from-slate-50 to-red-50 rounded-xl shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <Globe className="h-5 w-5 text-red-600" />
-            中国宏观指标
-          </h2>
-          <span className="text-xs text-gray-500">
-            共 {chinaCategories.length} 个分类 · 每类默认展示 1 个指标，可切换查看
-          </span>
-        </div>
-        {chinaCategories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {chinaCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             ))}
           </div>
         ) : (
-          <div className="text-gray-500 text-center py-8">暂无中国宏观指标数据</div>
+          <div className="text-gray-500 text-center py-8">暂无指标数据</div>
         )}
       </div>
 
