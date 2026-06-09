@@ -15,9 +15,10 @@ import { formatPercent, getChangeColor } from '../utils/formatters'
 
 const formatShortDate = (dateStr: string) => {
   const date = new Date(dateStr)
+  const year = date.getFullYear().toString().slice(-2)
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
-  return `${month}-${day}`
+  return `${year}/${month}/${day}`
 }
 
 // 根据 indicator_id 判断格式化规则
@@ -25,11 +26,17 @@ const formatValue = (value: number | null, indicatorId: string): string => {
   if (value === null || value === undefined) return '--'
   const u = indicatorId.toUpperCase()
   // 国债收益率
-  if (u.startsWith('DGS') || u === 'FED.FUNDS.RATE' || u === 'FED_FUNDS_RATE') {
+  if (u.startsWith('DGS') || u.includes('TREASURY')) {
     return value.toFixed(2) + '%'
   }
+  // 美联储联邦基金利率（显示为区间格式）
+  if (u.includes('FED') || u.includes('FUNDS')) {
+    const lower = (value - 0.125).toFixed(2)
+    const upper = (value + 0.125).toFixed(2)
+    return `${lower}% - ${upper}%`
+  }
   // 美元指数
-  if (u === 'DXY' || u.startsWith('DTWEX')) {
+  if (u === 'DXY' || u.startsWith('DTWEX') || u === 'DOLLAR_INDEX') {
     return value.toFixed(2)
   }
   // 黄金
@@ -109,6 +116,29 @@ const getIndicatorLabel = (id: string): string => {
     'SOCIAL.FINANCING': '社融规模'
   }
   return map[id] || id
+}
+
+// 计算金银比值辅助函数
+function calculateGoldSilverRatio(seriesList: IndicatorSeries[]): number | null {
+  var gold = null
+  var silver = null
+  
+  for (var i = 0; i < seriesList.length; i++) {
+    var s = seriesList[i]
+    var upperId = s.indicator_id.toUpperCase()
+    if (upperId.indexOf('GOLD') >= 0 || upperId === 'XAU') {
+      gold = s
+    }
+    if (upperId.indexOf('SILVER') >= 0 || upperId === 'XAG') {
+      silver = s
+    }
+  }
+  
+  if (!gold || !gold.latest_value || !silver || !silver.latest_value || silver.latest_value === 0) {
+    return null
+  }
+  
+  return gold.latest_value / silver.latest_value
 }
 
 // --- 多指标曲线图（支持叠加展示） ---
@@ -194,11 +224,8 @@ interface CategoryCardProps {
 }
 
 const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
-  // 初始化选中的 indicators：默认选中全部（如果少于等于3个），否则只选默认的
+  // 初始化选中的 indicators：默认只选中一个（默认指标），点击标签可切换
   const [selectedIds, setSelectedIds] = useState<string[]>(() => {
-    if (category.members.length <= 3) {
-      return category.members.map(m => m.indicator_id)
-    }
     const defaultId = category.default_indicator_id || category.members[0]?.indicator_id
     return defaultId ? [defaultId] : []
   })
@@ -221,6 +248,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
       return [...prev, id]
     })
   }
+
+  // 计算金银比值（仅在贵金属类别且同时有黄金和白银时显示）
+  const goldSilverRatio = category.id === 'precious_metals' ? calculateGoldSilverRatio(selectedSeries) : null
 
   return (
     <div
@@ -291,6 +321,24 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
             </div>
           )
         })}
+        
+        {/* 金银比值 */}
+        {goldSilverRatio !== null && (
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100 mt-2">
+            <div>
+              <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">GOLD/SILVER RATIO</div>
+              <div className="text-xs text-gray-600">金银价格比值</div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-bold text-purple-600">
+                {goldSilverRatio.toFixed(2)}
+              </div>
+              <div className="text-xs text-gray-500">
+                1盎司黄金 = {goldSilverRatio.toFixed(1)}盎司白银
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 多指标叠加曲线图 */}

@@ -11,7 +11,8 @@ import {
   MarketIndicator,
   EtfWithData,
   IndicatorSeries,
-  IndicatorCategory
+  IndicatorCategory,
+  FedForecast
 } from '../types'
 
 type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator
@@ -104,35 +105,12 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     defaultIndicator: 'DXY'
   },
   {
-    id: 'treasury_short',
-    label: '美债短期利率',
+    id: 'treasury_yield_curve',
+    label: '美债收益率曲线',
     color: '#f59e0b',
     matches: (id) => {
       const u = id.toUpperCase()
-      return u === 'DGS1MO' || u === 'DGS3MO' || u === 'DGS6MO' || u === 'DGS1' || u === 'DGS1Y' ||
-             u.includes('TREASURY_1M') || u.includes('TREASURY_3M') || u.includes('TREASURY_6M') || u.includes('TREASURY_1Y')
-    },
-    defaultIndicator: 'treasury_3m'
-  },
-  {
-    id: 'treasury_mid',
-    label: '美债中期利率',
-    color: '#ea580c',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u === 'DGS2' || u === 'DGS5' || u === 'DGS7' || u === 'DGS2Y' || u === 'DGS5Y' || u === 'DGS7Y' ||
-             u.includes('TREASURY_2Y') || u.includes('TREASURY_5Y') || u.includes('TREASURY_7Y')
-    },
-    defaultIndicator: 'treasury_2y'
-  },
-  {
-    id: 'treasury_long',
-    label: '美债长期利率',
-    color: '#dc2626',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u === 'DGS10' || u === 'DGS20' || u === 'DGS30' || u === 'DGS10Y' || u === 'DGS20Y' || u === 'DGS30Y' ||
-             u.includes('TREASURY_10Y') || u.includes('TREASURY_20Y') || u.includes('TREASURY_30Y')
+      return u.startsWith('DGS') || u.includes('TREASURY_')
     },
     defaultIndicator: 'treasury_10y'
   },
@@ -209,26 +187,6 @@ const CHINA_CATEGORIES: CategoryRule[] = [
       return u.includes('CPI') || u.includes('PPI') || u.includes('CORE')
     },
     defaultIndicator: 'CPI'
-  },
-  {
-    id: 'growth',
-    label: '经济增长/总需求',
-    color: '#7c3aed',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u.includes('GDP') || u.includes('DURABLE') || u.includes('CAPACITY') || u.includes('UTILIZATION')
-    },
-    defaultIndicator: 'GDP'
-  },
-  {
-    id: 'trade_finance',
-    label: '外贸/金融',
-    color: '#16a34a',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u.includes('TRADE') || u.includes('SOCIAL') || u.includes('FINANC') || u.includes('EXPORT') || u.includes('IMPORT')
-    },
-    defaultIndicator: 'SOCIAL.FINANCING'
   }
 ]
 
@@ -285,6 +243,7 @@ export function useEtfData() {
   const [chinaIndicators, setChinaIndicators] = useState<ChinaIndicator[]>([])
   const [fredIndicators, setFredIndicators] = useState<FredIndicator[]>([])
   const [marketIndicators, setMarketIndicators] = useState<MarketIndicator[]>([])
+  const [fedForecasts, setFedForecasts] = useState<FedForecast[]>([])
   const [chinaIndicatorSeries, setChinaIndicatorSeries] = useState<IndicatorSeries[]>([])
   const [globalIndicatorSeries, setGlobalIndicatorSeries] = useState<IndicatorSeries[]>([])
   const [latestDate, setLatestDate] = useState<string | null>(null)
@@ -335,6 +294,15 @@ export function useEtfData() {
       if (marketErr) throw marketErr
       console.log('Market indicators:', marketData)
       setMarketIndicators(marketData || [])
+
+      // 3.6 获取美联储利率预测数据
+      const { data: fedForecastData, error: fedForecastErr } = await supabase
+        .from('fed_forecast')
+        .select('*')
+        .order('date', { ascending: false })
+      if (fedForecastErr) throw fedForecastErr
+      console.log('Fed forecasts:', fedForecastData)
+      setFedForecasts(fedForecastData || [])
 
       // 4. 分组为时序数据
       setChinaIndicatorSeries(groupIndicatorsBySeries(chinaData || []))

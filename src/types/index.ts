@@ -198,6 +198,14 @@ export interface IndicatorSeries {
   history: { date: string; value: number }[]
 }
 
+export interface FedForecast {
+  id: number
+  indicator_id: string
+  date: string
+  value: string
+  updated_at: string | null
+}
+
 export interface IndicatorCategory {
   id: string             // 类别内部标识
   label: string        // 类别显示名
