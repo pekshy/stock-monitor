@@ -114,16 +114,6 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     defaultIndicator: 'treasury_10y'
   },
   {
-    id: 'fed_funds',
-    label: '美联储政策利率',
-    color: '#7c3aed',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u.includes('FED') || u.includes('FUNDS') || u.includes('FF')
-    },
-    defaultIndicator: 'FED.FUNDS.RATE'
-  },
-  {
     id: 'precious_metals',
     label: '贵金属（黄金/白银）',
     color: '#ca8a04',

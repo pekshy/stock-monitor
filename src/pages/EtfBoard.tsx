@@ -29,12 +29,6 @@ const formatValue = (value: number | null, indicatorId: string): string => {
   if (u.startsWith('DGS') || u.includes('TREASURY')) {
     return value.toFixed(2) + '%'
   }
-  // 美联储联邦基金利率（显示为区间格式）
-  if (u.includes('FED') || u.includes('FUNDS')) {
-    const lower = (value - 0.125).toFixed(2)
-    const upper = (value + 0.125).toFixed(2)
-    return `${lower}% - ${upper}%`
-  }
   // 美元指数
   if (u === 'DXY' || u.startsWith('DTWEX') || u === 'DOLLAR_INDEX') {
     return value.toFixed(2)
@@ -55,6 +49,10 @@ const formatValue = (value: number | null, indicatorId: string): string => {
   if (u.includes('CRUDE') || u.includes('BRENT') || u.includes('WTI') || u.includes('OIL')) {
     return '$' + value.toFixed(2)
   }
+  // 人民币汇率
+  if (u.includes('CNY') || u.includes('EXCHANGE') || u.includes('RMB')) {
+    return value.toFixed(4)
+  }
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 
@@ -69,24 +67,22 @@ const getIndicatorLabel = (id: string): string => {
     'DGS3MO': '3个月',
     'DGS6MO': '6个月',
     'DGS1': '1年',
-    'DGS2': '2年期美债收益率',
-    'DGS5': '5年期美债收益率',
-    'DGS7': '7年期美债收益率',
-    'DGS10': '10年期美债收益率',
-    'DGS20': '20年期美债收益率',
-    'DGS30': '30年期美债收益率',
-    'treasury_1m': '1个月美债收益率',
-    'treasury_3m': '3个月美债收益率',
-    'treasury_6m': '6个月美债收益率',
-    'treasury_1y': '1年期美债收益率',
-    'treasury_2y': '2年期美债收益率',
-    'treasury_5y': '5年期美债收益率',
-    'treasury_7y': '7年期美债收益率',
-    'treasury_10y': '10年期美债收益率',
-    'treasury_20y': '20年期美债收益率',
-    'treasury_30y': '30年期美债收益率',
-    'FED.FUNDS.RATE': '联邦基金利率',
-    'FED_FUNDS_RATE': '联邦基金利率',
+    'DGS2': '2年',
+    'DGS5': '5年',
+    'DGS7': '7年',
+    'DGS10': '10年',
+    'DGS20': '20年',
+    'DGS30': '30年',
+    'treasury_1m': '1个月',
+    'treasury_3m': '3个月',
+    'treasury_6m': '6个月',
+    'treasury_1y': '1年',
+    'treasury_2y': '2年',
+    'treasury_5y': '5年',
+    'treasury_7y': '7年',
+    'treasury_10y': '10年',
+    'treasury_20y': '20年',
+    'treasury_30y': '30年',
     'GOLD': '黄金',
     'XAU': '黄金 (XAU)',
     'SILVER': '白银',
@@ -152,7 +148,7 @@ interface MultiChartProps {
   days?: number
 }
 
-const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor, days = 365 }) => {
+const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor, days = 90 }) => {
   // 合并所有时间序列数据，对齐日期
   const mergedData = useMemo(() => {
     const allDates = new Set<string>()
@@ -224,22 +220,12 @@ interface CategoryCardProps {
   category: IndicatorCategory
 }
 
-const TIME_RANGES = [
-  { label: '1M', days: 30 },
-  { label: '3M', days: 90 },
-  { label: '6M', days: 180 },
-  { label: '1Y', days: 365 },
-]
-
 const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
   // 初始化选中的 indicators：默认只选中一个（默认指标），点击标签可切换
   const [selectedIds, setSelectedIds] = useState<string[]>(() => {
     const defaultId = category.default_indicator_id || category.members[0]?.indicator_id
     return defaultId ? [defaultId] : []
   })
-
-  // 时间范围选择
-  const [selectedDays, setSelectedDays] = useState(365)
 
   const selectedSeries = useMemo(
     () => category.members.filter(m => selectedIds.includes(m.indicator_id)),
@@ -273,41 +259,23 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
         <div className="text-sm font-bold text-gray-800" style={{ color: category.color }}>
           {category.label}
         </div>
-        <div className="flex items-center gap-2">
-          {/* 时间范围选择器 */}
-          <div className="flex gap-0.5">
-            {TIME_RANGES.map(range => (
+        {category.members.length > 1 && (
+          <div className="flex flex-wrap gap-1">
+            {category.members.map((m) => (
               <button
-                key={range.days}
-                onClick={() => setSelectedDays(range.days)}
-                className={`px-1.5 py-0.5 text-xs rounded transition-colors ${
-                  selectedDays === range.days
-                    ? 'bg-gray-800 text-white'
+                key={m.indicator_id}
+                onClick={() => toggleIndicator(m.indicator_id)}
+                className={`px-2 py-0.5 text-xs rounded-md transition-colors ${
+                  selectedIds.includes(m.indicator_id)
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                {range.label}
+                {getIndicatorLabel(m.indicator_id)}
               </button>
             ))}
           </div>
-          {category.members.length > 1 && (
-            <div className="flex flex-wrap gap-1">
-              {category.members.map((m) => (
-                <button
-                  key={m.indicator_id}
-                  onClick={() => toggleIndicator(m.indicator_id)}
-                  className={`px-2 py-0.5 text-xs rounded-md transition-colors ${
-                    selectedIds.includes(m.indicator_id)
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {getIndicatorLabel(m.indicator_id)}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* 多个指标的最新值 */}
