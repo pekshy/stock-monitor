@@ -105,7 +105,7 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
   },
   {
     id: 'treasury_yield_curve',
-    label: '美债收益率曲线',
+    label: '美债收益率',
     color: '#f59e0b',
     matches: (id) => {
       const u = id.toUpperCase()
@@ -115,7 +115,7 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
   },
   {
     id: 'precious_metals',
-    label: '贵金属（黄金/白银）',
+    label: '贵金属',
     color: '#ca8a04',
     matches: (id) => {
       const u = id.toUpperCase()
@@ -125,7 +125,7 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
   },
   {
     id: 'commodities',
-    label: '大宗商品（能源等）',
+    label: '能源',
     color: '#16a34a',
     matches: (id) => {
       const u = id.toUpperCase()
@@ -135,7 +135,7 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
   },
   {
     id: 'crypto',
-    label: '加密货币',
+    label: '数字货币',
     color: '#f97316',
     matches: (id) => {
       const u = id.toUpperCase()
@@ -159,7 +159,7 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
 const CHINA_CATEGORIES: CategoryRule[] = [
   {
     id: 'interest_rate',
-    label: '货币/利率',
+    label: '货币',
     color: '#0891b2',
     matches: (id) => {
       const u = id.toUpperCase()
@@ -169,7 +169,7 @@ const CHINA_CATEGORIES: CategoryRule[] = [
   },
   {
     id: 'inflation',
-    label: '物价/通胀',
+    label: '通胀',
     color: '#dc2626',
     matches: (id) => {
       const u = id.toUpperCase()
