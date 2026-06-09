@@ -65,10 +65,10 @@ const getIndicatorLabel = (id: string): string => {
     'DTWEXM': '美元指数（主要货币）',
     'DTWEXO': '美元指数（其他贸易伙伴）',
     'dollar_index': '美元指数',
-    'DGS1MO': '1个月美债收益率',
-    'DGS3MO': '3个月美债收益率',
-    'DGS6MO': '6个月美债收益率',
-    'DGS1': '1年期美债收益率',
+    'DGS1MO': '1个月',
+    'DGS3MO': '3个月',
+    'DGS6MO': '6个月',
+    'DGS1': '1年',
     'DGS2': '2年期美债收益率',
     'DGS5': '5年期美债收益率',
     'DGS7': '7年期美债收益率',
@@ -149,16 +149,17 @@ const SERIES_COLORS = ['#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#7c3aed', '#
 interface MultiChartProps {
   seriesList: IndicatorSeries[]
   baseColor: string
+  days?: number
 }
 
-const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor }) => {
+const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor, days = 365 }) => {
   // 合并所有时间序列数据，对齐日期
   const mergedData = useMemo(() => {
     const allDates = new Set<string>()
     seriesList.forEach(s => s.history.forEach(h => allDates.add(h.date)))
     const sortedDates = Array.from(allDates).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
     
-    return sortedDates.slice(-365).map(date => {
+    return sortedDates.slice(-days).map(date => {
       const result: Record<string, number | null | string> = { date: formatShortDate(date) }
       seriesList.forEach((s, idx) => {
         const point = s.history.find(h => h.date === date)
@@ -166,7 +167,7 @@ const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor }) => {
       })
       return result
     })
-  }, [seriesList])
+  }, [seriesList, days])
 
   return (
     <div className="h-16 w-full">
@@ -223,12 +224,22 @@ interface CategoryCardProps {
   category: IndicatorCategory
 }
 
+const TIME_RANGES = [
+  { label: '1M', days: 30 },
+  { label: '3M', days: 90 },
+  { label: '6M', days: 180 },
+  { label: '1Y', days: 365 },
+]
+
 const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
   // 初始化选中的 indicators：默认只选中一个（默认指标），点击标签可切换
   const [selectedIds, setSelectedIds] = useState<string[]>(() => {
     const defaultId = category.default_indicator_id || category.members[0]?.indicator_id
     return defaultId ? [defaultId] : []
   })
+
+  // 时间范围选择
+  const [selectedDays, setSelectedDays] = useState(365)
 
   const selectedSeries = useMemo(
     () => category.members.filter(m => selectedIds.includes(m.indicator_id)),
@@ -262,23 +273,41 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
         <div className="text-sm font-bold text-gray-800" style={{ color: category.color }}>
           {category.label}
         </div>
-        {category.members.length > 1 && (
-          <div className="flex flex-wrap gap-1">
-            {category.members.map((m) => (
+        <div className="flex items-center gap-2">
+          {/* 时间范围选择器 */}
+          <div className="flex gap-0.5">
+            {TIME_RANGES.map(range => (
               <button
-                key={m.indicator_id}
-                onClick={() => toggleIndicator(m.indicator_id)}
-                className={`px-2 py-0.5 text-xs rounded-md transition-colors ${
-                  selectedIds.includes(m.indicator_id)
-                    ? 'bg-blue-500 text-white'
+                key={range.days}
+                onClick={() => setSelectedDays(range.days)}
+                className={`px-1.5 py-0.5 text-xs rounded transition-colors ${
+                  selectedDays === range.days
+                    ? 'bg-gray-800 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                {getIndicatorLabel(m.indicator_id)}
+                {range.label}
               </button>
             ))}
           </div>
-        )}
+          {category.members.length > 1 && (
+            <div className="flex flex-wrap gap-1">
+              {category.members.map((m) => (
+                <button
+                  key={m.indicator_id}
+                  onClick={() => toggleIndicator(m.indicator_id)}
+                  className={`px-2 py-0.5 text-xs rounded-md transition-colors ${
+                    selectedIds.includes(m.indicator_id)
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {getIndicatorLabel(m.indicator_id)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 多个指标的最新值 */}
@@ -467,9 +496,6 @@ const EtfBoard: React.FC = () => {
             <Activity className="h-5 w-5 text-blue-600" />
             市场指标
           </h2>
-          <span className="text-xs text-gray-500">
-            共 {globalCategories.length + chinaCategories.length} 个分类 · 每类默认展示 1 个指标，可切换查看
-          </span>
         </div>
         {(globalCategories.length + chinaCategories.length) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
