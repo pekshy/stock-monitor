@@ -89,6 +89,7 @@ type CategoryRule = {
   color: string         // 图表颜色
   matches: (id: string) => boolean
   defaultIndicator?: string // 该类别默认展示的 indicator_id（优先级最高）
+  memberOrder?: string[] // 可选：indicator_id 优先级/展示顺序（从左到右）
 }
 
 // 全球指标分类
@@ -111,7 +112,8 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
       const u = id.toUpperCase()
       return u.startsWith('DGS') || u.includes('TREASURY_')
     },
-    defaultIndicator: 'treasury_10y'
+    defaultIndicator: 'treasury_10y',
+    memberOrder: ['DGS3MO', 'treasury_3m', 'DGS2', 'treasury_2y', 'DGS10', 'treasury_10y', 'DGS1MO', 'treasury_1m', 'DGS6MO', 'treasury_6m', 'DGS1', 'treasury_1y', 'DGS5', 'treasury_5y', 'DGS7', 'treasury_7y', 'DGS20', 'treasury_20y', 'DGS30', 'treasury_30y']
   },
   {
     id: 'precious_metals',
@@ -201,8 +203,20 @@ function buildIndicatorCategories(
       }
     })
 
-    // 按历史数据量（新鲜度）排序，优先选有数据的
-    memberSeries.sort((a, b) => b.history.length - a.history.length)
+    // 排序：优先按 memberOrder 自定义顺序，其次按历史数据量
+    if (rule.memberOrder && rule.memberOrder.length > 0) {
+      const orderMap = new Map(rule.memberOrder.map((id, idx) => [id.toUpperCase(), idx]))
+      memberSeries.sort((a, b) => {
+        const aIdx = orderMap.get(a.indicator_id.toUpperCase())
+        const bIdx = orderMap.get(b.indicator_id.toUpperCase())
+        if (aIdx !== undefined && bIdx !== undefined) return aIdx - bIdx
+        if (aIdx !== undefined) return -1
+        if (bIdx !== undefined) return 1
+        return b.history.length - a.history.length
+      })
+    } else {
+      memberSeries.sort((a, b) => b.history.length - a.history.length)
+    }
 
     // 选中默认展示的 series：优先 defaultIndicator，否则选数据最多的
     let defaultSelected: IndicatorSeries | undefined = memberSeries.find(
