@@ -176,9 +176,24 @@ export interface FredIndicator {
   updated_at: string | null
 }
 
+export interface MarketIndicator {
+  id: number
+  indicator_id: string
+  date: string
+  value: number
+  updated_at: string | null
+}
+
 export interface EtfWithData extends EtfInfo {
   latest_daily?: EtfDailyData
   latest_indicator?: EtfIndicators
   latest_signal?: EtfClawSignal
   latest_index_valuation?: EtfTrackedIndexHistory
+}
+
+export interface IndicatorSeries {
+  indicator_id: string
+  latest_value: number | null
+  latest_date: string | null
+  history: { date: string; value: number }[]
 }
