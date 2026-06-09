@@ -364,7 +364,21 @@ const EtfBoard: React.FC = () => {
     refresh
   } = useEtfData()
 
-  // 构建分类
+  // 按操作信号排序：减仓/卖出 > 加仓/买入 > 观望
+  const sortedEtfs = useMemo(() => {
+    const getActionPriority = (action: string | null | undefined): number => {
+      if (!action) return 3
+      const act = action.toLowerCase()
+      if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 1
+      if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 2
+      return 3
+    }
+    return [...etfs].sort((a, b) => {
+      const priorityA = getActionPriority(a.latest_signal?.action)
+      const priorityB = getActionPriority(b.latest_signal?.action)
+      return priorityA - priorityB
+    })
+  }, [etfs])
   const globalCategories = useMemo(
     () => buildIndicatorCategories(globalIndicatorSeries, GLOBAL_CATEGORIES),
     [globalIndicatorSeries]
@@ -504,7 +518,7 @@ const EtfBoard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {etfs.map((etf) => (
+                {sortedEtfs.map((etf) => (
                   <tr
                     key={etf.symbol}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
