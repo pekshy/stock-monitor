@@ -99,7 +99,7 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     color: '#2563eb',
     matches: (id) => {
       const u = id.toUpperCase()
-      return u === 'DXY' || u.startsWith('DTWEX') || u.includes('DOLLAR') || u.includes('USD')
+      return u === 'DXY' || u.startsWith('DTWEX') || u.includes('DOLLAR') || u.includes('USD') || u === 'DOLLAR_INDEX'
     },
     defaultIndicator: 'DXY'
   },
@@ -109,9 +109,10 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     color: '#f59e0b',
     matches: (id) => {
       const u = id.toUpperCase()
-      return u === 'DGS1MO' || u === 'DGS3MO' || u === 'DGS6MO' || u === 'DGS1' || u === 'DGS1Y'
+      return u === 'DGS1MO' || u === 'DGS3MO' || u === 'DGS6MO' || u === 'DGS1' || u === 'DGS1Y' ||
+             u.includes('TREASURY_1M') || u.includes('TREASURY_3M') || u.includes('TREASURY_6M') || u.includes('TREASURY_1Y')
     },
-    defaultIndicator: 'DGS3MO'
+    defaultIndicator: 'treasury_3m'
   },
   {
     id: 'treasury_mid',
@@ -119,9 +120,10 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     color: '#ea580c',
     matches: (id) => {
       const u = id.toUpperCase()
-      return u === 'DGS2' || u === 'DGS5' || u === 'DGS7' || u === 'DGS2Y' || u === 'DGS5Y' || u === 'DGS7Y'
+      return u === 'DGS2' || u === 'DGS5' || u === 'DGS7' || u === 'DGS2Y' || u === 'DGS5Y' || u === 'DGS7Y' ||
+             u.includes('TREASURY_2Y') || u.includes('TREASURY_5Y') || u.includes('TREASURY_7Y')
     },
-    defaultIndicator: 'DGS5'
+    defaultIndicator: 'treasury_2y'
   },
   {
     id: 'treasury_long',
@@ -129,9 +131,10 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     color: '#dc2626',
     matches: (id) => {
       const u = id.toUpperCase()
-      return u === 'DGS10' || u === 'DGS20' || u === 'DGS30' || u === 'DGS10Y' || u === 'DGS20Y' || u === 'DGS30Y'
+      return u === 'DGS10' || u === 'DGS20' || u === 'DGS30' || u === 'DGS10Y' || u === 'DGS20Y' || u === 'DGS30Y' ||
+             u.includes('TREASURY_10Y') || u.includes('TREASURY_20Y') || u.includes('TREASURY_30Y')
     },
-    defaultIndicator: 'DGS10'
+    defaultIndicator: 'treasury_10y'
   },
   {
     id: 'fed_funds',
@@ -161,7 +164,7 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
       const u = id.toUpperCase()
       return u.includes('CRUDE') || u.includes('BRENT') || u.includes('OIL') || u.includes('WTI')
     },
-    defaultIndicator: 'BRENT.CRUDE'
+    defaultIndicator: 'brent_crude'
   },
   {
     id: 'crypto',
@@ -172,6 +175,16 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
       return u.includes('BTC') || u.includes('BITCOIN') || u.includes('ETH') || u.includes('ETHEREUM')
     },
     defaultIndicator: 'BITCOIN'
+  },
+  {
+    id: 'cny_exchange',
+    label: '人民币汇率',
+    color: '#059669',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('CNY') || u.includes('EXCHANGE') || u.includes('RMB')
+    },
+    defaultIndicator: 'cny_exchange_rate'
   }
 ]
 

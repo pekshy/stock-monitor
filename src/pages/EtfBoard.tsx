@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Target, Globe, Activity, ChevronDown } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Target, Globe, Activity } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
   useEtfData,
@@ -57,6 +57,7 @@ const getIndicatorLabel = (id: string): string => {
     'DTWEXBGS': '美元指数（广义）',
     'DTWEXM': '美元指数（主要货币）',
     'DTWEXO': '美元指数（其他贸易伙伴）',
+    'dollar_index': '美元指数',
     'DGS1MO': '1个月美债收益率',
     'DGS3MO': '3个月美债收益率',
     'DGS6MO': '6个月美债收益率',
@@ -67,6 +68,16 @@ const getIndicatorLabel = (id: string): string => {
     'DGS10': '10年期美债收益率',
     'DGS20': '20年期美债收益率',
     'DGS30': '30年期美债收益率',
+    'treasury_1m': '1个月美债收益率',
+    'treasury_3m': '3个月美债收益率',
+    'treasury_6m': '6个月美债收益率',
+    'treasury_1y': '1年期美债收益率',
+    'treasury_2y': '2年期美债收益率',
+    'treasury_5y': '5年期美债收益率',
+    'treasury_7y': '7年期美债收益率',
+    'treasury_10y': '10年期美债收益率',
+    'treasury_20y': '20年期美债收益率',
+    'treasury_30y': '30年期美债收益率',
     'FED.FUNDS.RATE': '联邦基金利率',
     'FED_FUNDS_RATE': '联邦基金利率',
     'GOLD': '黄金',
@@ -77,10 +88,17 @@ const getIndicatorLabel = (id: string): string => {
     'BTC': '比特币',
     'BTCUSD': '比特币/美元',
     'BRENT.CRUDE': '布伦特原油',
+    'BRENT_CRUDE': '布伦特原油',
+    'brent_crude': '布伦特原油',
     'CRUDE.OIL': 'WTI原油',
+    'CRUDE_OIL': 'WTI原油',
+    'crude_oil': 'WTI原油',
+    'cny_exchange_rate': '人民币汇率',
+    'CNY_USD': '人民币/美元',
     'SHIBOR': 'SHIBOR',
     'LPR': 'LPR',
     'MONEY.SUPPLY': '货币供给',
+    'MONEY_SUPPLY': '货币供给',
     'CPI': 'CPI',
     'CORE.CPI': '核心CPI',
     'PPI': 'PPI',
@@ -93,23 +111,37 @@ const getIndicatorLabel = (id: string): string => {
   return map[id] || id
 }
 
-// --- 单个指标曲线图（迷你） ---
+// --- 多指标曲线图（支持叠加展示） ---
 
-interface MiniChartProps {
-  series: IndicatorSeries
-  color: string
+// 系列颜色配置
+const SERIES_COLORS = ['#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#7c3aed', '#ec4899']
+
+interface MultiChartProps {
+  seriesList: IndicatorSeries[]
+  baseColor: string
 }
 
-const MiniChart: React.FC<MiniChartProps> = ({ series, color }) => {
-  const data = series.history.slice(-365).map(h => ({
-    date: formatShortDate(h.date),
-    value: h.value
-  }))
+const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor }) => {
+  // 合并所有时间序列数据，对齐日期
+  const mergedData = useMemo(() => {
+    const allDates = new Set<string>()
+    seriesList.forEach(s => s.history.forEach(h => allDates.add(h.date)))
+    const sortedDates = Array.from(allDates).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+    
+    return sortedDates.slice(-365).map(date => {
+      const result: Record<string, number | null | string> = { date: formatShortDate(date) }
+      seriesList.forEach((s, idx) => {
+        const point = s.history.find(h => h.date === date)
+        result[`value_${idx}`] = point?.value ?? null
+      })
+      return result
+    })
+  }, [seriesList])
 
   return (
     <div className="h-16 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 2, right: 4, left: 0, bottom: 2 }}>
+        <LineChart data={mergedData} margin={{ top: 2, right: 4, left: 0, bottom: 2 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
           <XAxis
             dataKey="date"
@@ -132,115 +164,142 @@ const MiniChart: React.FC<MiniChartProps> = ({ series, color }) => {
               fontSize: '12px',
               padding: '6px 10px'
             }}
-            formatter={(value: number) => [formatValue(value, series.indicator_id), '']}
-            labelFormatter={(label) => label}
+            formatter={(value: number, name: string) => {
+              const idx = parseInt(name.split('_')[1])
+              const series = seriesList[idx]
+              return [formatValue(value, series?.indicator_id || ''), getIndicatorLabel(series?.indicator_id || '')]
+            }}
           />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke={color}
-            strokeWidth={1.5}
-            dot={false}
-            activeDot={{ r: 3, stroke: color, strokeWidth: 1, fill: '#fff' }}
-          />
+          {seriesList.map((series, idx) => (
+            <Line
+              key={series.indicator_id}
+              type="monotone"
+              dataKey={`value_${idx}`}
+              stroke={SERIES_COLORS[idx] || baseColor}
+              strokeWidth={1.5}
+              dot={false}
+              activeDot={{ r: 3, stroke: SERIES_COLORS[idx] || baseColor, strokeWidth: 1, fill: '#fff' }}
+            />
+          ))}
         </LineChart>
       </ResponsiveContainer>
     </div>
   )
 }
 
-// --- 单个类别卡片（含下拉切换） ---
+// --- 单个类别卡片（支持多选叠加展示） ---
 
 interface CategoryCardProps {
   category: IndicatorCategory
 }
 
 const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
-  // 初始化选中的 indicator：使用 category.default_indicator_id
-  const [selectedId, setSelectedId] = useState<string | null>(
-    category.default_indicator_id || category.members[0]?.indicator_id || null
-  )
+  // 初始化选中的 indicators：默认选中全部（如果少于等于3个），否则只选默认的
+  const [selectedIds, setSelectedIds] = useState<string[]>(() => {
+    if (category.members.length <= 3) {
+      return category.members.map(m => m.indicator_id)
+    }
+    const defaultId = category.default_indicator_id || category.members[0]?.indicator_id
+    return defaultId ? [defaultId] : []
+  })
 
   const selectedSeries = useMemo(
-    () => category.members.find(m => m.indicator_id === selectedId) || category.members[0],
-    [category, selectedId]
+    () => category.members.filter(m => selectedIds.includes(m.indicator_id)),
+    [category, selectedIds]
   )
 
-  if (!selectedSeries) return null
+  if (selectedSeries.length === 0) return null
 
-  // 计算最新值变化
-  const changeInfo = (() => {
-    if (selectedSeries.history.length < 2) return { change: 0, changePct: 0 }
-    const latest = selectedSeries.history[selectedSeries.history.length - 1].value
-    const prev = selectedSeries.history[selectedSeries.history.length - 2].value
-    const change = latest - prev
-    const changePct = prev !== 0 ? (change / prev) * 100 : 0
-    return { change, changePct }
-  })()
-
-  const changeClass = changeInfo.changePct > 0
-    ? 'text-red-600'
-    : changeInfo.changePct < 0
-    ? 'text-green-600'
-    : 'text-gray-600'
+  // 处理指标切换
+  const toggleIndicator = (id: string) => {
+    setSelectedIds(prev => {
+      if (prev.includes(id)) {
+        // 至少保留一个选中
+        if (prev.length === 1) return prev
+        return prev.filter(i => i !== id)
+      }
+      return [...prev, id]
+    })
+  }
 
   return (
     <div
       className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
       style={{ borderTop: `3px solid ${category.color}` }}
     >
-      {/* 顶部：类别名 + 下拉切换 */}
+      {/* 顶部：类别名 + 多选标签 */}
       <div className="flex items-center justify-between mb-3">
         <div className="text-sm font-bold text-gray-800" style={{ color: category.color }}>
           {category.label}
         </div>
         {category.members.length > 1 && (
-          <div className="relative">
-            <select
-              value={selectedSeries.indicator_id}
-              onChange={(e) => setSelectedId(e.target.value)}
-              className="appearance-none bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-medium py-1 pl-2 pr-6 rounded-md cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-300 transition-colors"
-            >
-              {category.members.map((m) => (
-                <option key={m.indicator_id} value={m.indicator_id}>
-                  {getIndicatorLabel(m.indicator_id)}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-500 pointer-events-none" />
+          <div className="flex flex-wrap gap-1">
+            {category.members.map((m) => (
+              <button
+                key={m.indicator_id}
+                onClick={() => toggleIndicator(m.indicator_id)}
+                className={`px-2 py-0.5 text-xs rounded-md transition-colors ${
+                  selectedIds.includes(m.indicator_id)
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {getIndicatorLabel(m.indicator_id)}
+              </button>
+            ))}
           </div>
         )}
       </div>
 
-      {/* 指标名 + 最新值 */}
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-            {selectedSeries.indicator_id}
-          </div>
-          <div className="text-xs text-gray-600 mt-0.5">
-            {getIndicatorLabel(selectedSeries.indicator_id)}
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-lg font-bold text-gray-900">
-            {formatValue(selectedSeries.latest_value, selectedSeries.indicator_id)}
-          </div>
-          {changeInfo.changePct !== 0 && (
-            <div className={`text-xs font-medium ${changeClass} mt-0.5`}>
-              {changeInfo.changePct > 0 ? '+' : ''}{changeInfo.changePct.toFixed(2)}%
+      {/* 多个指标的最新值 */}
+      <div className="space-y-1 mb-2">
+        {selectedSeries.map((series, idx) => {
+          const changeInfo = (() => {
+            if (series.history.length < 2) return { change: 0, changePct: 0 }
+            const latest = series.history[series.history.length - 1].value
+            const prev = series.history[series.history.length - 2].value
+            const change = latest - prev
+            const changePct = prev !== 0 ? (change / prev) * 100 : 0
+            return { change, changePct }
+          })()
+          const changeClass = changeInfo.changePct > 0
+            ? 'text-red-600'
+            : changeInfo.changePct < 0
+            ? 'text-green-600'
+            : 'text-gray-600'
+
+          return (
+            <div key={series.indicator_id} className="flex items-start justify-between">
+              <div>
+                <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                  {series.indicator_id}
+                </div>
+                <div className="text-xs text-gray-600">
+                  {getIndicatorLabel(series.indicator_id)}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-gray-900" style={{ color: SERIES_COLORS[idx] || category.color }}>
+                  {formatValue(series.latest_value, series.indicator_id)}
+                </div>
+                {changeInfo.changePct !== 0 && (
+                  <div className={`text-xs font-medium ${changeClass}`}>
+                    {changeInfo.changePct > 0 ? '+' : ''}{changeInfo.changePct.toFixed(2)}%
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
+          )
+        })}
       </div>
 
-      {/* 曲线图 */}
-      <MiniChart series={selectedSeries} color={category.color} />
+      {/* 多指标叠加曲线图 */}
+      <MultiChart seriesList={selectedSeries} baseColor={category.color} />
 
       {/* 更新时间 */}
-      {selectedSeries.latest_date && (
+      {selectedSeries[0]?.latest_date && (
         <div className="text-xs text-gray-400 mt-1 text-right">
-          更新于 {selectedSeries.latest_date}
+          更新于 {selectedSeries[0].latest_date}
         </div>
       )}
     </div>
