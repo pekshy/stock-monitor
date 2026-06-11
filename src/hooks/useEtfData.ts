@@ -286,6 +286,8 @@ export function useEtfData() {
         .order('date', { ascending: false })
       if (fredErr) throw fredErr
       console.log('FRED indicators:', fredData)
+      // 调试：输出所有 FRED indicator_id 列表（去重）
+      console.log('FRED indicator_ids:', Array.from(new Set((fredData || []).map(d => d.indicator_id))))
       setFredIndicators(fredData || [])
 
       // 3.5 获取市场指标（黄金、白银、比特币等大宗商品和数字货币）
