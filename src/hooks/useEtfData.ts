@@ -113,7 +113,7 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
       return u.startsWith('DGS') || u.includes('TREASURY_')
     },
     defaultIndicator: 'treasury_10y',
-    memberOrder: ['DGS3MO', 'treasury_3m', 'DGS2', 'treasury_2y', 'DGS10', 'treasury_10y', 'DGS1MO', 'treasury_1m', 'DGS6MO', 'treasury_6m', 'DGS1', 'treasury_1y', 'DGS5', 'treasury_5y', 'DGS7', 'treasury_7y', 'DGS20', 'treasury_20y', 'DGS30', 'treasury_30y']
+    memberOrder: ['DGS3MO', 'treasury_3m', 'DGS2', 'treasury_2y', 'DGS10', 'treasury_10y', 'DGS30', 'treasury_30y', 'DGS1MO', 'treasury_1m', 'DGS6MO', 'treasury_6m', 'DGS1', 'treasury_1y', 'DGS5', 'treasury_5y', 'DGS7', 'treasury_7y', 'DGS20', 'treasury_20y']
   },
   {
     id: 'precious_metals',
