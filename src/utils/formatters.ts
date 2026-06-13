@@ -26,11 +26,11 @@ export function formatNumber(value: number | null | undefined): string {
 
 export function formatMarketCap(value: number | null | undefined): string {
   if (value == null) return '--'
-  if (value >= 100000000000) {
-    return (value / 100000000000).toFixed(2) + '万亿'
-  } else if (value >= 100000000) {
+  if (value >= 1000000000000) { // 10^12 = 1万亿
+    return (value / 1000000000000).toFixed(2) + '万亿'
+  } else if (value >= 100000000) { // 10^8 = 1亿
     return (value / 100000000).toFixed(2) + '亿'
-  } else if (value >= 10000) {
+  } else if (value >= 10000) { // 10^4 = 1万
     return (value / 10000).toFixed(2) + '万'
   }
   return value.toFixed(0)

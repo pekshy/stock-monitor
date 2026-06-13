@@ -184,6 +184,14 @@ export interface MarketIndicator {
   updated_at: string | null
 }
 
+export interface StockMarketVolume {
+  id: number
+  indicator_id: string
+  date: string
+  value: number
+  updated_at: string | null
+}
+
 export interface EtfWithData extends EtfInfo {
   latest_daily?: EtfDailyData
   latest_indicator?: EtfIndicators

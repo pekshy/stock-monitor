@@ -11,10 +11,11 @@ import {
   MarketIndicator,
   EtfWithData,
   IndicatorSeries,
-  IndicatorCategory
+  IndicatorCategory,
+  StockMarketVolume
 } from '../types'
 
-type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator
+type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator | StockMarketVolume
 
 function groupIndicatorsBySeries(indicators: AnyIndicator[]): IndicatorSeries[] {
   const grouped = new Map<string, { date: string; value: number }[]>()
@@ -144,6 +145,16 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
       return u.includes('BTC') || u.includes('BITCOIN') || u.includes('ETH') || u.includes('ETHEREUM')
     },
     defaultIndicator: 'BITCOIN'
+  },
+  {
+    id: 'a_stock_volume',
+    label: 'A股成交量',
+    color: '#9333ea',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('STOCK_MARKET_VOLUME') || u.includes('A_STOCK') || u.includes('A股') || u === 'VOLUME'
+    },
+    defaultIndicator: 'stock_market_volume'
   },
   {
     id: 'cny_exchange',
@@ -299,7 +310,15 @@ export function useEtfData() {
       console.log('Market indicators:', marketData)
       setMarketIndicators(marketData || [])
 
-      // 3.6 获取美联储利率预测数据
+      // 3.6 获取A股成交量
+      const { data: volumeData, error: volumeErr } = await supabase
+        .from('stock_market_volume')
+        .select('*')
+        .order('date', { ascending: false })
+      if (volumeErr) throw volumeErr
+      console.log('Stock market volume:', volumeData)
+
+      // 3.7 获取美联储利率预测数据
       const { data: fedForecastData, error: fedForecastErr } = await supabase
         .from('fed_forecast')
         .select('*')
@@ -316,7 +335,8 @@ export function useEtfData() {
       setGlobalIndicatorSeries(mergeIndicatorSeries(
         groupIndicatorsBySeries(fredData || []),
         groupIndicatorsBySeries(marketData || []),
-        chinaSeries
+        chinaSeries,
+        groupIndicatorsBySeries((volumeData || []) as AnyIndicator[])
       ))
 
       // 4. 如果有ETF，获取它们的数据
