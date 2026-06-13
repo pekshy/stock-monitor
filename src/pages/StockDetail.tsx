@@ -6,7 +6,6 @@ import PriceChart from '../components/PriceChart'
 import {
   formatPercent,
   formatPrice,
-  formatNumber,
   getChangeColor,
 } from '../utils/formatters'
 
@@ -147,13 +146,13 @@ const StockDetail: React.FC = () => {
             <div>
               <div className="text-gray-500 text-sm">总市值</div>
               <div className="text-xl font-bold text-gray-900">
-                {formatNumber(latestValuation.total_market_cap)}
+                {latestValuation.total_market_cap == null ? '--' : latestValuation.total_market_cap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </div>
             </div>
             <div>
               <div className="text-gray-500 text-sm">流通市值</div>
               <div className="text-xl font-bold text-gray-900">
-                {formatNumber(latestValuation.circulating_market_cap)}
+                {latestValuation.circulating_market_cap == null ? '--' : latestValuation.circulating_market_cap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </div>
             </div>
           </div>

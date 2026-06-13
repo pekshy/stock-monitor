@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StockWithQuote } from '../types'
-import { formatPercent, formatPrice, formatValuation, formatNumber, getChangeColor } from '../utils/formatters'
+import { formatPercent, formatPrice, formatValuation, getChangeColor } from '../utils/formatters'
 
 interface StockListProps {
   stocks: StockWithQuote[]
@@ -66,7 +66,7 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
                 {formatValuation(stock.latest_valuation?.pb)}
               </td>
               <td className="text-right py-4 px-4 text-gray-700">
-                {formatNumber(stock.latest_valuation?.total_market_cap)}
+                {stock.latest_valuation?.total_market_cap == null ? '--' : stock.latest_valuation.total_market_cap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </td>
             </tr>
           ))}
