@@ -131,7 +131,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   }, [dailyData, indicators, signals])
 
   if (chartData.length === 0) {
-    return <div className="flex items-center justify-center min-h-[500px] text-gray-500">暂无数据</div>
+    return <div className="flex items-center justify-center min-h-[300px] text-gray-500 text-sm">暂无数据</div>
   }
 
   const prices = chartData.flatMap(d => [d.high, d.low])
@@ -228,11 +228,11 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   }
 
   return (
-    <div className="h-[500px]">
+    <div className="h-[280px]">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart 
           data={chartData} 
-          margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
           syncId="etf-chart"
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -359,13 +359,13 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
   }, [data])
 
   if (chartData.length === 0) {
-    return <div className="h-24 flex items-center justify-center text-gray-500">暂无数据</div>
+    return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
   }
 
   return (
-    <div className="h-24 mt-4">
+    <div className="h-16 mt-2">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} syncId="etf-chart">
+        <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 0 }} syncId="etf-chart">
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
           <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 10000).toFixed(0) + '万'} />
@@ -421,56 +421,56 @@ const EtfDetail: React.FC = () => {
   const latestDaily = data.dailyData[0]
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-3">
         <button
           onClick={() => navigate('/etf')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
           返回
         </button>
         
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           {prevEtf && (
             <button
               onClick={() => navigate(`/etf/${prevEtf.symbol}`)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors text-sm"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-3.5 w-3.5" />
               上翻
             </button>
           )}
           {nextEtf && (
             <button
               onClick={() => navigate(`/etf/${nextEtf.symbol}`)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors text-sm"
             >
               下翻
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white rounded-xl shadow-md p-4">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{data.etf.name || data.etf.symbol}</h1>
-            <div className="text-gray-500 mt-1">{data.etf.symbol}</div>
+            <h1 className="text-xl font-bold text-gray-900">{data.etf.name || data.etf.symbol}</h1>
+            <div className="text-gray-500 text-sm mt-0.5">{data.etf.symbol}</div>
             {data.etf.category && (
-              <div className="text-sm text-gray-600 mt-2">{data.etf.category}</div>
+              <div className="text-xs text-gray-600 mt-1">{data.etf.category}</div>
             )}
             {data.etf.tracking_index_name && (
-              <div className="text-sm text-gray-500 mt-1">跟踪: {data.etf.tracking_index_name}</div>
+              <div className="text-xs text-gray-500 mt-0.5">跟踪: {data.etf.tracking_index_name}</div>
             )}
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-gray-900">
               {formatPrice(latestDaily?.close)}
             </div>
             {latestDaily?.change_pct != null && (
-              <div className={`text-xl font-semibold mt-1 ${getChangeColor(latestDaily.change_pct)}`}>
+              <div className={`text-lg font-semibold mt-0.5 ${getChangeColor(latestDaily.change_pct)}`}>
                 {formatPercent(latestDaily.change_pct)}
               </div>
             )}
@@ -478,9 +478,9 @@ const EtfDetail: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <TrendingUp className="h-5 w-5" />
+      <div className="bg-white rounded-xl shadow-md p-4">
+        <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <TrendingUp className="h-4 w-4" />
           K线走势
         </h2>
         <MainChart 

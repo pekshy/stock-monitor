@@ -137,9 +137,8 @@ const Home: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-900">行业概览</h2>
           <Link
             to="/etf"
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
           >
-            <DollarSign className="h-4 w-4" />
             ETF看板
           </Link>
         </div>

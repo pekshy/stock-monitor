@@ -21,15 +21,15 @@ const Header: React.FC<HeaderProps> = ({ latestDate }) => {
 
   return (
     <header className="bg-primary text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-            <TrendingUp className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">投资监测系统</h1>
+          <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+            <TrendingUp className="h-6 w-6" />
+            <h1 className="text-lg font-bold">投资监测系统</h1>
           </Link>
           {displayDate && (
-            <div className="flex items-center gap-2 text-sm bg-blue-800 px-4 py-2 rounded-lg">
-              <Calendar className="h-4 w-4" />
+            <div className="flex items-center gap-1.5 text-xs bg-blue-800 px-3 py-1.5 rounded-lg">
+              <Calendar className="h-3.5 w-3.5" />
               <span>数据更新至：{displayDate}</span>
             </div>
           )}
