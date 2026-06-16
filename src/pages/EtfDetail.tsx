@@ -91,39 +91,32 @@ function useEtfDetail(symbol: string) {
 }
 
 const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators[]; signals: EtfClawSignal[] }> = ({ dailyData, indicators, signals }) => {
-  const dailyMap = new Map(dailyData.map(d => [d.trade_date, d]))
+  const indicatorMap = new Map(indicators.map(d => [d.trade_date, d]))
   
   const chartData = useMemo(() => {
-    return [...indicators].reverse().map(d => {
-      const daily = dailyMap.get(d.trade_date)
+    return [...dailyData].reverse().map(d => {
+      const indicator = indicatorMap.get(d.trade_date)
       return {
         date: formatDate(d.trade_date),
         trade_date: d.trade_date,
-        open: daily?.open ?? 0,
-        high: daily?.high ?? 0,
-        low: daily?.low ?? 0,
-        close: daily?.close ?? 0,
-        isUp: (daily?.close ?? 0) >= (daily?.open ?? 0),
-        bodyTop: Math.max(daily?.open ?? 0, daily?.close ?? 0),
-        bodyBottom: Math.min(daily?.open ?? 0, daily?.close ?? 0),
-        ma5: d.ma5,
-        ma10: d.ma10,
-        ma20: d.ma20,
-        ma60: d.ma60,
-        macd: d.macd,
-        macdSignal: d.macd_signal,
-        macdHist: d.macd_hist,
-        rsi6: d.rsi6,
-        k: d.k,
-        d: d.d,
-        j: d.j,
-        bollUpper: d.boll_upper,
-        bollMiddle: d.boll_middle,
-        bollLower: d.boll_lower,
-        value: daily?.high ?? 0
+        open: d.open ?? 0,
+        high: d.high ?? 0,
+        low: d.low ?? 0,
+        close: d.close ?? 0,
+        isUp: (d.close ?? 0) >= (d.open ?? 0),
+        bodyTop: Math.max(d.open ?? 0, d.close ?? 0),
+        bodyBottom: Math.min(d.open ?? 0, d.close ?? 0),
+        ma5: indicator?.ma5,
+        ma10: indicator?.ma10,
+        ma20: indicator?.ma20,
+        ma60: indicator?.ma60,
+        bollUpper: indicator?.boll_upper,
+        bollMiddle: indicator?.boll_middle,
+        bollLower: indicator?.boll_lower,
+        value: d.high ?? 0
       }
     })
-  }, [indicators, dailyData])
+  }, [dailyData, indicators])
 
   const signalMap = useMemo(() => {
     const map = new Map<string, 'buy' | 'sell'>()
@@ -261,18 +254,11 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                 ma10: 'MA10',
                 ma20: 'MA20',
                 ma60: 'MA60',
-                macd: 'MACD',
-                macdSignal: 'SIGNAL',
-                macdHist: 'HIST',
-                rsi6: 'RSI6',
-                k: 'K',
-                d: 'D',
-                j: 'J',
                 bollUpper: 'UPPER',
                 bollMiddle: 'MIDDLE',
                 bollLower: 'LOWER'
               }
-              return [value?.toFixed(name.includes('macd') && name !== 'macdHist' ? 3 : 2) || '--', labels[name] || name]
+              return [value?.toFixed(2) || '--', labels[name] || name]
             }}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
