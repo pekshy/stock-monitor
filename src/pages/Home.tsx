@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { RefreshCw, DollarSign } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
