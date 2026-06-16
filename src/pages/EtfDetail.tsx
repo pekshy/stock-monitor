@@ -116,6 +116,8 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         volume: d.volume ?? 0,
         value: d.high ?? 0,
         signalAction: signal?.action,
+        signalBuySignals: signal?.buy_signals,
+        signalSellSignals: signal?.sell_signals,
         signalK: signal?.k,
         signalD: signal?.d,
         signalJ: signal?.j,
@@ -285,8 +287,20 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                     <div className="mt-3 pt-2 border-t border-gray-200">
                       <div className="text-sm font-medium text-red-500">交易信号</div>
                       <div className="text-sm mt-1">{data.signalAction}</div>
+                      {data.signalBuySignals && (
+                        <div className="mt-2">
+                          <div className="text-xs font-medium text-green-600">买入信号:</div>
+                          <div className="text-xs text-gray-700 mt-0.5">{data.signalBuySignals}</div>
+                        </div>
+                      )}
+                      {data.signalSellSignals && (
+                        <div className="mt-2">
+                          <div className="text-xs font-medium text-red-600">卖出信号:</div>
+                          <div className="text-xs text-gray-700 mt-0.5">{data.signalSellSignals}</div>
+                        </div>
+                      )}
                       {(data.signalK != null || data.signalD != null || data.signalJ != null) && (
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-gray-500 mt-2">
                           K: {data.signalK?.toFixed(1)} | D: {data.signalD?.toFixed(1)} | J: {data.signalJ?.toFixed(1)}
                         </div>
                       )}
