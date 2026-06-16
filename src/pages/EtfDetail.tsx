@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, TrendingUp } from 'lucide-react'
 import {
   ComposedChart,
-  LineChart,
   Bar,
   Line,
   XAxis,
@@ -11,8 +10,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
-  ReferenceLine
+  Legend
 } from 'recharts'
 import { supabase } from '../utils/supabase'
 import { EtfDailyData, EtfIndicators, EtfClawSignal } from '../types'
@@ -96,6 +94,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   const chartData = useMemo(() => {
     return [...dailyData].reverse().map(d => {
       const indicator = indicatorMap.get(d.trade_date)
+      const signal = signalMap.get(d.trade_date)
       return {
         date: formatDate(d.trade_date),
         trade_date: d.trade_date,
@@ -110,24 +109,22 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         ma10: indicator?.ma10,
         ma20: indicator?.ma20,
         ma60: indicator?.ma60,
-        bollUpper: indicator?.boll_upper,
-        bollMiddle: indicator?.boll_middle,
-        bollLower: indicator?.boll_lower,
         volume: d.volume ?? 0,
-        value: d.high ?? 0
+        value: d.high ?? 0,
+        signalAction: signal?.action,
+        signalK: signal?.k,
+        signalD: signal?.d,
+        signalJ: signal?.j,
+        signalRsi: signal?.rsi,
+        signalMacd: signal?.macd_hist
       }
     })
-  }, [dailyData, indicators])
+  }, [dailyData, indicators, signals])
 
   const signalMap = useMemo(() => {
-    const map = new Map<string, 'buy' | 'sell'>()
+    const map = new Map<string, EtfClawSignal>()
     signals.forEach(sig => {
-      const action = sig.action?.toLowerCase()
-      if (action?.includes('买') || action?.includes('加仓')) {
-        map.set(sig.trade_date, 'buy')
-      } else if (action?.includes('卖') || action?.includes('减仓')) {
-        map.set(sig.trade_date, 'sell')
-      }
+      map.set(sig.trade_date, sig)
     })
     return map
   }, [signals])
@@ -182,9 +179,15 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
     const signal = signalMap.get(payload.trade_date)
     if (!signal) return <g />
     
+    const action = signal.action?.toLowerCase() || ''
+    const isBuy = action.includes('买') || action.includes('加仓')
+    const isSell = action.includes('卖') || action.includes('减仓')
+    
+    if (!isBuy && !isSell) return <g />
+    
     return (
       <g>
-        {signal === 'buy' ? (
+        {isBuy ? (
           <g>
             <path
               d={`M${cx},${cy + 12} L${cx - 6},${cy + 20} L${cx + 6},${cy + 20} Z`}
@@ -254,12 +257,57 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                 ma5: 'MA5',
                 ma10: 'MA10',
                 ma20: 'MA20',
-                ma60: 'MA60',
-                bollUpper: 'UPPER',
-                bollMiddle: 'MIDDLE',
-                bollLower: 'LOWER'
+                ma60: 'MA60'
               }
               return [value?.toFixed(2) || '--', labels[name] || name]
+            }}
+            content={({ payload }: any) => {
+              if (!payload || !payload[0]) return null
+              const data = payload[0].payload
+              return (
+                <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-[180px]">
+                  <div className="text-gray-600 text-sm mb-2">{data.date}</div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <span className="text-gray-500">开盘:</span>
+                    <span className="text-right font-medium">{data.open?.toFixed(2)}</span>
+                    <span className="text-gray-500">最高:</span>
+                    <span className="text-right font-medium">{data.high?.toFixed(2)}</span>
+                    <span className="text-gray-500">最低:</span>
+                    <span className="text-right font-medium">{data.low?.toFixed(2)}</span>
+                    <span className="text-gray-500">收盘:</span>
+                    <span className="text-right font-medium">{data.close?.toFixed(2)}</span>
+                    <span className="text-gray-500">MA5:</span>
+                    <span className="text-right font-medium">{data.ma5?.toFixed(2) || '--'}</span>
+                    <span className="text-gray-500">MA10:</span>
+                    <span className="text-right font-medium">{data.ma10?.toFixed(2) || '--'}</span>
+                    <span className="text-gray-500">MA20:</span>
+                    <span className="text-right font-medium">{data.ma20?.toFixed(2) || '--'}</span>
+                    <span className="text-gray-500">MA60:</span>
+                    <span className="text-right font-medium">{data.ma60?.toFixed(2) || '--'}</span>
+                  </div>
+                  {data.signalAction && (
+                    <div className="mt-3 pt-2 border-t border-gray-200">
+                      <div className="text-sm font-medium text-red-500">交易信号</div>
+                      <div className="text-sm mt-1">{data.signalAction}</div>
+                      {(data.signalK != null || data.signalD != null || data.signalJ != null) && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          K: {data.signalK?.toFixed(1)} | D: {data.signalD?.toFixed(1)} | J: {data.signalJ?.toFixed(1)}
+                        </div>
+                      )}
+                      {data.signalRsi != null && (
+                        <div className="text-xs text-gray-500">
+                          RSI: {data.signalRsi?.toFixed(1)}
+                        </div>
+                      )}
+                      {data.signalMacd != null && (
+                        <div className="text-xs text-gray-500">
+                          MACD: {data.signalMacd?.toFixed(3)}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
             }}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
@@ -326,148 +374,6 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
   )
 }
 
-const MACDIndicator: React.FC<{ data: EtfIndicators[]; signals: EtfClawSignal[] }> = ({ data, signals }) => {
-  const chartData = useMemo(() => {
-    return [...data].reverse().map(d => ({
-      date: formatDate(d.trade_date),
-      trade_date: d.trade_date,
-      macd: d.macd ?? 0,
-      signal: d.macd_signal ?? 0,
-      hist: d.macd_hist ?? 0
-    }))
-  }, [data])
-
-  const signalMap = useMemo(() => {
-    const map = new Map<string, 'buy' | 'sell'>()
-    signals.forEach(sig => {
-      const action = sig.action?.toLowerCase()
-      if (action?.includes('买') || action?.includes('加仓')) {
-        map.set(sig.trade_date, 'buy')
-      } else if (action?.includes('卖') || action?.includes('减仓')) {
-        map.set(sig.trade_date, 'sell')
-      }
-    })
-    return map
-  }, [signals])
-
-  if (chartData.length === 0) {
-    return <div className="h-32 flex items-center justify-center text-gray-500">暂无数据</div>
-  }
-
-  return (
-    <div className="h-32">
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} syncId="etf-chart">
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
-          <YAxis tick={{ fontSize: 10 }} />
-          <Tooltip
-            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12 }}
-            formatter={(value: number, name: string) => [value?.toFixed(3) || '--', name.toUpperCase()]}
-          />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Bar dataKey="hist" fill="#6b7280" name="HIST" barSize={4} />
-          <Line type="monotone" dataKey="macd" stroke="#2563eb" dot={false} strokeWidth={1.5} name="MACD" />
-          <Line type="monotone" dataKey="signal" stroke="#f59e0b" dot={false} strokeWidth={1.5} name="SIGNAL" />
-          <Line
-            type="monotone"
-            dataKey="macd"
-            stroke="transparent"
-            dot={(props: any) => {
-              const { payload, cx, cy } = props
-              const signal = signalMap.get(payload.trade_date)
-              if (!signal) return <g />
-              return (
-                <g>
-                  {signal === 'buy' ? (
-                    <path d={`M${cx},${cy + 8} L${cx - 4},${cy + 14} L${cx + 4},${cy + 14} Z`} fill="#ef4444" />
-                  ) : (
-                    <path d={`M${cx},${cy - 8} L${cx - 4},${cy - 14} L${cx + 4},${cy - 14} Z`} fill="#22c55e" />
-                  )}
-                </g>
-              )
-            }}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
-
-const RSIKDJIndicator: React.FC<{ data: EtfIndicators[]; signals: EtfClawSignal[] }> = ({ data, signals }) => {
-  const chartData = useMemo(() => {
-    return [...data].reverse().map(d => ({
-      date: formatDate(d.trade_date),
-      trade_date: d.trade_date,
-      rsi6: d.rsi6,
-      k: d.k,
-      d: d.d,
-      j: d.j
-    }))
-  }, [data])
-
-  const signalMap = useMemo(() => {
-    const map = new Map<string, 'buy' | 'sell'>()
-    signals.forEach(sig => {
-      const action = sig.action?.toLowerCase()
-      if (action?.includes('买') || action?.includes('加仓')) {
-        map.set(sig.trade_date, 'buy')
-      } else if (action?.includes('卖') || action?.includes('减仓')) {
-        map.set(sig.trade_date, 'sell')
-      }
-    })
-    return map
-  }, [signals])
-
-  if (chartData.length === 0) {
-    return <div className="h-32 flex items-center justify-center text-gray-500">暂无数据</div>
-  }
-
-  return (
-    <div className="h-32">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} syncId="etf-chart">
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
-          <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
-          <Tooltip
-            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12 }}
-            formatter={(value: number, name: string) => [value?.toFixed(2) || '--', name.toUpperCase()]}
-          />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
-          <ReferenceLine y={70} stroke="#ef4444" strokeDasharray="3 3" />
-          <ReferenceLine y={30} stroke="#22c55e" strokeDasharray="3 3" />
-          <ReferenceLine y={80} stroke="#ef4444" strokeDasharray="3 3" />
-          <ReferenceLine y={20} stroke="#22c55e" strokeDasharray="3 3" />
-          <Line type="monotone" dataKey="rsi6" stroke="#ef4444" dot={false} strokeWidth={1} name="RSI" />
-          <Line type="monotone" dataKey="k" stroke="#f59e0b" dot={false} strokeWidth={1} name="K" />
-          <Line type="monotone" dataKey="d" stroke="#2563eb" dot={false} strokeWidth={1} name="D" />
-          <Line type="monotone" dataKey="j" stroke="#8b5cf6" dot={false} strokeWidth={1} name="J" />
-          <Line
-            type="monotone"
-            dataKey="rsi6"
-            stroke="transparent"
-            dot={(props: any) => {
-              const { payload, cx, cy } = props
-              const signal = signalMap.get(payload.trade_date)
-              if (!signal) return <g />
-              return (
-                <g>
-                  {signal === 'buy' ? (
-                    <path d={`M${cx},${cy + 8} L${cx - 4},${cy + 14} L${cx + 4},${cy + 14} Z`} fill="#ef4444" />
-                  ) : (
-                    <path d={`M${cx},${cy - 8} L${cx - 4},${cy - 14} L${cx + 4},${cy - 14} Z`} fill="#22c55e" />
-                  )}
-                </g>
-              )
-            }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
-
 const EtfDetail: React.FC = () => {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
@@ -529,7 +435,7 @@ const EtfDetail: React.FC = () => {
       <div className="bg-white rounded-xl shadow-md p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
-          K线走势与技术指标
+          K线走势
         </h2>
         <MainChart 
           dailyData={data.dailyData} 
@@ -537,16 +443,6 @@ const EtfDetail: React.FC = () => {
           signals={data.signals} 
         />
         <VolumeChart data={data.dailyData} />
-      </div>
-
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">MACD</h2>
-        <MACDIndicator data={data.indicators} signals={data.signals} />
-      </div>
-
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">RSI / KDJ</h2>
-        <RSIKDJIndicator data={data.indicators} signals={data.signals} />
       </div>
     </div>
   )
