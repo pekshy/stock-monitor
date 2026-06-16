@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, RefreshCw, Target, Activity } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
@@ -363,6 +363,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
 // --- 主组件 ---
 
 const EtfBoard: React.FC = () => {
+  const navigate = useNavigate()
   const {
     etfs,
     chinaIndicatorSeries,
@@ -530,7 +531,8 @@ const EtfBoard: React.FC = () => {
                 {sortedEtfs.map((etf) => (
                   <tr
                     key={etf.symbol}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/etf/${etf.symbol}`)}
                   >
                     <td className="py-4 px-4">
                       <div className="font-semibold text-gray-900">{etf.name || etf.symbol}</div>
