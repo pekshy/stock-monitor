@@ -118,6 +118,8 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         signalAction: signal?.action,
         signalBuySignals: signal?.buy_signals,
         signalSellSignals: signal?.sell_signals,
+        signalBuyCount: signal?.buy_count,
+        signalSellCount: signal?.sell_count,
         signalK: signal?.k,
         signalD: signal?.d,
         signalJ: signal?.j,
@@ -289,13 +291,17 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                       <div className="text-sm mt-1">{data.signalAction}</div>
                       {data.signalBuySignals && (
                         <div className="mt-2">
-                          <div className="text-xs font-medium text-green-600">买入信号:</div>
+                          <div className="text-xs font-medium text-green-600">
+                            买入信号({data.signalBuyCount || 0}):
+                          </div>
                           <div className="text-xs text-gray-700 mt-0.5">{data.signalBuySignals}</div>
                         </div>
                       )}
                       {data.signalSellSignals && (
                         <div className="mt-2">
-                          <div className="text-xs font-medium text-red-600">卖出信号:</div>
+                          <div className="text-xs font-medium text-red-600">
+                            卖出信号({data.signalSellCount || 0}):
+                          </div>
                           <div className="text-xs text-gray-700 mt-0.5">{data.signalSellSignals}</div>
                         </div>
                       )}
