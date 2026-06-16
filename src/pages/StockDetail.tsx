@@ -1,7 +1,8 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Building2, TrendingUp, Star } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Building2, TrendingUp, Star } from 'lucide-react'
 import { useStockDetail } from '../hooks/useStockData'
+import { useStockContext } from '../context/StockContext'
 import PriceChart from '../components/PriceChart'
 import {
   formatPercent,
@@ -20,8 +21,14 @@ const StockDetail: React.FC = () => {
   const { stockCode } = useParams<{ stockCode: string }>()
   const navigate = useNavigate()
   const { stock, quotes, valuations, loading } = useStockDetail(stockCode || '')
+  const { stocks } = useStockContext()
   const latestQuote = quotes[0]
   const latestValuation = valuations[0]
+
+  const stockCodes = stocks.map(s => s.stock_code)
+  const currentIndex = stockCodes.indexOf(stockCode || '')
+  const prevStock = currentIndex > 0 ? stocks[currentIndex - 1] : null
+  const nextStock = currentIndex < stockCodes.length - 1 ? stocks[currentIndex + 1] : null
 
   if (loading) {
     return (
@@ -48,6 +55,27 @@ const StockDetail: React.FC = () => {
         <ArrowLeft className="h-5 w-5" />
         返回
       </button>
+
+      <div className="flex gap-4 mb-6">
+        {prevStock && (
+          <button
+            onClick={() => navigate(`/stock/${prevStock.stock_code}`)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            上一只
+          </button>
+        )}
+        {nextStock && (
+          <button
+            onClick={() => navigate(`/stock/${nextStock.stock_code}`)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
+          >
+            下一只
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        )}
+      </div>
 
       <div className="bg-white rounded-xl shadow-md p-6">
         <div className="flex items-start justify-between">

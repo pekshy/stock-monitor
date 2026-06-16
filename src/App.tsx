@@ -1,5 +1,6 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom'
 import { StockProvider, useStockContext } from './context/StockContext'
+import { EtfProvider } from './context/EtfContext'
 import Header from './components/Header'
 import Home from './pages/Home'
 import IndustryDetail from './pages/IndustryDetail'
@@ -29,9 +30,11 @@ function AppContent() {
 function App() {
   return (
     <StockProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <EtfProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </EtfProvider>
     </StockProvider>
   )
 }
