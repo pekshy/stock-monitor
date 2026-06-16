@@ -422,33 +422,35 @@ const EtfDetail: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
-      >
-        <ArrowLeft className="h-5 w-5" />
-        返回
-      </button>
-
-      <div className="flex gap-4 mb-4">
-        {prevEtf && (
-          <button
-            onClick={() => navigate(`/etf/${prevEtf.symbol}`)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            上一只
-          </button>
-        )}
-        {nextEtf && (
-          <button
-            onClick={() => navigate(`/etf/${nextEtf.symbol}`)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
-          >
-            下一只
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        )}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          返回
+        </button>
+        
+        <div className="flex gap-4">
+          {prevEtf && (
+            <button
+              onClick={() => navigate(`/etf/${prevEtf.symbol}`)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              上一只
+            </button>
+          )}
+          {nextEtf && (
+            <button
+              onClick={() => navigate(`/etf/${nextEtf.symbol}`)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
+            >
+              下一只
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-6">
