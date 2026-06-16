@@ -113,6 +113,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         bollUpper: indicator?.boll_upper,
         bollMiddle: indicator?.boll_middle,
         bollLower: indicator?.boll_lower,
+        volume: d.volume ?? 0,
         value: d.high ?? 0
       }
     })
@@ -270,16 +271,55 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           <Line type="monotone" dataKey="ma20" stroke="#06b6d4" dot={false} strokeWidth={1} name="MA20" />
           <Line type="monotone" dataKey="ma60" stroke="#ec4899" dot={false} strokeWidth={1} name="MA60" />
           
-          <Line type="monotone" dataKey="bollUpper" stroke="#ef4444" dot={false} strokeWidth={1} name="UPPER" strokeDasharray="3 3" />
-          <Line type="monotone" dataKey="bollMiddle" stroke="#6b7280" dot={false} strokeWidth={1} name="MIDDLE" />
-          <Line type="monotone" dataKey="bollLower" stroke="#22c55e" dot={false} strokeWidth={1} name="LOWER" strokeDasharray="3 3" />
-          
           <Line
             type="monotone"
             dataKey="close"
             stroke="transparent"
             dot={<CustomSignalDot />}
           />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
+  const chartData = useMemo(() => {
+    return [...data].reverse().map(d => ({
+      date: formatDate(d.trade_date),
+      volume: d.volume ?? 0,
+      isUp: (d.close ?? 0) >= (d.open ?? 0),
+      value: d.volume ?? 0
+    }))
+  }, [data])
+
+  if (chartData.length === 0) {
+    return <div className="h-24 flex items-center justify-center text-gray-500">暂无数据</div>
+  }
+
+  return (
+    <div className="h-24 mt-4">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} syncId="etf-chart">
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
+          <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 10000).toFixed(0) + '万'} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12 }}
+            formatter={(value: number) => [(value / 10000).toFixed(0) + ' 万份', '成交量']}
+          />
+          <Bar dataKey="value" barSize={5} shape={(props: any) => {
+            const { x, y, width, height, payload } = props
+            return (
+              <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill={payload.isUp ? '#ef4444' : '#22c55e'}
+              />
+            )
+          }} name="成交量" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -496,6 +536,7 @@ const EtfDetail: React.FC = () => {
           indicators={data.indicators} 
           signals={data.signals} 
         />
+        <VolumeChart data={data.dailyData} />
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-6">
