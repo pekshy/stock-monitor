@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, TrendingUp } from 'lucide-react'
 import {
   ComposedChart,
+  LineChart,
   Bar,
   Line,
   XAxis,
@@ -151,8 +152,8 @@ const CandlestickChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
           {/* K线（上下影线 + 实体） */}
           {/* 上影线 */}
           <Bar dataKey="high" barSize={1} fill="transparent" shape={(props: any) => {
-            const { x, y, width, height, payload } = props
-            if (!payload) return null
+            const { x, width, payload } = props
+            if (!payload) return <g />
             const cx = x + width / 2
             return (
               <line
@@ -168,7 +169,7 @@ const CandlestickChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
           {/* 下影线 */}
           <Bar dataKey="low" barSize={1} fill="transparent" shape={(props: any) => {
             const { x, width, payload } = props
-            if (!payload) return null
+            if (!payload) return <g />
             const cx = x + width / 2
             return (
               <line
@@ -183,8 +184,8 @@ const CandlestickChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
           }} />
           {/* 实体 */}
           <Bar dataKey="close" fill="transparent" shape={(props: any) => {
-            const { x, y, width, height, payload } = props
-            if (!payload) return null
+            const { x, width, payload } = props
+            if (!payload) return <g />
             const bodyH = Math.abs(payload.bodyTop - payload.bodyBottom) || 1
             return (
               <rect
@@ -472,7 +473,6 @@ const EtfDetail: React.FC = () => {
   }
 
   const latestDaily = data.dailyData[0]
-  const latestIndicator = data.indicators[0]
 
   return (
     <div className="space-y-6">

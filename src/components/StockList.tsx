@@ -7,19 +7,8 @@ interface StockListProps {
   stocks: StockWithQuote[]
 }
 
-// 根据股票代码识别市场
-// .US / .US_A -> 美股（单位：亿美元）
-// .HK -> 港股（单位：亿港元）
-// .SH / .SZ -> A股（单位：亿人民币）
-function getMarketType(stockCode: string): 'us' | 'hk' | 'cn' {
-  const code = stockCode.toUpperCase()
-  if (code.endsWith('.US') || code.endsWith('.US_A') || code.endsWith('.NASDAQ') || code.endsWith('.NYSE')) return 'us'
-  if (code.endsWith('.HK')) return 'hk'
-  return 'cn'
-}
-
 // 将原始市值转换为对应市场的"亿"单位
-function formatMarketCapInYi(value: number, market: 'us' | 'hk' | 'cn'): string {
+function formatMarketCapInYi(value: number): string {
   // 数据库中存的是原始金额（元/美元/港元）
   // A股：人民币元 -> 亿人民币
   // 美股：美元 -> 亿美元
@@ -90,8 +79,7 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
                 {(() => {
                   const cap = stock.latest_valuation?.total_market_cap
                   if (cap == null) return '--'
-                  const market = getMarketType(stock.stock_code)
-                  return formatMarketCapInYi(cap, market)
+                  return formatMarketCapInYi(cap)
                 })()}
               </td>
             </tr>
