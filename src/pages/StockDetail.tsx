@@ -9,6 +9,13 @@ import {
   getChangeColor,
 } from '../utils/formatters'
 
+function getMarketType(stockCode: string): 'us' | 'hk' | 'cn' {
+  const code = stockCode.toUpperCase()
+  if (code.endsWith('.US') || code.endsWith('.US_A') || code.endsWith('.NASDAQ') || code.endsWith('.NYSE')) return 'us'
+  if (code.endsWith('.HK')) return 'hk'
+  return 'cn'
+}
+
 const StockDetail: React.FC = () => {
   const { stockCode } = useParams<{ stockCode: string }>()
   const navigate = useNavigate()
@@ -148,7 +155,12 @@ const StockDetail: React.FC = () => {
               <div className="text-xl font-bold text-gray-900">
                 {latestValuation.total_market_cap == null 
                   ? '--' 
-                  : (latestValuation.total_market_cap / 1e8).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  : (() => {
+                      const market = getMarketType(stock.stock_code)
+                      const cap = latestValuation.total_market_cap
+                      const yiValue = market === 'cn' ? cap : cap / 1e8
+                      return yiValue.toLocaleString(undefined, { maximumFractionDigits: 2 })
+                    })()}
               </div>
             </div>
             <div>
@@ -156,7 +168,12 @@ const StockDetail: React.FC = () => {
               <div className="text-xl font-bold text-gray-900">
                 {latestValuation.circulating_market_cap == null 
                   ? '--' 
-                  : (latestValuation.circulating_market_cap / 1e8).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  : (() => {
+                      const market = getMarketType(stock.stock_code)
+                      const cap = latestValuation.circulating_market_cap
+                      const yiValue = market === 'cn' ? cap : cap / 1e8
+                      return yiValue.toLocaleString(undefined, { maximumFractionDigits: 2 })
+                    })()}
               </div>
             </div>
           </div>
