@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { RefreshCw, DollarSign } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
@@ -12,11 +12,34 @@ type SortPeriod = '1d' | '5d' | '10d' | '20d' | '60d'
 const Home: React.FC = () => {
   const { stocks, loading, refresh } = useStockContext()
   const industrySummaries = useIndustrySummaries(stocks)
-  const [selectedIndustry1, setSelectedIndustry1] = useState<string>('all')
-  const [selectedIndustry2, setSelectedIndustry2] = useState<string>('all')
-  const [selectedMarket, setSelectedMarket] = useState<string>('all')
-  const [sortPeriod, setSortPeriod] = useState<SortPeriod>('1d')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('change_desc')
+  
+  const [selectedIndustry1, setSelectedIndustry1] = useState<string>(() => {
+    return localStorage.getItem('stock_filter_industry1') || 'all'
+  })
+  const [selectedIndustry2, setSelectedIndustry2] = useState<string>(() => {
+    return localStorage.getItem('stock_filter_industry2') || 'all'
+  })
+  const [selectedMarket, setSelectedMarket] = useState<string>(() => {
+    return localStorage.getItem('stock_filter_market') || 'all'
+  })
+  const [sortPeriod, setSortPeriod] = useState<SortPeriod>(() => {
+    return (localStorage.getItem('stock_filter_sortPeriod') as SortPeriod) || '1d'
+  })
+  const [sortOrder, setSortOrder] = useState<SortOrder>(() => {
+    return (localStorage.getItem('stock_filter_sortOrder') as SortOrder) || 'change_desc'
+  })
+
+  const saveFilterState = () => {
+    localStorage.setItem('stock_filter_industry1', selectedIndustry1)
+    localStorage.setItem('stock_filter_industry2', selectedIndustry2)
+    localStorage.setItem('stock_filter_market', selectedMarket)
+    localStorage.setItem('stock_filter_sortPeriod', sortPeriod)
+    localStorage.setItem('stock_filter_sortOrder', sortOrder)
+  }
+
+  useEffect(() => {
+    saveFilterState()
+  }, [selectedIndustry1, selectedIndustry2, selectedMarket, sortPeriod, sortOrder])
 
   const industry1Options = useMemo(() => {
     const industries = [...new Set(stocks.map(s => s.industry1).filter(Boolean))]
