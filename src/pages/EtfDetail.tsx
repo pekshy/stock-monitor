@@ -90,6 +90,10 @@ function useEtfDetail(symbol: string) {
 
 const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators[]; signals: EtfClawSignal[] }> = ({ dailyData, indicators, signals }) => {
   const indicatorMap = new Map(indicators.map(d => [d.trade_date, d]))
+  const signalMap = new Map<string, EtfClawSignal>()
+  signals.forEach(sig => {
+    signalMap.set(sig.trade_date, sig)
+  })
   
   const chartData = useMemo(() => {
     return [...dailyData].reverse().map(d => {
@@ -120,14 +124,6 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
       }
     })
   }, [dailyData, indicators, signals])
-
-  const signalMap = useMemo(() => {
-    const map = new Map<string, EtfClawSignal>()
-    signals.forEach(sig => {
-      map.set(sig.trade_date, sig)
-    })
-    return map
-  }, [signals])
 
   if (chartData.length === 0) {
     return <div className="flex items-center justify-center min-h-[500px] text-gray-500">暂无数据</div>
