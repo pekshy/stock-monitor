@@ -107,7 +107,7 @@ const CandlestickChart: React.FC<{ data: EtfDailyData[]; signals: EtfClawSignal[
       isUp: (d.close ?? 0) >= (d.open ?? 0),
       bodyTop: Math.max(d.open ?? 0, d.close ?? 0),
       bodyBottom: Math.min(d.open ?? 0, d.close ?? 0),
-      bodyHeight: Math.abs((d.close ?? 0) - (d.open ?? 0)) || 1
+      value: d.high ?? 0
     }))
   }, [data])
 
@@ -132,6 +132,88 @@ const CandlestickChart: React.FC<{ data: EtfDailyData[]; signals: EtfClawSignal[
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
   const padding = (maxPrice - minPrice) * 0.1
+
+  const CustomBar = ({ x, y, width, height, payload }: any) => {
+    if (!payload) return <g />
+    
+    const color = payload.isUp ? '#ef4444' : '#22c55e'
+    const priceRange = maxPrice - minPrice + padding * 2
+    
+    const getY = (price: number) => {
+      return y + height * ((maxPrice + padding) - price) / priceRange
+    }
+    
+    const highY = getY(payload.high)
+    const lowY = getY(payload.low)
+    const bodyTopY = getY(payload.bodyTop)
+    const bodyBottomY = getY(payload.bodyBottom)
+    const bodyHeight = Math.abs(bodyBottomY - bodyTopY) || 1
+    
+    return (
+      <g>
+        <line
+          x1={x + width / 2}
+          y1={highY}
+          x2={x + width / 2}
+          y2={lowY}
+          stroke={color}
+          strokeWidth={1}
+        />
+        <rect
+          x={x}
+          y={bodyTopY}
+          width={width}
+          height={bodyHeight}
+          fill={color}
+        />
+      </g>
+    )
+  }
+
+  const CustomSignalDot = ({ payload, cx, cy }: any) => {
+    const signal = signalMap.get(payload.trade_date)
+    if (!signal) return <g />
+    
+    return (
+      <g>
+        {signal === 'buy' ? (
+          <g>
+            <path
+              d={`M${cx},${cy + 10} L${cx - 5},${cy + 18} L${cx + 5},${cy + 18} Z`}
+              fill="#ef4444"
+            />
+            <text
+              x={cx}
+              y={cy + 28}
+              textAnchor="middle"
+              fill="#ef4444"
+              fontSize={10}
+              fontWeight="bold"
+            >
+              买
+            </text>
+          </g>
+        ) : (
+          <g>
+            <path
+              d={`M${cx},${cy - 10} L${cx - 5},${cy - 18} L${cx + 5},${cy - 18} Z`}
+              fill="#22c55e"
+            />
+            <text
+              x={cx}
+              y={cy - 22}
+              textAnchor="middle"
+              fill="#22c55e"
+              fontSize={10}
+              fontWeight="bold"
+            >
+              卖
+            </text>
+          </g>
+        )}
+      </g>
+    )
+  }
 
   return (
     <div className="h-80">
@@ -161,115 +243,12 @@ const CandlestickChart: React.FC<{ data: EtfDailyData[]; signals: EtfClawSignal[
               return [value?.toFixed(2) || '--', labels[name] || name]
             }}
           />
-          {/* 上影线 */}
-          <Line
-            type="monotone"
-            dataKey="high"
-            stroke="transparent"
-            dot={{
-              fill: 'none',
-              strokeWidth: 0
-            }}
-          />
-          {/* 下影线 */}
-          <Line
-            type="monotone"
-            dataKey="low"
-            stroke="transparent"
-            dot={{
-              fill: 'none',
-              strokeWidth: 0
-            }}
-          />
-          {/* K线实体 */}
-          <Bar
-            dataKey="bodyHeight"
-            barSize={6}
-            shape={(props: any) => {
-              const { x, width, payload } = props
-              if (!payload) return <g />
-              const color = payload.isUp ? '#ef4444' : '#22c55e'
-              return (
-                <g>
-                  {/* 上影线 */}
-                  <line
-                    x1={x + width / 2}
-                    y1={props.y}
-                    x2={x + width / 2}
-                    y2={props.y + (props.height * (payload.bodyTop - payload.high)) / (maxPrice - minPrice)}
-                    stroke={color}
-                    strokeWidth={1}
-                  />
-                  {/* 下影线 */}
-                  <line
-                    x1={x + width / 2}
-                    y1={props.y + props.height}
-                    x2={x + width / 2}
-                    y2={props.y + (props.height * (payload.bodyBottom - payload.low)) / (maxPrice - minPrice)}
-                    stroke={color}
-                    strokeWidth={1}
-                  />
-                  {/* 实体 */}
-                  <rect
-                    x={x}
-                    y={props.y + (props.height * (payload.bodyTop - payload.high)) / (maxPrice - minPrice)}
-                    width={width}
-                    height={props.height * (payload.bodyHeight) / (maxPrice - minPrice)}
-                    fill={color}
-                  />
-                </g>
-              )
-            }}
-          />
-          {/* 买卖信号标记 */}
+          <Bar dataKey="value" barSize={6} shape={<CustomBar />} />
           <Line
             type="monotone"
             dataKey="close"
             stroke="transparent"
-            dot={(props: any) => {
-              const { payload, cx, cy } = props
-              const signal = signalMap.get(payload.trade_date)
-              if (!signal) return <g />
-              return (
-                <g>
-                  {signal === 'buy' ? (
-                    <g>
-                      <path
-                        d={`M${cx},${cy + 10} L${cx - 5},${cy + 18} L${cx + 5},${cy + 18} Z`}
-                        fill="#ef4444"
-                      />
-                      <text
-                        x={cx}
-                        y={cy + 28}
-                        textAnchor="middle"
-                        fill="#ef4444"
-                        fontSize={10}
-                        fontWeight="bold"
-                      >
-                        买
-                      </text>
-                    </g>
-                  ) : (
-                    <g>
-                      <path
-                        d={`M${cx},${cy - 10} L${cx - 5},${cy - 18} L${cx + 5},${cy - 18} Z`}
-                        fill="#22c55e"
-                      />
-                      <text
-                        x={cx}
-                        y={cy - 22}
-                        textAnchor="middle"
-                        fill="#22c55e"
-                        fontSize={10}
-                        fontWeight="bold"
-                      >
-                        卖
-                      </text>
-                    </g>
-                  )}
-                </g>
-              )
-            }}
+            dot={<CustomSignalDot />}
           />
         </ComposedChart>
       </ResponsiveContainer>
