@@ -263,7 +263,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           
-          <Bar dataKey="value" barSize={5} shape={<CustomBar />} />
+          <Bar dataKey="value" barSize={5} shape={<CustomBar />} name="K线" />
           
           <Line type="monotone" dataKey="ma5" stroke="#f59e0b" dot={false} strokeWidth={1} name="MA5" />
           <Line type="monotone" dataKey="ma10" stroke="#8b5cf6" dot={false} strokeWidth={1} name="MA10" />
