@@ -146,13 +146,17 @@ const StockDetail: React.FC = () => {
             <div>
               <div className="text-gray-500 text-sm">总市值</div>
               <div className="text-xl font-bold text-gray-900">
-                {latestValuation.total_market_cap == null ? '--' : latestValuation.total_market_cap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                {latestValuation.total_market_cap == null 
+                  ? '--' 
+                  : (latestValuation.total_market_cap / 1e8).toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </div>
             </div>
             <div>
               <div className="text-gray-500 text-sm">流通市值</div>
               <div className="text-xl font-bold text-gray-900">
-                {latestValuation.circulating_market_cap == null ? '--' : latestValuation.circulating_market_cap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                {latestValuation.circulating_market_cap == null 
+                  ? '--' 
+                  : (latestValuation.circulating_market_cap / 1e8).toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </div>
             </div>
           </div>

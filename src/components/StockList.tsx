@@ -7,6 +7,27 @@ interface StockListProps {
   stocks: StockWithQuote[]
 }
 
+// 根据股票代码识别市场
+// .US / .US_A -> 美股（单位：亿美元）
+// .HK -> 港股（单位：亿港元）
+// .SH / .SZ -> A股（单位：亿人民币）
+function getMarketType(stockCode: string): 'us' | 'hk' | 'cn' {
+  const code = stockCode.toUpperCase()
+  if (code.endsWith('.US') || code.endsWith('.US_A') || code.endsWith('.NASDAQ') || code.endsWith('.NYSE')) return 'us'
+  if (code.endsWith('.HK')) return 'hk'
+  return 'cn'
+}
+
+// 将原始市值转换为对应市场的"亿"单位
+function formatMarketCapInYi(value: number, market: 'us' | 'hk' | 'cn'): string {
+  // 数据库中存的是原始金额（元/美元/港元）
+  // A股：人民币元 -> 亿人民币
+  // 美股：美元 -> 亿美元
+  // 港股：港元 -> 亿港元
+  const yiValue = value / 1e8
+  return yiValue.toLocaleString(undefined, { maximumFractionDigits: 2 })
+}
+
 const StockList: React.FC<StockListProps> = ({ stocks }) => {
   const navigate = useNavigate()
 
@@ -66,7 +87,12 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
                 {formatValuation(stock.latest_valuation?.pb)}
               </td>
               <td className="text-right py-4 px-4 text-gray-700">
-                {stock.latest_valuation?.total_market_cap == null ? '--' : stock.latest_valuation.total_market_cap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                {(() => {
+                  const cap = stock.latest_valuation?.total_market_cap
+                  if (cap == null) return '--'
+                  const market = getMarketType(stock.stock_code)
+                  return formatMarketCapInYi(cap, market)
+                })()}
               </td>
             </tr>
           ))}
