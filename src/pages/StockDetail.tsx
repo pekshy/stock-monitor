@@ -50,7 +50,7 @@ const StockDetail: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -64,7 +64,7 @@ const StockDetail: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
-              上一只
+              上翻
             </button>
           )}
           {nextStock && (
@@ -72,7 +72,7 @@ const StockDetail: React.FC = () => {
               onClick={() => navigate(`/stock/${nextStock.stock_code}`)}
               className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
             >
-              下一只
+              下翻
               <ArrowRight className="h-4 w-4" />
             </button>
           )}
