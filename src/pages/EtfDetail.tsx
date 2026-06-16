@@ -95,31 +95,43 @@ function useEtfDetail(symbol: string) {
 }
 
 // K线图组件
-const CandlestickChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
+const CandlestickChart: React.FC<{ data: EtfDailyData[]; signals: EtfClawSignal[] }> = ({ data, signals }) => {
   const chartData = useMemo(() => {
     return [...data].reverse().map(d => ({
       date: formatDate(d.trade_date),
-      open: d.open,
-      high: d.high,
-      low: d.low,
-      close: d.close,
-      // 阳线：收盘 >= 开盘，显示红色
-      // 阴线：收盘 < 开盘，显示绿色
+      trade_date: d.trade_date,
+      open: d.open ?? 0,
+      high: d.high ?? 0,
+      low: d.low ?? 0,
+      close: d.close ?? 0,
       isUp: (d.close ?? 0) >= (d.open ?? 0),
       bodyTop: Math.max(d.open ?? 0, d.close ?? 0),
-      bodyBottom: Math.min(d.open ?? 0, d.close ?? 0)
+      bodyBottom: Math.min(d.open ?? 0, d.close ?? 0),
+      bodyHeight: Math.abs((d.close ?? 0) - (d.open ?? 0)) || 1
     }))
   }, [data])
+
+  const signalMap = useMemo(() => {
+    const map = new Map<string, 'buy' | 'sell'>()
+    signals.forEach(sig => {
+      const action = sig.action?.toLowerCase()
+      if (action?.includes('买') || action?.includes('加仓')) {
+        map.set(sig.trade_date, 'buy')
+      } else if (action?.includes('卖') || action?.includes('减仓')) {
+        map.set(sig.trade_date, 'sell')
+      }
+    })
+    return map
+  }, [signals])
 
   if (chartData.length === 0) {
     return <div className="h-80 flex items-center justify-center text-gray-500">暂无数据</div>
   }
 
-  // 计算价格范围
-  const prices = chartData.flatMap(d => [d.high, d.low]).filter(p => p != null) as number[]
+  const prices = chartData.flatMap(d => [d.high, d.low])
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
-  const padding = (maxPrice - minPrice) * 0.05
+  const padding = (maxPrice - minPrice) * 0.1
 
   return (
     <div className="h-80">
@@ -149,54 +161,116 @@ const CandlestickChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
               return [value?.toFixed(2) || '--', labels[name] || name]
             }}
           />
-          {/* K线（上下影线 + 实体） */}
           {/* 上影线 */}
-          <Bar dataKey="high" barSize={1} fill="transparent" shape={(props: any) => {
-            const { x, width, payload } = props
-            if (!payload) return <g />
-            const cx = x + width / 2
-            return (
-              <line
-                x1={cx}
-                y1={payload.bodyTop - (payload.high - payload.bodyTop)}
-                x2={cx}
-                y2={payload.bodyBottom}
-                stroke={payload.isUp ? '#ef4444' : '#22c55e'}
-                strokeWidth={1}
-              />
-            )
-          }} />
+          <Line
+            type="monotone"
+            dataKey="high"
+            stroke="transparent"
+            dot={{
+              fill: 'none',
+              strokeWidth: 0
+            }}
+          />
           {/* 下影线 */}
-          <Bar dataKey="low" barSize={1} fill="transparent" shape={(props: any) => {
-            const { x, width, payload } = props
-            if (!payload) return <g />
-            const cx = x + width / 2
-            return (
-              <line
-                x1={cx}
-                y1={payload.bodyBottom}
-                x2={cx}
-                y2={payload.bodyBottom + (payload.bodyBottom - payload.low)}
-                stroke={payload.isUp ? '#ef4444' : '#22c55e'}
-                strokeWidth={1}
-              />
-            )
-          }} />
-          {/* 实体 */}
-          <Bar dataKey="close" fill="transparent" shape={(props: any) => {
-            const { x, width, payload } = props
-            if (!payload) return <g />
-            const bodyH = Math.abs(payload.bodyTop - payload.bodyBottom) || 1
-            return (
-              <rect
-                x={x}
-                y={payload.bodyTop - (payload.high - payload.bodyTop)}
-                width={width}
-                height={bodyH}
-                fill={payload.isUp ? '#ef4444' : '#22c55e'}
-              />
-            )
-          }} />
+          <Line
+            type="monotone"
+            dataKey="low"
+            stroke="transparent"
+            dot={{
+              fill: 'none',
+              strokeWidth: 0
+            }}
+          />
+          {/* K线实体 */}
+          <Bar
+            dataKey="bodyHeight"
+            barSize={6}
+            shape={(props: any) => {
+              const { x, width, payload } = props
+              if (!payload) return <g />
+              const color = payload.isUp ? '#ef4444' : '#22c55e'
+              return (
+                <g>
+                  {/* 上影线 */}
+                  <line
+                    x1={x + width / 2}
+                    y1={props.y}
+                    x2={x + width / 2}
+                    y2={props.y + (props.height * (payload.bodyTop - payload.high)) / (maxPrice - minPrice)}
+                    stroke={color}
+                    strokeWidth={1}
+                  />
+                  {/* 下影线 */}
+                  <line
+                    x1={x + width / 2}
+                    y1={props.y + props.height}
+                    x2={x + width / 2}
+                    y2={props.y + (props.height * (payload.bodyBottom - payload.low)) / (maxPrice - minPrice)}
+                    stroke={color}
+                    strokeWidth={1}
+                  />
+                  {/* 实体 */}
+                  <rect
+                    x={x}
+                    y={props.y + (props.height * (payload.bodyTop - payload.high)) / (maxPrice - minPrice)}
+                    width={width}
+                    height={props.height * (payload.bodyHeight) / (maxPrice - minPrice)}
+                    fill={color}
+                  />
+                </g>
+              )
+            }}
+          />
+          {/* 买卖信号标记 */}
+          <Line
+            type="monotone"
+            dataKey="close"
+            stroke="transparent"
+            dot={(props: any) => {
+              const { payload, cx, cy } = props
+              const signal = signalMap.get(payload.trade_date)
+              if (!signal) return <g />
+              return (
+                <g>
+                  {signal === 'buy' ? (
+                    <g>
+                      <path
+                        d={`M${cx},${cy + 10} L${cx - 5},${cy + 18} L${cx + 5},${cy + 18} Z`}
+                        fill="#ef4444"
+                      />
+                      <text
+                        x={cx}
+                        y={cy + 28}
+                        textAnchor="middle"
+                        fill="#ef4444"
+                        fontSize={10}
+                        fontWeight="bold"
+                      >
+                        买
+                      </text>
+                    </g>
+                  ) : (
+                    <g>
+                      <path
+                        d={`M${cx},${cy - 10} L${cx - 5},${cy - 18} L${cx + 5},${cy - 18} Z`}
+                        fill="#22c55e"
+                      />
+                      <text
+                        x={cx}
+                        y={cy - 22}
+                        textAnchor="middle"
+                        fill="#22c55e"
+                        fontSize={10}
+                        fontWeight="bold"
+                      >
+                        卖
+                      </text>
+                    </g>
+                  )}
+                </g>
+              )
+            }}
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -516,7 +590,7 @@ const EtfDetail: React.FC = () => {
           <TrendingUp className="h-5 w-5" />
           K线走势
         </h2>
-        <CandlestickChart data={data.dailyData} />
+        <CandlestickChart data={data.dailyData} signals={data.signals} />
       </div>
 
       {/* MA均线 */}
