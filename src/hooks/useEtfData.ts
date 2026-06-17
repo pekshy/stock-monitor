@@ -12,24 +12,34 @@ import {
   EtfWithData,
   IndicatorSeries,
   IndicatorCategory,
-  StockMarketVolume
+  StockMarketVolume,
+  FearGreedSeries
 } from '../types'
 
 type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator | StockMarketVolume
 
 function groupIndicatorsBySeries(indicators: AnyIndicator[]): IndicatorSeries[] {
-  const grouped = new Map<string, { date: string; value: number }[]>()
-  const latestMap = new Map<string, { value: number; date: string }>()
+  const grouped = new Map<string, { date: string; value: number; classification?: string | null }[]>()
+  const latestMap = new Map<string, { value: number; date: string; classification?: string | null }>()
 
   indicators.forEach(ind => {
     if (!grouped.has(ind.indicator_id)) {
       grouped.set(ind.indicator_id, [])
     }
-    grouped.get(ind.indicator_id)!.push({ date: ind.date, value: ind.value })
+    const classification = (ind as MarketIndicator).classification
+    grouped.get(ind.indicator_id)!.push({
+      date: ind.date,
+      value: ind.value,
+      classification
+    })
 
     const existing = latestMap.get(ind.indicator_id)
     if (!existing || new Date(ind.date) > new Date(existing.date)) {
-      latestMap.set(ind.indicator_id, { value: ind.value, date: ind.date })
+      latestMap.set(ind.indicator_id, {
+        value: ind.value,
+        date: ind.date,
+        classification
+      })
     }
   })
 
@@ -259,6 +269,7 @@ export function useEtfData() {
   const [marketIndicators, setMarketIndicators] = useState<MarketIndicator[]>([])
   const [chinaIndicatorSeries, setChinaIndicatorSeries] = useState<IndicatorSeries[]>([])
   const [globalIndicatorSeries, setGlobalIndicatorSeries] = useState<IndicatorSeries[]>([])
+  const [fearGreedSeries, setFearGreedSeries] = useState<FearGreedSeries | null>(null)
   const [latestDate, setLatestDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -338,6 +349,25 @@ export function useEtfData() {
         chinaSeries,
         groupIndicatorsBySeries((volumeData || []) as AnyIndicator[])
       ))
+
+      // 4.1 单独提取恐贪指数（indicator_id 包含 fear_greed）
+      const fearGreedRaw = (marketData || [])
+        .filter(m => m.indicator_id.toLowerCase().includes('fear_greed') || m.indicator_id.toLowerCase() === 'fear_greed')
+      if (fearGreedRaw.length > 0) {
+        const fgHistory = fearGreedRaw
+          .map(m => ({ date: m.date, value: m.value, classification: m.classification || null }))
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        const fgLatest = fgHistory[fgHistory.length - 1]
+        setFearGreedSeries({
+          indicator_id: fearGreedRaw[0].indicator_id,
+          latest_value: fgLatest ? fgLatest.value : null,
+          latest_date: fgLatest ? fgLatest.date : null,
+          latest_classification: fgLatest ? fgLatest.classification : null,
+          history: fgHistory
+        })
+      } else {
+        setFearGreedSeries(null)
+      }
 
       // 4. 如果有ETF，获取它们的数据
       let etfsWithData: EtfWithData[] = []
@@ -457,6 +487,7 @@ export function useEtfData() {
     marketIndicators,
     chinaIndicatorSeries,
     globalIndicatorSeries,
+    fearGreedSeries,
     latestDate,
     loading,
     error,

@@ -5,7 +5,7 @@ export interface WatchlistItem {
   industry1: string | null
   industry2: string | null
   market: string | null
-  highlights: string | null
+  core_highlight: string | null
   created_at: string
   updated_at: string
 }
@@ -181,6 +181,7 @@ export interface MarketIndicator {
   indicator_id: string
   date: string
   value: number
+  classification?: string | null
   updated_at: string | null
 }
 
@@ -203,7 +204,7 @@ export interface IndicatorSeries {
   indicator_id: string
   latest_value: number | null
   latest_date: string | null
-  history: { date: string; value: number }[]
+  history: { date: string; value: number; classification?: string | null }[]
 }
 
 export interface FedForecast {
@@ -220,4 +221,13 @@ export interface IndicatorCategory {
   color: string       // 图表/标签颜色
   members: IndicatorSeries[]  // 该类下的所有指标时序数据
   default_indicator_id: string | null  // 默认展示的 indicator_id
+}
+
+// 恐贪指数专用类型
+export interface FearGreedSeries {
+  indicator_id: string
+  latest_value: number | null
+  latest_date: string | null
+  latest_classification: string | null
+  history: { date: string; value: number; classification?: string | null }[]
 }

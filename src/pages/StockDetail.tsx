@@ -105,14 +105,14 @@ const StockDetail: React.FC = () => {
         </div>
       </div>
 
-      {stock.highlights && (
+      {stock.core_highlight && (
         <div className="bg-white rounded-xl shadow-md p-4">
           <h3 className="text-base font-bold text-gray-900 mb-2 flex items-center gap-2">
             <Star className="h-4 w-4 text-yellow-500" />
             核心亮点
           </h3>
           <div className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">
-            {stock.highlights}
+            {stock.core_highlight}
           </div>
         </div>
       )}

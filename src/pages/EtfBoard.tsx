@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, RefreshCw, Target, Activity } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
   useEtfData,
   GLOBAL_CATEGORIES,
@@ -10,6 +10,7 @@ import {
 } from '../hooks/useEtfData'
 import { IndicatorSeries, IndicatorCategory } from '../types'
 import { formatPercent, getChangeColor } from '../utils/formatters'
+import { FearGreedSeries } from '../types'
 
 // --- 通用辅助函数 ---
 
@@ -223,6 +224,151 @@ const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor, days = 9
   )
 }
 
+// --- 恐贪指数卡片 ---
+const FearGreedCard: React.FC<{ series: FearGreedSeries }> = ({ series }) => {
+  const latestValue = series.latest_value ?? 0
+  const classification = series.latest_classification || ''
+  const upperClassification = classification.toUpperCase()
+
+  // 根据 classification 确定颜色（贪婪=红/橙，中性=黄/绿，恐惧=蓝/紫）
+  let color = '#6b7280'
+  if (upperClassification.includes('EXTREME') && upperClassification.includes('GREED')) {
+    color = '#dc2626' // 深红
+  } else if (upperClassification.includes('GREED') && !upperClassification.includes('FEAR')) {
+    color = '#ea580c' // 橙红
+  } else if (upperClassification.includes('NEUTRAL') || classification === '中性') {
+    color = '#059669' // 绿
+  } else if (upperClassification.includes('EXTREME') && upperClassification.includes('FEAR')) {
+    color = '#2563eb' // 深蓝
+  } else if (upperClassification.includes('FEAR')) {
+    color = '#7c3aed' // 紫
+  } else if (latestValue >= 75) {
+    color = '#dc2626'
+  } else if (latestValue >= 55) {
+    color = '#ea580c'
+  } else if (latestValue >= 45) {
+    color = '#059669'
+  } else if (latestValue >= 25) {
+    color = '#7c3aed'
+  } else {
+    color = '#2563eb'
+  }
+
+  const chartData = series.history.slice(-60).map(h => ({
+    date: formatShortDate(h.date),
+    value: h.value,
+    classification: h.classification || ''
+  }))
+
+  return (
+    <div
+      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
+      style={{ borderTop: `3px solid ${color}` }}
+    >
+      {/* 顶部：标题 */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="font-bold" style={{ color }}>
+          恐贪指数
+        </div>
+        <div className="text-xs text-gray-400">{series.latest_date}</div>
+      </div>
+
+      {/* 数值与分类 */}
+      <div className="flex items-start justify-between mb-2">
+        <div
+          className="text-4xl font-bold"
+          style={{ color }}
+        >
+          {latestValue.toFixed(0)}
+        </div>
+        <div
+          className="text-sm font-semibold px-2 py-1 rounded-md"
+          style={{ backgroundColor: `${color}15`, color }}
+        >
+          {classification || (latestValue >= 75 ? '极度贪婪' : latestValue >= 55 ? '贪婪' : latestValue >= 45 ? '中性' : latestValue >= 25 ? '恐惧' : '极度恐惧')}
+        </div>
+      </div>
+
+      {/* 0-100 分级条 */}
+      <div className="relative mb-3 mt-1">
+        <div className="h-2 rounded-full overflow-hidden" style={{
+          background: 'linear-gradient(to right, #2563eb, #7c3aed, #059669, #ea580c, #dc2626)'
+        }} />
+        {/* 指针 */}
+        <div
+          className="absolute top-0 h-2 w-0.5 bg-black transform -translate-x-1/2"
+          style={{ left: `${latestValue}%` }}
+        />
+      </div>
+      <div className="flex justify-between text-xs text-gray-400 mb-3">
+        <span>极度恐惧</span>
+        <span>恐惧</span>
+        <span>中性</span>
+        <span>贪婪</span>
+        <span>极度贪婪</span>
+      </div>
+
+      {/* 走势图 */}
+      <ResponsiveContainer width="100%" height={80}>
+        <LineChart data={chartData} margin={{ top: 2, right: 4, left: 0, bottom: 2 }}>
+          <defs>
+            <linearGradient id="fearGreedGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="100%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+          <XAxis
+            dataKey="date"
+            tick={false}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            tick={false}
+            axisLine={false}
+            tickLine={false}
+            domain={[0, 100]}
+            width={0}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#fff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              fontSize: '12px',
+              padding: '6px 10px'
+            }}
+            formatter={(value: number) => [
+              `${value.toFixed(0)}`,
+              '恐贪指数'
+            ]}
+            labelFormatter={(label) => {
+              const point = chartData.find((d: any) => d.date === label)
+              return point && point.classification ? `${label} · ${point.classification}` : label
+            }}
+          />
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke={color}
+            strokeWidth={2}
+            fill="url(#fearGreedGradient)"
+          />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke={color}
+            strokeWidth={1.5}
+            dot={false}
+            activeDot={{ r: 4, stroke: color, strokeWidth: 1, fill: '#fff' }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
 // --- 单个类别卡片（支持多选叠加展示） ---
 
 interface CategoryCardProps {
@@ -368,6 +514,7 @@ const EtfBoard: React.FC = () => {
     etfs,
     chinaIndicatorSeries,
     globalIndicatorSeries,
+    fearGreedSeries,
     latestDate,
     loading,
     error,
@@ -481,7 +628,7 @@ const EtfBoard: React.FC = () => {
         </button>
       </div>
 
-      {/* 市场指标 —— 全球市场指标与中国宏观指标合并展示 */}
+      {/* 市场指标 —— 全球市场指标、恐贪指数与中国宏观指标合并展示 */}
       <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -489,11 +636,14 @@ const EtfBoard: React.FC = () => {
             市场指标
           </h2>
         </div>
-        {(globalCategories.length + chinaCategories.length) > 0 ? (
+        {((globalCategories.length + chinaCategories.length) > 0 || fearGreedSeries) ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {globalCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             ))}
+            {fearGreedSeries && (
+              <FearGreedCard series={fearGreedSeries} />
+            )}
             {chinaCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             ))}
