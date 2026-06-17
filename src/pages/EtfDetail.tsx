@@ -228,7 +228,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   }
 
   return (
-    <div className="h-[320px]">
+    <div className="h-[380px]">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart 
           data={chartData} 
@@ -327,9 +327,14 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
               )
             }}
           />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
+          <Legend wrapperStyle={{ fontSize: 11 }} payload={[
+            { value: 'MA5', type: 'line', color: '#f59e0b' },
+            { value: 'MA10', type: 'line', color: '#8b5cf6' },
+            { value: 'MA20', type: 'line', color: '#06b6d4' },
+            { value: 'MA60', type: 'line', color: '#ec4899' },
+          ]} />
           
-          <Bar dataKey="value" barSize={5} shape={<CustomBar />} name="K线" />
+          <Bar dataKey="value" barSize={5} shape={<CustomBar />} name="K线" legendType="none" />
           
           <Line type="monotone" dataKey="ma5" stroke="#f59e0b" dot={false} strokeWidth={1} name="MA5" />
           <Line type="monotone" dataKey="ma10" stroke="#8b5cf6" dot={false} strokeWidth={1} name="MA10" />
@@ -341,6 +346,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
             dataKey="close"
             stroke="transparent"
             dot={<CustomSignalDot />}
+            legendType="none"
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -363,7 +369,7 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
   }
 
   return (
-    <div className="h-16 mt-2">
+    <div className="h-24 mt-2">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 0 }} syncId="etf-chart">
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
