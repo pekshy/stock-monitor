@@ -5,7 +5,6 @@ import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Responsive
 import {
   useEtfData,
   GLOBAL_CATEGORIES,
-  CHINA_CATEGORIES,
   buildIndicatorCategories
 } from '../hooks/useEtfData'
 import { IndicatorSeries, IndicatorCategory } from '../types'
@@ -512,7 +511,6 @@ const EtfBoard: React.FC = () => {
   const navigate = useNavigate()
   const {
     etfs,
-    chinaIndicatorSeries,
     globalIndicatorSeries,
     fearGreedSeries,
     latestDate,
@@ -539,11 +537,6 @@ const EtfBoard: React.FC = () => {
   const globalCategories = useMemo(
     () => buildIndicatorCategories(globalIndicatorSeries, GLOBAL_CATEGORIES),
     [globalIndicatorSeries]
-  )
-
-  const chinaCategories = useMemo(
-    () => buildIndicatorCategories(chinaIndicatorSeries, CHINA_CATEGORIES),
-    [chinaIndicatorSeries]
   )
 
   const formatDate = (dateStr: string) => {
@@ -636,7 +629,7 @@ const EtfBoard: React.FC = () => {
             市场指标
           </h2>
         </div>
-        {((globalCategories.length + chinaCategories.length) > 0 || fearGreedSeries) ? (
+        {globalCategories.length > 0 || fearGreedSeries ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {globalCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
@@ -644,9 +637,6 @@ const EtfBoard: React.FC = () => {
             {fearGreedSeries && (
               <FearGreedCard series={fearGreedSeries} />
             )}
-            {chinaCategories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
           </div>
         ) : (
           <div className="text-gray-500 text-center py-8">暂无指标数据</div>

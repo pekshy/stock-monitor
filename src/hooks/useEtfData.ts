@@ -103,7 +103,7 @@ type CategoryRule = {
   memberOrder?: string[] // 可选：indicator_id 优先级/展示顺序（从左到右）
 }
 
-// 全球指标分类
+// 全球指标分类（按看板展示顺序：美元指数、美债收益率、人民币汇率、货币、贵金属、能源、数字货币、通胀、A股成交量）
 const GLOBAL_CATEGORIES: CategoryRule[] = [
   {
     id: 'dollar_index',
@@ -125,6 +125,26 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     },
     defaultIndicator: 'treasury_10y',
     memberOrder: ['DGS3MO', 'treasury_3m', 'DGS2', 'treasury_2y', 'DGS10', 'treasury_10y', 'DGS30', 'treasury_30y', 'DGS1MO', 'treasury_1m', 'DGS6MO', 'treasury_6m', 'DGS1', 'treasury_1y', 'DGS5', 'treasury_5y', 'DGS7', 'treasury_7y', 'DGS20', 'treasury_20y']
+  },
+  {
+    id: 'cny_exchange',
+    label: '人民币汇率',
+    color: '#059669',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('CNY') || u.includes('EXCHANGE') || u.includes('RMB')
+    },
+    defaultIndicator: 'cny_exchange_rate'
+  },
+  {
+    id: 'interest_rate',
+    label: '货币',
+    color: '#0891b2',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('SHIBOR') || u.includes('LPR') || u.includes('MONEY') || u.includes('SUPPLY') || u.includes('M1') || u.includes('M2')
+    },
+    defaultIndicator: 'SHIBOR'
   },
   {
     id: 'precious_metals',
@@ -157,40 +177,6 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     defaultIndicator: 'BITCOIN'
   },
   {
-    id: 'a_stock_volume',
-    label: 'A股成交量',
-    color: '#9333ea',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u.includes('STOCK_MARKET_VOLUME') || u.includes('A_STOCK') || u.includes('A股') || u === 'VOLUME'
-    },
-    defaultIndicator: 'stock_market_volume'
-  },
-  {
-    id: 'cny_exchange',
-    label: '人民币汇率',
-    color: '#059669',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u.includes('CNY') || u.includes('EXCHANGE') || u.includes('RMB')
-    },
-    defaultIndicator: 'cny_exchange_rate'
-  }
-]
-
-// 中国宏观指标分类
-const CHINA_CATEGORIES: CategoryRule[] = [
-  {
-    id: 'interest_rate',
-    label: '货币',
-    color: '#0891b2',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u.includes('SHIBOR') || u.includes('LPR') || u.includes('MONEY') || u.includes('SUPPLY') || u.includes('M1') || u.includes('M2')
-    },
-    defaultIndicator: 'SHIBOR'
-  },
-  {
     id: 'inflation',
     label: '通胀',
     color: '#dc2626',
@@ -199,8 +185,21 @@ const CHINA_CATEGORIES: CategoryRule[] = [
       return u.includes('CPI') || u.includes('PPI') || u.includes('CORE')
     },
     defaultIndicator: 'CPI'
+  },
+  {
+    id: 'a_stock_volume',
+    label: 'A股成交量',
+    color: '#9333ea',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('STOCK_MARKET_VOLUME') || u.includes('A_STOCK') || u.includes('A股') || u === 'VOLUME'
+    },
+    defaultIndicator: 'stock_market_volume'
   }
 ]
+
+// 中国宏观指标分类（已合并到 GLOBAL_CATEGORIES，此处保留用于兼容）
+const CHINA_CATEGORIES: CategoryRule[] = []
 
 // 根据 indicator_id 找分类
 function categorizeIndicator(id: string, categories: CategoryRule[]): CategoryRule | null {
