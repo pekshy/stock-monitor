@@ -103,6 +103,10 @@ type CategoryRule = {
   memberOrder?: string[] // 可选：indicator_id 优先级/展示顺序（从左到右）
 }
 
+// 通胀类别的精确匹配 ID（中国数据用短 ID，如 CPI/PPI/CORE_CPI）
+// 用于在分类时区分中国 CPI/PPI（同比指数，值约100-105）与美国 CPIAUCSL/PPIACO（基准指数，值约250-350）
+const INFLATION_CN_IDS = ['CPI', 'PPI', 'CORE_CPI', 'CORECPI']
+
 // 全球指标分类（按看板展示顺序：美元指数、美债收益率、人民币汇率、货币、贵金属、能源、数字货币、通胀、A股成交量）
 const GLOBAL_CATEGORIES: CategoryRule[] = [
   {
@@ -180,9 +184,11 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     id: 'inflation',
     label: '通胀',
     color: '#dc2626',
+    // 精确匹配中国 CPI/PPI，排除 FRED 的 CPIAUCSL/PPIACO 等长 ID
+    // 避免不同基准的数据（同比指数100+ vs 基准指数300+）被混合到同一条序列
     matches: (id) => {
       const u = id.toUpperCase()
-      return u.includes('CPI') || u.includes('PPI') || u.includes('CORE')
+      return INFLATION_CN_IDS.includes(u)
     },
     defaultIndicator: 'CPI'
   },

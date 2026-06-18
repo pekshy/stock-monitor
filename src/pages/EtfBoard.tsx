@@ -512,6 +512,7 @@ const EtfBoard: React.FC = () => {
   const {
     etfs,
     globalIndicatorSeries,
+    chinaIndicatorSeries,
     fearGreedSeries,
     latestDate,
     loading,
@@ -534,9 +535,25 @@ const EtfBoard: React.FC = () => {
       return priorityA - priorityB
     })
   }, [etfs])
+  // 通胀类别单独从中国数据构建，避免与 FRED 基准指数（CPIAUCSL/PPIACO）混合
   const globalCategories = useMemo(
-    () => buildIndicatorCategories(globalIndicatorSeries, GLOBAL_CATEGORIES),
-    [globalIndicatorSeries]
+    () => {
+      const nonInflationRules = GLOBAL_CATEGORIES.filter(c => c.id !== 'inflation')
+      const nonInflationCats = buildIndicatorCategories(globalIndicatorSeries, nonInflationRules)
+
+      // 通胀类别从 chinaIndicatorSeries 构建，只取中国 CPI/PPI/CORE_CPI 数据
+      const inflationRules = GLOBAL_CATEGORIES.filter(c => c.id === 'inflation')
+      const inflationCats = buildIndicatorCategories(chinaIndicatorSeries, inflationRules)
+
+      // 按原始顺序合并
+      const catsById = new Map<string, IndicatorCategory>()
+      nonInflationCats.forEach(c => catsById.set(c.id, c))
+      inflationCats.forEach(c => catsById.set(c.id, c))
+      return GLOBAL_CATEGORIES
+        .map(rule => catsById.get(rule.id))
+        .filter((c): c is IndicatorCategory => !!c)
+    },
+    [globalIndicatorSeries, chinaIndicatorSeries]
   )
 
   const formatDate = (dateStr: string) => {
