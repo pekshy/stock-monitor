@@ -91,11 +91,6 @@ function useEtfDetail(symbol: string) {
       
       const { data: fitData, error: fitErr } = await fitQuery
       if (fitErr) throw fitErr
-      
-      console.log('ETF detail - symbol:', symbol)
-      console.log('dailyData dates:', dailyDates.slice(0, 3), '...', dailyDates.slice(-3))
-      console.log('fitData dates:', fitData?.slice(0, 3).map(f => f.trade_date), '...', fitData?.slice(-3).map(f => f.trade_date))
-      console.log('fitData sample fitted vs close:', fitData?.slice(0, 5).map(f => ({ date: f.trade_date, close: f.close, fitted: f.fitted, upper: f.upper_band, lower: f.lower_band })))
 
       setData({
         etf: etfInfo,
@@ -158,14 +153,6 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         fitted: fit?.fitted ?? null,
       }
     })
-    
-    // 调试：检查匹配率和前几个数据点
-    const matchedCount = result.filter(d => d.fitted != null).length
-    console.log('MainChart - total dates:', result.length, 'matched fit:', matchedCount)
-    console.log('MainChart - first 3:', result.slice(0, 3).map(d => ({ date: d.trade_date, close: d.close, fitted: d.fitted })))
-    console.log('MainChart - last 3:', result.slice(-3).map(d => ({ date: d.trade_date, close: d.close, fitted: d.fitted })))
-    
-    return result
   }, [dailyData, indicators, signals, butterworthFit])
 
   if (chartData.length === 0) {
@@ -185,10 +172,20 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
     if (!payload) return <g />
     
     const color = payload.isUp ? '#ef4444' : '#22c55e'
-    const priceRange = maxPrice - minPrice + padding * 2
-    
+    const domainLow = minPrice - padding
+    const domainHigh = maxPrice + padding
+    const domainRange = domainHigh - domainLow
+
+    // Recharts: y = 当前k线high值的Y坐标, y + height = 图表底部Y坐标(=domainLow)
+    // 据此推算整图的像素高度和顶部Y坐标, 用于任意价格→Y坐标映射
+    const barValue = payload.high ?? 0
+    const chartBottomY = y + height
+    const pixelsPerPriceUnit = height / Math.max(barValue - domainLow, 0.0001)
+    const chartPixelHeight = domainRange * pixelsPerPriceUnit
+    const chartTopY = chartBottomY - chartPixelHeight
+
     const getY = (price: number) => {
-      return y + height * ((maxPrice + padding) - price) / priceRange
+      return chartTopY + chartPixelHeight * (domainHigh - price) / domainRange
     }
     
     const highY = getY(payload.high)
