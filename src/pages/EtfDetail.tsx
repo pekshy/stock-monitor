@@ -75,13 +75,27 @@ function useEtfDetail(symbol: string) {
         .limit(60)
       if (sigErr) throw sigErr
 
-      const { data: fitData, error: fitErr } = await supabase
+      // 先取 dailyData 的日期范围，再查询该范围内的所有拟合数据
+      const dailyDates = (dailyData || []).map(d => d.trade_date)
+      const oldestDate = dailyDates.length > 0 ? dailyDates[dailyDates.length - 1] : null
+      
+      let fitQuery = supabase
         .from('etf_butterworth_fit')
         .select('*')
         .eq('symbol', symbol)
         .order('trade_date', { ascending: false })
-        .limit(60)
+      
+      if (oldestDate) {
+        fitQuery = fitQuery.gte('trade_date', oldestDate)
+      }
+      
+      const { data: fitData, error: fitErr } = await fitQuery
       if (fitErr) throw fitErr
+      
+      console.log('ETF detail - symbol:', symbol)
+      console.log('dailyData dates:', dailyDates.slice(0, 3), '...', dailyDates.slice(-3))
+      console.log('fitData dates:', fitData?.slice(0, 3).map(f => f.trade_date), '...', fitData?.slice(-3).map(f => f.trade_date))
+      console.log('fitData sample fitted vs close:', fitData?.slice(0, 5).map(f => ({ date: f.trade_date, close: f.close, fitted: f.fitted, upper: f.upper_band, lower: f.lower_band })))
 
       setData({
         etf: etfInfo,
@@ -111,7 +125,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   butterworthFit.forEach(f => fitMap.set(f.trade_date, f))
   
   const chartData = useMemo(() => {
-    return [...dailyData].reverse().map(d => {
+    const result = [...dailyData].reverse().map(d => {
       const indicator = indicatorMap.get(d.trade_date)
       const signal = signalMap.get(d.trade_date)
       const fit = fitMap.get(d.trade_date)
@@ -146,6 +160,14 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         lower_band: fit?.lower_band ?? null
       }
     })
+    
+    // 调试：检查匹配率和前几个数据点
+    const matchedCount = result.filter(d => d.fitted != null).length
+    console.log('MainChart - total dates:', result.length, 'matched fit:', matchedCount)
+    console.log('MainChart - first 3:', result.slice(0, 3).map(d => ({ date: d.trade_date, close: d.close, fitted: d.fitted, upper: d.upper_band, lower: d.lower_band })))
+    console.log('MainChart - last 3:', result.slice(-3).map(d => ({ date: d.trade_date, close: d.close, fitted: d.fitted, upper: d.upper_band, lower: d.lower_band })))
+    
+    return result
   }, [dailyData, indicators, signals, butterworthFit])
 
   if (chartData.length === 0) {
