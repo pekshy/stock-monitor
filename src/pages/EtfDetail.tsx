@@ -56,7 +56,7 @@ function useEtfDetail(symbol: string) {
         .select('*')
         .eq('symbol', symbol)
         .order('trade_date', { ascending: false })
-        .limit(60)
+        .limit(90)
       if (dailyErr) throw dailyErr
 
       const { data: indicators, error: indErr } = await supabase
@@ -64,7 +64,7 @@ function useEtfDetail(symbol: string) {
         .select('*')
         .eq('symbol', symbol)
         .order('trade_date', { ascending: false })
-        .limit(60)
+        .limit(90)
       if (indErr) throw indErr
 
       const { data: signals, error: sigErr } = await supabase
@@ -72,7 +72,7 @@ function useEtfDetail(symbol: string) {
         .select('*')
         .eq('symbol', symbol)
         .order('trade_date', { ascending: false })
-        .limit(60)
+        .limit(90)
       if (sigErr) throw sigErr
 
       // 先取 dailyData 的日期范围，再查询该范围内的所有拟合数据

@@ -409,11 +409,15 @@ export function useEtfData() {
         if (signalsErr) throw signalsErr
         console.log('ETF signals:', signalsData)
 
-        // 获取 Butterworth 拟合曲线数据
+        // 获取 Butterworth 拟合曲线数据（限制到最近90天）
+        const ninetyDaysAgo = new Date()
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+        const ninetyDaysAgoStr = ninetyDaysAgo.toISOString().split('T')[0]
         const { data: fitData, error: fitErr } = await supabase
           .from('etf_butterworth_fit')
           .select('*')
           .in('symbol', symbols)
+          .gte('trade_date', ninetyDaysAgoStr)
           .order('trade_date', { ascending: true })
         if (fitErr) throw fitErr
         console.log('Butterworth fit data:', fitData)
