@@ -156,16 +156,14 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         signalRsi: signal?.rsi,
         signalMacd: signal?.macd_hist,
         fitted: fit?.fitted ?? null,
-        upper_band: fit?.upper_band ?? null,
-        lower_band: fit?.lower_band ?? null
       }
     })
     
     // 调试：检查匹配率和前几个数据点
     const matchedCount = result.filter(d => d.fitted != null).length
     console.log('MainChart - total dates:', result.length, 'matched fit:', matchedCount)
-    console.log('MainChart - first 3:', result.slice(0, 3).map(d => ({ date: d.trade_date, close: d.close, fitted: d.fitted, upper: d.upper_band, lower: d.lower_band })))
-    console.log('MainChart - last 3:', result.slice(-3).map(d => ({ date: d.trade_date, close: d.close, fitted: d.fitted, upper: d.upper_band, lower: d.lower_band })))
+    console.log('MainChart - first 3:', result.slice(0, 3).map(d => ({ date: d.trade_date, close: d.close, fitted: d.fitted })))
+    console.log('MainChart - last 3:', result.slice(-3).map(d => ({ date: d.trade_date, close: d.close, fitted: d.fitted })))
     
     return result
   }, [dailyData, indicators, signals, butterworthFit])
@@ -177,8 +175,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   const prices = chartData.flatMap(d => [
     d.high,
     d.low,
-    ...(d.upper_band != null ? [d.upper_band] : []),
-    ...(d.lower_band != null ? [d.lower_band] : [])
+    ...(d.fitted != null ? [d.fitted] : [])
   ])
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
@@ -304,9 +301,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                 ma10: 'MA10',
                 ma20: 'MA20',
                 ma60: 'MA60',
-                fitted: '拟合值',
-                upper_band: '上带',
-                lower_band: '下带'
+                fitted: '拟合值'
               }
               return [value?.toFixed(2) || '--', labels[name] || name]
             }}
@@ -333,14 +328,10 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                     <span className="text-right font-medium">{data.ma20?.toFixed(2) || '--'}</span>
                     <span className="text-gray-500">MA60:</span>
                     <span className="text-right font-medium">{data.ma60?.toFixed(2) || '--'}</span>
-                    {(data.fitted != null || data.upper_band != null || data.lower_band != null) && (
+                    {(data.fitted != null) && (
                       <>
                         <span className="text-gray-500">拟合值:</span>
-                        <span className="text-right font-medium text-indigo-600">{data.fitted?.toFixed(2) || '--'}</span>
-                        <span className="text-gray-500">上带:</span>
-                        <span className="text-right font-medium text-indigo-400">{data.upper_band?.toFixed(2) || '--'}</span>
-                        <span className="text-gray-500">下带:</span>
-                        <span className="text-right font-medium text-indigo-400">{data.lower_band?.toFixed(2) || '--'}</span>
+                        <span className="text-right font-medium text-indigo-400">{data.fitted?.toFixed(2) || '--'}</span>
                       </>
                     )}
                   </div>
@@ -390,8 +381,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
             { value: 'MA10', type: 'line', color: '#8b5cf6' },
             { value: 'MA20', type: 'line', color: '#06b6d4' },
             { value: 'MA60', type: 'line', color: '#ec4899' },
-            { value: '拟合值', type: 'line', color: '#4f46e5' },
-            { value: '上下带', type: 'line', color: '#a5b4fc' },
+            { value: '拟合值', type: 'line', color: '#818cf8' },
           ]} />
           
           <Bar dataKey="value" barSize={5} shape={<CustomBar />} name="K线" legendType="none" />
@@ -401,10 +391,8 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           <Line type="monotone" dataKey="ma20" stroke="#06b6d4" dot={false} strokeWidth={1} name="MA20" />
           <Line type="monotone" dataKey="ma60" stroke="#ec4899" dot={false} strokeWidth={1} name="MA60" />
           
-          {/* Butterworth 拟合曲线和带 */}
-          <Line type="monotone" dataKey="fitted" stroke="#4f46e5" dot={false} strokeWidth={2} name="拟合值" legendType="none" connectNulls={true} />
-          <Line type="monotone" dataKey="upper_band" stroke="#a5b4fc" dot={false} strokeWidth={1} strokeDasharray="5 5" name="上带" legendType="none" connectNulls={true} />
-          <Line type="monotone" dataKey="lower_band" stroke="#a5b4fc" dot={false} strokeWidth={1} strokeDasharray="5 5" name="下带" legendType="none" connectNulls={true} />
+          {/* Butterworth 拟合曲线 */}
+          <Line type="monotone" dataKey="fitted" stroke="#818cf8" dot={false} strokeWidth={2} name="拟合值" legendType="none" connectNulls={true} />
           
           <Line
             type="monotone"
