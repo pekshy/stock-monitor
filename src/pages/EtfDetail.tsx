@@ -16,6 +16,7 @@ import {
 import { supabase } from '../utils/supabase'
 import { EtfDailyData, EtfIndicators, EtfClawSignal } from '../types'
 import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
+import { ButterworthFit } from '../types'
 
 interface EtfDetailData {
   etf: {
@@ -27,6 +28,7 @@ interface EtfDetailData {
   dailyData: EtfDailyData[]
   indicators: EtfIndicators[]
   signals: EtfClawSignal[]
+  butterworthFit: ButterworthFit[]
 }
 
 function useEtfDetail(symbol: string) {
@@ -73,11 +75,20 @@ function useEtfDetail(symbol: string) {
         .limit(60)
       if (sigErr) throw sigErr
 
+      const { data: fitData, error: fitErr } = await supabase
+        .from('etf_butterworth_fit')
+        .select('*')
+        .eq('symbol', symbol)
+        .order('trade_date', { ascending: false })
+        .limit(60)
+      if (fitErr) throw fitErr
+
       setData({
         etf: etfInfo,
         dailyData: dailyData || [],
         indicators: indicators || [],
-        signals: signals || []
+        signals: signals || [],
+        butterworthFit: fitData || []
       })
     } catch (error) {
       console.error('Error fetching ETF detail:', error)
@@ -89,17 +100,21 @@ function useEtfDetail(symbol: string) {
   return { data, loading }
 }
 
-const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators[]; signals: EtfClawSignal[] }> = ({ dailyData, indicators, signals }) => {
+const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators[]; signals: EtfClawSignal[]; butterworthFit: ButterworthFit[] }> = ({ dailyData, indicators, signals, butterworthFit }) => {
   const indicatorMap = new Map(indicators.map(d => [d.trade_date, d]))
   const signalMap = new Map<string, EtfClawSignal>()
   signals.forEach(sig => {
     signalMap.set(sig.trade_date, sig)
   })
+  // 拟合数据按 trade_date 索引
+  const fitMap = new Map<string, ButterworthFit>()
+  butterworthFit.forEach(f => fitMap.set(f.trade_date, f))
   
   const chartData = useMemo(() => {
     return [...dailyData].reverse().map(d => {
       const indicator = indicatorMap.get(d.trade_date)
       const signal = signalMap.get(d.trade_date)
+      const fit = fitMap.get(d.trade_date)
       return {
         date: formatDate(d.trade_date),
         trade_date: d.trade_date,
@@ -125,19 +140,27 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         signalD: signal?.d,
         signalJ: signal?.j,
         signalRsi: signal?.rsi,
-        signalMacd: signal?.macd_hist
+        signalMacd: signal?.macd_hist,
+        fitted: fit?.fitted ?? null,
+        upper_band: fit?.upper_band ?? null,
+        lower_band: fit?.lower_band ?? null
       }
     })
-  }, [dailyData, indicators, signals])
+  }, [dailyData, indicators, signals, butterworthFit])
 
   if (chartData.length === 0) {
     return <div className="flex items-center justify-center min-h-[300px] text-gray-500 text-sm">暂无数据</div>
   }
 
-  const prices = chartData.flatMap(d => [d.high, d.low])
+  const prices = chartData.flatMap(d => [
+    d.high,
+    d.low,
+    ...(d.upper_band != null ? [d.upper_band] : []),
+    ...(d.lower_band != null ? [d.lower_band] : [])
+  ])
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
-  const padding = (maxPrice - minPrice) * 0.15
+  const padding = (maxPrice - minPrice) * 0.1
 
   const CustomBar = ({ x, y, width, height, payload }: any) => {
     if (!payload) return <g />
@@ -258,7 +281,10 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                 ma5: 'MA5',
                 ma10: 'MA10',
                 ma20: 'MA20',
-                ma60: 'MA60'
+                ma60: 'MA60',
+                fitted: '拟合值',
+                upper_band: '上带',
+                lower_band: '下带'
               }
               return [value?.toFixed(2) || '--', labels[name] || name]
             }}
@@ -285,6 +311,16 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                     <span className="text-right font-medium">{data.ma20?.toFixed(2) || '--'}</span>
                     <span className="text-gray-500">MA60:</span>
                     <span className="text-right font-medium">{data.ma60?.toFixed(2) || '--'}</span>
+                    {(data.fitted != null || data.upper_band != null || data.lower_band != null) && (
+                      <>
+                        <span className="text-gray-500">拟合值:</span>
+                        <span className="text-right font-medium text-indigo-600">{data.fitted?.toFixed(2) || '--'}</span>
+                        <span className="text-gray-500">上带:</span>
+                        <span className="text-right font-medium text-indigo-400">{data.upper_band?.toFixed(2) || '--'}</span>
+                        <span className="text-gray-500">下带:</span>
+                        <span className="text-right font-medium text-indigo-400">{data.lower_band?.toFixed(2) || '--'}</span>
+                      </>
+                    )}
                   </div>
                   {data.signalAction && (
                     <div className="mt-3 pt-2 border-t border-gray-200">
@@ -332,6 +368,8 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
             { value: 'MA10', type: 'line', color: '#8b5cf6' },
             { value: 'MA20', type: 'line', color: '#06b6d4' },
             { value: 'MA60', type: 'line', color: '#ec4899' },
+            { value: '拟合值', type: 'line', color: '#4f46e5' },
+            { value: '上下带', type: 'line', color: '#a5b4fc' },
           ]} />
           
           <Bar dataKey="value" barSize={5} shape={<CustomBar />} name="K线" legendType="none" />
@@ -340,6 +378,11 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           <Line type="monotone" dataKey="ma10" stroke="#8b5cf6" dot={false} strokeWidth={1} name="MA10" />
           <Line type="monotone" dataKey="ma20" stroke="#06b6d4" dot={false} strokeWidth={1} name="MA20" />
           <Line type="monotone" dataKey="ma60" stroke="#ec4899" dot={false} strokeWidth={1} name="MA60" />
+          
+          {/* Butterworth 拟合曲线和带 */}
+          <Line type="monotone" dataKey="fitted" stroke="#4f46e5" dot={false} strokeWidth={2} name="拟合值" legendType="none" connectNulls={true} />
+          <Line type="monotone" dataKey="upper_band" stroke="#a5b4fc" dot={false} strokeWidth={1} strokeDasharray="5 5" name="上带" legendType="none" connectNulls={true} />
+          <Line type="monotone" dataKey="lower_band" stroke="#a5b4fc" dot={false} strokeWidth={1} strokeDasharray="5 5" name="下带" legendType="none" connectNulls={true} />
           
           <Line
             type="monotone"
@@ -492,7 +535,8 @@ const EtfDetail: React.FC = () => {
         <MainChart 
           dailyData={data.dailyData} 
           indicators={data.indicators} 
-          signals={data.signals} 
+          signals={data.signals}
+          butterworthFit={data.butterworthFit}
         />
         <VolumeChart data={data.dailyData} />
       </div>

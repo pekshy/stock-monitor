@@ -13,7 +13,8 @@ import {
   IndicatorSeries,
   IndicatorCategory,
   StockMarketVolume,
-  FearGreedSeries
+  FearGreedSeries,
+  ButterworthFit
 } from '../types'
 
 type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator | StockMarketVolume
@@ -408,6 +409,15 @@ export function useEtfData() {
         if (signalsErr) throw signalsErr
         console.log('ETF signals:', signalsData)
 
+        // 获取 Butterworth 拟合曲线数据
+        const { data: fitData, error: fitErr } = await supabase
+          .from('etf_butterworth_fit')
+          .select('*')
+          .in('symbol', symbols)
+          .order('trade_date', { ascending: true })
+        if (fitErr) throw fitErr
+        console.log('Butterworth fit data:', fitData)
+
         // 获取指数估值
         let indexValuations: EtfTrackedIndexHistory[] = []
         if (indexCodes.length > 0) {
@@ -426,6 +436,7 @@ export function useEtfData() {
         const latestIndicators = new Map<string, EtfIndicators>()
         const latestSignal = new Map<string, EtfClawSignal>()
         const latestIndexValuation = new Map<string, EtfTrackedIndexHistory>()
+        const fitBySymbol = new Map<string, ButterworthFit[]>()
 
         dailyData?.forEach(d => {
           if (!latestDaily.has(d.symbol)) {
@@ -451,12 +462,20 @@ export function useEtfData() {
           }
         })
 
+        // 按 symbol 分组 Butterworth 拟合数据
+        fitData?.forEach(f => {
+          const arr = fitBySymbol.get(f.symbol) || []
+          arr.push(f as ButterworthFit)
+          fitBySymbol.set(f.symbol, arr)
+        })
+
         etfsWithData = etfInfo.map(e => ({
           ...e,
           latest_daily: latestDaily.get(e.symbol),
           latest_indicator: latestIndicators.get(e.symbol),
           latest_signal: latestSignal.get(e.symbol),
-          latest_index_valuation: e.tracking_index_code ? latestIndexValuation.get(e.tracking_index_code) : undefined
+          latest_index_valuation: e.tracking_index_code ? latestIndexValuation.get(e.tracking_index_code) : undefined,
+          butterworth_fit: fitBySymbol.get(e.symbol)
         }))
 
         // 设置最新日期

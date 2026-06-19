@@ -198,6 +198,7 @@ export interface EtfWithData extends EtfInfo {
   latest_indicator?: EtfIndicators
   latest_signal?: EtfClawSignal
   latest_index_valuation?: EtfTrackedIndexHistory
+  butterworth_fit?: ButterworthFit[]  // Butterworth 滤波器拟合曲线数据
 }
 
 export interface IndicatorSeries {
@@ -230,4 +231,21 @@ export interface FearGreedSeries {
   latest_date: string | null
   latest_classification: string | null
   history: { date: string; value: number; classification?: string | null }[]
+}
+
+// Butterworth 滤波器拟合数据（K 线图上的拟合曲线）
+export interface ButterworthFit {
+  symbol: string
+  trade_date: string
+  close: number | null
+  fitted: number | null
+  upper_band: number | null
+  lower_band: number | null
+  residual: number | null
+  std_residual: number | null
+  rmse: number | null
+  mae: number | null
+  signal: string | null
+  order: number | null
+  cutoff: number | null
 }
