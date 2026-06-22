@@ -12,7 +12,7 @@ const LoginGate: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!password.trim()) {
-      setError('请输入密码')
+      setError('请输入暗号')
       return
     }
     setError('')
@@ -20,7 +20,7 @@ const LoginGate: React.FC = () => {
     try {
       const ok = await login(password)
       if (!ok) {
-        setError('密码错误,请重试')
+        setError('暗号错误,请重试')
         setPassword('')
       }
     } catch {
@@ -39,8 +39,8 @@ const LoginGate: React.FC = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
               <Lock className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">私人监控台</h1>
-            <p className="text-sm text-gray-500 mt-2">请输入访问密码以继续</p>
+            <h1 className="text-2xl font-bold text-gray-900">我的投资空间</h1>
+            <p className="text-sm text-gray-500 mt-2">请输入暗号以继续</p>
           </div>
 
           {/* 表单 */}
@@ -53,7 +53,7 @@ const LoginGate: React.FC = () => {
                   setPassword(e.target.value)
                   if (error) setError('')
                 }}
-                placeholder="请输入密码"
+                placeholder="请输入暗号"
                 autoFocus
                 disabled={submitting}
                 className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-50"
