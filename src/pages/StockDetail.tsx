@@ -47,16 +47,21 @@ const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
       const ma10 = calculateMA(closes, 10, idx)
       const ma20 = calculateMA(closes, 20, idx)
       const ma60 = calculateMA(closes, 60, idx)
+      // 若 open_price 为 null/0（美股数据常见），用 close_price 兜底，避免实体高度为0
+      const open = q.open_price != null && q.open_price !== 0 ? q.open_price : (q.close_price ?? 0)
+      const close = q.close_price ?? 0
+      const high = q.high_price != null ? q.high_price : Math.max(open, close)
+      const low = q.low_price != null ? q.low_price : Math.min(open, close)
       return {
         date: formatDate(q.trade_date),
         trade_date: q.trade_date,
-        open: q.open_price ?? 0,
-        high: q.high_price ?? 0,
-        low: q.low_price ?? 0,
-        close: q.close_price ?? 0,
-        isUp: (q.close_price ?? 0) >= (q.open_price ?? 0),
-        bodyTop: Math.max(q.open_price ?? 0, q.close_price ?? 0),
-        bodyBottom: Math.min(q.open_price ?? 0, q.close_price ?? 0),
+        open,
+        high,
+        low,
+        close,
+        isUp: close >= open,
+        bodyTop: Math.max(open, close),
+        bodyBottom: Math.min(open, close),
         ma5,
         ma10,
         ma20,
@@ -206,13 +211,17 @@ const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
 const VolumeChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
   const chartData = useMemo(() => {
     const sorted = [...quotes].sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
-    return sorted.map(q => ({
-      date: formatDate(q.trade_date),
-      volume: q.volume ?? 0,
-      amount: q.amount ?? 0,
-      isUp: (q.close_price ?? 0) >= (q.open_price ?? 0),
-      value: q.volume ?? 0
-    }))
+    return sorted.map(q => {
+      const open = q.open_price != null && q.open_price !== 0 ? q.open_price : (q.close_price ?? 0)
+      const close = q.close_price ?? 0
+      return {
+        date: formatDate(q.trade_date),
+        volume: q.volume ?? 0,
+        amount: q.amount ?? 0,
+        isUp: close >= open,
+        value: q.volume ?? 0
+      }
+    })
   }, [quotes])
 
   if (chartData.length === 0) {
