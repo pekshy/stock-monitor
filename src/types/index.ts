@@ -193,6 +193,14 @@ export interface StockMarketVolume {
   updated_at: string | null
 }
 
+// ETF 笔记
+export interface EtfNote {
+  id: number
+  symbol: string
+  note: string
+  created_at: string
+}
+
 export interface EtfWithData extends EtfInfo {
   latest_daily?: EtfDailyData
   latest_indicator?: EtfIndicators

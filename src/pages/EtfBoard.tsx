@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Target, Activity } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Target, Activity, MessageSquare, Trash2 } from 'lucide-react'
 import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
   useEtfData,
@@ -10,6 +10,7 @@ import {
 import { IndicatorSeries, IndicatorCategory } from '../types'
 import { formatPercent, getChangeColor } from '../utils/formatters'
 import { FearGreedSeries } from '../types'
+import { useEtfNotes } from '../hooks/useEtfNotes'
 
 // --- 通用辅助函数 ---
 
@@ -781,6 +782,101 @@ const EtfBoard: React.FC = () => {
           <div className="text-gray-500 text-center py-8">暂无ETF数据，请先在Supabase的etf_info表中添加关注的ETF</div>
         )}
       </div>
+
+      {/* 笔记模块 */}
+      <NotesBoard />
+
+    </div>
+  )
+}
+
+// --- 笔记看板组件 ---
+function NotesBoard() {
+  const { notes, loading, addNote, deleteNote } = useEtfNotes()
+  const [input, setInput] = useState('')
+  const [symbolInput, setSymbolInput] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const text = input.trim()
+    if (!text) return
+    const symbol = symbolInput.trim().toUpperCase()
+    setSubmitting(true)
+    try {
+      await addNote(symbol || 'GENERAL', text)
+      setInput('')
+      setSymbolInput('')
+    } catch {
+      // error already logged
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-md p-6">
+      <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <MessageSquare className="h-5 w-5 text-blue-500" />
+        笔记
+      </h2>
+
+      {/* 快速添加 */}
+      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
+        <input
+          type="text"
+          value={symbolInput}
+          onChange={e => setSymbolInput(e.target.value)}
+          placeholder="ETF代码（可选）"
+          className="w-32 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <input
+          type="text"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="写下笔记..."
+          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <button
+          type="submit"
+          disabled={submitting || !input.trim()}
+          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors"
+        >
+          添加
+        </button>
+      </form>
+
+      {/* 历史笔记（倒序） */}
+      {loading ? (
+        <div className="text-sm text-gray-400 py-4 text-center">加载中...</div>
+      ) : notes.length === 0 ? (
+        <div className="text-sm text-gray-400 py-4 text-center">暂无笔记</div>
+      ) : (
+        <div className="space-y-2 max-h-80 overflow-y-auto">
+          {notes.map(note => (
+            <div key={note.id} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                    {note.symbol}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {note.created_at.slice(0, 16).replace('T', ' ')}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-800 break-words leading-relaxed">{note.note}</div>
+              </div>
+              <button
+                onClick={() => deleteNote(note.id)}
+                className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity flex-shrink-0"
+                title="删除"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
