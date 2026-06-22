@@ -792,10 +792,25 @@ const EtfBoard: React.FC = () => {
 
 // --- 笔记看板组件 ---
 function NotesBoard() {
+  const { etfs } = useEtfData()
   const { notes, loading, addNote, deleteNote } = useEtfNotes()
   const [input, setInput] = useState('')
   const [symbolInput, setSymbolInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  // 构建 ETF code -> 中文名 的映射
+  const etfNameMap = useMemo(() => {
+    const m = new Map<string, string>()
+    etfs.forEach(e => {
+      if (e.symbol && e.name) m.set(e.symbol, e.name)
+    })
+    return m
+  }, [etfs])
+
+  const getEtfDisplayName = (symbol: string) => {
+    if (symbol === 'GENERAL') return '通用'
+    return etfNameMap.get(symbol) || symbol
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -856,10 +871,15 @@ function NotesBoard() {
           {notes.map(note => (
             <div key={note.id} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
                     {note.symbol}
                   </span>
+                  {getEtfDisplayName(note.symbol) !== note.symbol && (
+                    <span className="text-xs text-gray-700 font-medium">
+                      {getEtfDisplayName(note.symbol)}
+                    </span>
+                  )}
                   <span className="text-xs text-gray-400">
                     {note.created_at.slice(0, 16).replace('T', ' ')}
                   </span>

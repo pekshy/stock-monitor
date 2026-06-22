@@ -524,12 +524,12 @@ const EtfDetail: React.FC = () => {
         <VolumeChart data={data.dailyData} />
       </div>
 
-      <NotesSection symbol={data.etf.symbol} />
+      <NotesSection symbol={data.etf.symbol} etfName={data.etf.name} />
     </div>
   )
 }
 
-function NotesSection({ symbol }: { symbol: string }) {
+function NotesSection({ symbol, etfName }: { symbol: string; etfName: string | null }) {
   const { notes, loading, addNote, deleteNote } = useEtfNotesBySymbol(symbol)
   const [input, setInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -584,8 +584,13 @@ function NotesSection({ symbol }: { symbol: string }) {
           {notes.map(note => (
             <div key={note.id} className="flex items-start gap-2 p-2 bg-gray-50 rounded-lg group">
               <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">
-                  {note.symbol} · {note.created_at.slice(0, 16).replace('T', ' ')}
+                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                  {etfName && etfName !== note.symbol && (
+                    <span className="text-xs text-gray-700 font-medium">{etfName}</span>
+                  )}
+                  <span className="text-xs text-gray-400">
+                    {note.symbol} · {note.created_at.slice(0, 16).replace('T', ' ')}
+                  </span>
                 </div>
                 <div className="text-sm text-gray-800 break-words">{note.note}</div>
               </div>
