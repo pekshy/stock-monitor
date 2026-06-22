@@ -306,7 +306,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
               if (!payload || !payload[0]) return null
               const data = payload[0].payload
               return (
-                <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-[180px]">
+                <div className="bg-white border border-gray-300 rounded-lg shadow-2xl p-3 min-w-[200px] max-w-[260px]">
                   <div className="text-gray-600 text-sm mb-2">{data.date}</div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                     <span className="text-gray-500">开盘:</span>
@@ -425,10 +425,7 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
           <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 10000).toFixed(0) + '万'} />
-          <Tooltip
-            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12 }}
-            formatter={(value: number) => [(value / 10000).toFixed(0) + ' 万份', '成交量']}
-          />
+          <Tooltip content={() => null} />
           <Bar dataKey="value" barSize={5} shape={(props: any) => {
             const { x, y, width, height, payload } = props
             return (
