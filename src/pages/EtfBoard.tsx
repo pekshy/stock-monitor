@@ -672,7 +672,7 @@ const EtfBoard: React.FC = () => {
 
       {/* ETF列表 */}
       <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center mb-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Target className="h-5 w-5 text-green-500" />
             关注ETF列表
@@ -680,28 +680,11 @@ const EtfBoard: React.FC = () => {
               （{activeEtfs.length}{watchEtfs.length > 0 ? ` + 观望${watchEtfs.length}` : ''}）
             </span>
           </h2>
-          {watchEtfs.length > 0 && (
-            <button
-              onClick={() => setShowAll(prev => !prev)}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-            >
-              {showAll ? (
-                <>
-                  <ChevronUp className="h-4 w-4" />
-                  收起观望
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-4 w-4" />
-                  展开观望({watchEtfs.length})
-                </>
-              )}
-            </button>
-          )}
         </div>
         {etfs.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
               <thead>
                 <tr className="border-b-2 border-gray-200">
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">ETF名称</th>
@@ -808,8 +791,24 @@ const EtfBoard: React.FC = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+              </table>
+            </div>
+            {watchEtfs.length > 0 && (
+              <div className="flex justify-center mt-4 pt-4 border-t border-gray-100">
+                <button
+                  onClick={() => setShowAll(prev => !prev)}
+                  className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
+                  title={showAll ? '收起观望' : `展开观望(${watchEtfs.length})`}
+                >
+                  {showAll ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-gray-500 text-center py-8">暂无ETF数据，请先在Supabase的etf_info表中添加关注的ETF</div>
         )}
