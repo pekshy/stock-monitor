@@ -534,14 +534,15 @@ const EtfBoard: React.FC = () => {
   // 是否展开观望的ETF
   const [showAll, setShowAll] = useState(false)
 
-  const { activeEtfs, watchEtfs } = useMemo(() => {
+  const { sellEtfs, buyEtfs, watchEtfs } = useMemo(() => {
     const sorted = [...etfs].sort((a, b) => {
       const priorityA = getActionPriority(a.latest_signal?.action)
       const priorityB = getActionPriority(b.latest_signal?.action)
       return priorityA - priorityB
     })
     return {
-      activeEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) < 3),
+      sellEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) === 1),
+      buyEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) === 2),
       watchEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) === 3)
     }
   }, [etfs])
@@ -677,7 +678,7 @@ const EtfBoard: React.FC = () => {
             <Target className="h-5 w-5 text-green-500" />
             关注ETF列表
             <span className="text-sm font-normal text-gray-500">
-              （{activeEtfs.length}{watchEtfs.length > 0 ? ` + 观望${watchEtfs.length}` : ''}）
+              （{sellEtfs.length > 0 ? `${sellEtfs.length}卖出` : ''}{buyEtfs.length > 0 ? `、${buyEtfs.length}买入` : ''}{watchEtfs.length > 0 ? `、观望${watchEtfs.length}` : ''}）
             </span>
           </h2>
         </div>
@@ -701,7 +702,7 @@ const EtfBoard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {(showAll ? [...activeEtfs, ...watchEtfs] : activeEtfs).map((etf) => (
+                {(showAll ? [...sellEtfs, ...buyEtfs, ...watchEtfs] : [...sellEtfs, ...buyEtfs]).map((etf) => (
                   <tr
                     key={etf.symbol}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
