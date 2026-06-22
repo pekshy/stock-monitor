@@ -378,7 +378,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
             { value: 'MA10', type: 'line', color: '#8b5cf6' },
             { value: 'MA20', type: 'line', color: '#06b6d4' },
             { value: 'MA60', type: 'line', color: '#ec4899' },
-            { value: '拟合值', type: 'line', color: '#818cf8' },
+            { value: '拟合值', type: 'line', color: '#c4b5fd' },
           ]} />
           
           <Bar dataKey="value" barSize={5} shape={<CustomBar />} name="K线" legendType="none" />
@@ -389,7 +389,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           <Line type="monotone" dataKey="ma60" stroke="#ec4899" dot={false} strokeWidth={1} name="MA60" />
           
           {/* Butterworth 拟合曲线 */}
-          <Line type="monotone" dataKey="fitted" stroke="#818cf8" dot={false} strokeWidth={2} name="拟合值" legendType="none" connectNulls={true} />
+          <Line type="monotone" dataKey="fitted" stroke="#c4b5fd" dot={false} strokeWidth={1} name="拟合值" legendType="none" connectNulls={true} />
           
           <Line
             type="monotone"
