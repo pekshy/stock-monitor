@@ -92,19 +92,19 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, etfName, onUpdate, onD
         )}
       </div>
 
-      {/* 操作按钮：编辑 / 删除（hover 时显示） */}
+      {/* 操作按钮：编辑 / 删除（常亮显示） */}
       {!isEditing && (
-        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+        <div className="flex flex-col gap-1 flex-shrink-0">
           <button
             onClick={() => setIsEditing(true)}
-            className="p-1 text-gray-400 hover:text-blue-500"
+            className="p-1.5 text-gray-500 hover:text-blue-600 bg-white hover:bg-blue-50 border border-gray-200 rounded transition-colors"
             title="编辑"
           >
             <Pencil className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => onDelete(note.id)}
-            className="p-1 text-gray-400 hover:text-red-500"
+            className="p-1.5 text-gray-500 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 rounded transition-colors"
             title="删除"
           >
             <Trash2 className="h-3.5 w-3.5" />
