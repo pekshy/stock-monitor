@@ -105,7 +105,7 @@ export function useStockDetail(stockCode: string) {
         .select('*')
         .eq('stock_code', code)
         .order('trade_date', { ascending: false })
-        .limit(60)
+        .limit(90)
 
       if (quotesError) throw quotesError
 
@@ -114,7 +114,7 @@ export function useStockDetail(stockCode: string) {
         .select('*')
         .eq('stock_code', code)
         .order('trade_date', { ascending: false })
-        .limit(60)
+        .limit(90)
 
       if (valuationsError) throw valuationsError
 
