@@ -120,7 +120,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   butterworthFit.forEach(f => fitMap.set(f.trade_date, f))
   
   const chartData = useMemo(() => {
-    const result = [...dailyData].reverse().map(d => {
+    return [...dailyData].reverse().map(d => {
       const indicator = indicatorMap.get(d.trade_date)
       const signal = signalMap.get(d.trade_date)
       const fit = fitMap.get(d.trade_date)
