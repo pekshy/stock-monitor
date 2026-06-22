@@ -267,7 +267,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
             position={{ y: 0 }}
             offset={10}
             allowEscapeViewBox={{ x: true, y: false }}
-            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.92)', border: '1px solid #e5e7eb', borderRadius: '8px', backdropFilter: 'blur(4px)' }}
             wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
             formatter={(value: number, name: string) => {
               const labels: Record<string, string> = {
@@ -287,7 +287,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
               if (!payload || !payload[0]) return null
               const data = payload[0].payload
               return (
-                <div className="bg-white border border-gray-300 rounded-lg shadow-2xl p-3 min-w-[200px] max-w-[260px]">
+                <div className="bg-white/90 border border-gray-300 rounded-lg shadow-2xl p-3 min-w-[200px] max-w-[260px] backdrop-blur-sm">
                   <div className="text-gray-600 text-sm mb-2">{data.date}</div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                     <span className="text-gray-500">开盘:</span>
@@ -400,7 +400,8 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
           <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
           <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 10000).toFixed(0) + '万'} />
           <Tooltip
-            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12 }}
+            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.92)', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(4px)' }}
+            wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
             formatter={(value: number) => [(value / 10000).toFixed(0) + ' 万份', '成交量']}
           />
           <Bar dataKey="value" barSize={5} shape={(props: any) => {

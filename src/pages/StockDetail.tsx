@@ -149,7 +149,7 @@ const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
               if (!payload || !payload[0]) return null
               const data = payload[0].payload
               return (
-                <div className="bg-white border border-gray-200 rounded-lg shadow-2xl p-3 min-w-[180px] max-w-[240px]">
+                <div className="bg-white/90 border border-gray-200 rounded-lg shadow-2xl p-3 min-w-[180px] max-w-[240px] backdrop-blur-sm">
                   <div className="text-gray-600 text-sm mb-2">{data.date}</div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                     <span className="text-gray-500">开盘:</span>
@@ -236,7 +236,8 @@ const VolumeChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
           <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} interval="preserveStartEnd" />
           <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 100000000).toFixed(1) + '亿'} />
           <Tooltip
-            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12 }}
+            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.92)', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(4px)' }}
+            wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
             formatter={(value: number) => [(value / 100000000).toFixed(2) + ' 亿', '成交量']}
           />
           <Bar dataKey="value" barSize={5} shape={(props: any) => {
