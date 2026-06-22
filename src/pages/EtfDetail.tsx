@@ -194,6 +194,34 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
     const bodyBottomY = getY(payload.bodyBottom)
     const bodyHeight = Math.abs(bodyBottomY - bodyTopY) || 1
     
+    const signal = signalMap.get(payload.trade_date)
+    let signalMark = null
+    if (signal) {
+      const action = signal.action?.toLowerCase() || ''
+      const isBuy = action.includes('买') || action.includes('加仓')
+      const isSell = action.includes('卖') || action.includes('减仓')
+      const markerX = x + width / 2
+      if (isBuy) {
+        signalMark = (
+          <g>
+            <path
+              d={`M${markerX},${lowY + 8} L${markerX - 5},${lowY + 16} L${markerX + 5},${lowY + 16} Z`}
+              fill="#ef4444"
+            />
+          </g>
+        )
+      } else if (isSell) {
+        signalMark = (
+          <g>
+            <path
+              d={`M${markerX},${highY - 8} L${markerX - 5},${highY - 16} L${markerX + 5},${highY - 16} Z`}
+              fill="#22c55e"
+            />
+          </g>
+        )
+      }
+    }
+    
     return (
       <g>
         <line
@@ -211,57 +239,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           height={bodyHeight}
           fill={color}
         />
-      </g>
-    )
-  }
-
-  const CustomSignalDot = ({ payload, cx, cy }: any) => {
-    const signal = signalMap.get(payload.trade_date)
-    if (!signal) return <g />
-    
-    const action = signal.action?.toLowerCase() || ''
-    const isBuy = action.includes('买') || action.includes('加仓')
-    const isSell = action.includes('卖') || action.includes('减仓')
-    
-    if (!isBuy && !isSell) return <g />
-    
-    return (
-      <g>
-        {isBuy ? (
-          <g>
-            <path
-              d={`M${cx},${cy + 12} L${cx - 6},${cy + 20} L${cx + 6},${cy + 20} Z`}
-              fill="#ef4444"
-            />
-            <text
-              x={cx}
-              y={cy + 32}
-              textAnchor="middle"
-              fill="#ef4444"
-              fontSize={10}
-              fontWeight="bold"
-            >
-              买
-            </text>
-          </g>
-        ) : (
-          <g>
-            <path
-              d={`M${cx},${cy - 12} L${cx - 6},${cy - 20} L${cx + 6},${cy - 20} Z`}
-              fill="#22c55e"
-            />
-            <text
-              x={cx}
-              y={cy - 24}
-              textAnchor="middle"
-              fill="#22c55e"
-              fontSize={10}
-              fontWeight="bold"
-            >
-              卖
-            </text>
-          </g>
-        )}
+        {signalMark}
       </g>
     )
   }
@@ -391,13 +369,6 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           {/* Butterworth 拟合曲线 */}
           <Line type="monotone" dataKey="fitted" stroke="#c4b5fd" dot={false} strokeWidth={1} name="拟合值" legendType="none" connectNulls={true} />
           
-          <Line
-            type="monotone"
-            dataKey="close"
-            stroke="transparent"
-            dot={<CustomSignalDot />}
-            legendType="none"
-          />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
