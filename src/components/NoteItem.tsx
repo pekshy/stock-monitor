@@ -1,0 +1,116 @@
+import React, { useState } from 'react'
+import { EtfNote } from '../types'
+import { Pencil, Trash2, Check, X } from 'lucide-react'
+
+interface NoteItemProps {
+  note: EtfNote
+  etfName?: string | null
+  onUpdate: (id: number, newText: string) => Promise<void>
+  onDelete: (id: number) => Promise<void>
+  compact?: boolean
+}
+
+export const NoteItem: React.FC<NoteItemProps> = ({ note, etfName, onUpdate, onDelete, compact = false }) => {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState(note.note)
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    if (!editText.trim() || editText === note.note) {
+      setIsEditing(false)
+      setEditText(note.note)
+      return
+    }
+    setSaving(true)
+    try {
+      await onUpdate(note.id, editText)
+      setIsEditing(false)
+    } catch {
+      // error logged in hook
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    setEditText(note.note)
+  }
+
+  const showName = etfName && etfName !== note.symbol
+
+  return (
+    <div className={`flex items-start gap-2 ${compact ? 'p-2' : 'p-3'} bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group`}>
+      <div className="flex-1 min-w-0">
+        {/* 头部信息行：ETF名 / symbol / 时间 */}
+        <div className={`flex items-center gap-2 ${compact ? 'mb-0.5' : 'mb-1'} flex-wrap`}>
+          {showName && (
+            <span className={`${compact ? 'text-xs' : 'text-sm'} text-gray-700 font-medium`}>{etfName}</span>
+          )}
+          <span className={`${compact ? 'text-xs' : 'text-xs'} text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded`}>
+            {note.symbol}
+          </span>
+          <span className="text-xs text-gray-400">
+            {note.created_at.slice(0, 16).replace('T', ' ')}
+          </span>
+        </div>
+
+        {/* 笔记内容 / 编辑区 */}
+        {isEditing ? (
+          <div className="flex flex-col gap-2">
+            <textarea
+              value={editText}
+              onChange={e => setEditText(e.target.value)}
+              disabled={saving}
+              className="w-full border border-blue-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+              rows={2}
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleSave}
+                disabled={saving || !editText.trim()}
+                className="px-2 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded text-xs flex items-center gap-1"
+              >
+                <Check className="h-3 w-3" />
+                保存
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={saving}
+                className="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs flex items-center gap-1"
+              >
+                <X className="h-3 w-3" />
+                取消
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className={`${compact ? 'text-sm' : 'text-sm'} text-gray-800 break-words leading-relaxed whitespace-pre-wrap`}>
+            {note.note}
+          </div>
+        )}
+      </div>
+
+      {/* 操作按钮：编辑 / 删除（hover 时显示） */}
+      {!isEditing && (
+        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="p-1 text-gray-400 hover:text-blue-500"
+            title="编辑"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => onDelete(note.id)}
+            className="p-1 text-gray-400 hover:text-red-500"
+            title="删除"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}

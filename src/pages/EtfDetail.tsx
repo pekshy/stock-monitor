@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Trash2, Plus } from 'lucide-react'
+import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import {
   ComposedChart,
@@ -18,6 +18,7 @@ import { EtfDailyData, EtfIndicators, EtfClawSignal } from '../types'
 import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
 import { ButterworthFit } from '../types'
 import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
+import { NoteItem } from '../components/NoteItem'
 
 interface EtfDetailData {
   etf: {
@@ -530,7 +531,7 @@ const EtfDetail: React.FC = () => {
 }
 
 function NotesSection({ symbol, etfName }: { symbol: string; etfName: string | null }) {
-  const { notes, loading, addNote, deleteNote } = useEtfNotesBySymbol(symbol)
+  const { notes, loading, addNote, updateNote, deleteNote } = useEtfNotesBySymbol(symbol)
   const [input, setInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -582,26 +583,14 @@ function NotesSection({ symbol, etfName }: { symbol: string; etfName: string | n
       ) : (
         <div className="space-y-2 max-h-60 overflow-y-auto">
           {notes.map(note => (
-            <div key={note.id} className="flex items-start gap-2 p-2 bg-gray-50 rounded-lg group">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                  {etfName && etfName !== note.symbol && (
-                    <span className="text-xs text-gray-700 font-medium">{etfName}</span>
-                  )}
-                  <span className="text-xs text-gray-400">
-                    {note.symbol} · {note.created_at.slice(0, 16).replace('T', ' ')}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-800 break-words">{note.note}</div>
-              </div>
-              <button
-                onClick={() => deleteNote(note.id)}
-                className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity flex-shrink-0"
-                title="删除"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            <NoteItem
+              key={note.id}
+              note={note}
+              etfName={etfName}
+              onUpdate={updateNote}
+              onDelete={deleteNote}
+              compact
+            />
           ))}
         </div>
       )}

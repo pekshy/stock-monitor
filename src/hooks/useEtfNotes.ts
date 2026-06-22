@@ -44,6 +44,25 @@ export function useEtfNotes() {
     }
   }, [])
 
+  // 修改笔记
+  const updateNote = useCallback(async (id: number, newText: string) => {
+    const text = newText.trim()
+    if (!text) return
+    try {
+      const { data, error } = await supabase
+        .from('etf_notes')
+        .update({ note: text })
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) throw error
+      setNotes(prev => prev.map(n => n.id === id ? (data as EtfNote) : n))
+    } catch (err) {
+      console.error('Error updating ETF note:', err)
+      throw err
+    }
+  }, [])
+
   // 删除笔记
   const deleteNote = useCallback(async (id: number) => {
     try {
@@ -59,7 +78,7 @@ export function useEtfNotes() {
     }
   }, [])
 
-  return { notes, loading, addNote, deleteNote, refresh: fetchNotes }
+  return { notes, loading, addNote, updateNote, deleteNote, refresh: fetchNotes }
 }
 
 // ETF详情页专用：获取单个ETF的笔记
@@ -104,6 +123,24 @@ export function useEtfNotesBySymbol(symbol: string) {
     }
   }, [symbol])
 
+  const updateNote = useCallback(async (id: number, newText: string) => {
+    const text = newText.trim()
+    if (!text) return
+    try {
+      const { data, error } = await supabase
+        .from('etf_notes')
+        .update({ note: text })
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) throw error
+      setNotes(prev => prev.map(n => n.id === id ? (data as EtfNote) : n))
+    } catch (err) {
+      console.error('Error updating ETF note:', err)
+      throw err
+    }
+  }, [])
+
   const deleteNote = useCallback(async (id: number) => {
     try {
       const { error } = await supabase
@@ -118,5 +155,5 @@ export function useEtfNotesBySymbol(symbol: string) {
     }
   }, [])
 
-  return { notes, loading, addNote, deleteNote }
+  return { notes, loading, addNote, updateNote, deleteNote }
 }

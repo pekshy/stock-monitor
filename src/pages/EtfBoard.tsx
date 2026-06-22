@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Target, Activity, MessageSquare, Trash2 } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Target, Activity, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react'
 import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
   useEtfData,
@@ -11,6 +11,7 @@ import { IndicatorSeries, IndicatorCategory } from '../types'
 import { formatPercent, getChangeColor } from '../utils/formatters'
 import { FearGreedSeries } from '../types'
 import { useEtfNotes } from '../hooks/useEtfNotes'
+import { NoteItem } from '../components/NoteItem'
 
 // --- 通用辅助函数 ---
 
@@ -522,19 +523,27 @@ const EtfBoard: React.FC = () => {
   } = useEtfData()
 
   // 按操作信号排序：减仓/卖出 > 加仓/买入 > 观望
-  const sortedEtfs = useMemo(() => {
-    const getActionPriority = (action: string | null | undefined): number => {
-      if (!action) return 3
-      const act = action.toLowerCase()
-      if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 1
-      if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 2
-      return 3
-    }
-    return [...etfs].sort((a, b) => {
+  const getActionPriority = (action: string | null | undefined): number => {
+    if (!action) return 3
+    const act = action.toLowerCase()
+    if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 1
+    if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 2
+    return 3
+  }
+
+  // 是否展开观望的ETF
+  const [showAll, setShowAll] = useState(false)
+
+  const { activeEtfs, watchEtfs } = useMemo(() => {
+    const sorted = [...etfs].sort((a, b) => {
       const priorityA = getActionPriority(a.latest_signal?.action)
       const priorityB = getActionPriority(b.latest_signal?.action)
       return priorityA - priorityB
     })
+    return {
+      activeEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) < 3),
+      watchEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) === 3)
+    }
   }, [etfs])
   // 通胀类别单独从中国数据构建，避免与 FRED 基准指数（CPIAUCSL/PPIACO）混合
   const globalCategories = useMemo(
@@ -663,10 +672,33 @@ const EtfBoard: React.FC = () => {
 
       {/* ETF列表 */}
       <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Target className="h-5 w-5 text-green-500" />
-          关注ETF列表
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <Target className="h-5 w-5 text-green-500" />
+            关注ETF列表
+            <span className="text-sm font-normal text-gray-500">
+              （{activeEtfs.length}{watchEtfs.length > 0 ? ` + 观望${watchEtfs.length}` : ''}）
+            </span>
+          </h2>
+          {watchEtfs.length > 0 && (
+            <button
+              onClick={() => setShowAll(prev => !prev)}
+              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+            >
+              {showAll ? (
+                <>
+                  <ChevronUp className="h-4 w-4" />
+                  收起观望
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4" />
+                  展开观望({watchEtfs.length})
+                </>
+              )}
+            </button>
+          )}
+        </div>
         {etfs.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -686,7 +718,7 @@ const EtfBoard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedEtfs.map((etf) => (
+                {(showAll ? [...activeEtfs, ...watchEtfs] : activeEtfs).map((etf) => (
                   <tr
                     key={etf.symbol}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -793,7 +825,7 @@ const EtfBoard: React.FC = () => {
 // --- 笔记看板组件 ---
 function NotesBoard() {
   const { etfs } = useEtfData()
-  const { notes, loading, addNote, deleteNote } = useEtfNotes()
+  const { notes, loading, addNote, updateNote, deleteNote } = useEtfNotes()
   const [input, setInput] = useState('')
   const [symbolInput, setSymbolInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -869,31 +901,13 @@ function NotesBoard() {
       ) : (
         <div className="space-y-2 max-h-80 overflow-y-auto">
           {notes.map(note => (
-            <div key={note.id} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                    {note.symbol}
-                  </span>
-                  {getEtfDisplayName(note.symbol) !== note.symbol && (
-                    <span className="text-xs text-gray-700 font-medium">
-                      {getEtfDisplayName(note.symbol)}
-                    </span>
-                  )}
-                  <span className="text-xs text-gray-400">
-                    {note.created_at.slice(0, 16).replace('T', ' ')}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-800 break-words leading-relaxed">{note.note}</div>
-              </div>
-              <button
-                onClick={() => deleteNote(note.id)}
-                className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity flex-shrink-0"
-                title="删除"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            <NoteItem
+              key={note.id}
+              note={note}
+              etfName={getEtfDisplayName(note.symbol)}
+              onUpdate={updateNote}
+              onDelete={deleteNote}
+            />
           ))}
         </div>
       )}
