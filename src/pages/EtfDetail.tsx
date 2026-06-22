@@ -264,7 +264,11 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
             tickFormatter={(v) => v.toFixed(2)}
           />
           <Tooltip
+            position={{ y: 0 }}
+            offset={10}
+            allowEscapeViewBox={{ x: true, y: false }}
             contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+            wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
             formatter={(value: number, name: string) => {
               const labels: Record<string, string> = {
                 open: '开盘',
