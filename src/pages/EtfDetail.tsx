@@ -606,18 +606,17 @@ function TradesSection({ symbol, etfName, currentPrice, dailyData }: { symbol: s
     setEditRecord(null)
   }
 
-  // 计算持仓概览
+  // 计算持仓概览 — 只统计 status='open' 的买入记录
   const position = useMemo(() => {
-    const buyRecords = filteredRecords.filter(r => r.direction === 'buy')
-    const sellRecords = filteredRecords.filter(r => r.direction === 'sell')
-    const totalBuy = buyRecords.reduce((sum, r) => sum + r.amount, 0)
-    const totalSell = sellRecords.reduce((sum, r) => sum + r.amount, 0)
-    const netPosition = totalBuy - totalSell
-    const costPrice = netPosition > 0 ? totalBuy / netPosition : 0
-    const latestStopLoss = filteredRecords.find(r => r.stop_loss_pct)?.stop_loss_pct
-    const latestTakeProfit = filteredRecords.find(r => r.take_profit_pct)?.take_profit_pct
+    const openBuyRecords = filteredRecords.filter(r => r.direction === 'buy' && r.status === 'open')
+    const totalBuy = openBuyRecords.reduce((sum, r) => sum + r.amount, 0)
+    const costBasis = openBuyRecords.reduce((sum, r) => sum + (r.buy_price || 0) * r.amount, 0)
+    const netPosition = totalBuy
+    const costPrice = totalBuy > 0 ? costBasis / totalBuy : 0
+    const latestStopLoss = openBuyRecords.find(r => r.stop_loss_pct)?.stop_loss_pct
+    const latestTakeProfit = openBuyRecords.find(r => r.take_profit_pct)?.take_profit_pct
 
-    return { totalBuy, totalSell, netPosition, costPrice, stopLossPct: latestStopLoss, takeProfitPct: latestTakeProfit }
+    return { totalBuy, costBasis, costPrice, netPosition, stopLossPct: latestStopLoss, takeProfitPct: latestTakeProfit }
   }, [filteredRecords])
 
   return (
@@ -636,23 +635,23 @@ function TradesSection({ symbol, etfName, currentPrice, dailyData }: { symbol: s
       {/* 持仓概览 */}
       {position.netPosition > 0 && (
         <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <div className="text-xs text-gray-500">买入总额</div>
-              <div className="font-medium">¥{position.totalBuy.toLocaleString()}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">卖出总额</div>
-              <div className="font-medium">¥{position.totalSell.toLocaleString()}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">净持仓</div>
+              <div className="text-xs text-gray-500">持仓金额</div>
               <div className="font-medium">¥{position.netPosition.toLocaleString()}</div>
             </div>
             <div>
               <div className="text-xs text-gray-500">成本均价</div>
               <div className="font-medium">¥{position.costPrice.toFixed(3)}</div>
             </div>
+            {currentPrice && (
+              <div>
+                <div className="text-xs text-gray-500">当前收益</div>
+                <div className={`font-medium ${((currentPrice / position.costPrice - 1) * 100) >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {((currentPrice / position.costPrice - 1) * 100).toFixed(2)}%
+                </div>
+              </div>
+            )}
           </div>
           {(position.stopLossPct || position.takeProfitPct) && (
             <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-200">

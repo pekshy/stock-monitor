@@ -226,6 +226,7 @@ export interface Position {
   totalBuy: number
   totalSell: number
   netPosition: number
+  costBasis?: number
   costPrice: number
   currentPrice: number
   profitLoss: number

@@ -25,13 +25,13 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
     return etfs.map(e => ({ symbol: e.symbol, name: e.name || e.symbol }))
   }, [etfs])
 
-  // 计算持仓概览
+  // 计算持仓概览 — 只统计 status='open' 的买入记录。卖出记录是历史记录，不抵消持仓
   const positions = useMemo(() => {
     const symbolMap = new Map<string, Position>()
 
-    // 按标的分组统计
     records.forEach(record => {
-      const { symbol, name, direction, amount, stop_loss_pct, take_profit_pct } = record
+      if (record.direction !== 'buy' || record.status !== 'open') return
+      const { symbol, name, amount, buy_price, stop_loss_pct, take_profit_pct } = record
       if (!symbolMap.has(symbol)) {
         symbolMap.set(symbol, {
           symbol,
@@ -39,6 +39,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
           totalBuy: 0,
           totalSell: 0,
           netPosition: 0,
+          costBasis: 0,
           costPrice: 0,
           currentPrice: 0,
           profitLoss: 0,
@@ -48,20 +49,15 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
         })
       }
       const pos = symbolMap.get(symbol)!
-      if (direction === 'buy') {
-        pos.totalBuy += amount
-      } else {
-        pos.totalSell += amount
-      }
-      // 取最新的止损止盈设置
+      pos.totalBuy += amount
+      pos.netPosition += amount
+      if (buy_price) pos.costBasis = (pos.costBasis || 0) + buy_price * amount
       if (stop_loss_pct) pos.stopLossPct = stop_loss_pct
       if (take_profit_pct) pos.takeProfitPct = take_profit_pct
     })
 
-    // 计算净持仓和成本均价
     symbolMap.forEach(pos => {
-      pos.netPosition = pos.totalBuy - pos.totalSell
-      pos.costPrice = pos.netPosition > 0 ? pos.totalBuy / pos.netPosition : 0
+      pos.costPrice = pos.totalBuy > 0 ? (pos.costBasis || 0) / pos.totalBuy : 0
     })
 
     return Array.from(symbolMap.values()).filter(p => p.netPosition > 0)
@@ -81,8 +77,9 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
   const positionsWithPrice = useMemo(() => {
     return positions.map(pos => {
       const currentPrice = etfPriceMap.get(pos.symbol) || pos.costPrice
-      const profitLoss = pos.netPosition * (currentPrice - pos.costPrice)
-      const profitLossPct = pos.costPrice > 0 ? (profitLoss / pos.totalBuy) * 100 : 0
+      // 基于成本价与现价的比值计算收益率
+      const profitLossPct = pos.costPrice > 0 ? (currentPrice / pos.costPrice - 1) * 100 : 0
+      const profitLoss = pos.netPosition * profitLossPct / 100
 
       // 检查止损止盈提醒（基于成本均价 × 百分比阈值）
       let stopLossAlert: 'hit' | 'near' | null = null
