@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Target, Activity, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Target, Activity, MessageSquare, ChevronDown, ChevronUp, Search } from 'lucide-react'
 import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
   useEtfData,
@@ -534,6 +534,9 @@ const EtfBoard: React.FC = () => {
   // 是否展开观望的ETF
   const [showAll, setShowAll] = useState(false)
 
+  // 搜索关键词
+  const [searchText, setSearchText] = useState('')
+
   const { sellEtfs, buyEtfs, watchEtfs } = useMemo(() => {
     const sorted = [...etfs].sort((a, b) => {
       const priorityA = getActionPriority(a.latest_signal?.action)
@@ -546,6 +549,34 @@ const EtfBoard: React.FC = () => {
       watchEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) === 3)
     }
   }, [etfs])
+
+  // 根据搜索关键词过滤 ETF（模糊匹配名称或代码）
+  const filteredSellEtfs = useMemo(() => {
+    if (!searchText.trim()) return sellEtfs
+    const kw = searchText.toLowerCase()
+    return sellEtfs.filter(e =>
+      (e.name && e.name.toLowerCase().includes(kw)) ||
+      (e.symbol && e.symbol.toLowerCase().includes(kw))
+    )
+  }, [sellEtfs, searchText])
+
+  const filteredBuyEtfs = useMemo(() => {
+    if (!searchText.trim()) return buyEtfs
+    const kw = searchText.toLowerCase()
+    return buyEtfs.filter(e =>
+      (e.name && e.name.toLowerCase().includes(kw)) ||
+      (e.symbol && e.symbol.toLowerCase().includes(kw))
+    )
+  }, [buyEtfs, searchText])
+
+  const filteredWatchEtfs = useMemo(() => {
+    if (!searchText.trim()) return watchEtfs
+    const kw = searchText.toLowerCase()
+    return watchEtfs.filter(e =>
+      (e.name && e.name.toLowerCase().includes(kw)) ||
+      (e.symbol && e.symbol.toLowerCase().includes(kw))
+    )
+  }, [watchEtfs, searchText])
   // 通胀类别单独从中国数据构建，避免与 FRED 基准指数（CPIAUCSL/PPIACO）混合
   const globalCategories = useMemo(
     () => {
@@ -673,14 +704,24 @@ const EtfBoard: React.FC = () => {
 
       {/* ETF列表 */}
       <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex items-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Target className="h-5 w-5 text-green-500" />
             关注ETF列表
             <span className="text-sm font-normal text-gray-500">
-              （{sellEtfs.length > 0 ? `${sellEtfs.length}卖出` : ''}{buyEtfs.length > 0 ? `、${buyEtfs.length}买入` : ''}{watchEtfs.length > 0 ? `、观望${watchEtfs.length}` : ''}）
+              （{filteredSellEtfs.length > 0 ? `${filteredSellEtfs.length}卖出` : ''}{filteredBuyEtfs.length > 0 ? `、${filteredBuyEtfs.length}买入` : ''}{filteredWatchEtfs.length > 0 ? `、观望${filteredWatchEtfs.length}` : ''}{searchText.trim() && ` · 共${filteredSellEtfs.length + filteredBuyEtfs.length + filteredWatchEtfs.length}条`}）
             </span>
           </h2>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              placeholder="搜索名称或代码"
+              className="pl-9 pr-3 py-1.5 w-48 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            />
+          </div>
         </div>
         {etfs.length > 0 ? (
           <>
@@ -702,7 +743,7 @@ const EtfBoard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {(showAll ? [...sellEtfs, ...buyEtfs, ...watchEtfs] : [...sellEtfs, ...buyEtfs]).map((etf) => (
+                {(showAll ? [...filteredSellEtfs, ...filteredBuyEtfs, ...filteredWatchEtfs] : [...filteredSellEtfs, ...filteredBuyEtfs]).map((etf) => (
                   <tr
                     key={etf.symbol}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -794,12 +835,12 @@ const EtfBoard: React.FC = () => {
               </tbody>
               </table>
             </div>
-            {watchEtfs.length > 0 && (
+            {filteredWatchEtfs.length > 0 && (
               <div className="flex justify-center mt-4 pt-4 border-t border-gray-100">
                 <button
                   onClick={() => setShowAll(prev => !prev)}
                   className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
-                  title={showAll ? '收起观望' : `展开观望(${watchEtfs.length})`}
+                  title={showAll ? '收起观望' : `展开观望(${filteredWatchEtfs.length})`}
                 >
                   {showAll ? (
                     <ChevronUp className="h-5 w-5" />
