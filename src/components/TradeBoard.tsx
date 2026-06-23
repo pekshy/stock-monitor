@@ -28,7 +28,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
 
     // 按标的分组统计
     records.forEach(record => {
-      const { symbol, name, direction, amount, stop_loss, take_profit } = record
+      const { symbol, name, direction, amount, stop_loss_pct, take_profit_pct } = record
       if (!symbolMap.has(symbol)) {
         symbolMap.set(symbol, {
           symbol,
@@ -40,8 +40,8 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
           currentPrice: 0,
           profitLoss: 0,
           profitLossPct: 0,
-          stopLoss: stop_loss,
-          takeProfit: take_profit
+          stopLossPct: stop_loss_pct,
+          takeProfitPct: take_profit_pct
         })
       }
       const pos = symbolMap.get(symbol)!
@@ -51,8 +51,8 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
         pos.totalSell += amount
       }
       // 取最新的止损止盈设置
-      if (stop_loss) pos.stopLoss = stop_loss
-      if (take_profit) pos.takeProfit = take_profit
+      if (stop_loss_pct) pos.stopLossPct = stop_loss_pct
+      if (take_profit_pct) pos.takeProfitPct = take_profit_pct
     })
 
     // 计算净持仓和成本均价
@@ -78,21 +78,25 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
       const profitLoss = pos.netPosition * (currentPrice - pos.costPrice)
       const profitLossPct = pos.costPrice > 0 ? (profitLoss / pos.totalBuy) * 100 : 0
 
-      // 检查止损止盈提醒
+      // 检查止损止盈提醒（基于成本均价 × 百分比阈值）
       let stopLossAlert: 'hit' | 'near' | null = null
       let takeProfitAlert: 'hit' | 'near' | null = null
 
-      if (pos.stopLoss) {
-        if (currentPrice <= pos.stopLoss) {
+      if (pos.stopLossPct && pos.costPrice > 0) {
+        const stopLossPrice = pos.costPrice * (1 - pos.stopLossPct / 100)
+        const nearPrice = stopLossPrice * 1.02 // 2% 容差
+        if (currentPrice <= stopLossPrice) {
           stopLossAlert = 'hit'
-        } else if (currentPrice <= pos.stopLoss * 1.05) {
+        } else if (currentPrice <= nearPrice) {
           stopLossAlert = 'near'
         }
       }
-      if (pos.takeProfit) {
-        if (currentPrice >= pos.takeProfit) {
+      if (pos.takeProfitPct && pos.costPrice > 0) {
+        const takeProfitPrice = pos.costPrice * (1 + pos.takeProfitPct / 100)
+        const nearPrice = takeProfitPrice * 0.98 // 2% 容差
+        if (currentPrice >= takeProfitPrice) {
           takeProfitAlert = 'hit'
-        } else if (currentPrice >= pos.takeProfit * 0.95) {
+        } else if (currentPrice >= nearPrice) {
           takeProfitAlert = 'near'
         }
       }
@@ -166,16 +170,16 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
                   {pos.name || pos.symbol} 现价 ¥{pos.currentPrice.toFixed(3)}
                 </span>
                 {pos.stopLossAlert === 'hit' && (
-                  <span className="text-xs">触及止损价 ¥{pos.stopLoss}</span>
+                  <span className="text-xs">触及止损 -{pos.stopLossPct}%</span>
                 )}
                 {pos.stopLossAlert === 'near' && (
-                  <span className="text-xs">接近止损价 ¥{pos.stopLoss}</span>
+                  <span className="text-xs">接近止损 -{pos.stopLossPct}%</span>
                 )}
                 {pos.takeProfitAlert === 'hit' && (
-                  <span className="text-xs">触及止盈价 ¥{pos.takeProfit}</span>
+                  <span className="text-xs">触及止盈 +{pos.takeProfitPct}%</span>
                 )}
                 {pos.takeProfitAlert === 'near' && (
-                  <span className="text-xs">接近止盈价 ¥{pos.takeProfit}</span>
+                  <span className="text-xs">接近止盈 +{pos.takeProfitPct}%</span>
                 )}
               </div>
               <X className="h-4 w-4 opacity-50" />

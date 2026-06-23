@@ -22,8 +22,8 @@ export const TradeModal: React.FC<TradeModalProps> = ({
   const [direction, setDirection] = useState<'buy' | 'sell'>('buy')
   const [tradeDate, setTradeDate] = useState(new Date().toISOString().split('T')[0])
   const [amount, setAmount] = useState('')
-  const [stopLoss, setStopLoss] = useState('')
-  const [takeProfit, setTakeProfit] = useState('')
+  const [stopLossPct, setStopLossPct] = useState('')
+  const [takeProfitPct, setTakeProfitPct] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -34,8 +34,8 @@ export const TradeModal: React.FC<TradeModalProps> = ({
       setDirection(editRecord.direction)
       setTradeDate(editRecord.trade_date)
       setAmount(editRecord.amount.toString())
-      setStopLoss(editRecord.stop_loss?.toString() || '')
-      setTakeProfit(editRecord.take_profit?.toString() || '')
+      setStopLossPct(editRecord.stop_loss_pct?.toString() || '')
+      setTakeProfitPct(editRecord.take_profit_pct?.toString() || '')
       setNotes(editRecord.notes || '')
     } else {
       setSymbol('')
@@ -43,8 +43,8 @@ export const TradeModal: React.FC<TradeModalProps> = ({
       setDirection('buy')
       setTradeDate(new Date().toISOString().split('T')[0])
       setAmount('')
-      setStopLoss('')
-      setTakeProfit('')
+      setStopLossPct('')
+      setTakeProfitPct('')
       setNotes('')
     }
   }, [editRecord, isOpen])
@@ -69,8 +69,8 @@ export const TradeModal: React.FC<TradeModalProps> = ({
         direction,
         trade_date: tradeDate,
         amount: parseFloat(amount),
-        stop_loss: stopLoss ? parseFloat(stopLoss) : null,
-        take_profit: takeProfit ? parseFloat(takeProfit) : null,
+        stop_loss_pct: stopLossPct ? parseFloat(stopLossPct) : null,
+        take_profit_pct: takeProfitPct ? parseFloat(takeProfitPct) : null,
         notes: notes.trim() || null
       })
       onClose()
@@ -172,26 +172,28 @@ export const TradeModal: React.FC<TradeModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">止损价（选填）</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">止损（%，选填）</label>
               <input
                 type="number"
-                value={stopLoss}
-                onChange={e => setStopLoss(e.target.value)}
-                placeholder="2.00"
-                step="0.001"
+                value={stopLossPct}
+                onChange={e => setStopLossPct(e.target.value)}
+                placeholder="8"
+                step="0.1"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
+              <p className="text-xs text-gray-400 mt-1">亏 8% 触发</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">止盈价（选填）</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">止盈（%，选填）</label>
               <input
                 type="number"
-                value={takeProfit}
-                onChange={e => setTakeProfit(e.target.value)}
-                placeholder="3.00"
-                step="0.001"
+                value={takeProfitPct}
+                onChange={e => setTakeProfitPct(e.target.value)}
+                placeholder="15"
+                step="0.1"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
+              <p className="text-xs text-gray-400 mt-1">赚 15% 触发</p>
             </div>
           </div>
 

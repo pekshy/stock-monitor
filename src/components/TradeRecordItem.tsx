@@ -33,11 +33,11 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({ record, onEdit
           <span className="text-gray-700">
             总额：<span className="font-semibold">¥{record.amount.toLocaleString()}</span>
           </span>
-          {record.stop_loss && (
-            <span className="text-red-600 text-xs">止损：¥{record.stop_loss}</span>
+          {record.stop_loss_pct && (
+            <span className="text-red-600 text-xs">止损：-{record.stop_loss_pct}%</span>
           )}
-          {record.take_profit && (
-            <span className="text-green-600 text-xs">止盈：¥{record.take_profit}</span>
+          {record.take_profit_pct && (
+            <span className="text-green-600 text-xs">止盈：+{record.take_profit_pct}%</span>
           )}
         </div>
 

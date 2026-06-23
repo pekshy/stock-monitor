@@ -210,8 +210,8 @@ export interface TradeRecord {
   direction: 'buy' | 'sell'
   trade_date: string
   amount: number
-  stop_loss?: number | null
-  take_profit?: number | null
+  stop_loss_pct?: number | null
+  take_profit_pct?: number | null
   status: 'open' | 'closed'
   linked_id?: number | null
   notes?: string | null
@@ -229,8 +229,8 @@ export interface Position {
   currentPrice: number
   profitLoss: number
   profitLossPct: number
-  stopLoss?: number | null
-  takeProfit?: number | null
+  stopLossPct?: number | null
+  takeProfitPct?: number | null
   stopLossAlert?: 'hit' | 'near' | null
   takeProfitAlert?: 'hit' | 'near' | null
 }

@@ -58,26 +58,26 @@ export const PositionCard: React.FC<PositionCardProps> = ({ position }) => {
         </div>
       </div>
 
-      {(position.stopLoss || position.takeProfit) && (
+      {(position.stopLossPct || position.takeProfitPct) && (
         <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
-          {position.stopLoss && (
+          {position.stopLossPct && (
             <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${
               position.stopLossAlert === 'hit' ? 'bg-red-100 text-red-700' :
               position.stopLossAlert === 'near' ? 'bg-yellow-100 text-yellow-700' :
               'bg-gray-100 text-gray-600'
             }`}>
               <AlertTriangle className="h-3 w-3" />
-              止损 ¥{position.stopLoss}
+              止损 -{position.stopLossPct}%
             </div>
           )}
-          {position.takeProfit && (
+          {position.takeProfitPct && (
             <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${
               position.takeProfitAlert === 'hit' ? 'bg-green-100 text-green-700' :
               position.takeProfitAlert === 'near' ? 'bg-yellow-100 text-yellow-700' :
               'bg-gray-100 text-gray-600'
             }`}>
               <AlertTriangle className="h-3 w-3" />
-              止盈 ¥{position.takeProfit}
+              止盈 +{position.takeProfitPct}%
             </div>
           )}
         </div>
