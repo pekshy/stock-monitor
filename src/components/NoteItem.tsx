@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { EtfNote } from '../types'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
 
@@ -11,9 +12,19 @@ interface NoteItemProps {
 }
 
 export const NoteItem: React.FC<NoteItemProps> = ({ note, etfName, onUpdate, onDelete, compact = false }) => {
+  const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(note.note)
   const [saving, setSaving] = useState(false)
+
+  const showName = etfName && etfName !== note.symbol
+  const isGeneral = note.symbol === 'GENERAL'
+
+  const handleSymbolClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isGeneral) return
+    navigate(`/etf/${note.symbol}`)
+  }
 
   const handleSave = async () => {
     if (!editText.trim() || editText === note.note) {
@@ -37,17 +48,27 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, etfName, onUpdate, onD
     setEditText(note.note)
   }
 
-  const showName = etfName && etfName !== note.symbol
-
   return (
     <div className={`flex items-start gap-2 ${compact ? 'p-2' : 'p-3'} bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group`}>
       <div className="flex-1 min-w-0">
         {/* 头部信息行：ETF名 / symbol / 时间 */}
         <div className={`flex items-center gap-2 ${compact ? 'mb-0.5' : 'mb-1'} flex-wrap`}>
           {showName && (
-            <span className={`${compact ? 'text-xs' : 'text-sm'} text-gray-700 font-medium`}>{etfName}</span>
+            <span
+              onClick={handleSymbolClick}
+              className={`${compact ? 'text-xs' : 'text-sm'} text-gray-700 font-medium ${isGeneral ? '' : 'cursor-pointer hover:text-blue-600 hover:underline'}`}
+            >
+              {etfName}
+            </span>
           )}
-          <span className={`${compact ? 'text-xs' : 'text-xs'} text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded`}>
+          <span
+            onClick={handleSymbolClick}
+            className={`${compact ? 'text-xs' : 'text-xs'} font-semibold px-2 py-0.5 rounded ${
+              isGeneral
+                ? 'text-gray-600 bg-gray-100'
+                : 'text-blue-600 bg-blue-50 cursor-pointer hover:bg-blue-100 hover:text-blue-700'
+            }`}
+          >
             {note.symbol}
           </span>
           <span className="text-xs text-gray-400">
