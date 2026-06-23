@@ -199,6 +199,7 @@ export interface EtfNote {
   symbol: string
   note: string
   created_at: string
+  updated_at?: string
 }
 
 export interface EtfWithData extends EtfInfo {
