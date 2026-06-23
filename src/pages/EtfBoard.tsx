@@ -868,11 +868,11 @@ const EtfBoard: React.FC = () => {
         )}
       </div>
 
-      {/* 笔记模块 */}
-      <NotesBoard />
-
       {/* 交易记录模块 */}
       <TradeBoard onAlertClick={(symbol) => navigate(`/etf/${symbol}`)} />
+
+      {/* 笔记模块 */}
+      <NotesBoard />
 
     </div>
   )
