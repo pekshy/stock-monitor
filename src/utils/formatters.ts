@@ -11,6 +11,9 @@ export function formatPrice(value: number | null | undefined): string {
 
 export function formatValuation(value: number | null | undefined): string {
   if (value == null) return '--'
+  if (value >= 10000) {
+    return (value / 10000).toFixed(2) + '万'
+  }
   return value.toFixed(2)
 }
 

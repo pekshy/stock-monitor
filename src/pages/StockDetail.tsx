@@ -18,7 +18,8 @@ import {
   formatPercent,
   formatPrice,
   getChangeColor,
-  formatDate
+  formatDate,
+  formatValuation
 } from '../utils/formatters'
 
 function getMarketType(stockCode: string): 'us' | 'hk' | 'cn' {
@@ -401,13 +402,13 @@ const StockDetail: React.FC = () => {
             <div>
               <div className="text-gray-500 text-xs">PE (TTM)</div>
               <div className="text-lg font-bold text-gray-900">
-                {latestValuation.pe_ttm?.toFixed(2) || '--'}
+                {formatValuation(latestValuation.pe_ttm)}
               </div>
             </div>
             <div>
               <div className="text-gray-500 text-xs">PE (静态)</div>
               <div className="text-lg font-bold text-gray-900">
-                {latestValuation.pe_static?.toFixed(2) || '--'}
+                {formatValuation(latestValuation.pe_static)}
               </div>
             </div>
             <div>
