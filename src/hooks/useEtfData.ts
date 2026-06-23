@@ -270,6 +270,7 @@ export { buildIndicatorCategories, GLOBAL_CATEGORIES, CHINA_CATEGORIES }
 
 export function useEtfData() {
   const [etfs, setEtfs] = useState<EtfWithData[]>([])
+  const [priceByDateMap, setPriceByDateMap] = useState<Map<string, Map<string, number>>>(new Map())
   const [chinaIndicators, setChinaIndicators] = useState<ChinaIndicator[]>([])
   const [fredIndicators, setFredIndicators] = useState<FredIndicator[]>([])
   const [marketIndicators, setMarketIndicators] = useState<MarketIndicator[]>([])
@@ -391,6 +392,19 @@ export function useEtfData() {
         if (dailyErr) throw dailyErr
         console.log('ETF daily data:', dailyData)
 
+        // 构建 symbol → (date → close price) 映射，用于交易弹窗自动填入价格
+        const symbolDatePriceMap = new Map<string, Map<string, number>>()
+        dailyData?.forEach(d => {
+          if (d.close == null) return
+          let inner = symbolDatePriceMap.get(d.symbol)
+          if (!inner) {
+            inner = new Map()
+            symbolDatePriceMap.set(d.symbol, inner)
+          }
+          inner.set(d.trade_date, d.close)
+        })
+        setPriceByDateMap(symbolDatePriceMap)
+
         // 获取ETF指标
         const { data: indicatorsData, error: indicatorsErr } = await supabase
           .from('etf_indicators')
@@ -510,6 +524,7 @@ export function useEtfData() {
 
   return {
     etfs,
+    priceByDateMap,
     chinaIndicators,
     fredIndicators,
     marketIndicators,

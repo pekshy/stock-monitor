@@ -3,16 +3,17 @@ import { useEtfData } from '../hooks/useEtfData'
 
 interface EtfContextType {
   etfs: any[]
+  priceByDateMap: Map<string, Map<string, number>>
   loading: boolean
 }
 
 const EtfContext = createContext<EtfContextType | null>(null)
 
 export function EtfProvider({ children }: { children: React.ReactNode }) {
-  const { etfs, loading } = useEtfData()
+  const { etfs, priceByDateMap, loading } = useEtfData()
   
   return (
-    <EtfContext.Provider value={{ etfs, loading }}>
+    <EtfContext.Provider value={{ etfs, priceByDateMap, loading }}>
       {children}
     </EtfContext.Provider>
   )

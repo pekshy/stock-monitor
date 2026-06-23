@@ -14,7 +14,7 @@ interface TradeBoardProps {
 
 export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
   const { records, loading, addRecord, updateRecord, deleteRecord } = useTradeRecords()
-  const { etfs } = useEtfData()
+  const { etfs, priceByDateMap } = useEtfData()
   const [modalOpen, setModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<TradeRecord | null>(null)
   const [sellModalOpen, setSellModalOpen] = useState(false)
@@ -271,6 +271,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
         onSave={handleSave}
         editRecord={editRecord}
         etfSymbols={etfSymbols}
+        priceMapsBySymbol={priceByDateMap}
       />
 
       {/* 卖出确认弹窗 */}
@@ -278,6 +279,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
         isOpen={sellModalOpen}
         record={sellRecord}
         currentPrice={sellRecord ? etfPriceMap.get(sellRecord.symbol) : undefined}
+        priceMap={sellRecord ? priceByDateMap.get(sellRecord.symbol) : undefined}
         onConfirm={handleSellConfirm}
         onClose={() => { setSellModalOpen(false); setSellRecord(null) }}
       />

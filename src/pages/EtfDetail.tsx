@@ -432,7 +432,7 @@ const EtfDetail: React.FC = () => {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
   const { data, loading } = useEtfDetail(code || '')
-  const { etfs } = useEtfContext()
+  const { etfs, priceByDateMap } = useEtfContext()
 
   const etfSymbols = etfs.map(e => e.symbol)
   const currentIndex = etfSymbols.indexOf(code || '')
@@ -529,14 +529,14 @@ const EtfDetail: React.FC = () => {
         <VolumeChart data={data.dailyData} />
       </div>
 
-      <TradesSection symbol={data.etf.symbol} etfName={data.etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={data.dailyData} />
+      <TradesSection symbol={data.etf.symbol} etfName={data.etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={data.dailyData} priceByDateMap={priceByDateMap} />
 
       <NotesSection symbol={data.etf.symbol} etfName={data.etf.name} />
     </div>
   )
 }
 
-function TradesSection({ symbol, etfName, currentPrice, dailyData }: { symbol: string; etfName: string | null; currentPrice?: number; dailyData?: EtfDailyData[] }) {
+function TradesSection({ symbol, etfName, currentPrice, dailyData, priceByDateMap }: { symbol: string; etfName: string | null; currentPrice?: number; dailyData?: EtfDailyData[]; priceByDateMap?: Map<string, Map<string, number>> }) {
   const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
   const [modalOpen, setModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<typeof records[0] | null>(null)
@@ -692,6 +692,7 @@ function TradesSection({ symbol, etfName, currentPrice, dailyData }: { symbol: s
         onSave={handleSave}
         editRecord={editRecord}
         etfSymbols={[{ symbol, name: etfName || symbol }]}
+        priceMapsBySymbol={priceByDateMap}
       />
 
       {/* 卖出确认弹窗 */}

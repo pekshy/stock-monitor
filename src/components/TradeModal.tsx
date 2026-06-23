@@ -8,6 +8,7 @@ interface TradeModalProps {
   onSave: (record: Omit<TradeRecord, 'id' | 'created_at' | 'status' | 'linked_id'>) => void
   editRecord?: TradeRecord | null
   etfSymbols?: { symbol: string; name: string }[]
+  priceMapsBySymbol?: Map<string, Map<string, number>>  // symbol → (date → close price)
 }
 
 export const TradeModal: React.FC<TradeModalProps> = ({
@@ -15,7 +16,8 @@ export const TradeModal: React.FC<TradeModalProps> = ({
   onClose,
   onSave,
   editRecord,
-  etfSymbols = []
+  etfSymbols = [],
+  priceMapsBySymbol
 }) => {
   const [symbol, setSymbol] = useState('')
   const [name, setName] = useState('')
@@ -27,6 +29,7 @@ export const TradeModal: React.FC<TradeModalProps> = ({
   const [takeProfitPct, setTakeProfitPct] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
+  const [buyPriceEdited, setBuyPriceEdited] = useState(false)
 
   useEffect(() => {
     if (editRecord) {
@@ -39,6 +42,7 @@ export const TradeModal: React.FC<TradeModalProps> = ({
       setStopLossPct(editRecord.stop_loss_pct?.toString() || '')
       setTakeProfitPct(editRecord.take_profit_pct?.toString() || '')
       setNotes(editRecord.notes || '')
+      setBuyPriceEdited(!!editRecord.buy_price)
     } else {
       setSymbol('')
       setName('')
@@ -49,8 +53,21 @@ export const TradeModal: React.FC<TradeModalProps> = ({
       setStopLossPct('5')
       setTakeProfitPct('15')
       setNotes('')
+      setBuyPriceEdited(false)
     }
   }, [editRecord, isOpen])
+
+  // 当标的或日期改变时，自动从历史收盘价填入价格（如果用户还没手动编辑过）
+  useEffect(() => {
+    if (buyPriceEdited) return
+    if (!symbol || !tradeDate || !priceMapsBySymbol) return
+    const symbolMap = priceMapsBySymbol.get(symbol.toUpperCase())
+    if (!symbolMap) return
+    const close = symbolMap.get(tradeDate)
+    if (close != null) {
+      setBuyPrice(close.toFixed(3))
+    }
+  }, [symbol, tradeDate, priceMapsBySymbol, buyPriceEdited])
 
   const handleSymbolChange = (value: string) => {
     setSymbol(value.toUpperCase())
@@ -58,6 +75,11 @@ export const TradeModal: React.FC<TradeModalProps> = ({
     if (found) {
       setName(found.name)
     }
+  }
+
+  const handleBuyPriceChange = (value: string) => {
+    setBuyPrice(value)
+    setBuyPriceEdited(true)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -152,11 +174,22 @@ export const TradeModal: React.FC<TradeModalProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {direction === 'sell' ? '卖出单价' : '买入单价'}（元）
+              {(() => {
+                if (!symbol || !priceMapsBySymbol) return null
+                const symbolMap = priceMapsBySymbol.get(symbol.toUpperCase())
+                if (!symbolMap) return null
+                const hasPrice = symbolMap.has(tradeDate)
+                return (
+                  <span className="ml-2 text-xs text-gray-400 font-normal">
+                    {hasPrice ? '已自动填入当日收盘价' : '当日暂无收盘价，请手动输入'}
+                  </span>
+                )
+              })()}
             </label>
             <input
               type="number"
               value={buyPrice}
-              onChange={e => setBuyPrice(e.target.value)}
+              onChange={e => handleBuyPriceChange(e.target.value)}
               placeholder={direction === 'sell' ? '如：1.180' : '如：1.230'}
               step="0.001"
               min="0"

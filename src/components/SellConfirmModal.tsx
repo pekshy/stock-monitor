@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { X } from 'lucide-react'
 import { TradeRecord, EtfDailyData } from '../types'
 
@@ -7,6 +7,7 @@ interface SellConfirmModalProps {
   record: TradeRecord | null
   currentPrice?: number
   dailyData?: EtfDailyData[]
+  priceMap?: Map<string, number>  // date string → close price
   onConfirm: (sellPrice: number, sellDate: string) => void
   onClose: () => void
 }
@@ -16,6 +17,7 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
   record,
   currentPrice,
   dailyData = [],
+  priceMap,
   onConfirm,
   onClose
 }) => {
@@ -31,15 +33,19 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
     }
   }, [isOpen, record, today])
 
-  // 当选择日期变化时，自动填充该日期的收盘价
+  // 当选择日期变化时，自动填充该日期的收盘价（优先从 dailyData，其次从 priceMap）
   useEffect(() => {
-    if (sellDate && dailyData.length > 0) {
-      const dayData = dailyData.find(d => d.trade_date === sellDate)
-      if (dayData?.close) {
-        setSellPrice(dayData.close.toFixed(3))
+    if (!sellDate) return
+    const dayData = dailyData.find(d => d.trade_date === sellDate)
+    if (dayData?.close) {
+      setSellPrice(dayData.close.toFixed(3))
+    } else if (priceMap) {
+      const close = priceMap.get(sellDate)
+      if (close != null) {
+        setSellPrice(close.toFixed(3))
       }
     }
-  }, [sellDate, dailyData])
+  }, [sellDate, dailyData, priceMap])
 
   if (!isOpen || !record) return null
 
@@ -53,11 +59,23 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
     onConfirm(parseFloat(sellPrice), sellDate)
   }
 
-  // 获取可用的交易日期（从历史数据中）
-  const availableDates = dailyData
-    .filter(d => d.close !== null)
-    .map(d => d.trade_date)
-    .sort((a, b) => b.localeCompare(a)) // 最新日期在前
+  // 获取可用的交易日期（从历史数据中，或从 priceMap）
+  const availableDates = useMemo(() => {
+    const dates = new Set<string>()
+    dailyData.filter(d => d.close !== null).forEach(d => dates.add(d.trade_date))
+    if (priceMap) {
+      priceMap.forEach((_v, k) => dates.add(k))
+    }
+    return Array.from(dates).sort((a, b) => b.localeCompare(a))
+  }, [dailyData, priceMap])
+
+  // 判断是否有该日期的收盘价
+  const hasCloseForDate = () => {
+    const fromDaily = dailyData.find(d => d.trade_date === sellDate)?.close
+    if (fromDaily != null) return true
+    if (priceMap && priceMap.get(sellDate) != null) return true
+    return false
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -141,7 +159,7 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
               min="0"
               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
             />
-            {dailyData.length > 0 && !dailyData.find(d => d.trade_date === sellDate)?.close && (
+            {!hasCloseForDate() && (
               <p className="text-xs text-orange-500 mt-1">该日期无收盘价，请手工输入</p>
             )}
           </div>
