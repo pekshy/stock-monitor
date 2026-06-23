@@ -202,6 +202,39 @@ export interface EtfNote {
   updated_at?: string
 }
 
+// 交易记录
+export interface TradeRecord {
+  id: number
+  symbol: string
+  name?: string
+  direction: 'buy' | 'sell'
+  trade_date: string
+  amount: number
+  stop_loss?: number | null
+  take_profit?: number | null
+  status: 'open' | 'closed'
+  linked_id?: number | null
+  notes?: string | null
+  created_at: string
+}
+
+// 持仓概览
+export interface Position {
+  symbol: string
+  name?: string
+  totalBuy: number
+  totalSell: number
+  netPosition: number
+  costPrice: number
+  currentPrice: number
+  profitLoss: number
+  profitLossPct: number
+  stopLoss?: number | null
+  takeProfit?: number | null
+  stopLossAlert?: 'hit' | 'near' | null
+  takeProfitAlert?: 'hit' | 'near' | null
+}
+
 export interface EtfWithData extends EtfInfo {
   latest_daily?: EtfDailyData
   latest_indicator?: EtfIndicators

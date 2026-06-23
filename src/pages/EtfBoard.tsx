@@ -12,6 +12,7 @@ import { formatPercent, getChangeColor } from '../utils/formatters'
 import { FearGreedSeries } from '../types'
 import { useEtfNotes } from '../hooks/useEtfNotes'
 import { NoteItem } from '../components/NoteItem'
+import { TradeBoard } from '../components/TradeBoard'
 
 // --- 通用辅助函数 ---
 
@@ -869,6 +870,9 @@ const EtfBoard: React.FC = () => {
 
       {/* 笔记模块 */}
       <NotesBoard />
+
+      {/* 交易记录模块 */}
+      <TradeBoard onAlertClick={(symbol) => navigate(`/etf/${symbol}`)} />
 
     </div>
   )
