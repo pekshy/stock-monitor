@@ -210,6 +210,7 @@ export interface TradeRecord {
   direction: 'buy' | 'sell'
   trade_date: string
   amount: number
+  buy_price?: number | null
   stop_loss_pct?: number | null
   take_profit_pct?: number | null
   status: 'open' | 'closed'

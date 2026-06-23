@@ -22,6 +22,7 @@ export const TradeModal: React.FC<TradeModalProps> = ({
   const [direction, setDirection] = useState<'buy' | 'sell'>('buy')
   const [tradeDate, setTradeDate] = useState(new Date().toISOString().split('T')[0])
   const [amount, setAmount] = useState('')
+  const [buyPrice, setBuyPrice] = useState('')
   const [stopLossPct, setStopLossPct] = useState('')
   const [takeProfitPct, setTakeProfitPct] = useState('')
   const [notes, setNotes] = useState('')
@@ -34,6 +35,7 @@ export const TradeModal: React.FC<TradeModalProps> = ({
       setDirection(editRecord.direction)
       setTradeDate(editRecord.trade_date)
       setAmount(editRecord.amount.toString())
+      setBuyPrice(editRecord.buy_price?.toString() || '')
       setStopLossPct(editRecord.stop_loss_pct?.toString() || '')
       setTakeProfitPct(editRecord.take_profit_pct?.toString() || '')
       setNotes(editRecord.notes || '')
@@ -43,6 +45,7 @@ export const TradeModal: React.FC<TradeModalProps> = ({
       setDirection('buy')
       setTradeDate(new Date().toISOString().split('T')[0])
       setAmount('')
+      setBuyPrice('')
       setStopLossPct('')
       setTakeProfitPct('')
       setNotes('')
@@ -69,6 +72,7 @@ export const TradeModal: React.FC<TradeModalProps> = ({
         direction,
         trade_date: tradeDate,
         amount: parseFloat(amount),
+        buy_price: buyPrice ? parseFloat(buyPrice) : null,
         stop_loss_pct: stopLossPct ? parseFloat(stopLossPct) : null,
         take_profit_pct: takeProfitPct ? parseFloat(takeProfitPct) : null,
         notes: notes.trim() || null
@@ -168,6 +172,24 @@ export const TradeModal: React.FC<TradeModalProps> = ({
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              买入单价（元）{direction === 'sell' && <span className="text-gray-400 font-normal">（关联买入时填写）</span>}
+            </label>
+            <input
+              type="number"
+              value={buyPrice}
+              onChange={e => setBuyPrice(e.target.value)}
+              placeholder={direction === 'buy' ? '如：1.230' : '如：1.180'}
+              step="0.001"
+              min="0"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              {direction === 'buy' ? '记录买入成本，用于计算每日收益率' : '卖出时关联买入记录，用于计算总收益'}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

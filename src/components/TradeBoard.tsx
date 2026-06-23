@@ -65,14 +65,17 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
   }, [records])
 
   // 获取现价（从 ETF 数据中获取）
-  const positionsWithPrice = useMemo(() => {
-    const etfPriceMap = new Map<string, number>()
+  const etfPriceMap = useMemo(() => {
+    const map = new Map<string, number>()
     etfs.forEach(e => {
       if (e.latest_daily?.close) {
-        etfPriceMap.set(e.symbol, e.latest_daily.close)
+        map.set(e.symbol, e.latest_daily.close)
       }
     })
+    return map
+  }, [etfs])
 
+  const positionsWithPrice = useMemo(() => {
     return positions.map(pos => {
       const currentPrice = etfPriceMap.get(pos.symbol) || pos.costPrice
       const profitLoss = pos.netPosition * (currentPrice - pos.costPrice)
@@ -110,7 +113,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
         takeProfitAlert
       }
     })
-  }, [positions, etfs])
+  }, [positions, etfPriceMap])
 
   // 有提醒的持仓
   const alertedPositions = useMemo(() => {
@@ -215,6 +218,8 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
               record={record}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              currentPrice={etfPriceMap.get(record.symbol)}
+              allRecords={records}
             />
           ))}
         </div>

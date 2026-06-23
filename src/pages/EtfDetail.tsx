@@ -528,14 +528,14 @@ const EtfDetail: React.FC = () => {
         <VolumeChart data={data.dailyData} />
       </div>
 
-      <TradesSection symbol={data.etf.symbol} etfName={data.etf.name} />
+      <TradesSection symbol={data.etf.symbol} etfName={data.etf.name} currentPrice={latestDaily?.close ?? undefined} />
 
       <NotesSection symbol={data.etf.symbol} etfName={data.etf.name} />
     </div>
   )
 }
 
-function TradesSection({ symbol, etfName }: { symbol: string; etfName: string | null }) {
+function TradesSection({ symbol, etfName, currentPrice }: { symbol: string; etfName: string | null; currentPrice?: number }) {
   const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
   const [modalOpen, setModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<typeof records[0] | null>(null)
@@ -637,6 +637,8 @@ function TradesSection({ symbol, etfName }: { symbol: string; etfName: string | 
               record={record}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              currentPrice={currentPrice}
+              allRecords={records}
             />
           ))}
         </div>
