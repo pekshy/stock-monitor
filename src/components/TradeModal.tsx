@@ -46,8 +46,8 @@ export const TradeModal: React.FC<TradeModalProps> = ({
       setTradeDate(new Date().toISOString().split('T')[0])
       setAmount('')
       setBuyPrice('')
-      setStopLossPct('')
-      setTakeProfitPct('')
+      setStopLossPct('5')
+      setTakeProfitPct('15')
       setNotes('')
     }
   }, [editRecord, isOpen])
