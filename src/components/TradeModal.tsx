@@ -101,31 +101,6 @@ export const TradeModal: React.FC<TradeModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setDirection('buy')}
-              className={`flex-1 py-2 rounded-lg font-semibold transition-colors ${
-                direction === 'buy'
-                  ? 'bg-red-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              买入
-            </button>
-            <button
-              type="button"
-              onClick={() => setDirection('sell')}
-              className={`flex-1 py-2 rounded-lg font-semibold transition-colors ${
-                direction === 'sell'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              卖出
-            </button>
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">标的代码</label>
             <input
@@ -176,19 +151,21 @@ export const TradeModal: React.FC<TradeModalProps> = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              买入单价（元）{direction === 'sell' && <span className="text-gray-400 font-normal">（关联买入时填写）</span>}
+              {direction === 'sell' ? '卖出单价' : '买入单价'}（元）
             </label>
             <input
               type="number"
               value={buyPrice}
               onChange={e => setBuyPrice(e.target.value)}
-              placeholder={direction === 'buy' ? '如：1.230' : '如：1.180'}
+              placeholder={direction === 'sell' ? '如：1.180' : '如：1.230'}
               step="0.001"
               min="0"
               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
             <p className="text-xs text-gray-400 mt-1">
-              {direction === 'buy' ? '记录买入成本，用于计算每日收益率' : '卖出时关联买入记录，用于计算总收益'}
+              {direction === 'sell'
+                ? '记录卖出单价，用于计算总收益'
+                : '记录买入成本，用于计算每日收益率'}
             </p>
           </div>
 
