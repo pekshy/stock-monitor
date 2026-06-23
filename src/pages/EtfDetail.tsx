@@ -18,7 +18,10 @@ import { EtfDailyData, EtfIndicators, EtfClawSignal } from '../types'
 import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
 import { ButterworthFit } from '../types'
 import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
+import { useTradeRecords } from '../hooks/useTradeRecords'
 import { NoteItem } from '../components/NoteItem'
+import { TradeRecordItem } from '../components/TradeRecordItem'
+import { TradeModal } from '../components/TradeModal'
 
 interface EtfDetailData {
   etf: {
@@ -525,7 +528,128 @@ const EtfDetail: React.FC = () => {
         <VolumeChart data={data.dailyData} />
       </div>
 
+      <TradesSection symbol={data.etf.symbol} etfName={data.etf.name} />
+
       <NotesSection symbol={data.etf.symbol} etfName={data.etf.name} />
+    </div>
+  )
+}
+
+function TradesSection({ symbol, etfName }: { symbol: string; etfName: string | null }) {
+  const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editRecord, setEditRecord] = useState<typeof records[0] | null>(null)
+
+  // 筛选当前 ETF 的交易记录
+  const filteredRecords = useMemo(() => {
+    return records.filter(r => r.symbol.toUpperCase() === symbol.toUpperCase())
+  }, [records, symbol])
+
+  const handleEdit = (record: typeof records[0]) => {
+    setEditRecord(record)
+    setModalOpen(true)
+  }
+
+  const handleDelete = async (id: number) => {
+    if (confirm('确定要删除这条交易记录吗？')) {
+      await deleteRecord(id)
+    }
+  }
+
+  const handleSave = async (record: Omit<typeof records[0], 'id' | 'created_at' | 'status' | 'linked_id'>) => {
+    if (editRecord) {
+      await updateRecord(editRecord.id, record)
+    } else {
+      await addRecord(record)
+    }
+    setEditRecord(null)
+  }
+
+  // 计算持仓概览
+  const position = useMemo(() => {
+    const buyRecords = filteredRecords.filter(r => r.direction === 'buy')
+    const sellRecords = filteredRecords.filter(r => r.direction === 'sell')
+    const totalBuy = buyRecords.reduce((sum, r) => sum + r.amount, 0)
+    const totalSell = sellRecords.reduce((sum, r) => sum + r.amount, 0)
+    const netPosition = totalBuy - totalSell
+    const costPrice = netPosition > 0 ? totalBuy / netPosition : 0
+    const latestStopLoss = filteredRecords.find(r => r.stop_loss_pct)?.stop_loss_pct
+    const latestTakeProfit = filteredRecords.find(r => r.take_profit_pct)?.take_profit_pct
+
+    return { totalBuy, totalSell, netPosition, costPrice, stopLossPct: latestStopLoss, takeProfitPct: latestTakeProfit }
+  }, [filteredRecords])
+
+  return (
+    <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-gray-900">交易记录</h2>
+        <button
+          onClick={() => { setEditRecord(null); setModalOpen(true) }}
+          className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          添加
+        </button>
+      </div>
+
+      {/* 持仓概览 */}
+      {position.netPosition > 0 && (
+        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <div className="text-xs text-gray-500">买入总额</div>
+              <div className="font-medium">¥{position.totalBuy.toLocaleString()}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">卖出总额</div>
+              <div className="font-medium">¥{position.totalSell.toLocaleString()}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">净持仓</div>
+              <div className="font-medium">¥{position.netPosition.toLocaleString()}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">成本均价</div>
+              <div className="font-medium">¥{position.costPrice.toFixed(3)}</div>
+            </div>
+          </div>
+          {(position.stopLossPct || position.takeProfitPct) && (
+            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-200">
+              {position.stopLossPct && (
+                <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">止损 -{position.stopLossPct}%</span>
+              )}
+              {position.takeProfitPct && (
+                <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">止盈 +{position.takeProfitPct}%</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 交易记录列表 */}
+      {filteredRecords.length === 0 ? (
+        <div className="text-center py-6 text-gray-500 text-sm">暂无交易记录</div>
+      ) : (
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {filteredRecords.map(record => (
+            <TradeRecordItem
+              key={record.id}
+              record={record}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 添加/编辑弹窗 */}
+      <TradeModal
+        isOpen={modalOpen}
+        onClose={() => { setModalOpen(false); setEditRecord(null) }}
+        onSave={handleSave}
+        editRecord={editRecord}
+        etfSymbols={[{ symbol, name: etfName || symbol }]}
+      />
     </div>
   )
 }
