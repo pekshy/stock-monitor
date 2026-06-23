@@ -26,11 +26,24 @@ export function useTradeRecords() {
     fetchRecords()
   }, [fetchRecords])
 
-  const addRecord = useCallback(async (record: Omit<TradeRecord, 'id' | 'created_at' | 'status' | 'linked_id'>) => {
+  const addRecord = useCallback(async (record: {
+    symbol: string
+    name?: string | null
+    direction: 'buy' | 'sell'
+    trade_date: string
+    amount: number
+    buy_price?: number | null
+    stop_loss_pct?: number | null
+    take_profit_pct?: number | null
+    notes?: string | null
+    status?: 'open' | 'closed'
+    linked_id?: number | null
+  }) => {
     try {
+      const { status = 'open', linked_id = null, ...rest } = record
       const { data, error } = await supabase
         .from('trade_records')
-        .insert({ ...record, status: 'open' })
+        .insert({ ...rest, status, linked_id })
         .select()
         .single()
       if (error) throw error

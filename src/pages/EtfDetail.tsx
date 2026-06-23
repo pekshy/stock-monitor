@@ -566,7 +566,21 @@ function TradesSection({ symbol, etfName, currentPrice, dailyData }: { symbol: s
 
   const handleSellConfirm = async (sellPrice: number, sellDate: string) => {
     if (!sellRecord) return
+    // 先将原买入记录标记为已卖出（保留买入信息用于收益率计算）
     await updateRecord(sellRecord.id, {
+      symbol: sellRecord.symbol,
+      name: sellRecord.name,
+      direction: 'buy',
+      trade_date: sellRecord.trade_date,
+      amount: sellRecord.amount,
+      buy_price: sellRecord.buy_price,
+      stop_loss_pct: sellRecord.stop_loss_pct,
+      take_profit_pct: sellRecord.take_profit_pct,
+      notes: sellRecord.notes,
+      status: 'closed'
+    })
+    // 再新增一条卖出记录
+    await addRecord({
       symbol: sellRecord.symbol,
       name: sellRecord.name,
       direction: 'sell',
@@ -575,7 +589,7 @@ function TradesSection({ symbol, etfName, currentPrice, dailyData }: { symbol: s
       buy_price: sellPrice,
       stop_loss_pct: null,
       take_profit_pct: null,
-      notes: sellRecord.notes,
+      notes: null,
       status: 'closed',
       linked_id: sellRecord.id
     })

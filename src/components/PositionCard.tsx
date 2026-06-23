@@ -29,37 +29,26 @@ export const PositionCard: React.FC<PositionCardProps> = ({ position }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="flex items-baseline justify-between">
         <div>
-          <div className="text-xs text-gray-500">买入总额</div>
-          <div className="font-medium">¥{position.totalBuy.toLocaleString()}</div>
+          <div className="text-xs text-gray-500">持仓金额</div>
+          <div className="text-lg font-semibold text-gray-900">¥{position.netPosition.toLocaleString()}</div>
         </div>
-        <div>
-          <div className="text-xs text-gray-500">卖出总额</div>
-          <div className="font-medium">¥{position.totalSell.toLocaleString()}</div>
-        </div>
-        <div>
-          <div className="text-xs text-gray-500">净买入</div>
-          <div className="font-medium">¥{position.netPosition.toLocaleString()}</div>
-        </div>
-        <div>
-          <div className="text-xs text-gray-500">成本均价</div>
-          <div className="font-medium">¥{position.costPrice.toFixed(3)}</div>
-        </div>
-        <div>
-          <div className="text-xs text-gray-500">现价</div>
-          <div className="font-medium">¥{position.currentPrice.toFixed(3)}</div>
-        </div>
-        <div>
+        <div className="text-right">
           <div className="text-xs text-gray-500">盈亏</div>
-          <div className={`font-semibold ${profitLossColor}`}>
+          <div className={`text-lg font-semibold ${profitLossColor}`}>
             {position.profitLoss >= 0 ? '+' : ''}¥{position.profitLoss.toFixed(2)}
           </div>
         </div>
       </div>
 
+      <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+        <span>成本 ¥{position.costPrice.toFixed(3)}</span>
+        <span>现价 ¥{position.currentPrice.toFixed(3)}</span>
+      </div>
+
       {(position.stopLossPct || position.takeProfitPct) && (
-        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
           {position.stopLossPct && (
             <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${
               position.stopLossAlert === 'hit' ? 'bg-red-100 text-red-700' :
