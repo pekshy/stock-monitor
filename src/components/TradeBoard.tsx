@@ -139,13 +139,13 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
     setSellModalOpen(true)
   }
 
-  const handleSellConfirm = async (sellPrice: number) => {
+  const handleSellConfirm = async (sellPrice: number, sellDate: string) => {
     if (!sellRecord) return
     await updateRecord(sellRecord.id, {
       symbol: sellRecord.symbol,
       name: sellRecord.name,
       direction: 'sell',
-      trade_date: new Date().toISOString().split('T')[0],
+      trade_date: sellDate,
       amount: sellRecord.amount,
       buy_price: sellPrice,
       stop_loss_pct: null,

@@ -529,14 +529,14 @@ const EtfDetail: React.FC = () => {
         <VolumeChart data={data.dailyData} />
       </div>
 
-      <TradesSection symbol={data.etf.symbol} etfName={data.etf.name} currentPrice={latestDaily?.close ?? undefined} />
+      <TradesSection symbol={data.etf.symbol} etfName={data.etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={data.dailyData} />
 
       <NotesSection symbol={data.etf.symbol} etfName={data.etf.name} />
     </div>
   )
 }
 
-function TradesSection({ symbol, etfName, currentPrice }: { symbol: string; etfName: string | null; currentPrice?: number }) {
+function TradesSection({ symbol, etfName, currentPrice, dailyData }: { symbol: string; etfName: string | null; currentPrice?: number; dailyData?: EtfDailyData[] }) {
   const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
   const [modalOpen, setModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<typeof records[0] | null>(null)
@@ -564,13 +564,13 @@ function TradesSection({ symbol, etfName, currentPrice }: { symbol: string; etfN
     setSellModalOpen(true)
   }
 
-  const handleSellConfirm = async (sellPrice: number) => {
+  const handleSellConfirm = async (sellPrice: number, sellDate: string) => {
     if (!sellRecord) return
     await updateRecord(sellRecord.id, {
       symbol: sellRecord.symbol,
       name: sellRecord.name,
       direction: 'sell',
-      trade_date: new Date().toISOString().split('T')[0],
+      trade_date: sellDate,
       amount: sellRecord.amount,
       buy_price: sellPrice,
       stop_loss_pct: null,
@@ -686,6 +686,7 @@ function TradesSection({ symbol, etfName, currentPrice }: { symbol: string; etfN
         isOpen={sellModalOpen}
         record={sellRecord}
         currentPrice={currentPrice}
+        dailyData={dailyData}
         onConfirm={handleSellConfirm}
         onClose={() => { setSellModalOpen(false); setSellRecord(null) }}
       />
