@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Target, Activity, MessageSquare, ChevronDown, ChevronUp, Search } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Target, Activity, MessageSquare, ChevronDown, ChevronUp, Search, ExternalLink } from 'lucide-react'
 import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
   useEtfData,
@@ -671,13 +671,24 @@ const EtfBoard: React.FC = () => {
             )}
           </div>
         </div>
-        <button
-          onClick={refresh}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-800 transition-colors"
-        >
-          <RefreshCw className="h-4 w-4" />
-          刷新
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={refresh}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-800 transition-colors"
+          >
+            <RefreshCw className="h-4 w-4" />
+            刷新
+          </button>
+          <a
+            href="https://moonimprint.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            <ExternalLink className="h-4 w-4" />
+            Moon Imprint
+          </a>
+        </div>
       </div>
 
       {/* 市场指标 —— 全球市场指标、恐贪指数与中国宏观指标合并展示 */}
