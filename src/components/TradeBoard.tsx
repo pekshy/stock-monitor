@@ -5,6 +5,7 @@ import { useEtfData } from '../hooks/useEtfData'
 import { TradeRecord, Position } from '../types'
 import { TradeRecordItem } from './TradeRecordItem'
 import { TradeModal } from './TradeModal'
+import { SellConfirmModal } from './SellConfirmModal'
 import { PositionCard } from './PositionCard'
 
 interface TradeBoardProps {
@@ -16,6 +17,8 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
   const { etfs } = useEtfData()
   const [modalOpen, setModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<TradeRecord | null>(null)
+  const [sellModalOpen, setSellModalOpen] = useState(false)
+  const [sellRecord, setSellRecord] = useState<TradeRecord | null>(null)
 
   // 构建 ETF 标的列表用于自动补全
   const etfSymbols = useMemo(() => {
@@ -131,6 +134,30 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
     }
   }
 
+  const handleSell = (record: TradeRecord) => {
+    setSellRecord(record)
+    setSellModalOpen(true)
+  }
+
+  const handleSellConfirm = async (sellPrice: number) => {
+    if (!sellRecord) return
+    await updateRecord(sellRecord.id, {
+      symbol: sellRecord.symbol,
+      name: sellRecord.name,
+      direction: 'sell',
+      trade_date: new Date().toISOString().split('T')[0],
+      amount: sellRecord.amount,
+      buy_price: sellPrice,
+      stop_loss_pct: null,
+      take_profit_pct: null,
+      notes: sellRecord.notes,
+      status: 'closed',
+      linked_id: sellRecord.id
+    })
+    setSellModalOpen(false)
+    setSellRecord(null)
+  }
+
   const handleSave = async (record: Omit<TradeRecord, 'id' | 'created_at' | 'status' | 'linked_id'>) => {
     if (editRecord) {
       await updateRecord(editRecord.id, record)
@@ -218,6 +245,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
               record={record}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onSell={handleSell}
               currentPrice={etfPriceMap.get(record.symbol)}
               allRecords={records}
             />
@@ -232,6 +260,15 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
         onSave={handleSave}
         editRecord={editRecord}
         etfSymbols={etfSymbols}
+      />
+
+      {/* 卖出确认弹窗 */}
+      <SellConfirmModal
+        isOpen={sellModalOpen}
+        record={sellRecord}
+        currentPrice={sellRecord ? etfPriceMap.get(sellRecord.symbol) : undefined}
+        onConfirm={handleSellConfirm}
+        onClose={() => { setSellModalOpen(false); setSellRecord(null) }}
       />
     </div>
   )

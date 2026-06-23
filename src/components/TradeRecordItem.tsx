@@ -1,11 +1,12 @@
 import React from 'react'
 import { TradeRecord } from '../types'
-import { Pencil, Trash2, TrendingUp, TrendingDown } from 'lucide-react'
+import { Pencil, Trash2, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
 
 interface TradeRecordItemProps {
   record: TradeRecord
   onEdit: (record: TradeRecord) => void
   onDelete: (id: number) => void
+  onSell?: (record: TradeRecord) => void
   currentPrice?: number
   allRecords?: TradeRecord[]
 }
@@ -14,6 +15,7 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
   record,
   onEdit,
   onDelete,
+  onSell,
   currentPrice,
   allRecords = []
 }) => {
@@ -124,6 +126,15 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
       </div>
 
       <div className="flex items-center gap-1 flex-shrink-0">
+        {isBuy && isOpen && onSell && (
+          <button
+            onClick={() => onSell(record)}
+            className="p-1.5 text-white hover:text-green-600 bg-green-500 hover:bg-green-50 border border-green-200 rounded transition-colors"
+            title="卖出"
+          >
+            <DollarSign className="h-3.5 w-3.5" />
+          </button>
+        )}
         <button
           onClick={() => onEdit(record)}
           className="p-1.5 text-gray-500 hover:text-blue-600 bg-white hover:bg-blue-50 border border-gray-200 rounded transition-colors"

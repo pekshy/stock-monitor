@@ -22,6 +22,7 @@ import { useTradeRecords } from '../hooks/useTradeRecords'
 import { NoteItem } from '../components/NoteItem'
 import { TradeRecordItem } from '../components/TradeRecordItem'
 import { TradeModal } from '../components/TradeModal'
+import { SellConfirmModal } from '../components/SellConfirmModal'
 
 interface EtfDetailData {
   etf: {
@@ -539,6 +540,8 @@ function TradesSection({ symbol, etfName, currentPrice }: { symbol: string; etfN
   const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
   const [modalOpen, setModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<typeof records[0] | null>(null)
+  const [sellModalOpen, setSellModalOpen] = useState(false)
+  const [sellRecord, setSellRecord] = useState<typeof records[0] | null>(null)
 
   // 筛选当前 ETF 的交易记录
   const filteredRecords = useMemo(() => {
@@ -554,6 +557,30 @@ function TradesSection({ symbol, etfName, currentPrice }: { symbol: string; etfN
     if (confirm('确定要删除这条交易记录吗？')) {
       await deleteRecord(id)
     }
+  }
+
+  const handleSell = (record: typeof records[0]) => {
+    setSellRecord(record)
+    setSellModalOpen(true)
+  }
+
+  const handleSellConfirm = async (sellPrice: number) => {
+    if (!sellRecord) return
+    await updateRecord(sellRecord.id, {
+      symbol: sellRecord.symbol,
+      name: sellRecord.name,
+      direction: 'sell',
+      trade_date: new Date().toISOString().split('T')[0],
+      amount: sellRecord.amount,
+      buy_price: sellPrice,
+      stop_loss_pct: null,
+      take_profit_pct: null,
+      notes: sellRecord.notes,
+      status: 'closed',
+      linked_id: sellRecord.id
+    })
+    setSellModalOpen(false)
+    setSellRecord(null)
   }
 
   const handleSave = async (record: Omit<typeof records[0], 'id' | 'created_at' | 'status' | 'linked_id'>) => {
@@ -637,6 +664,7 @@ function TradesSection({ symbol, etfName, currentPrice }: { symbol: string; etfN
               record={record}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onSell={handleSell}
               currentPrice={currentPrice}
               allRecords={records}
             />
@@ -651,6 +679,15 @@ function TradesSection({ symbol, etfName, currentPrice }: { symbol: string; etfN
         onSave={handleSave}
         editRecord={editRecord}
         etfSymbols={[{ symbol, name: etfName || symbol }]}
+      />
+
+      {/* 卖出确认弹窗 */}
+      <SellConfirmModal
+        isOpen={sellModalOpen}
+        record={sellRecord}
+        currentPrice={currentPrice}
+        onConfirm={handleSellConfirm}
+        onClose={() => { setSellModalOpen(false); setSellRecord(null) }}
       />
     </div>
   )
