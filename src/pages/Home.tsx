@@ -6,6 +6,7 @@ import { useIndustrySummaries } from '../hooks/useIndustryData'
 import { useEtfData } from '../hooks/useEtfData'
 import IndustryCard from '../components/IndustryCard'
 import StockList from '../components/StockList'
+import { StockTradeBoard } from '../components/StockTradeBoard'
 import EtfBoardContent from './EtfBoard'
 
 type SortOrder = 'change_desc' | 'change_asc'
@@ -100,7 +101,7 @@ const Home: React.FC = () => {
   }
 
   const filteredStocks = useMemo(() => {
-    let filtered = stocks
+    let filtered = [...stocks]
     if (selectedIndustry1 !== 'all') {
       filtered = filtered.filter(s => s.industry1 === selectedIndustry1)
     }
@@ -223,6 +224,7 @@ const Home: React.FC = () => {
           marketOptions={marketOptions}
           periodLabels={periodLabels}
           filteredStocks={filteredStocks}
+          onStockAlertClick={(stockCode) => navigate(`/stock/${stockCode}`)}
         />
       ) : (
         <EtfBoardContent />
@@ -249,6 +251,7 @@ interface StockBoardContentProps {
   marketOptions: string[]
   periodLabels: Record<SortPeriod, string>
   filteredStocks: any[]
+  onStockAlertClick?: (stockCode: string) => void
 }
 
 const StockBoardContent: React.FC<StockBoardContentProps> = ({
@@ -268,10 +271,15 @@ const StockBoardContent: React.FC<StockBoardContentProps> = ({
   industry2Options,
   marketOptions,
   periodLabels,
-  filteredStocks
+  filteredStocks,
+  onStockAlertClick
 }) => {
   return (
     <div className="space-y-8">
+      {/* 交易记录模块 */}
+      <StockTradeBoard onAlertClick={onStockAlertClick} />
+
+      {/* 行业概览 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {industrySummaries.map((industry) => (
           <IndustryCard key={industry.industry1} industry={industry} />
