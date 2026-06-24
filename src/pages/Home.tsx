@@ -1,17 +1,32 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { RefreshCw } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
+import { useEtfData } from '../hooks/useEtfData'
 import IndustryCard from '../components/IndustryCard'
 import StockList from '../components/StockList'
+import EtfBoardContent from './EtfBoard'
 
 type SortOrder = 'change_desc' | 'change_asc'
 type SortPeriod = '1d' | '5d' | '10d' | '20d' | '60d'
 
 const Home: React.FC = () => {
-  const { stocks, loading, refresh } = useStockContext()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { stocks, loading: stockLoading, refresh: refreshStocks } = useStockContext()
+  const { latestDate: etfLatestDate, refresh: refreshEtf } = useEtfData()
   const industrySummaries = useIndustrySummaries(stocks)
+
+  const activeTab = location.pathname === '/etf' ? 'etf' : 'stock'
+
+  const switchTab = (tab: 'stock' | 'etf') => {
+    if (tab === 'stock') {
+      navigate('/')
+    } else {
+      navigate('/etf')
+    }
+  }
   
   const [selectedIndustry1, setSelectedIndustry1] = useState<string>(() => {
     return localStorage.getItem('stock_filter_industry1') || 'all'
@@ -122,7 +137,7 @@ const Home: React.FC = () => {
     '60d': '60日'
   }
 
-  if (loading) {
+  if (activeTab === 'stock' && stockLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-gray-500">加载中...</div>
@@ -130,27 +145,133 @@ const Home: React.FC = () => {
     )
   }
 
+  const handleRefresh = () => {
+    if (activeTab === 'stock') {
+      refreshStocks()
+    } else {
+      refreshEtf()
+    }
+  }
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* 顶部 Tab 栏 */}
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold text-gray-900">股票看板</h2>
-          <Link
-            to="/etf"
-            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => switchTab('stock')}
+            className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all ${
+              activeTab === 'stock'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            股票看板
+          </button>
+          <button
+            onClick={() => switchTab('etf')}
+            className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all ${
+              activeTab === 'etf'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
           >
             ETF看板
-          </Link>
+          </button>
+          {activeTab === 'etf' && etfLatestDate && (
+            <span className="text-sm text-gray-500 ml-2">数据更新至：{formatDate(etfLatestDate)}</span>
+          )}
         </div>
         <button
-          onClick={refresh}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-800 transition-colors"
+          onClick={handleRefresh}
+          className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${
+            activeTab === 'stock'
+              ? 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-purple-600 hover:bg-purple-700'
+          }`}
         >
           <RefreshCw className="h-4 w-4" />
           刷新
         </button>
       </div>
 
+      {activeTab === 'stock' ? (
+        <StockBoardContent
+          industrySummaries={industrySummaries}
+          selectedIndustry1={selectedIndustry1}
+          selectedIndustry2={selectedIndustry2}
+          selectedMarket={selectedMarket}
+          sortPeriod={sortPeriod}
+          sortOrder={sortOrder}
+          setSelectedIndustry1={setSelectedIndustry1}
+          setSelectedIndustry2={setSelectedIndustry2}
+          setSelectedMarket={setSelectedMarket}
+          setSortPeriod={setSortPeriod}
+          setSortOrder={setSortOrder}
+          resetFilters={resetFilters}
+          industry1Options={industry1Options}
+          industry2Options={industry2Options}
+          marketOptions={marketOptions}
+          periodLabels={periodLabels}
+          filteredStocks={filteredStocks}
+        />
+      ) : (
+        <EtfBoardContent />
+      )}
+    </div>
+  )
+}
+
+interface StockBoardContentProps {
+  industrySummaries: any[]
+  selectedIndustry1: string
+  selectedIndustry2: string
+  selectedMarket: string
+  sortPeriod: SortPeriod
+  sortOrder: SortOrder
+  setSelectedIndustry1: (v: string) => void
+  setSelectedIndustry2: (v: string) => void
+  setSelectedMarket: (v: string) => void
+  setSortPeriod: (v: SortPeriod) => void
+  setSortOrder: (v: SortOrder) => void
+  resetFilters: () => void
+  industry1Options: string[]
+  industry2Options: string[]
+  marketOptions: string[]
+  periodLabels: Record<SortPeriod, string>
+  filteredStocks: any[]
+}
+
+const StockBoardContent: React.FC<StockBoardContentProps> = ({
+  industrySummaries,
+  selectedIndustry1,
+  selectedIndustry2,
+  selectedMarket,
+  sortPeriod,
+  sortOrder,
+  setSelectedIndustry1,
+  setSelectedIndustry2,
+  setSelectedMarket,
+  setSortPeriod,
+  setSortOrder,
+  resetFilters,
+  industry1Options,
+  industry2Options,
+  marketOptions,
+  periodLabels,
+  filteredStocks
+}) => {
+  return (
+    <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {industrySummaries.map((industry) => (
           <IndustryCard key={industry.industry1} industry={industry} />

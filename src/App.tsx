@@ -7,7 +7,6 @@ import LoginGate from './components/LoginGate'
 import Home from './pages/Home'
 import IndustryDetail from './pages/IndustryDetail'
 import StockDetail from './pages/StockDetail'
-import EtfBoard from './pages/EtfBoard'
 import EtfDetail from './pages/EtfDetail'
 
 function AppContent() {
@@ -34,7 +33,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/industry/:industry1" element={<IndustryDetail />} />
           <Route path="/stock/:stockCode" element={<StockDetail />} />
-          <Route path="/etf" element={<EtfBoard />} />
+          <Route path="/etf" element={<Home />} />
           <Route path="/etf/:code" element={<EtfDetail />} />
         </Routes>
       </main>

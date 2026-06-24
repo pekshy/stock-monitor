@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Target, Activity, MessageSquare, ChevronDown, ChevronUp, Search, ExternalLink } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Target, Activity, MessageSquare, ChevronDown, ChevronUp, Search } from 'lucide-react'
 import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import {
   useEtfData,
@@ -510,14 +510,13 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
 
 // --- 主组件 ---
 
-const EtfBoard: React.FC = () => {
+const EtfBoardContent: React.FC = () => {
   const navigate = useNavigate()
   const {
     etfs,
     globalIndicatorSeries,
     chinaIndicatorSeries,
     fearGreedSeries,
-    latestDate,
     loading,
     error,
     refresh
@@ -659,39 +658,6 @@ const EtfBoard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* 顶部导航 */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <Link to="/" className="text-gray-500 hover:text-gray-700 transition-colors">
-            <ArrowLeft className="h-6 w-6" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">ETF监测看板</h1>
-            {latestDate && (
-              <p className="text-sm text-gray-500 mt-1">数据更新至：{formatDate(latestDate)}</p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={refresh}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-800 transition-colors"
-          >
-            <RefreshCw className="h-4 w-4" />
-            刷新
-          </button>
-          <a
-            href="https://moonimprint.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Moon Imprint
-          </a>
-        </div>
-      </div>
-
       {/* 市场指标 —— 全球市场指标、恐贪指数与中国宏观指标合并展示 */}
       <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
@@ -973,4 +939,6 @@ function NotesBoard() {
   )
 }
 
-export default EtfBoard
+export default EtfBoardContent
+
+export { EtfBoardContent }
