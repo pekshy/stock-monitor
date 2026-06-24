@@ -31,6 +31,7 @@ function AppContent() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/stocks" element={<Home />} />
           <Route path="/industry/:industry1" element={<IndustryDetail />} />
           <Route path="/stock/:stockCode" element={<StockDetail />} />
           <Route path="/etf" element={<Home />} />

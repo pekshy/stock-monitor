@@ -19,13 +19,13 @@ const Home: React.FC = () => {
   const { latestDate: etfLatestDate, refresh: refreshEtf } = useEtfData()
   const industrySummaries = useIndustrySummaries(stocks)
 
-  const activeTab = location.pathname === '/etf' ? 'etf' : 'stock'
+  const activeTab = location.pathname === '/stocks' ? 'stock' : 'etf'
 
   const switchTab = (tab: 'stock' | 'etf') => {
     if (tab === 'stock') {
-      navigate('/')
+      navigate('/stocks')
     } else {
-      navigate('/etf')
+      navigate('/')
     }
   }
   
