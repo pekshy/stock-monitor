@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { StockWithQuote } from '../types'
 import { formatPercent, formatPrice, formatValuation, getChangeColor } from '../utils/formatters'
 
@@ -26,9 +27,44 @@ function formatMarketCapInYi(value: number, market: 'us' | 'hk' | 'cn'): string 
 
 const StockList: React.FC<StockListProps> = ({ stocks }) => {
   const navigate = useNavigate()
+  const [page, setPage] = useState(1)
+  const pageSize = 20
+
+  const totalPages = Math.max(1, Math.ceil(stocks.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+
+  const pagedStocks = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return stocks.slice(start, start + pageSize)
+  }, [stocks, currentPage])
+
+  useEffect(() => {
+    setPage(1)
+  }, [stocks.length])
+
+  const goToPage = (p: number) => {
+    setPage(Math.max(1, Math.min(p, totalPages)))
+  }
+
+  const pageNumbers = useMemo(() => {
+    const pages: (number | string)[] = []
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage > 3) pages.push('...')
+      const start = Math.max(2, currentPage - 1)
+      const end = Math.min(totalPages - 1, currentPage + 1)
+      for (let i = start; i <= end; i++) pages.push(i)
+      if (currentPage < totalPages - 2) pages.push('...')
+      pages.push(totalPages)
+    }
+    return pages
+  }, [totalPages, currentPage])
 
   return (
-    <div className="overflow-x-auto">
+    <div>
+      <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
           <tr className="border-b-2 border-gray-200">
@@ -48,7 +84,7 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
           </tr>
         </thead>
         <tbody>
-          {stocks.map((stock) => (
+          {pagedStocks.map((stock) => (
             <tr
               key={stock.stock_code}
               onClick={() => navigate(`/stock/${stock.stock_code}`)}
@@ -94,6 +130,50 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
           ))}
         </tbody>
       </table>
+      </div>
+
+      {stocks.length > pageSize && (
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+          <div className="text-sm text-gray-500">
+            共 {stocks.length} 条，第 {currentPage} / {totalPages} 页
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="flex items-center justify-center w-8 h-8 rounded-md text-gray-600 hover:bg-gray-100 disabled:text-gray-300 disabled:hover:bg-transparent transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            {pageNumbers.map((p, idx) => (
+              typeof p === 'number' ? (
+                <button
+                  key={idx}
+                  onClick={() => goToPage(p)}
+                  className={`w-8 h-8 rounded-md text-sm font-medium transition-colors ${
+                    p === currentPage
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {p}
+                </button>
+              ) : (
+                <span key={idx} className="w-8 h-8 flex items-center justify-center text-gray-400 text-sm">
+                  {p}
+                </span>
+              )
+            ))}
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="flex items-center justify-center w-8 h-8 rounded-md text-gray-600 hover:bg-gray-100 disabled:text-gray-300 disabled:hover:bg-transparent transition-colors"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
