@@ -960,7 +960,9 @@ function NotesBoard() {
             <NoteItem
               key={note.id}
               note={note}
-              etfName={getEtfDisplayName(note.symbol)}
+              name={getEtfDisplayName(note.symbol)}
+              code={note.symbol}
+              navigatePath={`/etf/${note.symbol}`}
               onUpdate={updateNote}
               onDelete={deleteNote}
             />

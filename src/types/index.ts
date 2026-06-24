@@ -202,6 +202,15 @@ export interface EtfNote {
   updated_at?: string
 }
 
+// 股票笔记
+export interface StockNote {
+  id: number
+  stock_code: string
+  note: string
+  created_at: string
+  updated_at?: string
+}
+
 // 交易记录
 export interface TradeRecord {
   id: number

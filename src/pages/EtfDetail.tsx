@@ -691,7 +691,7 @@ function TradesSection({ symbol, etfName, currentPrice, dailyData, priceByDateMa
         onClose={() => { setModalOpen(false); setEditRecord(null) }}
         onSave={handleSave}
         editRecord={editRecord}
-        etfSymbols={[{ symbol, name: etfName || symbol }]}
+        symbolOptions={[{ symbol, name: etfName || symbol }]}
         priceMapsBySymbol={priceByDateMap}
       />
 
@@ -764,7 +764,9 @@ function NotesSection({ symbol, etfName }: { symbol: string; etfName: string | n
             <NoteItem
               key={note.id}
               note={note}
-              etfName={etfName}
+              name={etfName}
+              code={note.symbol}
+              navigatePath={`/etf/${note.symbol}`}
               onUpdate={updateNote}
               onDelete={deleteNote}
               compact

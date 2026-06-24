@@ -270,7 +270,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
         onClose={() => { setModalOpen(false); setEditRecord(null) }}
         onSave={handleSave}
         editRecord={editRecord}
-        etfSymbols={etfSymbols}
+        symbolOptions={etfSymbols}
         priceMapsBySymbol={priceByDateMap}
       />
 

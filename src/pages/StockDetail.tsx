@@ -1,8 +1,14 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Building2, TrendingUp, Star } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Building2, TrendingUp, Star, MessageSquare, Plus } from 'lucide-react'
 import { useStockDetail } from '../hooks/useStockData'
 import { useStockContext } from '../context/StockContext'
+import { useStockNotesByCode } from '../hooks/useStockNotes'
+import { useTradeRecords } from '../hooks/useTradeRecords'
+import { NoteItem } from '../components/NoteItem'
+import { TradeRecordItem } from '../components/TradeRecordItem'
+import { TradeModal } from '../components/TradeModal'
+import { SellConfirmModal } from '../components/SellConfirmModal'
 import {
   ComposedChart,
   Bar,
@@ -454,6 +460,258 @@ const StockDetail: React.FC = () => {
           <div className="text-gray-500 text-sm">暂无估值数据</div>
         )}
       </div>
+
+      <TradesSection stockCode={stock.stock_code} stockName={stock.stock_name} currentPrice={latestQuote?.close_price ?? undefined} quotes={quotes} />
+
+      <NotesSection stockCode={stock.stock_code} stockName={stock.stock_name} />
+    </div>
+  )
+}
+
+function TradesSection({ stockCode, stockName, currentPrice, quotes }: { stockCode: string; stockName: string; currentPrice?: number; quotes: any[] }) {
+  const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editRecord, setEditRecord] = useState<any>(null)
+  const [sellModalOpen, setSellModalOpen] = useState(false)
+  const [sellRecord, setSellRecord] = useState<any>(null)
+
+  const filteredRecords = useMemo(() => {
+    return records.filter(r => r.symbol.toUpperCase() === stockCode.toUpperCase())
+  }, [records, stockCode])
+
+  const priceMap = useMemo(() => {
+    const map = new Map<string, number>()
+    quotes.forEach(q => {
+      if (q.trade_date && q.close_price != null) {
+        map.set(q.trade_date, q.close_price)
+      }
+    })
+    return map
+  }, [quotes])
+
+  const priceMapsBySymbol = useMemo(() => {
+    const map = new Map<string, Map<string, number>>()
+    map.set(stockCode.toUpperCase(), priceMap)
+    return map
+  }, [stockCode, priceMap])
+
+  const handleEdit = (record: any) => {
+    setEditRecord(record)
+    setModalOpen(true)
+  }
+
+  const handleDelete = async (id: number) => {
+    if (confirm('确定要删除这条交易记录吗？')) {
+      await deleteRecord(id)
+    }
+  }
+
+  const handleSell = (record: any) => {
+    setSellRecord(record)
+    setSellModalOpen(true)
+  }
+
+  const handleSellConfirm = async (sellPrice: number, sellDate: string) => {
+    if (!sellRecord) return
+    await updateRecord(sellRecord.id, {
+      symbol: sellRecord.symbol,
+      name: sellRecord.name,
+      direction: 'buy',
+      trade_date: sellRecord.trade_date,
+      amount: sellRecord.amount,
+      buy_price: sellRecord.buy_price,
+      stop_loss_pct: sellRecord.stop_loss_pct,
+      take_profit_pct: sellRecord.take_profit_pct,
+      notes: sellRecord.notes,
+      status: 'closed'
+    })
+    await addRecord({
+      symbol: sellRecord.symbol,
+      name: sellRecord.name,
+      direction: 'sell',
+      trade_date: sellDate,
+      amount: sellRecord.amount,
+      buy_price: sellPrice,
+      stop_loss_pct: null,
+      take_profit_pct: null,
+      notes: null,
+      status: 'closed',
+      linked_id: sellRecord.id
+    })
+    setSellModalOpen(false)
+    setSellRecord(null)
+  }
+
+  const handleSave = async (record: any) => {
+    if (editRecord) {
+      await updateRecord(editRecord.id, record)
+    } else {
+      await addRecord(record)
+    }
+    setEditRecord(null)
+  }
+
+  const position = useMemo(() => {
+    const openBuyRecords = filteredRecords.filter(r => r.direction === 'buy' && r.status === 'open')
+    const totalBuy = openBuyRecords.reduce((sum: number, r: any) => sum + r.amount, 0)
+    const costBasis = openBuyRecords.reduce((sum: number, r: any) => sum + (r.buy_price || 0) * r.amount, 0)
+    const netPosition = totalBuy
+    const costPrice = totalBuy > 0 ? costBasis / totalBuy : 0
+    const latestStopLoss = openBuyRecords.find((r: any) => r.stop_loss_pct)?.stop_loss_pct
+    const latestTakeProfit = openBuyRecords.find((r: any) => r.take_profit_pct)?.take_profit_pct
+    return { totalBuy, costBasis, costPrice, netPosition, stopLossPct: latestStopLoss, takeProfitPct: latestTakeProfit }
+  }, [filteredRecords])
+
+  return (
+    <div className="bg-white rounded-xl shadow-md p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-gray-900">交易记录</h2>
+        <button
+          onClick={() => { setEditRecord(null); setModalOpen(true) }}
+          className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          添加
+        </button>
+      </div>
+
+      {position.netPosition > 0 && (
+        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <div className="text-xs text-gray-500">持仓金额</div>
+              <div className="font-medium">¥{position.netPosition.toLocaleString()}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">成本均价</div>
+              <div className="font-medium">¥{position.costPrice.toFixed(3)}</div>
+            </div>
+            {currentPrice && (
+              <div>
+                <div className="text-xs text-gray-500">当前收益</div>
+                <div className={`font-medium ${((currentPrice / position.costPrice - 1) * 100) >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {((currentPrice / position.costPrice - 1) * 100).toFixed(2)}%
+                </div>
+              </div>
+            )}
+          </div>
+          {(position.stopLossPct || position.takeProfitPct) && (
+            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-200">
+              {position.stopLossPct && (
+                <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">止损 -{position.stopLossPct}%</span>
+              )}
+              {position.takeProfitPct && (
+                <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">止盈 +{position.takeProfitPct}%</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {filteredRecords.length === 0 ? (
+        <div className="text-center py-6 text-gray-500 text-sm">暂无交易记录</div>
+      ) : (
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {filteredRecords.map((record: any) => (
+            <TradeRecordItem
+              key={record.id}
+              record={record}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onSell={handleSell}
+              currentPrice={currentPrice}
+              allRecords={records}
+            />
+          ))}
+        </div>
+      )}
+
+      <TradeModal
+        isOpen={modalOpen}
+        onClose={() => { setModalOpen(false); setEditRecord(null) }}
+        onSave={handleSave}
+        editRecord={editRecord}
+        symbolOptions={[{ symbol: stockCode, name: stockName }]}
+        priceMapsBySymbol={priceMapsBySymbol}
+        readOnlySymbol
+      />
+
+      <SellConfirmModal
+        isOpen={sellModalOpen}
+        record={sellRecord}
+        currentPrice={currentPrice}
+        priceMap={priceMap}
+        onConfirm={handleSellConfirm}
+        onClose={() => { setSellModalOpen(false); setSellRecord(null) }}
+      />
+    </div>
+  )
+}
+
+function NotesSection({ stockCode, stockName }: { stockCode: string; stockName: string }) {
+  const { notes, loading, addNote, updateNote, deleteNote } = useStockNotesByCode(stockCode)
+  const [input, setInput] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim()) return
+    setSubmitting(true)
+    try {
+      await addNote(input)
+      setInput('')
+    } catch {
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-md p-4">
+      <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <MessageSquare className="h-4 w-4" />
+        笔记
+      </h2>
+
+      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
+        <input
+          type="text"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="添加笔记..."
+          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+        />
+        <button
+          type="submit"
+          disabled={submitting || !input.trim()}
+          className="px-3 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white rounded-lg text-sm flex items-center gap-1 transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          添加
+        </button>
+      </form>
+
+      {loading ? (
+        <div className="text-sm text-gray-400 py-2">加载中...</div>
+      ) : notes.length === 0 ? (
+        <div className="text-sm text-gray-400 py-2">暂无笔记</div>
+      ) : (
+        <div className="space-y-2 max-h-60 overflow-y-auto">
+          {notes.map(note => (
+            <NoteItem
+              key={note.id}
+              note={note}
+              name={stockName}
+              code={note.stock_code}
+              navigatePath={`/stock/${note.stock_code}`}
+              onUpdate={updateNote}
+              onDelete={deleteNote}
+              compact
+              codeColor="green"
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

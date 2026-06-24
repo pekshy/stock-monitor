@@ -7,8 +7,9 @@ interface TradeModalProps {
   onClose: () => void
   onSave: (record: Omit<TradeRecord, 'id' | 'created_at' | 'status' | 'linked_id'>) => void
   editRecord?: TradeRecord | null
-  etfSymbols?: { symbol: string; name: string }[]
+  symbolOptions?: { symbol: string; name: string }[]
   priceMapsBySymbol?: Map<string, Map<string, number>>  // symbol → (date → close price)
+  readOnlySymbol?: boolean
 }
 
 export const TradeModal: React.FC<TradeModalProps> = ({
@@ -16,8 +17,9 @@ export const TradeModal: React.FC<TradeModalProps> = ({
   onClose,
   onSave,
   editRecord,
-  etfSymbols = [],
-  priceMapsBySymbol
+  symbolOptions = [],
+  priceMapsBySymbol,
+  readOnlySymbol = false
 }) => {
   const [symbol, setSymbol] = useState('')
   const [name, setName] = useState('')
@@ -71,7 +73,7 @@ export const TradeModal: React.FC<TradeModalProps> = ({
 
   const handleSymbolChange = (value: string) => {
     setSymbol(value.toUpperCase())
-    const found = etfSymbols.find(e => e.symbol.toUpperCase() === value.toUpperCase())
+    const found = symbolOptions.find(e => e.symbol.toUpperCase() === value.toUpperCase())
     if (found) {
       setName(found.name)
     }
@@ -131,11 +133,12 @@ export const TradeModal: React.FC<TradeModalProps> = ({
               onChange={e => handleSymbolChange(e.target.value)}
               placeholder="如：513100"
               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              list="etf-symbols"
+              list="symbol-options"
               required
+              readOnly={readOnlySymbol}
             />
-            <datalist id="etf-symbols">
-              {etfSymbols.map(e => (
+            <datalist id="symbol-options">
+              {symbolOptions.map(e => (
                 <option key={e.symbol} value={e.symbol}>{e.name}</option>
               ))}
             </datalist>

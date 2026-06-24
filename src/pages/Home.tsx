@@ -134,7 +134,7 @@ const Home: React.FC = () => {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold text-gray-900">行业概览</h2>
+          <h2 className="text-2xl font-bold text-gray-900">股票看板</h2>
           <Link
             to="/etf"
             className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
