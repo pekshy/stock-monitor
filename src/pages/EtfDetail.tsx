@@ -13,7 +13,6 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts'
-import { supabase } from '../utils/supabase'
 import { EtfDailyData, EtfIndicators, EtfClawSignal } from '../types'
 import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
 import { ButterworthFit } from '../types'
@@ -23,97 +22,6 @@ import { NoteItem } from '../components/NoteItem'
 import { TradeRecordItem } from '../components/TradeRecordItem'
 import { TradeModal } from '../components/TradeModal'
 import { SellConfirmModal } from '../components/SellConfirmModal'
-
-interface EtfDetailData {
-  etf: {
-    symbol: string
-    name: string | null
-    category: string | null
-    tracking_index_name: string | null
-  }
-  dailyData: EtfDailyData[]
-  indicators: EtfIndicators[]
-  signals: EtfClawSignal[]
-  butterworthFit: ButterworthFit[]
-}
-
-function useEtfDetail(symbol: string) {
-  const [data, setData] = useState<EtfDetailData | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  React.useEffect(() => {
-    if (!symbol) return
-    fetchData()
-  }, [symbol])
-
-  async function fetchData() {
-    try {
-      setLoading(true)
-
-      const { data: etfInfo, error: etfErr } = await supabase
-        .from('etf_info')
-        .select('*')
-        .eq('symbol', symbol)
-        .single()
-      if (etfErr) throw etfErr
-
-      const { data: dailyData, error: dailyErr } = await supabase
-        .from('etf_daily_data')
-        .select('*')
-        .eq('symbol', symbol)
-        .order('trade_date', { ascending: false })
-        .limit(90)
-      if (dailyErr) throw dailyErr
-
-      const { data: indicators, error: indErr } = await supabase
-        .from('etf_indicators')
-        .select('*')
-        .eq('symbol', symbol)
-        .order('trade_date', { ascending: false })
-        .limit(90)
-      if (indErr) throw indErr
-
-      const { data: signals, error: sigErr } = await supabase
-        .from('etf_claw_signals')
-        .select('*')
-        .eq('symbol', symbol)
-        .order('trade_date', { ascending: false })
-        .limit(90)
-      if (sigErr) throw sigErr
-
-      // 先取 dailyData 的日期范围，再查询该范围内的所有拟合数据
-      const dailyDates = (dailyData || []).map(d => d.trade_date)
-      const oldestDate = dailyDates.length > 0 ? dailyDates[dailyDates.length - 1] : null
-      
-      let fitQuery = supabase
-        .from('etf_butterworth_fit')
-        .select('*')
-        .eq('symbol', symbol)
-        .order('trade_date', { ascending: false })
-      
-      if (oldestDate) {
-        fitQuery = fitQuery.gte('trade_date', oldestDate)
-      }
-      
-      const { data: fitData, error: fitErr } = await fitQuery
-      if (fitErr) throw fitErr
-
-      setData({
-        etf: etfInfo,
-        dailyData: dailyData || [],
-        indicators: indicators || [],
-        signals: signals || [],
-        butterworthFit: fitData || []
-      })
-    } catch (error) {
-      console.error('Error fetching ETF detail:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return { data, loading }
-}
 
 const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators[]; signals: EtfClawSignal[]; butterworthFit: ButterworthFit[] }> = ({ dailyData, indicators, signals, butterworthFit }) => {
   const indicatorMap = new Map(indicators.map(d => [d.trade_date, d]))
@@ -431,8 +339,16 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
 const EtfDetail: React.FC = () => {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
-  const { data, loading } = useEtfDetail(code || '')
-  const { etfs, priceByDateMap } = useEtfContext()
+  const { etfs, priceByDateMap, loading } = useEtfContext()
+
+  const etf = useMemo(() => {
+    return etfs.find(e => e.symbol === code) || null
+  }, [etfs, code])
+
+  const dailyData = useMemo(() => etf?.daily_data || [], [etf])
+  const indicators = useMemo(() => etf?.indicators || [], [etf])
+  const signals = useMemo(() => etf?.signals || [], [etf])
+  const butterworthFit = useMemo(() => etf?.butterworth_fit || [], [etf])
 
   const etfSymbols = etfs.map(e => e.symbol)
   const currentIndex = etfSymbols.indexOf(code || '')
@@ -447,7 +363,7 @@ const EtfDetail: React.FC = () => {
     )
   }
 
-  if (!data) {
+  if (!etf) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-gray-500">ETF不存在</div>
@@ -455,7 +371,7 @@ const EtfDetail: React.FC = () => {
     )
   }
 
-  const latestDaily = data.dailyData[0]
+  const latestDaily = dailyData[0]
 
   return (
     <div className="space-y-4">
@@ -493,13 +409,13 @@ const EtfDetail: React.FC = () => {
       <div className="bg-white rounded-xl shadow-md p-4">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{data.etf.name || data.etf.symbol}</h1>
-            <div className="text-gray-500 text-sm mt-0.5">{data.etf.symbol}</div>
-            {data.etf.category && (
-              <div className="text-xs text-gray-600 mt-1">{data.etf.category}</div>
+            <h1 className="text-xl font-bold text-gray-900">{etf.name || etf.symbol}</h1>
+            <div className="text-gray-500 text-sm mt-0.5">{etf.symbol}</div>
+            {etf.category && (
+              <div className="text-xs text-gray-600 mt-1">{etf.category}</div>
             )}
-            {data.etf.tracking_index_name && (
-              <div className="text-xs text-gray-500 mt-0.5">跟踪: {data.etf.tracking_index_name}</div>
+            {etf.tracking_index_name && (
+              <div className="text-xs text-gray-500 mt-0.5">跟踪: {etf.tracking_index_name}</div>
             )}
           </div>
           <div className="text-right">
@@ -521,17 +437,17 @@ const EtfDetail: React.FC = () => {
           K线走势
         </h2>
         <MainChart 
-          dailyData={data.dailyData} 
-          indicators={data.indicators} 
-          signals={data.signals}
-          butterworthFit={data.butterworthFit}
+          dailyData={dailyData} 
+          indicators={indicators} 
+          signals={signals}
+          butterworthFit={butterworthFit}
         />
-        <VolumeChart data={data.dailyData} />
+        <VolumeChart data={dailyData} />
       </div>
 
-      <TradesSection symbol={data.etf.symbol} etfName={data.etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={data.dailyData} priceByDateMap={priceByDateMap} />
+      <TradesSection symbol={etf.symbol} etfName={etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={dailyData} priceByDateMap={priceByDateMap} />
 
-      <NotesSection symbol={data.etf.symbol} etfName={data.etf.name} />
+      <NotesSection symbol={etf.symbol} etfName={etf.name} />
     </div>
   )
 }

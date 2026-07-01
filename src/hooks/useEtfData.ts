@@ -432,29 +432,41 @@ export function useEtfData() {
           console.log('Index valuations:', indexData)
         }
 
-        // 为每个ETF整理最新数据
+        // 为每个ETF整理最新数据和完整历史数据
         const latestDaily = new Map<string, EtfDailyData>()
         const latestIndicators = new Map<string, EtfIndicators>()
         const latestSignal = new Map<string, EtfClawSignal>()
         const latestIndexValuation = new Map<string, EtfTrackedIndexHistory>()
         const fitBySymbol = new Map<string, ButterworthFit[]>()
+        const dailyBySymbol = new Map<string, EtfDailyData[]>()
+        const indicatorsBySymbol = new Map<string, EtfIndicators[]>()
+        const signalsBySymbol = new Map<string, EtfClawSignal[]>()
 
         dailyData?.forEach(d => {
           if (!latestDaily.has(d.symbol)) {
             latestDaily.set(d.symbol, d)
           }
+          const arr = dailyBySymbol.get(d.symbol) || []
+          arr.push(d)
+          dailyBySymbol.set(d.symbol, arr)
         })
 
         indicatorsData?.forEach(i => {
           if (!latestIndicators.has(i.symbol)) {
             latestIndicators.set(i.symbol, i)
           }
+          const arr = indicatorsBySymbol.get(i.symbol) || []
+          arr.push(i)
+          indicatorsBySymbol.set(i.symbol, arr)
         })
 
         signalsData?.forEach(s => {
           if (!latestSignal.has(s.symbol)) {
             latestSignal.set(s.symbol, s)
           }
+          const arr = signalsBySymbol.get(s.symbol) || []
+          arr.push(s)
+          signalsBySymbol.set(s.symbol, arr)
         })
 
         indexValuations?.forEach(v => {
@@ -476,7 +488,10 @@ export function useEtfData() {
           latest_indicator: latestIndicators.get(e.symbol),
           latest_signal: latestSignal.get(e.symbol),
           latest_index_valuation: e.tracking_index_code ? latestIndexValuation.get(e.tracking_index_code) : undefined,
-          butterworth_fit: fitBySymbol.get(e.symbol)
+          butterworth_fit: fitBySymbol.get(e.symbol),
+          daily_data: dailyBySymbol.get(e.symbol),
+          indicators: indicatorsBySymbol.get(e.symbol),
+          signals: signalsBySymbol.get(e.symbol)
         }))
 
         // 设置最新日期

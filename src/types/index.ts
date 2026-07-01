@@ -252,7 +252,10 @@ export interface EtfWithData extends EtfInfo {
   latest_indicator?: EtfIndicators
   latest_signal?: EtfClawSignal
   latest_index_valuation?: EtfTrackedIndexHistory
-  butterworth_fit?: ButterworthFit[]  // Butterworth 滤波器拟合曲线数据
+  butterworth_fit?: ButterworthFit[]
+  daily_data?: EtfDailyData[]
+  indicators?: EtfIndicators[]
+  signals?: EtfClawSignal[]
 }
 
 export interface IndicatorSeries {
