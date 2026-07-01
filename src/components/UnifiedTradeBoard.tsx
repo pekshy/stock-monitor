@@ -49,8 +49,9 @@ export const UnifiedTradeBoard: React.FC = () => {
   const stockPriceMap = useMemo(() => {
     const map = new Map<string, number>()
     stocks.forEach(s => {
-      if (s.latest_quote?.current_price) {
-        map.set(s.stock_code, s.latest_quote.current_price)
+      const price = s.latest_quote?.close_price
+      if (price != null && !isNaN(price)) {
+        map.set(s.stock_code, price)
       }
     })
     return map

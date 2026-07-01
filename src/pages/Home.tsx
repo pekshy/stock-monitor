@@ -234,13 +234,15 @@ const Home: React.FC = () => {
             <span className="text-sm text-gray-500 ml-2">数据更新至：{formatDate(etfLatestDate)}</span>
           )}
         </div>
-        <button
-          onClick={handleRefresh}
-          className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${getTabColor(activeTab)} ${getTabHoverColor(activeTab)}`}
-        >
-          <RefreshCw className="h-4 w-4" />
-          刷新
-        </button>
+        {activeTab !== 'trade' && (
+          <button
+            onClick={handleRefresh}
+            className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${getTabColor(activeTab)} ${getTabHoverColor(activeTab)}`}
+          >
+            <RefreshCw className="h-4 w-4" />
+            刷新
+          </button>
+        )}
       </div>
 
       {activeTab === 'trade' && <TradeBoardContent />}
