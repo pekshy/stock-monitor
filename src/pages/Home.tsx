@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, memo } from 'react'
 import { RefreshCw, MessageSquare, TrendingUp } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
@@ -273,7 +273,7 @@ const Home: React.FC = () => {
 }
 
 // ========== 交易看板内容 ==========
-const TradeBoardContent: React.FC = () => {
+const TradeBoardContent: React.FC = memo(() => {
   const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries, etfs } = useEtfContext()
   const { stocks } = useStockContext()
   const { notes: etfNotes, loading: etfNotesLoading, addNote: addEtfNote, updateNote: updateEtfNote, deleteNote: deleteEtfNote } = useEtfNotes()
@@ -470,7 +470,7 @@ const TradeBoardContent: React.FC = () => {
       />
     </div>
   )
-}
+})
 
 // ========== 股票看板内容 ==========
 interface StockBoardContentProps {
@@ -493,7 +493,7 @@ interface StockBoardContentProps {
   filteredStocks: any[]
 }
 
-const StockBoardContent: React.FC<StockBoardContentProps> = ({
+const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
   industrySummaries,
   selectedIndustry1,
   selectedIndustry2,
@@ -611,6 +611,6 @@ const StockBoardContent: React.FC<StockBoardContentProps> = ({
       </div>
     </div>
   )
-}
+})
 
 export default Home

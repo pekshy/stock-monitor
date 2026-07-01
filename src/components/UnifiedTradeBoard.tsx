@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, memo } from 'react'
 import { Plus } from 'lucide-react'
 import { useTradeRecords } from '../hooks/useTradeRecords'
 import { useEtfContext } from '../context/EtfContext'
@@ -11,7 +11,7 @@ import { PositionCard } from './PositionCard'
 
 type TradeFilter = 'all' | 'etf' | 'stock'
 
-export const UnifiedTradeBoard: React.FC = () => {
+export const UnifiedTradeBoard: React.FC = memo(() => {
   const { records, loading, addRecord, updateRecord, deleteRecord } = useTradeRecords()
   const { etfs, priceByDateMap: etfPriceMap } = useEtfContext()
   const { stocks } = useStockContext()
@@ -275,6 +275,6 @@ export const UnifiedTradeBoard: React.FC = () => {
       />
     </div>
   )
-}
+})
 
 export default UnifiedTradeBoard

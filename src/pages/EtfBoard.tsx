@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Target, ChevronDown, ChevronUp, Search } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { formatPercent, getChangeColor } from '../utils/formatters'
 
-const EtfListOnly: React.FC = () => {
+const EtfListOnly: React.FC = memo(() => {
   const navigate = useNavigate()
   const {
     etfs,
@@ -279,6 +279,6 @@ const EtfListOnly: React.FC = () => {
       </div>
     </div>
   )
-}
+})
 
 export default EtfListOnly
