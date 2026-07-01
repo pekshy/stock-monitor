@@ -106,10 +106,10 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
             </span>
           )}
           {record.stop_loss_pct && (
-            <span className="text-red-600 text-xs">止损：-{record.stop_loss_pct}%</span>
+            <span className="text-green-600 text-xs">止损：-{record.stop_loss_pct}%</span>
           )}
           {record.take_profit_pct && (
-            <span className="text-green-600 text-xs">止盈：+{record.take_profit_pct}%</span>
+            <span className="text-red-600 text-xs">止盈：+{record.take_profit_pct}%</span>
           )}
         </div>
 
