@@ -232,11 +232,12 @@ export interface TradeRecord {
 export interface Position {
   symbol: string
   name?: string
-  totalBuy: number
+  totalBuy: number      // 累计买入金额
   totalSell: number
-  netPosition: number
+  totalShares: number   // 累计股数/份数
+  netPosition: number   // 净持仓金额（用于显示持仓金额）
   costBasis?: number
-  costPrice: number
+  costPrice: number     // 加权平均成本价
   currentPrice: number
   profitLoss: number
   profitLossPct: number

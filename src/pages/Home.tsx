@@ -439,14 +439,14 @@ const TradeBoardContent: React.FC = () => {
           </button>
         </form>
 
-        {/* 笔记列表（混合 ETF 和股票，按时间倒序） */}
+        {/* 笔记列表（根据 noteType 过滤） */}
         {etfNotesLoading || stockNotesLoading ? (
           <div className="text-sm text-gray-400 py-4 text-center">加载中...</div>
         ) : allNotes.length === 0 ? (
           <div className="text-sm text-gray-400 py-4 text-center">暂无笔记</div>
         ) : (
           <div className="space-y-2 max-h-96 overflow-y-auto">
-            {allNotes.map(item => (
+            {allNotes.filter(item => item.type === noteType).map(item => (
               <NoteItem
                 key={item.id}
                 note={item.note as any}

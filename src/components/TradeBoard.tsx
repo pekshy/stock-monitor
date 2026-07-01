@@ -51,6 +51,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
           name: name || symbol,
           totalBuy: 0,
           totalSell: 0,
+          totalShares: 0,
           netPosition: 0,
           costBasis: 0,
           costPrice: 0,
@@ -62,15 +63,16 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
         })
       }
       const pos = symbolMap.get(symbol)!
+      const shares = buy_price && buy_price > 0 ? amount / buy_price : 0
       pos.totalBuy += amount
+      pos.totalShares += shares
       pos.netPosition += amount
-      if (buy_price) pos.costBasis = (pos.costBasis || 0) + buy_price * amount
       if (stop_loss_pct) pos.stopLossPct = stop_loss_pct
       if (take_profit_pct) pos.takeProfitPct = take_profit_pct
     })
 
     symbolMap.forEach(pos => {
-      pos.costPrice = pos.totalBuy > 0 ? (pos.costBasis || 0) / pos.totalBuy : 0
+      pos.costPrice = pos.totalShares > 0 ? pos.totalBuy / pos.totalShares : 0
     })
 
     return Array.from(symbolMap.values()).filter(p => p.netPosition > 0)
