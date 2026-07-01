@@ -1,5 +1,5 @@
 import React, { useState, useMemo, memo } from 'react'
-import { Plus, ExternalLink } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useTradeRecords } from '../hooks/useTradeRecords'
 import { useEtfContext } from '../context/EtfContext'
 import { useStockContext } from '../context/StockContext'
@@ -177,17 +177,8 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-gray-900">
           交易记录
-          <a
-            href="https://moonimprint.com/portfolio"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-normal text-blue-500 hover:text-blue-700 flex items-center gap-1 transition-colors"
-          >
-            Moon Imprint
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
         </h2>
         <div className="flex items-center gap-3">
           <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
