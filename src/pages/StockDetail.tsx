@@ -59,6 +59,10 @@ const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
       const close = q.close_price ?? 0
       const high = q.high_price != null ? q.high_price : Math.max(open, close)
       const low = q.low_price != null ? q.low_price : Math.min(open, close)
+      const prevClose = idx > 0 ? closes[idx - 1] : null
+      const changePct = prevClose && prevClose > 0
+        ? ((close - prevClose) / prevClose) * 100
+        : null
       return {
         date: formatDate(q.trade_date),
         trade_date: q.trade_date,
@@ -73,7 +77,8 @@ const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
         ma10,
         ma20,
         ma60,
-        volume: q.volume ?? 0
+        volume: q.volume ?? 0,
+        changePct,
       }
     })
   }, [quotes])
@@ -166,7 +171,14 @@ const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
                     <span className="text-gray-500">最低:</span>
                     <span className="text-right font-medium">{formatPrice(data.low)}</span>
                     <span className="text-gray-500">收盘:</span>
-                    <span className="text-right font-medium">{formatPrice(data.close)}</span>
+                    <span className="text-right font-medium">
+                      {formatPrice(data.close)}
+                      {data.changePct != null && (
+                        <span className={`ml-2 ${data.changePct >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {data.changePct >= 0 ? '+' : ''}{data.changePct.toFixed(2)}%
+                        </span>
+                      )}
+                    </span>
                     {data.ma5 != null && (
                       <>
                         <span className="text-gray-500">MA5:</span>

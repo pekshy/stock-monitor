@@ -32,6 +32,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(note.note)
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const showName = name && name !== code
   const isGeneral = code === 'GENERAL'
@@ -42,17 +43,30 @@ export const NoteItem: React.FC<NoteItemProps> = ({
     navigate(navigatePath)
   }
 
+  const handleStartEdit = () => {
+    setEditText(note.note)
+    setSaveError(null)
+    setIsEditing(true)
+  }
+
   const handleSave = async () => {
-    if (!editText.trim() || editText === note.note) {
+    if (!editText.trim()) {
       setIsEditing(false)
       setEditText(note.note)
       return
     }
+    if (editText === note.note) {
+      setIsEditing(false)
+      return
+    }
     setSaving(true)
+    setSaveError(null)
     try {
       await onUpdate(note.id, editText)
       setIsEditing(false)
-    } catch {
+    } catch (err: any) {
+      console.error('保存笔记失败:', err)
+      setSaveError(err?.message || '保存失败，请重试')
     } finally {
       setSaving(false)
     }
@@ -61,6 +75,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
   const handleCancel = () => {
     setIsEditing(false)
     setEditText(note.note)
+    setSaveError(null)
   }
 
   const codeBgClass = codeColor === 'green'
@@ -112,23 +127,28 @@ export const NoteItem: React.FC<NoteItemProps> = ({
               rows={2}
               autoFocus
             />
-            <div className="flex gap-2">
-              <button
-                onClick={handleSave}
-                disabled={saving || !editText.trim()}
-                className="px-2 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded text-xs flex items-center gap-1"
-              >
-                <Check className="h-3 w-3" />
-                保存
-              </button>
-              <button
-                onClick={handleCancel}
-                disabled={saving}
-                className="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs flex items-center gap-1"
-              >
-                <X className="h-3 w-3" />
-                取消
-              </button>
+            <div className="flex flex-col gap-2">
+              {saveError && (
+                <div className="text-xs text-red-500">{saveError}</div>
+              )}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !editText.trim()}
+                  className="px-2 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded text-xs flex items-center gap-1"
+                >
+                  <Check className="h-3 w-3" />
+                  保存
+                </button>
+                <button
+                  onClick={handleCancel}
+                  disabled={saving}
+                  className="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" />
+                  取消
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -141,7 +161,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
       {!isEditing && (
         <div className="flex flex-col gap-1 flex-shrink-0">
           <button
-            onClick={() => setIsEditing(true)}
+            onClick={handleStartEdit}
             className="p-1.5 text-gray-500 hover:text-blue-600 bg-white hover:bg-blue-50 border border-gray-200 rounded transition-colors"
             title="编辑"
           >
