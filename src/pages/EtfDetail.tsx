@@ -34,10 +34,15 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   butterworthFit.forEach(f => fitMap.set(f.trade_date, f))
   
   const chartData = useMemo(() => {
-    return [...dailyData].reverse().map(d => {
+    const reversed = [...dailyData].reverse()
+    return reversed.map((d, i) => {
       const indicator = indicatorMap.get(d.trade_date)
       const signal = signalMap.get(d.trade_date)
       const fit = fitMap.get(d.trade_date)
+      const prevClose = i > 0 ? reversed[i - 1].close : null
+      const changePct = prevClose && prevClose > 0 && d.close != null
+        ? ((d.close - prevClose) / prevClose) * 100
+        : null
       return {
         date: formatDate(d.trade_date),
         trade_date: d.trade_date,
@@ -65,6 +70,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         signalRsi: signal?.rsi,
         signalMacd: signal?.macd_hist,
         fitted: fit?.fitted ?? null,
+        changePct,
       }
     })
   }, [dailyData, indicators, signals, butterworthFit])
@@ -211,7 +217,14 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                     <span className="text-gray-500">最低:</span>
                     <span className="text-right font-medium">{data.low?.toFixed(2)}</span>
                     <span className="text-gray-500">收盘:</span>
-                    <span className="text-right font-medium">{data.close?.toFixed(2)}</span>
+                    <span className="text-right font-medium">
+                      {data.close?.toFixed(2)}
+                      {data.changePct != null && (
+                        <span className={`ml-2 ${data.changePct >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {data.changePct >= 0 ? '+' : ''}{data.changePct.toFixed(2)}%
+                        </span>
+                      )}
+                    </span>
                     <span className="text-gray-500">MA5:</span>
                     <span className="text-right font-medium">{data.ma5?.toFixed(2) || '--'}</span>
                     <span className="text-gray-500">MA10:</span>
