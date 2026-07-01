@@ -1,16 +1,22 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, MessageSquare, TrendingUp } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
 import { useEtfData } from '../hooks/useEtfData'
+import { useEtfNotes } from '../hooks/useEtfNotes'
+import { useStockNotes } from '../hooks/useStockNotes'
 import IndustryCard from '../components/IndustryCard'
 import StockList from '../components/StockList'
 import { StockTradeBoard } from '../components/StockTradeBoard'
-import EtfBoardContent from './EtfBoard'
+import { TradeBoard } from '../components/TradeBoard'
+import { MarketIndicators } from '../components/MarketIndicators'
+import { NoteItem } from '../components/NoteItem'
+import EtfListOnly from './EtfBoard'
 
 type SortOrder = 'change_desc' | 'change_asc'
 type SortPeriod = '1d' | '5d' | '10d' | '20d' | '60d'
+type TabType = 'trade' | 'etf' | 'stock'
 
 const Home: React.FC = () => {
   const navigate = useNavigate()
@@ -19,11 +25,19 @@ const Home: React.FC = () => {
   const { latestDate: etfLatestDate, refresh: refreshEtf } = useEtfData()
   const industrySummaries = useIndustrySummaries(stocks)
 
-  const activeTab = location.pathname === '/stocks' ? 'stock' : 'etf'
+  const getActiveTab = (): TabType => {
+    if (location.pathname === '/stocks') return 'stock'
+    if (location.pathname === '/etf') return 'etf'
+    return 'trade'
+  }
 
-  const switchTab = (tab: 'stock' | 'etf') => {
+  const activeTab = getActiveTab()
+
+  const switchTab = (tab: TabType) => {
     if (tab === 'stock') {
       navigate('/stocks')
+    } else if (tab === 'etf') {
+      navigate('/etf')
     } else {
       navigate('/')
     }
@@ -149,8 +163,11 @@ const Home: React.FC = () => {
   const handleRefresh = () => {
     if (activeTab === 'stock') {
       refreshStocks()
+    } else if (activeTab === 'etf') {
+      refreshEtf()
     } else {
       refreshEtf()
+      refreshStocks()
     }
   }
 
@@ -163,20 +180,36 @@ const Home: React.FC = () => {
     })
   }
 
+  const getTabColor = (tab: TabType) => {
+    switch (tab) {
+      case 'trade': return 'bg-orange-600'
+      case 'etf': return 'bg-purple-600'
+      case 'stock': return 'bg-blue-600'
+    }
+  }
+
+  const getTabHoverColor = (tab: TabType) => {
+    switch (tab) {
+      case 'trade': return 'hover:bg-orange-700'
+      case 'etf': return 'hover:bg-purple-700'
+      case 'stock': return 'hover:bg-blue-700'
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* 顶部 Tab 栏 */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => switchTab('stock')}
+            onClick={() => switchTab('trade')}
             className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all ${
-              activeTab === 'stock'
-                ? 'bg-blue-600 text-white shadow-md'
+              activeTab === 'trade'
+                ? 'bg-orange-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            股票看板
+            交易看板
           </button>
           <button
             onClick={() => switchTab('etf')}
@@ -188,24 +221,32 @@ const Home: React.FC = () => {
           >
             ETF看板
           </button>
+          <button
+            onClick={() => switchTab('stock')}
+            className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all ${
+              activeTab === 'stock'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            股票看板
+          </button>
           {activeTab === 'etf' && etfLatestDate && (
             <span className="text-sm text-gray-500 ml-2">数据更新至：{formatDate(etfLatestDate)}</span>
           )}
         </div>
         <button
           onClick={handleRefresh}
-          className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${
-            activeTab === 'stock'
-              ? 'bg-blue-600 hover:bg-blue-700'
-              : 'bg-purple-600 hover:bg-purple-700'
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${getTabColor(activeTab)} ${getTabHoverColor(activeTab)}`}
         >
           <RefreshCw className="h-4 w-4" />
           刷新
         </button>
       </div>
 
-      {activeTab === 'stock' ? (
+      {activeTab === 'trade' && <TradeBoardContent onStockAlertClick={(stockCode) => navigate(`/stock/${stockCode}`)} onEtfAlertClick={(symbol) => navigate(`/etf/${symbol}`)} />}
+      {activeTab === 'etf' && <EtfListOnly />}
+      {activeTab === 'stock' && (
         <StockBoardContent
           industrySummaries={industrySummaries}
           selectedIndustry1={selectedIndustry1}
@@ -224,15 +265,221 @@ const Home: React.FC = () => {
           marketOptions={marketOptions}
           periodLabels={periodLabels}
           filteredStocks={filteredStocks}
-          onStockAlertClick={(stockCode) => navigate(`/stock/${stockCode}`)}
         />
-      ) : (
-        <EtfBoardContent />
       )}
     </div>
   )
 }
 
+// ========== 交易看板内容 ==========
+interface TradeBoardContentProps {
+  onStockAlertClick?: (stockCode: string) => void
+  onEtfAlertClick?: (symbol: string) => void
+}
+
+const TradeBoardContent: React.FC<TradeBoardContentProps> = ({ onStockAlertClick, onEtfAlertClick }) => {
+  const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries, etfs } = useEtfData()
+  const { stocks } = useStockContext()
+  const { notes: etfNotes, loading: etfNotesLoading, addNote: addEtfNote, updateNote: updateEtfNote, deleteNote: deleteEtfNote } = useEtfNotes()
+  const { notes: stockNotes, loading: stockNotesLoading, addNote: addStockNote, updateNote: updateStockNote, deleteNote: deleteStockNote } = useStockNotes()
+  
+  const [noteType, setNoteType] = useState<'etf' | 'stock'>('etf')
+  const [noteSymbolInput, setNoteSymbolInput] = useState('')
+  const [noteInput, setNoteInput] = useState('')
+  const [noteSubmitting, setNoteSubmitting] = useState(false)
+
+  const etfNameMap = useMemo(() => {
+    const m = new Map<string, string>()
+    etfs.forEach(e => {
+      if (e.symbol && e.name) m.set(e.symbol, e.name)
+    })
+    return m
+  }, [etfs])
+
+  const stockNameMap = useMemo(() => {
+    const m = new Map<string, string>()
+    stocks.forEach(s => {
+      if (s.stock_code && s.stock_name) m.set(s.stock_code, s.stock_name)
+    })
+    return m
+  }, [stocks])
+
+  const getEtfDisplayName = (symbol: string) => {
+    if (symbol === 'GENERAL') return '通用'
+    return etfNameMap.get(symbol) || symbol
+  }
+
+  const getStockDisplayName = (code: string) => {
+    return stockNameMap.get(code) || code
+  }
+
+  const handleAddNote = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const text = noteInput.trim()
+    if (!text) return
+    const symbol = noteSymbolInput.trim().toUpperCase()
+    setNoteSubmitting(true)
+    try {
+      if (noteType === 'etf') {
+        await addEtfNote(symbol || 'GENERAL', text)
+      } else {
+        await addStockNote(symbol || 'GENERAL', text)
+      }
+      setNoteInput('')
+      setNoteSymbolInput('')
+    } catch {
+    } finally {
+      setNoteSubmitting(false)
+    }
+  }
+
+  const allNotes = useMemo(() => {
+    type UnifiedNote = {
+      id: string
+      type: 'etf' | 'stock'
+      note: { id: number; note: string; created_at: string; updated_at?: string }
+      symbol: string
+      name: string
+      navigatePath: string
+    }
+    const etfList: UnifiedNote[] = etfNotes.map(n => ({
+      id: `etf_${n.id}`,
+      type: 'etf' as const,
+      note: n,
+      symbol: n.symbol,
+      name: getEtfDisplayName(n.symbol),
+      navigatePath: `/etf/${n.symbol}`
+    }))
+    const stockList: UnifiedNote[] = stockNotes.map(n => ({
+      id: `stock_${n.id}`,
+      type: 'stock' as const,
+      note: n,
+      symbol: n.stock_code,
+      name: getStockDisplayName(n.stock_code),
+      navigatePath: `/stock/${n.stock_code}`
+    }))
+    return [...etfList, ...stockList].sort((a, b) => 
+      new Date(b.note.created_at).getTime() - new Date(a.note.created_at).getTime()
+    )
+  }, [etfNotes, stockNotes, etfNameMap, stockNameMap])
+
+  const handleNoteUpdate = async (type: 'etf' | 'stock', id: number, text: string) => {
+    if (type === 'etf') {
+      await updateEtfNote(id, text)
+    } else {
+      await updateStockNote(id, text)
+    }
+  }
+
+  const handleNoteDelete = async (type: 'etf' | 'stock', id: number) => {
+    if (type === 'etf') {
+      await deleteEtfNote(id)
+    } else {
+      await deleteStockNote(id)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* 交易记录 - ETF */}
+      <TradeBoard onAlertClick={onEtfAlertClick} />
+
+      {/* 交易记录 - 股票 */}
+      <StockTradeBoard onAlertClick={onStockAlertClick} />
+
+      {/* 笔记模块 */}
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-blue-500" />
+            笔记
+            <span className="text-sm font-normal text-gray-500">
+              （ETF {etfNotes.length} 条 · 股票 {stockNotes.length} 条）
+            </span>
+          </h2>
+          <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setNoteType('etf')}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                noteType === 'etf'
+                  ? 'bg-white text-purple-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              ETF笔记
+            </button>
+            <button
+              onClick={() => setNoteType('stock')}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                noteType === 'stock'
+                  ? 'bg-white text-green-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              股票笔记
+            </button>
+          </div>
+        </div>
+
+        {/* 快速添加 */}
+        <form onSubmit={handleAddNote} className="flex gap-2 mb-4">
+          <input
+            type="text"
+            value={noteSymbolInput}
+            onChange={e => setNoteSymbolInput(e.target.value)}
+            placeholder={noteType === 'etf' ? 'ETF代码（可选）' : '股票代码（可选）'}
+            className="w-36 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="text"
+            value={noteInput}
+            onChange={e => setNoteInput(e.target.value)}
+            placeholder="写下笔记..."
+            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button
+            type="submit"
+            disabled={noteSubmitting || !noteInput.trim()}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors"
+          >
+            添加
+          </button>
+        </form>
+
+        {/* 笔记列表（混合 ETF 和股票，按时间倒序） */}
+        {etfNotesLoading || stockNotesLoading ? (
+          <div className="text-sm text-gray-400 py-4 text-center">加载中...</div>
+        ) : allNotes.length === 0 ? (
+          <div className="text-sm text-gray-400 py-4 text-center">暂无笔记</div>
+        ) : (
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {allNotes.map(item => (
+              <NoteItem
+                key={item.id}
+                note={item.note as any}
+                name={item.name}
+                code={item.symbol}
+                navigatePath={item.navigatePath}
+                onUpdate={(id, text) => handleNoteUpdate(item.type, id, text)}
+                onDelete={(id) => handleNoteDelete(item.type, id)}
+                codeColor={item.type === 'etf' ? 'blue' : 'green'}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 市场指标 */}
+      <MarketIndicators
+        globalIndicatorSeries={globalIndicatorSeries}
+        chinaIndicatorSeries={chinaIndicatorSeries}
+        fearGreedSeries={fearGreedSeries}
+      />
+    </div>
+  )
+}
+
+// ========== 股票看板内容 ==========
 interface StockBoardContentProps {
   industrySummaries: any[]
   selectedIndustry1: string
@@ -251,7 +498,6 @@ interface StockBoardContentProps {
   marketOptions: string[]
   periodLabels: Record<SortPeriod, string>
   filteredStocks: any[]
-  onStockAlertClick?: (stockCode: string) => void
 }
 
 const StockBoardContent: React.FC<StockBoardContentProps> = ({
@@ -271,19 +517,21 @@ const StockBoardContent: React.FC<StockBoardContentProps> = ({
   industry2Options,
   marketOptions,
   periodLabels,
-  filteredStocks,
-  onStockAlertClick
+  filteredStocks
 }) => {
   return (
     <div className="space-y-8">
-      {/* 交易记录模块 */}
-      <StockTradeBoard onAlertClick={onStockAlertClick} />
-
       {/* 行业概览 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {industrySummaries.map((industry) => (
-          <IndustryCard key={industry.industry1} industry={industry} />
-        ))}
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-blue-600" />
+          行业汇总
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {industrySummaries.map((industry) => (
+            <IndustryCard key={industry.industry1} industry={industry} />
+          ))}
+        </div>
       </div>
 
       <div className="space-y-6">
