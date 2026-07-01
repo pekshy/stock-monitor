@@ -48,7 +48,7 @@ export function useStockNotes() {
     try {
       const { data, error } = await supabase
         .from('stock_notes')
-        .update({ note: text, updated_at: new Date().toISOString() })
+        .update({ note: text })
         .eq('id', id)
         .select()
         .single()
@@ -124,7 +124,7 @@ export function useStockNotesByCode(stockCode: string) {
     try {
       const { data, error } = await supabase
         .from('stock_notes')
-        .update({ note: text, updated_at: new Date().toISOString() })
+        .update({ note: text })
         .eq('id', id)
         .select()
         .single()

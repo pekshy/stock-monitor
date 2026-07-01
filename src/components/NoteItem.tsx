@@ -111,9 +111,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
             </span>
           )}
           <span className="text-xs text-gray-400">
-            {note.updated_at
-              ? `${note.updated_at.slice(0, 16).replace('T', ' ')}（编辑）`
-              : note.created_at.slice(0, 16).replace('T', ' ')}
+            {note.created_at.slice(0, 16).replace('T', ' ')}
           </span>
         </div>
 
