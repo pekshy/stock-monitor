@@ -55,7 +55,7 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
           label: '总收益',
           value: `${isPositive ? '+' : ''}${returnPct.toFixed(2)}%`,
           isPositive,
-          className: isPositive ? 'text-green-600' : 'text-red-600'
+          className: isPositive ? 'text-red-600' : 'text-green-600'
         }
       }
     }
@@ -68,7 +68,7 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
         label: '当前收益',
         value: `${isPositive ? '+' : ''}${returnPct.toFixed(2)}%`,
         isPositive,
-        className: isPositive ? 'text-green-600' : 'text-red-600'
+        className: isPositive ? 'text-red-600' : 'text-green-600'
       }
     }
 
