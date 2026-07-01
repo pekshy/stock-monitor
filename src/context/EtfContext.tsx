@@ -1,19 +1,46 @@
 import React, { createContext, useContext } from 'react'
 import { useEtfData } from '../hooks/useEtfData'
+import { IndicatorSeries, FearGreedSeries, EtfWithData } from '../types'
 
 interface EtfContextType {
-  etfs: any[]
+  etfs: EtfWithData[]
   priceByDateMap: Map<string, Map<string, number>>
+  chinaIndicatorSeries: IndicatorSeries[]
+  globalIndicatorSeries: IndicatorSeries[]
+  fearGreedSeries: FearGreedSeries | null
+  latestDate: string | null
   loading: boolean
+  error: string | null
+  refresh: () => void
 }
 
 const EtfContext = createContext<EtfContextType | null>(null)
 
 export function EtfProvider({ children }: { children: React.ReactNode }) {
-  const { etfs, priceByDateMap, loading } = useEtfData()
+  const {
+    etfs,
+    priceByDateMap,
+    chinaIndicatorSeries,
+    globalIndicatorSeries,
+    fearGreedSeries,
+    latestDate,
+    loading,
+    error,
+    refresh
+  } = useEtfData()
   
   return (
-    <EtfContext.Provider value={{ etfs, priceByDateMap, loading }}>
+    <EtfContext.Provider value={{
+      etfs,
+      priceByDateMap,
+      chinaIndicatorSeries,
+      globalIndicatorSeries,
+      fearGreedSeries,
+      latestDate,
+      loading,
+      error,
+      refresh
+    }}>
       {children}
     </EtfContext.Provider>
   )

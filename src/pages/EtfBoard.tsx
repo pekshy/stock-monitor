@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Target, ChevronDown, ChevronUp, Search } from 'lucide-react'
-import { useEtfData } from '../hooks/useEtfData'
+import { useEtfContext } from '../context/EtfContext'
 import { formatPercent, getChangeColor } from '../utils/formatters'
 
 const EtfListOnly: React.FC = () => {
@@ -11,7 +11,7 @@ const EtfListOnly: React.FC = () => {
     loading,
     error,
     refresh
-  } = useEtfData()
+  } = useEtfContext()
 
   const getActionPriority = (action: string | null | undefined): number => {
     if (!action) return 3

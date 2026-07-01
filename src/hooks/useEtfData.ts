@@ -291,56 +291,49 @@ export function useEtfData() {
       setError(null)
       console.log('开始获取ETF数据...')
       
-      // 1. 获取ETF信息
-      const { data: etfInfoData, error: etfInfoErr } = await supabase
-        .from('etf_info')
-        .select('*')
+      // 第一波：并行获取所有独立数据（ETF信息 + 各类指标）
+      const [
+        etfInfoResult,
+        chinaResult,
+        fredResult,
+        marketResult,
+        volumeResult,
+        fedForecastResult
+      ] = await Promise.all([
+        supabase.from('etf_info').select('*'),
+        supabase.from('china_indicators').select('*').order('date', { ascending: false }),
+        supabase.from('fred_indicators').select('*').order('date', { ascending: false }),
+        supabase.from('market_indicators').select('*').order('date', { ascending: false }),
+        supabase.from('stock_market_volume').select('*').order('date', { ascending: false }),
+        supabase.from('fed_forecast').select('*').order('date', { ascending: false })
+      ])
+      
+      const { data: etfInfoData, error: etfInfoErr } = etfInfoResult
       if (etfInfoErr) throw etfInfoErr
       const etfInfo: EtfInfo[] = etfInfoData || []
       console.log('ETF info:', etfInfo)
 
-      // 2. 获取中国宏观指标
-      const { data: chinaData, error: chinaErr } = await supabase
-        .from('china_indicators')
-        .select('*')
-        .order('date', { ascending: false })
+      const { data: chinaData, error: chinaErr } = chinaResult
       if (chinaErr) throw chinaErr
       console.log('China indicators:', chinaData)
       setChinaIndicators(chinaData || [])
 
-      // 3. 获取FRED指标（美元指数、美债利率等）
-      const { data: fredData, error: fredErr } = await supabase
-        .from('fred_indicators')
-        .select('*')
-        .order('date', { ascending: false })
+      const { data: fredData, error: fredErr } = fredResult
       if (fredErr) throw fredErr
       console.log('FRED indicators:', fredData)
-      // 调试：输出所有 FRED indicator_id 列表（去重）
       console.log('FRED indicator_ids:', Array.from(new Set((fredData || []).map(d => d.indicator_id))))
       setFredIndicators(fredData || [])
 
-      // 3.5 获取市场指标（黄金、白银、比特币等大宗商品和数字货币）
-      const { data: marketData, error: marketErr } = await supabase
-        .from('market_indicators')
-        .select('*')
-        .order('date', { ascending: false })
+      const { data: marketData, error: marketErr } = marketResult
       if (marketErr) throw marketErr
       console.log('Market indicators:', marketData)
       setMarketIndicators(marketData || [])
 
-      // 3.6 获取A股成交量
-      const { data: volumeData, error: volumeErr } = await supabase
-        .from('stock_market_volume')
-        .select('*')
-        .order('date', { ascending: false })
+      const { data: volumeData, error: volumeErr } = volumeResult
       if (volumeErr) throw volumeErr
       console.log('Stock market volume:', volumeData)
 
-      // 3.7 获取美联储利率预测数据
-      const { data: fedForecastData, error: fedForecastErr } = await supabase
-        .from('fed_forecast')
-        .select('*')
-        .order('date', { ascending: false })
+      const { data: fedForecastData, error: fedForecastErr } = fedForecastResult
       if (fedForecastErr) throw fedForecastErr
       console.log('Fed forecasts:', fedForecastData)
 
@@ -376,23 +369,37 @@ export function useEtfData() {
         setFearGreedSeries(null)
       }
 
-      // 4. 如果有ETF，获取它们的数据
+      // 4. 如果有ETF，获取它们的数据（并行请求）
       let etfsWithData: EtfWithData[] = []
       
       if (etfInfo.length > 0) {
         const symbols = etfInfo.map(e => e.symbol)
         const indexCodes = etfInfo.map(e => e.tracking_index_code).filter((c): c is string => !!c)
         
-        // 获取ETF日数据
-        const { data: dailyData, error: dailyErr } = await supabase
-          .from('etf_daily_data')
-          .select('*')
-          .in('symbol', symbols)
-          .order('trade_date', { ascending: false })
+        const ninetyDaysAgo = new Date()
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+        const ninetyDaysAgoStr = ninetyDaysAgo.toISOString().split('T')[0]
+        
+        // 并行获取所有 ETF 相关数据
+        const requests = [
+          supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
+          supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
+          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
+          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).gte('trade_date', ninetyDaysAgoStr).order('trade_date', { ascending: true })
+        ]
+        
+        if (indexCodes.length > 0) {
+          requests.push(
+            supabase.from('etf_tracked_index_history').select('*').in('index_code', indexCodes).order('trade_date', { ascending: false })
+          )
+        }
+        
+        const results = await Promise.all(requests)
+        
+        const { data: dailyData, error: dailyErr } = results[0]
         if (dailyErr) throw dailyErr
         console.log('ETF daily data:', dailyData)
 
-        // 构建 symbol → (date → close price) 映射，用于交易弹窗自动填入价格
         const symbolDatePriceMap = new Map<string, Map<string, number>>()
         dailyData?.forEach(d => {
           if (d.close == null) return
@@ -405,48 +412,24 @@ export function useEtfData() {
         })
         setPriceByDateMap(symbolDatePriceMap)
 
-        // 获取ETF指标
-        const { data: indicatorsData, error: indicatorsErr } = await supabase
-          .from('etf_indicators')
-          .select('*')
-          .in('symbol', symbols)
-          .order('trade_date', { ascending: false })
+        const { data: indicatorsData, error: indicatorsErr } = results[1]
         if (indicatorsErr) throw indicatorsErr
         console.log('ETF indicators:', indicatorsData)
 
-        // 获取ETF信号
-        const { data: signalsData, error: signalsErr } = await supabase
-          .from('etf_claw_signals')
-          .select('*')
-          .in('symbol', symbols)
-          .order('trade_date', { ascending: false })
+        const { data: signalsData, error: signalsErr } = results[2]
         if (signalsErr) throw signalsErr
         console.log('ETF signals:', signalsData)
 
-        // 获取 Butterworth 拟合曲线数据（限制到最近90天）
-        const ninetyDaysAgo = new Date()
-        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
-        const ninetyDaysAgoStr = ninetyDaysAgo.toISOString().split('T')[0]
-        const { data: fitData, error: fitErr } = await supabase
-          .from('etf_butterworth_fit')
-          .select('*')
-          .in('symbol', symbols)
-          .gte('trade_date', ninetyDaysAgoStr)
-          .order('trade_date', { ascending: true })
+        const { data: fitData, error: fitErr } = results[3]
         if (fitErr) throw fitErr
         console.log('Butterworth fit data:', fitData)
 
-        // 获取指数估值
         let indexValuations: EtfTrackedIndexHistory[] = []
-        if (indexCodes.length > 0) {
-          const { data: indexData, error: indexErr } = await supabase
-            .from('etf_tracked_index_history')
-            .select('*')
-            .in('index_code', indexCodes)
-            .order('trade_date', { ascending: false })
+        if (indexCodes.length > 0 && results[4]) {
+          const { data: indexData, error: indexErr } = results[4]
           if (indexErr) throw indexErr
           indexValuations = indexData || []
-          console.log('Index valuations:', indexValuations)
+          console.log('Index valuations:', indexData)
         }
 
         // 为每个ETF整理最新数据

@@ -2,14 +2,13 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { RefreshCw, MessageSquare, TrendingUp } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
+import { useEtfContext } from '../context/EtfContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
-import { useEtfData } from '../hooks/useEtfData'
 import { useEtfNotes } from '../hooks/useEtfNotes'
 import { useStockNotes } from '../hooks/useStockNotes'
 import IndustryCard from '../components/IndustryCard'
 import StockList from '../components/StockList'
-import { StockTradeBoard } from '../components/StockTradeBoard'
-import { TradeBoard } from '../components/TradeBoard'
+import UnifiedTradeBoard from '../components/UnifiedTradeBoard'
 import { MarketIndicators } from '../components/MarketIndicators'
 import { NoteItem } from '../components/NoteItem'
 import EtfListOnly from './EtfBoard'
@@ -22,7 +21,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { stocks, loading: stockLoading, refresh: refreshStocks } = useStockContext()
-  const { latestDate: etfLatestDate, refresh: refreshEtf } = useEtfData()
+  const { latestDate: etfLatestDate, refresh: refreshEtf } = useEtfContext()
   const industrySummaries = useIndustrySummaries(stocks)
 
   const getActiveTab = (): TabType => {
@@ -244,7 +243,7 @@ const Home: React.FC = () => {
         </button>
       </div>
 
-      {activeTab === 'trade' && <TradeBoardContent onStockAlertClick={(stockCode) => navigate(`/stock/${stockCode}`)} onEtfAlertClick={(symbol) => navigate(`/etf/${symbol}`)} />}
+      {activeTab === 'trade' && <TradeBoardContent />}
       {activeTab === 'etf' && <EtfListOnly />}
       {activeTab === 'stock' && (
         <StockBoardContent
@@ -272,13 +271,8 @@ const Home: React.FC = () => {
 }
 
 // ========== 交易看板内容 ==========
-interface TradeBoardContentProps {
-  onStockAlertClick?: (stockCode: string) => void
-  onEtfAlertClick?: (symbol: string) => void
-}
-
-const TradeBoardContent: React.FC<TradeBoardContentProps> = ({ onStockAlertClick, onEtfAlertClick }) => {
-  const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries, etfs } = useEtfData()
+const TradeBoardContent: React.FC = () => {
+  const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries, etfs } = useEtfContext()
   const { stocks } = useStockContext()
   const { notes: etfNotes, loading: etfNotesLoading, addNote: addEtfNote, updateNote: updateEtfNote, deleteNote: deleteEtfNote } = useEtfNotes()
   const { notes: stockNotes, loading: stockNotesLoading, addNote: addStockNote, updateNote: updateStockNote, deleteNote: deleteStockNote } = useStockNotes()
@@ -381,11 +375,8 @@ const TradeBoardContent: React.FC<TradeBoardContentProps> = ({ onStockAlertClick
 
   return (
     <div className="space-y-6">
-      {/* 交易记录 - ETF */}
-      <TradeBoard onAlertClick={onEtfAlertClick} />
-
-      {/* 交易记录 - 股票 */}
-      <StockTradeBoard onAlertClick={onStockAlertClick} />
+      {/* 统一交易看板 */}
+      <UnifiedTradeBoard />
 
       {/* 笔记模块 */}
       <div className="bg-white rounded-xl shadow-md p-6">

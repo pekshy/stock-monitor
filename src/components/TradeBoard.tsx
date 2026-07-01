@@ -20,6 +20,19 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
   const [sellModalOpen, setSellModalOpen] = useState(false)
   const [sellRecord, setSellRecord] = useState<TradeRecord | null>(null)
 
+  // 判断是否为 ETF 代码
+  const isEtfCode = (symbol: string) => {
+    const s = symbol.toUpperCase()
+    if (/^\d{6}$/.test(s)) return true
+    if (s.includes('ETF')) return true
+    return false
+  }
+
+  // 只过滤出 ETF 的交易记录
+  const etfRecords = useMemo(() => {
+    return records.filter(r => isEtfCode(r.symbol))
+  }, [records])
+
   // 构建 ETF 标的列表用于自动补全
   const etfSymbols = useMemo(() => {
     return etfs.map(e => ({ symbol: e.symbol, name: e.name || e.symbol }))
@@ -29,7 +42,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
   const positions = useMemo(() => {
     const symbolMap = new Map<string, Position>()
 
-    records.forEach(record => {
+    etfRecords.forEach(record => {
       if (record.direction !== 'buy' || record.status !== 'open') return
       const { symbol, name, amount, buy_price, stop_loss_pct, take_profit_pct } = record
       if (!symbolMap.has(symbol)) {
@@ -61,7 +74,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
     })
 
     return Array.from(symbolMap.values()).filter(p => p.netPosition > 0)
-  }, [records])
+  }, [etfRecords])
 
   // 获取现价（从 ETF 数据中获取）
   const etfPriceMap = useMemo(() => {
@@ -182,7 +195,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
     <div className="bg-white rounded-xl shadow-md p-6">
       {/* 头部 */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900">交易记录</h2>
+        <h2 className="text-lg font-bold text-gray-900">ETF交易记录</h2>
         <button
           onClick={() => { setEditRecord(null); setModalOpen(true) }}
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
@@ -244,13 +257,13 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
       {/* 交易记录列表 */}
       {loading ? (
         <div className="text-center py-8 text-gray-500">加载中...</div>
-      ) : records.length === 0 ? (
+      ) : etfRecords.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          暂无交易记录，点击上方按钮添加
+          暂无ETF交易记录，点击上方按钮添加
         </div>
       ) : (
         <div className="space-y-2 max-h-96 overflow-y-auto">
-          {records.map(record => (
+          {etfRecords.map(record => (
             <TradeRecordItem
               key={record.id}
               record={record}
@@ -258,7 +271,7 @@ export const TradeBoard: React.FC<TradeBoardProps> = ({ onAlertClick }) => {
               onDelete={handleDelete}
               onSell={handleSell}
               currentPrice={etfPriceMap.get(record.symbol)}
-              allRecords={records}
+              allRecords={etfRecords}
             />
           ))}
         </div>
