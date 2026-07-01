@@ -363,10 +363,26 @@ const EtfDetail: React.FC = () => {
   const signals = useMemo(() => etf?.signals || [], [etf])
   const butterworthFit = useMemo(() => etf?.butterworth_fit || [], [etf])
 
-  const etfSymbols = etfs.map(e => e.symbol)
+  const getActionPriority = (action: string | null | undefined): number => {
+    if (!action) return 3
+    const act = action.toLowerCase()
+    if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 1
+    if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 2
+    return 3
+  }
+
+  const sortedEtfs = useMemo(() => {
+    return [...etfs].sort((a, b) => {
+      const priorityA = getActionPriority(a.latest_signal?.action)
+      const priorityB = getActionPriority(b.latest_signal?.action)
+      return priorityA - priorityB
+    })
+  }, [etfs])
+
+  const etfSymbols = sortedEtfs.map(e => e.symbol)
   const currentIndex = etfSymbols.indexOf(code || '')
-  const prevEtf = currentIndex > 0 ? etfs[currentIndex - 1] : null
-  const nextEtf = currentIndex < etfSymbols.length - 1 ? etfs[currentIndex + 1] : null
+  const prevEtf = currentIndex > 0 ? sortedEtfs[currentIndex - 1] : null
+  const nextEtf = currentIndex < etfSymbols.length - 1 ? sortedEtfs[currentIndex + 1] : null
 
   if (loading) {
     return (
