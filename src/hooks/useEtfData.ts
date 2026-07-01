@@ -381,7 +381,7 @@ export function useEtfData() {
           supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
           supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
           supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
-          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).order('trade_date', { ascending: true })
+          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).order('trade_date', { ascending: false })
         ]
         
         if (indexCodes.length > 0) {
