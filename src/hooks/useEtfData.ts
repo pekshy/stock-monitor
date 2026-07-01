@@ -376,16 +376,12 @@ export function useEtfData() {
         const symbols = etfInfo.map(e => e.symbol)
         const indexCodes = etfInfo.map(e => e.tracking_index_code).filter((c): c is string => !!c)
         
-        const ninetyDaysAgo = new Date()
-        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
-        const ninetyDaysAgoStr = ninetyDaysAgo.toISOString().split('T')[0]
-        
         // 并行获取所有 ETF 相关数据
         const requests = [
           supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
           supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
           supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
-          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).gte('trade_date', ninetyDaysAgoStr).order('trade_date', { ascending: true })
+          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).order('trade_date', { ascending: true })
         ]
         
         if (indexCodes.length > 0) {
