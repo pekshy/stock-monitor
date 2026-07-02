@@ -161,11 +161,21 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
   const handleSellConfirm = async (sellPrice: number, sellDate: string) => {
     if (!sellRecord) return
     await updateRecord(sellRecord.id!, {
-      ...sellRecord,
+      status: 'closed'
+    })
+    await addRecord({
+      symbol: sellRecord.symbol,
+      name: sellRecord.name,
+      direction: 'sell',
+      trade_date: sellDate,
+      amount: sellRecord.amount,
+      buy_price: sellPrice,
+      stop_loss_pct: null,
+      take_profit_pct: null,
+      notes: null,
       status: 'closed',
-      sell_price: sellPrice,
-      sell_date: sellDate
-    } as Partial<TradeRecord>)
+      linked_id: sellRecord.id
+    })
     setSellModalOpen(false)
     setSellRecord(null)
   }

@@ -50,7 +50,8 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
   if (!isOpen || !record) return null
 
   const buyPrice = record.buy_price || 0
-  const priceToUse = sellPrice ? parseFloat(sellPrice) : (currentPrice || buyPrice)
+  const amount = record.amount || 0
+  const priceToUse = sellPrice ? parseFloat(sellPrice) : (currentPrice || buyPrice || 0)
   const profitLossPct = buyPrice > 0 ? ((priceToUse - buyPrice) / buyPrice) * 100 : 0
   const isProfit = profitLossPct >= 0
 
@@ -59,21 +60,25 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
     onConfirm(parseFloat(sellPrice), sellDate)
   }
 
+  const safeDailyData = Array.isArray(dailyData) ? dailyData : []
+
   // 获取可用的交易日期（从历史数据中，或从 priceMap）
   const availableDates = useMemo(() => {
     const dates = new Set<string>()
-    dailyData.filter(d => d.close !== null).forEach(d => dates.add(d.trade_date))
-    if (priceMap) {
-      priceMap.forEach((_v, k) => dates.add(k))
+    safeDailyData.filter(d => d && d.close !== null && d.trade_date).forEach(d => dates.add(d.trade_date))
+    if (priceMap && typeof priceMap.forEach === 'function') {
+      priceMap.forEach((_v, k) => {
+        if (k) dates.add(k)
+      })
     }
     return Array.from(dates).sort((a, b) => b.localeCompare(a))
-  }, [dailyData, priceMap])
+  }, [safeDailyData, priceMap])
 
   // 判断是否有该日期的收盘价
   const hasCloseForDate = () => {
-    const fromDaily = dailyData.find(d => d.trade_date === sellDate)?.close
+    const fromDaily = safeDailyData.find(d => d.trade_date === sellDate)?.close
     if (fromDaily != null) return true
-    if (priceMap && priceMap.get(sellDate) != null) return true
+    if (priceMap && typeof priceMap.get === 'function' && priceMap.get(sellDate) != null) return true
     return false
   }
 
@@ -105,7 +110,7 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
             </div>
             <div className="bg-gray-50 rounded-lg p-3">
               <div className="text-gray-500 text-xs">买入总额</div>
-              <div className="font-medium">¥{record.amount.toLocaleString()}</div>
+              <div className="font-medium">¥{amount.toLocaleString()}</div>
             </div>
             <div className="bg-gray-50 rounded-lg p-3">
               <div className="text-gray-500 text-xs">买入单价</div>
