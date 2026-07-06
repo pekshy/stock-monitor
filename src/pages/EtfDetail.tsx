@@ -458,6 +458,46 @@ const EtfDetail: React.FC = () => {
             )}
           </div>
         </div>
+        {etf.latest_index_valuation && (() => {
+          const v = etf.latest_index_valuation!
+          const hasPE = v.pe != null
+          const hasPB = v.pb != null
+          if (!hasPE && !hasPB) return null
+          return (
+            <div className="flex gap-4 mt-3 pt-3 border-t border-gray-100">
+              {hasPE && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">PE</span>
+                  <span className="text-sm font-semibold text-gray-900">{v.pe!.toFixed(2)}</span>
+                  {v.pe_percent != null && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${
+                      v.pe_percent <= 30 ? 'bg-green-100 text-green-700' :
+                      v.pe_percent >= 70 ? 'bg-red-100 text-red-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {v.pe_percent.toFixed(1)}%分位
+                    </span>
+                  )}
+                </div>
+              )}
+              {hasPB && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">PB</span>
+                  <span className="text-sm font-semibold text-gray-900">{v.pb!.toFixed(2)}</span>
+                  {v.pb_percent != null && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${
+                      v.pb_percent <= 30 ? 'bg-green-100 text-green-700' :
+                      v.pb_percent >= 70 ? 'bg-red-100 text-red-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {v.pb_percent.toFixed(1)}%分位
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })()}
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-4">
