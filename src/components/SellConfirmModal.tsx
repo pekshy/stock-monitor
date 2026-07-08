@@ -39,7 +39,7 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
     const dayData = dailyData.find(d => d.trade_date === sellDate)
     if (dayData?.close) {
       setSellPrice(dayData.close.toFixed(3))
-    } else if (priceMap) {
+    } else if (priceMap && typeof priceMap.get === 'function') {
       const close = priceMap.get(sellDate)
       if (close != null) {
         setSellPrice(close.toFixed(3))

@@ -160,24 +160,29 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
 
   const handleSellConfirm = async (sellPrice: number, sellDate: string) => {
     if (!sellRecord) return
-    await updateRecord(sellRecord.id!, {
-      status: 'closed'
-    })
-    await addRecord({
-      symbol: sellRecord.symbol,
-      name: sellRecord.name,
-      direction: 'sell',
-      trade_date: sellDate,
-      amount: sellRecord.amount,
-      buy_price: sellPrice,
-      stop_loss_pct: null,
-      take_profit_pct: null,
-      notes: null,
-      status: 'closed',
-      linked_id: sellRecord.id
-    })
-    setSellModalOpen(false)
-    setSellRecord(null)
+    try {
+      await updateRecord(sellRecord.id!, {
+        status: 'closed'
+      })
+      await addRecord({
+        symbol: sellRecord.symbol,
+        name: sellRecord.name,
+        direction: 'sell',
+        trade_date: sellDate,
+        amount: sellRecord.amount,
+        buy_price: sellPrice,
+        stop_loss_pct: null,
+        take_profit_pct: null,
+        notes: null,
+        status: 'closed',
+        linked_id: sellRecord.id
+      })
+      setSellModalOpen(false)
+      setSellRecord(null)
+    } catch (error) {
+      console.error('卖出确认失败:', error)
+      alert('卖出失败，请重试')
+    }
   }
 
   const countRecords = (type: 'etf' | 'stock') => {
