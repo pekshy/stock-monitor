@@ -154,33 +154,38 @@ export const StockTradeBoard: React.FC<StockTradeBoardProps> = ({ onAlertClick }
 
   const handleSellConfirm = async (sellPrice: number, sellDate: string) => {
     if (!sellRecord) return
-    await updateRecord(sellRecord.id, {
-      symbol: sellRecord.symbol,
-      name: sellRecord.name,
-      direction: 'buy',
-      trade_date: sellRecord.trade_date,
-      amount: sellRecord.amount,
-      buy_price: sellRecord.buy_price,
-      stop_loss_pct: sellRecord.stop_loss_pct,
-      take_profit_pct: sellRecord.take_profit_pct,
-      notes: sellRecord.notes,
-      status: 'closed'
-    })
-    await addRecord({
-      symbol: sellRecord.symbol,
-      name: sellRecord.name,
-      direction: 'sell',
-      trade_date: sellDate,
-      amount: sellRecord.amount,
-      buy_price: sellPrice,
-      stop_loss_pct: null,
-      take_profit_pct: null,
-      notes: null,
-      status: 'closed',
-      linked_id: sellRecord.id
-    })
-    setSellModalOpen(false)
-    setSellRecord(null)
+    try {
+      await updateRecord(sellRecord.id, {
+        symbol: sellRecord.symbol,
+        name: sellRecord.name,
+        direction: 'buy',
+        trade_date: sellRecord.trade_date,
+        amount: sellRecord.amount,
+        buy_price: sellRecord.buy_price,
+        stop_loss_pct: sellRecord.stop_loss_pct,
+        take_profit_pct: sellRecord.take_profit_pct,
+        notes: sellRecord.notes,
+        status: 'closed'
+      })
+      await addRecord({
+        symbol: sellRecord.symbol,
+        name: sellRecord.name,
+        direction: 'sell',
+        trade_date: sellDate,
+        amount: sellRecord.amount,
+        buy_price: sellPrice,
+        stop_loss_pct: null,
+        take_profit_pct: null,
+        notes: null,
+        status: 'closed',
+        linked_id: sellRecord.id
+      })
+      setSellModalOpen(false)
+      setSellRecord(null)
+    } catch (error) {
+      console.error('卖出确认失败:', error)
+      alert('卖出失败，请重试')
+    }
   }
 
   const handleSave = async (record: Omit<TradeRecord, 'id' | 'created_at' | 'status' | 'linked_id'>) => {

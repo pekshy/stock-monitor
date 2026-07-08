@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, Component } from 'react'
 import { X } from 'lucide-react'
 import { TradeRecord, EtfDailyData } from '../types'
 
@@ -12,6 +12,42 @@ interface SellConfirmModalProps {
   onClose: () => void
 }
 
+// ErrorBoundary 防止组件崩溃导致白板
+class SellModalErrorBoundary extends Component<
+  { children: React.ReactNode; onClose: () => void },
+  { hasError: boolean; error: Error | null }
+> {
+  state = { hasError: false, error: null as Error | null }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('SellConfirmModal 渲染错误:', error, info)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
+            <p className="text-red-600 mb-2">弹窗加载出错</p>
+            <p className="text-sm text-gray-500 mb-4">{this.state.error?.message || '未知错误'}</p>
+            <button
+              onClick={() => { this.setState({ hasError: false, error: null }); this.props.onClose() }}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+            >
+              关闭
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
   isOpen,
   record,
@@ -21,33 +57,57 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
   onConfirm,
   onClose
 }) => {
+  if (!isOpen || !record) return null
+
+  return (
+    <SellModalErrorBoundary onClose={onClose}>
+      <SellConfirmModalContent
+        record={record}
+        currentPrice={currentPrice}
+        dailyData={dailyData}
+        priceMap={priceMap}
+        onConfirm={onConfirm}
+        onClose={onClose}
+      />
+    </SellModalErrorBoundary>
+  )
+}
+
+const SellConfirmModalContent: React.FC<{
+  record: TradeRecord
+  currentPrice?: number
+  dailyData: EtfDailyData[]
+  priceMap?: Map<string, number>
+  onConfirm: (sellPrice: number, sellDate: string) => void
+  onClose: () => void
+}> = ({ record, currentPrice, dailyData, priceMap, onConfirm, onClose }) => {
   const today = new Date().toISOString().split('T')[0]
   const [sellDate, setSellDate] = useState(today)
   const [sellPrice, setSellPrice] = useState('')
 
-  // 当弹窗打开或 record 变化时，重置日期和价格
+  // 当弹窗打开时，重置日期和价格
   useEffect(() => {
-    if (isOpen && record) {
-      setSellDate(today)
-      setSellPrice('')
-    }
-  }, [isOpen, record, today])
+    setSellDate(today)
+    setSellPrice('')
+  }, [today])
 
   // 当选择日期变化时，自动填充该日期的收盘价（优先从 dailyData，其次从 priceMap）
   useEffect(() => {
     if (!sellDate) return
-    const dayData = dailyData.find(d => d.trade_date === sellDate)
-    if (dayData?.close) {
-      setSellPrice(dayData.close.toFixed(3))
-    } else if (priceMap && typeof priceMap.get === 'function') {
-      const close = priceMap.get(sellDate)
-      if (close != null) {
-        setSellPrice(close.toFixed(3))
+    try {
+      const dayData = dailyData?.find(d => d?.trade_date === sellDate)
+      if (dayData?.close) {
+        setSellPrice(dayData.close.toFixed(3))
+      } else if (priceMap && typeof priceMap.get === 'function') {
+        const close = priceMap.get(sellDate)
+        if (close != null) {
+          setSellPrice(close.toFixed(3))
+        }
       }
+    } catch (err) {
+      console.error('自动填充收盘价失败:', err)
     }
   }, [sellDate, dailyData, priceMap])
-
-  if (!isOpen || !record) return null
 
   const buyPrice = record.buy_price || 0
   const amount = record.amount || 0
@@ -64,22 +124,31 @@ export const SellConfirmModal: React.FC<SellConfirmModalProps> = ({
 
   // 获取可用的交易日期（从历史数据中，或从 priceMap）
   const availableDates = useMemo(() => {
-    const dates = new Set<string>()
-    safeDailyData.filter(d => d && d.close !== null && d.trade_date).forEach(d => dates.add(d.trade_date))
-    if (priceMap && typeof priceMap.forEach === 'function') {
-      priceMap.forEach((_v, k) => {
-        if (k) dates.add(k)
-      })
+    try {
+      const dates = new Set<string>()
+      safeDailyData.filter(d => d && d.close != null && d.trade_date).forEach(d => dates.add(d.trade_date))
+      if (priceMap && typeof priceMap.forEach === 'function') {
+        priceMap.forEach((_v, k) => {
+          if (k) dates.add(k)
+        })
+      }
+      return Array.from(dates).sort((a, b) => b.localeCompare(a))
+    } catch (err) {
+      console.error('计算可用日期失败:', err)
+      return []
     }
-    return Array.from(dates).sort((a, b) => b.localeCompare(a))
   }, [safeDailyData, priceMap])
 
   // 判断是否有该日期的收盘价
   const hasCloseForDate = () => {
-    const fromDaily = safeDailyData.find(d => d.trade_date === sellDate)?.close
-    if (fromDaily != null) return true
-    if (priceMap && typeof priceMap.get === 'function' && priceMap.get(sellDate) != null) return true
-    return false
+    try {
+      const fromDaily = safeDailyData.find(d => d.trade_date === sellDate)?.close
+      if (fromDaily != null) return true
+      if (priceMap && typeof priceMap.get === 'function' && priceMap.get(sellDate) != null) return true
+      return false
+    } catch {
+      return false
+    }
   }
 
   return (
