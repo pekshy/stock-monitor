@@ -14,7 +14,8 @@ import {
   IndicatorCategory,
   StockMarketVolume,
   FearGreedSeries,
-  ButterworthFit
+  ButterworthFit,
+  EtfMomentumSignal
 } from '../types'
 
 type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator | StockMarketVolume
@@ -277,6 +278,7 @@ export function useEtfData() {
   const [chinaIndicatorSeries, setChinaIndicatorSeries] = useState<IndicatorSeries[]>([])
   const [globalIndicatorSeries, setGlobalIndicatorSeries] = useState<IndicatorSeries[]>([])
   const [fearGreedSeries, setFearGreedSeries] = useState<FearGreedSeries | null>(null)
+  const [momentumSignals, setMomentumSignals] = useState<EtfMomentumSignal[]>([])
   const [latestDate, setLatestDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -298,14 +300,16 @@ export function useEtfData() {
         fredResult,
         marketResult,
         volumeResult,
-        fedForecastResult
+        fedForecastResult,
+        momentumResult
       ] = await Promise.all([
         supabase.from('etf_info').select('*'),
         supabase.from('china_indicators').select('*').order('date', { ascending: false }),
         supabase.from('fred_indicators').select('*').order('date', { ascending: false }),
         supabase.from('market_indicators').select('*').order('date', { ascending: false }),
         supabase.from('stock_market_volume').select('*').order('date', { ascending: false }),
-        supabase.from('fed_forecast').select('*').order('date', { ascending: false })
+        supabase.from('fed_forecast').select('*').order('date', { ascending: false }),
+        supabase.from('etf_momentum_signals').select('*').order('trade_date', { ascending: false })
       ])
       
       const { data: etfInfoData, error: etfInfoErr } = etfInfoResult
@@ -336,6 +340,11 @@ export function useEtfData() {
       const { data: fedForecastData, error: fedForecastErr } = fedForecastResult
       if (fedForecastErr) throw fedForecastErr
       console.log('Fed forecasts:', fedForecastData)
+
+      const { data: momentumData, error: momentumErr } = momentumResult
+      if (momentumErr) throw momentumErr
+      console.log('Momentum signals:', momentumData)
+      setMomentumSignals(momentumData || [])
 
       // 4. 分组为时序数据
       // china_indicators 为长表结构（indicator_id + date + value）
@@ -525,6 +534,7 @@ export function useEtfData() {
     chinaIndicatorSeries,
     globalIndicatorSeries,
     fearGreedSeries,
+    momentumSignals,
     latestDate,
     loading,
     error,

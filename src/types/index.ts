@@ -306,3 +306,20 @@ export interface ButterworthFit {
   order: number | null
   cutoff: number | null
 }
+
+export interface EtfMomentumSignal {
+  id: number
+  symbol: string
+  trade_date: string
+  category: string | null
+  regression_score: number | null
+  r_squared: number | null
+  multi_period_score: number | null
+  risk_adjusted_score: number | null
+  technical_score: number | null
+  final_score: number | null
+  rank: number | null
+  selected: boolean | null
+  target_weight: number | null
+  created_at: string
+}

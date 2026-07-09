@@ -1,6 +1,6 @@
 import React, { useMemo, useState, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Target, ChevronDown, ChevronUp, Search } from 'lucide-react'
+import { Target, ChevronDown, ChevronUp, Search, TrendingUp } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { formatPercent, getChangeColor } from '../utils/formatters'
 
@@ -8,6 +8,7 @@ const EtfListOnly: React.FC = memo(() => {
   const navigate = useNavigate()
   const {
     etfs,
+    momentumSignals,
     loading,
     error,
     refresh
@@ -100,6 +101,19 @@ const EtfListOnly: React.FC = memo(() => {
     return 'bg-gray-100 text-gray-600'
   }
 
+  const momentumData = useMemo(() => {
+    if (!momentumSignals || momentumSignals.length === 0) return null
+    const latestDate = momentumSignals[0]?.trade_date
+    const latestSignals = momentumSignals.filter(s => s.trade_date === latestDate)
+    const selectedSignals = latestSignals.filter(s => s.selected === true)
+    const sorted = [...selectedSignals].sort((a, b) => (a.rank || 999) - (b.rank || 999))
+    return {
+      date: latestDate,
+      signals: sorted,
+      totalSelected: selectedSignals.length
+    }
+  }, [momentumSignals])
+
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -124,6 +138,88 @@ const EtfListOnly: React.FC = memo(() => {
 
   return (
     <div className="space-y-6">
+      {/* 动量评分策略选出的ETF */}
+      {momentumData && momentumData.signals.length > 0 && (
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-purple-500" />
+              动量评分策略
+              <span className="text-sm font-normal text-gray-500">
+                （{momentumData.date} · 共{momentumData.totalSelected}只入选）
+              </span>
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b-2 border-gray-200">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">排名</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">ETF名称</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">类别</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">最终评分</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">回归评分</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">多周期评分</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">风险调整评分</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">技术评分</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">目标权重</th>
+                </tr>
+              </thead>
+              <tbody>
+                {momentumData.signals.map((signal) => {
+                  const etf = etfs.find(e => e.symbol === signal.symbol)
+                  return (
+                    <tr
+                      key={signal.id}
+                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/etf/${signal.symbol}`)}
+                    >
+                      <td className="py-4 px-4">
+                        <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
+                          signal.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
+                          signal.rank === 2 ? 'bg-gray-100 text-gray-600' :
+                          signal.rank === 3 ? 'bg-orange-100 text-orange-600' :
+                          'bg-gray-100 text-gray-500'
+                        }`}>
+                          {signal.rank}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="font-semibold text-gray-900">{etf?.name || signal.symbol}</div>
+                        <div className="text-sm text-gray-500">{signal.symbol}</div>
+                      </td>
+                      <td className="text-right py-4 px-4 text-gray-600">
+                        {signal.category || '--'}
+                      </td>
+                      <td className={`text-right py-4 px-4 font-semibold ${
+                        signal.final_score != null && signal.final_score >= 0 ? 'text-red-600' : 'text-gray-600'
+                      }`}>
+                        {signal.final_score != null ? signal.final_score.toFixed(3) : '--'}
+                      </td>
+                      <td className="text-right py-4 px-4 text-gray-600">
+                        {signal.regression_score != null ? signal.regression_score.toFixed(3) : '--'}
+                      </td>
+                      <td className="text-right py-4 px-4 text-gray-600">
+                        {signal.multi_period_score != null ? signal.multi_period_score.toFixed(3) : '--'}
+                      </td>
+                      <td className="text-right py-4 px-4 text-gray-600">
+                        {signal.risk_adjusted_score != null ? signal.risk_adjusted_score.toFixed(3) : '--'}
+                      </td>
+                      <td className="text-right py-4 px-4 text-gray-600">
+                        {signal.technical_score != null ? signal.technical_score.toFixed(3) : '--'}
+                      </td>
+                      <td className="text-right py-4 px-4 font-medium text-gray-700">
+                        {signal.target_weight != null ? `${(signal.target_weight * 100).toFixed(1)}%` : '--'}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* ETF列表 */}
       <div className="bg-white rounded-xl shadow-md p-6">
         <div className="flex items-center justify-between mb-4">

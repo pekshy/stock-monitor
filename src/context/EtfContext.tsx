@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import { useEtfData } from '../hooks/useEtfData'
-import { IndicatorSeries, FearGreedSeries, EtfWithData } from '../types'
+import { IndicatorSeries, FearGreedSeries, EtfWithData, EtfMomentumSignal } from '../types'
 
 interface EtfContextType {
   etfs: EtfWithData[]
@@ -8,6 +8,7 @@ interface EtfContextType {
   chinaIndicatorSeries: IndicatorSeries[]
   globalIndicatorSeries: IndicatorSeries[]
   fearGreedSeries: FearGreedSeries | null
+  momentumSignals: EtfMomentumSignal[]
   latestDate: string | null
   loading: boolean
   error: string | null
@@ -23,6 +24,7 @@ export function EtfProvider({ children }: { children: React.ReactNode }) {
     chinaIndicatorSeries,
     globalIndicatorSeries,
     fearGreedSeries,
+    momentumSignals,
     latestDate,
     loading,
     error,
@@ -36,6 +38,7 @@ export function EtfProvider({ children }: { children: React.ReactNode }) {
       chinaIndicatorSeries,
       globalIndicatorSeries,
       fearGreedSeries,
+      momentumSignals,
       latestDate,
       loading,
       error,
