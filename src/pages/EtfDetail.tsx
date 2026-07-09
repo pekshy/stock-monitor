@@ -352,7 +352,7 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
 const EtfDetail: React.FC = () => {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
-  const { etfs, priceByDateMap, loading } = useEtfContext()
+  const { etfs, priceByDateMap, loading, momentumSignals } = useEtfContext()
 
   const etf = useMemo(() => {
     return etfs.find(e => e.symbol === code) || null
@@ -362,6 +362,12 @@ const EtfDetail: React.FC = () => {
   const indicators = useMemo(() => etf?.indicators || [], [etf])
   const signals = useMemo(() => etf?.signals || [], [etf])
   const butterworthFit = useMemo(() => etf?.butterworth_fit || [], [etf])
+
+  const momentumSignal = useMemo(() => {
+    if (!momentumSignals || momentumSignals.length === 0 || !code) return null
+    const latestDate = momentumSignals[0]?.trade_date
+    return momentumSignals.find(s => s.trade_date === latestDate && s.symbol === code) || null
+  }, [momentumSignals, code])
 
   const getActionPriority = (action: string | null | undefined): number => {
     if (!action) return 3
@@ -464,7 +470,7 @@ const EtfDetail: React.FC = () => {
           const hasPB = v.pb != null
           if (!hasPE && !hasPB) return null
           return (
-            <div className="flex gap-4 mt-3 pt-3 border-t border-gray-100">
+            <div className="flex flex-wrap gap-4 mt-3 pt-3 border-t border-gray-100">
               {hasPE && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">PE</span>
@@ -492,6 +498,24 @@ const EtfDetail: React.FC = () => {
                     }`}>
                       {v.pb_percent.toFixed(1)}%分位
                     </span>
+                  )}
+                </div>
+              )}
+              {momentumSignal && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">动量评分</span>
+                  <span className={`text-sm font-semibold ${
+                    momentumSignal.final_score != null && momentumSignal.final_score >= 0
+                      ? 'text-purple-600'
+                      : 'text-gray-600'
+                  }`}>
+                    {momentumSignal.final_score != null ? momentumSignal.final_score.toFixed(2) : '--'}
+                  </span>
+                  {momentumSignal.rank != null && (
+                    <span className="text-xs text-gray-500">排名 #{momentumSignal.rank}</span>
+                  )}
+                  {momentumSignal.selected === true && (
+                    <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">入选</span>
                   )}
                 </div>
               )}
