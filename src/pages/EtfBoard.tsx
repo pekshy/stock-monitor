@@ -114,6 +114,18 @@ const EtfListOnly: React.FC = memo(() => {
     }
   }, [momentumSignals])
 
+  const momentumBySymbol = useMemo(() => {
+    const map = new Map<string, { final_score: number | null; rank: number | null }>()
+    if (!momentumSignals || momentumSignals.length === 0) return map
+    const latestDate = momentumSignals[0]?.trade_date
+    momentumSignals
+      .filter(s => s.trade_date === latestDate)
+      .forEach(s => {
+        map.set(s.symbol, { final_score: s.final_score, rank: s.rank })
+      })
+    return map
+  }, [momentumSignals])
+
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -256,8 +268,8 @@ const EtfListOnly: React.FC = memo(() => {
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">PE</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">PB</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">估值</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700 whitespace-nowrap min-w-[85px]">操作信号</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">触发信号</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700 whitespace-nowrap min-w-[95px]">技术指标建议</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">动量模型评分</th>
                 </tr>
               </thead>
               <tbody>
@@ -330,23 +342,23 @@ const EtfListOnly: React.FC = memo(() => {
                         <span className="text-gray-400 text-sm">--</span>
                       )}
                     </td>
-                    <td className="py-4 px-4">
-                      <div className="flex flex-col gap-1">
-                        {etf.latest_signal?.buy_signals && etf.latest_signal.buy_signals.length > 0 && (
-                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
-                            买入信号({etf.latest_signal.buy_count || 0}): {etf.latest_signal.buy_signals}
-                          </div>
-                        )}
-                        {etf.latest_signal?.sell_signals && etf.latest_signal.sell_signals.length > 0 && (
-                          <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
-                            卖出信号({etf.latest_signal.sell_count || 0}): {etf.latest_signal.sell_signals}
-                          </div>
-                        )}
-                        {(!etf.latest_signal?.buy_signals || etf.latest_signal.buy_signals.length === 0) &&
-                         (!etf.latest_signal?.sell_signals || etf.latest_signal.sell_signals.length === 0) && (
-                          <span className="text-gray-400 text-sm">--</span>
-                        )}
-                      </div>
+                    <td className="text-right py-4 px-4">
+                      {momentumBySymbol.has(etf.symbol) ? (
+                        <div className="flex flex-col items-end">
+                          <span className="font-semibold text-gray-900">
+                            {momentumBySymbol.get(etf.symbol)!.final_score != null
+                              ? momentumBySymbol.get(etf.symbol)!.final_score!.toFixed(2)
+                              : '--'}
+                          </span>
+                          {momentumBySymbol.get(etf.symbol)!.rank != null && (
+                            <span className="text-xs text-gray-500">
+                              #{momentumBySymbol.get(etf.symbol)!.rank}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">--</span>
+                      )}
                     </td>
                   </tr>
                 ))}

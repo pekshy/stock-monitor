@@ -311,6 +311,7 @@ export interface EtfMomentumSignal {
   id: number
   symbol: string
   trade_date: string
+  name: string | null
   category: string | null
   regression_score: number | null
   r_squared: number | null
