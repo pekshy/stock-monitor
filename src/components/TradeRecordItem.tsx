@@ -22,6 +22,30 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
   const isBuy = record.direction === 'buy'
   const isOpen = record.status === 'open'
 
+  // 查找配对的卖出记录（仅对买入记录有意义）
+  const getPairedSellRecord = (): TradeRecord | undefined => {
+    if (!isBuy) return undefined
+    // 优先通过反向 linked_id 查找（卖出记录 linked_id === 买入记录 id）
+    const linkedSell = allRecords.find(r =>
+      r.direction === 'sell' && r.linked_id === record.id
+    )
+    if (linkedSell) return linkedSell
+    // 兼容：找同一标的、买入日期早于卖出日期、未被反向链接的卖出记录
+    return allRecords
+      .filter(r =>
+        r.direction === 'sell' &&
+        r.symbol === record.symbol &&
+        r.trade_date >= record.trade_date &&
+        r.linked_id == null
+      )
+      .sort((a, b) => a.trade_date.localeCompare(b.trade_date))[0]
+  }
+
+  const pairedSell = isBuy ? getPairedSellRecord() : undefined
+  // 如果有配对的卖出记录，认为这笔买入已清仓
+  const isPaired = !!pairedSell
+  const effectiveIsOpen = isOpen && !isPaired
+
   // 计算收益率
   const getReturnDisplay = () => {
     // 卖出的记录：如果有 buy_price（卖出时的价格），计算总收益
@@ -60,7 +84,21 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
       }
     }
 
-    // 买入记录：如果有 buy_price 且有现价，显示当前收益率
+    // 买入记录 + 已配对卖出：展示已清仓的收益率
+    if (isBuy && isPaired && record.buy_price && pairedSell!.buy_price) {
+      const buyP = record.buy_price
+      const sellP = pairedSell!.buy_price!
+      const returnPct = ((sellP - buyP) / buyP) * 100
+      const isPositive = returnPct >= 0
+      return {
+        label: '总收益',
+        value: `${isPositive ? '+' : ''}${returnPct.toFixed(2)}%`,
+        isPositive,
+        className: isPositive ? 'text-red-600' : 'text-green-600'
+      }
+    }
+
+    // 买入记录：未配对且有现价，显示当前收益率
     if (isBuy && record.buy_price && currentPrice && currentPrice > 0) {
       const returnPct = ((currentPrice - record.buy_price) / record.buy_price) * 100
       const isPositive = returnPct >= 0
@@ -93,16 +131,24 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
           <span className="text-sm font-semibold text-gray-900">{record.name || record.symbol}</span>
           <span className="text-xs text-gray-500">{record.symbol}</span>
           <span className="text-xs text-gray-400">{record.trade_date}</span>
-          {isOpen && isBuy && <span className="text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">持仓中</span>}
+          {isBuy && isPaired && (
+            <span className="text-xs bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">已清仓</span>
+          )}
+          {isBuy && effectiveIsOpen && <span className="text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">持仓中</span>}
         </div>
 
-        <div className="flex items-center gap-4 mt-1 text-sm">
+        <div className="flex items-center gap-4 mt-1 text-sm flex-wrap">
           <span className="text-gray-700">
             总额：<span className="font-semibold">¥{record.amount.toLocaleString()}</span>
           </span>
           {record.buy_price && (
             <span className="text-gray-600 text-xs">
               {isBuy ? `成本 ¥${record.buy_price.toFixed(3)}` : `卖出价 ¥${record.buy_price.toFixed(3)}`}
+            </span>
+          )}
+          {isBuy && isPaired && pairedSell?.buy_price && (
+            <span className="text-gray-600 text-xs">
+              卖出价 ¥{pairedSell.buy_price.toFixed(3)} · {pairedSell.trade_date}
             </span>
           )}
           {record.stop_loss_pct && (
@@ -126,7 +172,7 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
       </div>
 
       <div className="flex items-center gap-1 flex-shrink-0">
-        {isBuy && isOpen && onSell && (
+        {isBuy && effectiveIsOpen && onSell && (
           <button
             onClick={() => onSell(record)}
             className="flex items-center gap-1 px-2.5 py-1.5 text-sm font-semibold text-white hover:text-green-600 bg-green-500 hover:bg-green-50 border border-green-200 rounded transition-colors"

@@ -29,9 +29,10 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
   }
 
   const filteredRecords = useMemo(() => {
-    if (filter === 'all') return records
-    if (filter === 'etf') return records.filter(r => isEtfCode(r.symbol))
-    return records.filter(r => !isEtfCode(r.symbol))
+    const base = filter === 'all' ? records : filter === 'etf' ? records.filter(r => isEtfCode(r.symbol)) : records.filter(r => !isEtfCode(r.symbol))
+    // 过滤掉被配对的卖出记录：保留买入记录（含已清仓的），过滤掉卖出记录
+    // 通过 linked_id 关联：卖出记录 linked_id 指向买入记录 id
+    return base.filter(r => !(r.direction === 'sell' && r.linked_id != null))
   }, [records, filter])
 
   const etfSymbols = useMemo(() => {
@@ -186,7 +187,11 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
   }
 
   const countRecords = (type: 'etf' | 'stock') => {
-    return records.filter(r => type === 'etf' ? isEtfCode(r.symbol) : !isEtfCode(r.symbol)).length
+    // 不统计被配对的卖出记录
+    return records.filter(r => {
+      if (r.direction === 'sell' && r.linked_id != null) return false
+      return type === 'etf' ? isEtfCode(r.symbol) : !isEtfCode(r.symbol)
+    }).length
   }
 
   return (
