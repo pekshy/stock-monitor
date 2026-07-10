@@ -26,6 +26,7 @@ const EtfListOnly: React.FC = memo(() => {
   const [showAll, setShowAll] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [focusFilter, setFocusFilter] = useState<'all' | 'focused'>('all')
+  const [signalFilter, setSignalFilter] = useState<'all' | 'sell' | 'buy' | 'watch'>('all')
 
   const { sellEtfs, buyEtfs, watchEtfs } = useMemo(() => {
     const sorted = [...etfs].sort((a, b) => {
@@ -41,6 +42,7 @@ const EtfListOnly: React.FC = memo(() => {
   }, [etfs])
 
   const filteredSellEtfs = useMemo(() => {
+    if (signalFilter !== 'all' && signalFilter !== 'sell') return []
     let list = sellEtfs
     if (focusFilter === 'focused') {
       list = list.filter(e => e.is_focused)
@@ -51,9 +53,10 @@ const EtfListOnly: React.FC = memo(() => {
       (e.name && e.name.toLowerCase().includes(kw)) ||
       (e.symbol && e.symbol.toLowerCase().includes(kw))
     )
-  }, [sellEtfs, searchText, focusFilter])
+  }, [sellEtfs, searchText, focusFilter, signalFilter])
 
   const filteredBuyEtfs = useMemo(() => {
+    if (signalFilter !== 'all' && signalFilter !== 'buy') return []
     let list = buyEtfs
     if (focusFilter === 'focused') {
       list = list.filter(e => e.is_focused)
@@ -64,9 +67,10 @@ const EtfListOnly: React.FC = memo(() => {
       (e.name && e.name.toLowerCase().includes(kw)) ||
       (e.symbol && e.symbol.toLowerCase().includes(kw))
     )
-  }, [buyEtfs, searchText, focusFilter])
+  }, [buyEtfs, searchText, focusFilter, signalFilter])
 
   const filteredWatchEtfs = useMemo(() => {
+    if (signalFilter !== 'all' && signalFilter !== 'watch') return []
     let list = watchEtfs
     if (focusFilter === 'focused') {
       list = list.filter(e => e.is_focused)
@@ -77,7 +81,7 @@ const EtfListOnly: React.FC = memo(() => {
       (e.name && e.name.toLowerCase().includes(kw)) ||
       (e.symbol && e.symbol.toLowerCase().includes(kw))
     )
-  }, [watchEtfs, searchText, focusFilter])
+  }, [watchEtfs, searchText, focusFilter, signalFilter])
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -257,6 +261,48 @@ const EtfListOnly: React.FC = memo(() => {
             </span>
           </h2>
           <div className="flex items-center gap-2">
+            <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setSignalFilter('all')}
+                className={`px-3 py-1.5 text-sm transition-colors ${
+                  signalFilter === 'all'
+                    ? 'bg-gray-700 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                全部
+              </button>
+              <button
+                onClick={() => setSignalFilter('sell')}
+                className={`px-3 py-1.5 text-sm transition-colors border-l border-gray-200 ${
+                  signalFilter === 'sell'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                减仓
+              </button>
+              <button
+                onClick={() => setSignalFilter('buy')}
+                className={`px-3 py-1.5 text-sm transition-colors border-l border-gray-200 ${
+                  signalFilter === 'buy'
+                    ? 'bg-red-500 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                加仓
+              </button>
+              <button
+                onClick={() => setSignalFilter('watch')}
+                className={`px-3 py-1.5 text-sm transition-colors border-l border-gray-200 ${
+                  signalFilter === 'watch'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                观望
+              </button>
+            </div>
             <button
               onClick={() => setFocusFilter(focusFilter === 'all' ? 'focused' : 'all')}
               className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-sm transition-colors ${
@@ -300,7 +346,9 @@ const EtfListOnly: React.FC = memo(() => {
                 </tr>
               </thead>
               <tbody>
-                {(showAll ? [...filteredSellEtfs, ...filteredBuyEtfs, ...filteredWatchEtfs] : [...filteredSellEtfs, ...filteredBuyEtfs]).map((etf) => (
+                {(signalFilter !== 'all' || showAll
+                  ? [...filteredSellEtfs, ...filteredBuyEtfs, ...filteredWatchEtfs]
+                  : [...filteredSellEtfs, ...filteredBuyEtfs]).map((etf) => (
                   <tr
                     key={etf.symbol}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -408,7 +456,7 @@ const EtfListOnly: React.FC = memo(() => {
               </tbody>
               </table>
             </div>
-            {filteredWatchEtfs.length > 0 && (
+            {filteredWatchEtfs.length > 0 && signalFilter === 'all' && (
               <div className="flex justify-center mt-4 pt-4 border-t border-gray-100">
                 <button
                   onClick={() => setShowAll(prev => !prev)}
