@@ -443,28 +443,28 @@ const EtfDetail: React.FC = () => {
 
       <div className="bg-white rounded-xl shadow-md p-4">
         <div className="flex items-start justify-between">
-          <div className="flex items-start gap-2">
-            <button
-              onClick={() => toggleFocus(etf.symbol)}
-              className={`mt-0.5 p-1 rounded transition-colors ${
-                etf.is_focused
-                  ? 'text-yellow-500 hover:text-yellow-600'
-                  : 'text-gray-300 hover:text-yellow-400'
-              }`}
-              title={etf.is_focused ? '取消重点跟踪' : '设为重点跟踪'}
-            >
-              <Star className={`h-5 w-5 ${etf.is_focused ? 'fill-current' : ''}`} />
-            </button>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">{etf.name || etf.symbol}</h1>
-              <div className="text-gray-500 text-sm mt-0.5">{etf.symbol}</div>
-              {etf.category && (
-                <div className="text-xs text-gray-600 mt-1">{etf.category}</div>
-              )}
-              {etf.tracking_index_name && (
-                <div className="text-xs text-gray-500 mt-0.5">跟踪: {etf.tracking_index_name}</div>
-              )}
-            </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 flex items-center gap-1">
+              {etf.name || etf.symbol}
+              <button
+                onClick={() => toggleFocus(etf.symbol)}
+                className={`p-0.5 rounded transition-colors ${
+                  etf.is_focused
+                    ? 'text-yellow-500 hover:text-yellow-600'
+                    : 'text-gray-300 hover:text-yellow-400'
+                }`}
+                title={etf.is_focused ? '取消重点跟踪' : '设为重点跟踪'}
+              >
+                <Star className={`h-4 w-4 ${etf.is_focused ? 'fill-current' : ''}`} />
+              </button>
+            </h1>
+            <div className="text-gray-500 text-sm mt-0.5">{etf.symbol}</div>
+            {etf.category && (
+              <div className="text-xs text-gray-600 mt-1">{etf.category}</div>
+            )}
+            {etf.tracking_index_name && (
+              <div className="text-xs text-gray-500 mt-0.5">跟踪: {etf.tracking_index_name}</div>
+            )}
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-gray-900">

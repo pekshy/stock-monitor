@@ -286,7 +286,6 @@ const EtfListOnly: React.FC = memo(() => {
               <table className="w-full">
               <thead>
                 <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-3 px-2 font-semibold text-gray-700 whitespace-nowrap w-8"></th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">ETF名称</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap min-w-[80px]">最新价</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">涨跌</th>
@@ -307,24 +306,24 @@ const EtfListOnly: React.FC = memo(() => {
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
                     onClick={() => navigate(`/etf/${etf.symbol}`)}
                   >
-                    <td className="py-4 px-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleFocus(etf.symbol)
-                        }}
-                        className={`p-1 rounded transition-colors ${
-                          etf.is_focused
-                            ? 'text-yellow-500 hover:text-yellow-600'
-                            : 'text-gray-300 hover:text-yellow-400'
-                        }`}
-                        title={etf.is_focused ? '取消重点跟踪' : '设为重点跟踪'}
-                      >
-                        <Star className={`h-4 w-4 ${etf.is_focused ? 'fill-current' : ''}`} />
-                      </button>
-                    </td>
                     <td className="py-4 px-4">
-                      <div className="font-semibold text-gray-900">{etf.name || etf.symbol}</div>
+                      <div className="font-semibold text-gray-900 flex items-center gap-1">
+                        {etf.name || etf.symbol}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleFocus(etf.symbol)
+                          }}
+                          className={`p-0.5 rounded transition-colors ${
+                            etf.is_focused
+                              ? 'text-yellow-500 hover:text-yellow-600'
+                              : 'text-gray-300 hover:text-yellow-400'
+                          }`}
+                          title={etf.is_focused ? '取消重点跟踪' : '设为重点跟踪'}
+                        >
+                          <Star className={`h-3.5 w-3.5 ${etf.is_focused ? 'fill-current' : ''}`} />
+                        </button>
+                      </div>
                       <div className="text-sm text-gray-500">
                         {etf.symbol}
                         {etf.tracking_index_name && ` · ${etf.tracking_index_name}`}
