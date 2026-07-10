@@ -525,6 +525,26 @@ export function useEtfData() {
     }
   }
 
+  const toggleFocus = async (symbol: string) => {
+    try {
+      const etf = etfs.find(e => e.symbol === symbol)
+      if (!etf) return
+      const newFocused = !etf.is_focused
+      const { error } = await supabase
+        .from('etf_info')
+        .update({ is_focused: newFocused, updated_at: new Date().toISOString() })
+        .eq('symbol', symbol)
+      if (error) throw error
+      // 本地更新
+      setEtfs(prev => prev.map(e =>
+        e.symbol === symbol ? { ...e, is_focused: newFocused } : e
+      ))
+    } catch (err) {
+      console.error('切换重点跟踪失败:', err)
+      alert('操作失败，请重试')
+    }
+  }
+
   return {
     etfs,
     priceByDateMap,
@@ -538,6 +558,7 @@ export function useEtfData() {
     latestDate,
     loading,
     error,
-    refresh: fetchAllData
+    refresh: fetchAllData,
+    toggleFocus
   }
 }

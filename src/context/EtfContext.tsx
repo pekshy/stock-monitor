@@ -13,6 +13,7 @@ interface EtfContextType {
   loading: boolean
   error: string | null
   refresh: () => void
+  toggleFocus: (symbol: string) => Promise<void>
 }
 
 const EtfContext = createContext<EtfContextType | null>(null)
@@ -28,7 +29,8 @@ export function EtfProvider({ children }: { children: React.ReactNode }) {
     latestDate,
     loading,
     error,
-    refresh
+    refresh,
+    toggleFocus
   } = useEtfData()
   
   return (
@@ -42,7 +44,8 @@ export function EtfProvider({ children }: { children: React.ReactNode }) {
       latestDate,
       loading,
       error,
-      refresh
+      refresh,
+      toggleFocus
     }}>
       {children}
     </EtfContext.Provider>

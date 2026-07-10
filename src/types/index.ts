@@ -67,6 +67,7 @@ export interface EtfInfo {
   category: string | null
   tracking_index_name: string | null
   tracking_index_code: string | null
+  is_focused: boolean | null
   created_at: string
   updated_at: string
 }

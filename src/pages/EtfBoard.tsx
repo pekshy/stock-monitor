@@ -1,6 +1,6 @@
 import React, { useMemo, useState, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Target, ChevronDown, ChevronUp, Search, TrendingUp } from 'lucide-react'
+import { Target, ChevronDown, ChevronUp, Search, TrendingUp, Star } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { formatPercent, getChangeColor } from '../utils/formatters'
 
@@ -11,7 +11,8 @@ const EtfListOnly: React.FC = memo(() => {
     momentumSignals,
     loading,
     error,
-    refresh
+    refresh,
+    toggleFocus
   } = useEtfContext()
 
   const getActionPriority = (action: string | null | undefined): number => {
@@ -24,6 +25,7 @@ const EtfListOnly: React.FC = memo(() => {
 
   const [showAll, setShowAll] = useState(false)
   const [searchText, setSearchText] = useState('')
+  const [focusFilter, setFocusFilter] = useState<'all' | 'focused'>('all')
 
   const { sellEtfs, buyEtfs, watchEtfs } = useMemo(() => {
     const sorted = [...etfs].sort((a, b) => {
@@ -39,31 +41,43 @@ const EtfListOnly: React.FC = memo(() => {
   }, [etfs])
 
   const filteredSellEtfs = useMemo(() => {
-    if (!searchText.trim()) return sellEtfs
+    let list = sellEtfs
+    if (focusFilter === 'focused') {
+      list = list.filter(e => e.is_focused)
+    }
+    if (!searchText.trim()) return list
     const kw = searchText.toLowerCase()
-    return sellEtfs.filter(e =>
+    return list.filter(e =>
       (e.name && e.name.toLowerCase().includes(kw)) ||
       (e.symbol && e.symbol.toLowerCase().includes(kw))
     )
-  }, [sellEtfs, searchText])
+  }, [sellEtfs, searchText, focusFilter])
 
   const filteredBuyEtfs = useMemo(() => {
-    if (!searchText.trim()) return buyEtfs
+    let list = buyEtfs
+    if (focusFilter === 'focused') {
+      list = list.filter(e => e.is_focused)
+    }
+    if (!searchText.trim()) return list
     const kw = searchText.toLowerCase()
-    return buyEtfs.filter(e =>
+    return list.filter(e =>
       (e.name && e.name.toLowerCase().includes(kw)) ||
       (e.symbol && e.symbol.toLowerCase().includes(kw))
     )
-  }, [buyEtfs, searchText])
+  }, [buyEtfs, searchText, focusFilter])
 
   const filteredWatchEtfs = useMemo(() => {
-    if (!searchText.trim()) return watchEtfs
+    let list = watchEtfs
+    if (focusFilter === 'focused') {
+      list = list.filter(e => e.is_focused)
+    }
+    if (!searchText.trim()) return list
     const kw = searchText.toLowerCase()
-    return watchEtfs.filter(e =>
+    return list.filter(e =>
       (e.name && e.name.toLowerCase().includes(kw)) ||
       (e.symbol && e.symbol.toLowerCase().includes(kw))
     )
-  }, [watchEtfs, searchText])
+  }, [watchEtfs, searchText, focusFilter])
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -242,15 +256,28 @@ const EtfListOnly: React.FC = memo(() => {
               （{filteredSellEtfs.length > 0 ? `${filteredSellEtfs.length}卖出` : ''}{filteredBuyEtfs.length > 0 ? `、${filteredBuyEtfs.length}买入` : ''}{filteredWatchEtfs.length > 0 ? `、观望${filteredWatchEtfs.length}` : ''}{searchText.trim() && ` · 共${filteredSellEtfs.length + filteredBuyEtfs.length + filteredWatchEtfs.length}条`}）
             </span>
           </h2>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              value={searchText}
-              onChange={e => setSearchText(e.target.value)}
-              placeholder="搜索名称或代码"
-              className="pl-9 pr-3 py-1.5 w-48 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-            />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setFocusFilter(focusFilter === 'all' ? 'focused' : 'all')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-sm transition-colors ${
+                focusFilter === 'focused'
+                  ? 'bg-yellow-50 border-yellow-300 text-yellow-700'
+                  : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              <Star className={`h-3.5 w-3.5 ${focusFilter === 'focused' ? 'fill-current' : ''}`} />
+              重点跟踪
+            </button>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchText}
+                onChange={e => setSearchText(e.target.value)}
+                placeholder="搜索名称或代码"
+                className="pl-9 pr-3 py-1.5 w-48 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              />
+            </div>
           </div>
         </div>
         {etfs.length > 0 ? (
@@ -259,6 +286,7 @@ const EtfListOnly: React.FC = memo(() => {
               <table className="w-full">
               <thead>
                 <tr className="border-b-2 border-gray-200">
+                  <th className="text-left py-3 px-2 font-semibold text-gray-700 whitespace-nowrap w-8"></th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">ETF名称</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap min-w-[80px]">最新价</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">涨跌</th>
@@ -279,6 +307,22 @@ const EtfListOnly: React.FC = memo(() => {
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
                     onClick={() => navigate(`/etf/${etf.symbol}`)}
                   >
+                    <td className="py-4 px-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleFocus(etf.symbol)
+                        }}
+                        className={`p-1 rounded transition-colors ${
+                          etf.is_focused
+                            ? 'text-yellow-500 hover:text-yellow-600'
+                            : 'text-gray-300 hover:text-yellow-400'
+                        }`}
+                        title={etf.is_focused ? '取消重点跟踪' : '设为重点跟踪'}
+                      >
+                        <Star className={`h-4 w-4 ${etf.is_focused ? 'fill-current' : ''}`} />
+                      </button>
+                    </td>
                     <td className="py-4 px-4">
                       <div className="font-semibold text-gray-900">{etf.name || etf.symbol}</div>
                       <div className="text-sm text-gray-500">
