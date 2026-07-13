@@ -193,6 +193,7 @@ const EtfListOnly: React.FC = memo(() => {
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">风险调整评分</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">技术评分</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">目标权重</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">风险提示</th>
                 </tr>
               </thead>
               <tbody>
@@ -240,6 +241,28 @@ const EtfListOnly: React.FC = memo(() => {
                       </td>
                       <td className="text-right py-4 px-4 font-medium text-gray-700">
                         {signal.target_weight != null ? `${(signal.target_weight * 100).toFixed(1)}%` : '--'}
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          {signal.risk_level && signal.risk_level !== '' && (
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                              signal.risk_level === 'HIGH' ? 'bg-red-100 text-red-700' :
+                              signal.risk_level === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
+                              signal.risk_level === 'LOW' ? 'bg-green-100 text-green-700' :
+                              'bg-gray-100 text-gray-600'
+                            }`}>
+                              {signal.risk_level}
+                            </span>
+                          )}
+                          {signal.risk_description && signal.risk_description !== '' && (
+                            <span className="text-xs text-gray-500">{signal.risk_description}</span>
+                          )}
+                        </div>
+                        {signal.r_r_squared != null && signal.r_r_squared && (
+                          <div className="text-xs text-gray-400 mt-1">
+                            R²={signal.r_squared?.toFixed(4)}
+                          </div>
+                        )}
                       </td>
                     </tr>
                   )

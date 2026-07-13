@@ -324,4 +324,11 @@ export interface EtfMomentumSignal {
   selected: boolean | null
   target_weight: number | null
   created_at: string
+  risk_level: string | null
+  risk_r_squared: boolean | null
+  risk_multi_period: boolean | null
+  risk_liquidity: boolean | null
+  risk_description: string | null
+  position_level: string | null
+  position_scale: number | null
 }
