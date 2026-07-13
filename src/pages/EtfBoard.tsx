@@ -258,7 +258,7 @@ const EtfListOnly: React.FC = memo(() => {
                             <span className="text-xs text-gray-500">{signal.risk_description}</span>
                           )}
                         </div>
-                        {signal.r_r_squared != null && signal.r_r_squared && (
+                        {signal.risk_r_squared != null && signal.risk_r_squared && (
                           <div className="text-xs text-gray-400 mt-1">
                             R²={signal.r_squared?.toFixed(4)}
                           </div>
