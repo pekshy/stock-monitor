@@ -14,7 +14,6 @@ import {
   IndicatorCategory,
   StockMarketVolume,
   FearGreedSeries,
-  ButterworthFit,
   EtfMomentumSignal
 } from '../types'
 
@@ -384,19 +383,19 @@ export function useEtfData() {
       if (etfInfo.length > 0) {
         const symbols = etfInfo.map(e => e.symbol)
         const indexCodes = etfInfo.map(e => e.tracking_index_code).filter((c): c is string => !!c)
-        
-        // 并行获取所有 ETF 相关数据
-        // 注意：Supabase 默认返回 1000 行，需要设置更大的 limit 以获取完整历史数据
+
+        // 列表页只需要最新数据，详情页按需加载历史数据
+        // 使用 .limit(1) 获取每个 symbol 的最新一条数据，避免一次性加载过多数据
         const requests = [
-          supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
-          supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
-          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
-          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000)
+          supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
+          supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
+          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
+          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).order('trade_date', { ascending: false })
         ]
-        
+
         if (indexCodes.length > 0) {
           requests.push(
-            supabase.from('etf_tracked_index_history').select('*').in('index_code', indexCodes).order('trade_date', { ascending: false }).limit(10000)
+            supabase.from('etf_tracked_index_history').select('*').in('index_code', indexCodes).order('trade_date', { ascending: false })
           )
         }
         
@@ -438,41 +437,28 @@ export function useEtfData() {
           console.log('Index valuations:', indexData)
         }
 
-        // 为每个ETF整理最新数据和完整历史数据
+        // 为每个ETF整理最新数据（列表页只需要最新数据，历史数据在详情页按需加载）
         const latestDaily = new Map<string, EtfDailyData>()
         const latestIndicators = new Map<string, EtfIndicators>()
         const latestSignal = new Map<string, EtfClawSignal>()
         const latestIndexValuation = new Map<string, EtfTrackedIndexHistory>()
-        const fitBySymbol = new Map<string, ButterworthFit[]>()
-        const dailyBySymbol = new Map<string, EtfDailyData[]>()
-        const indicatorsBySymbol = new Map<string, EtfIndicators[]>()
-        const signalsBySymbol = new Map<string, EtfClawSignal[]>()
 
         dailyData?.forEach(d => {
           if (!latestDaily.has(d.symbol)) {
             latestDaily.set(d.symbol, d)
           }
-          const arr = dailyBySymbol.get(d.symbol) || []
-          arr.push(d)
-          dailyBySymbol.set(d.symbol, arr)
         })
 
         indicatorsData?.forEach(i => {
           if (!latestIndicators.has(i.symbol)) {
             latestIndicators.set(i.symbol, i)
           }
-          const arr = indicatorsBySymbol.get(i.symbol) || []
-          arr.push(i)
-          indicatorsBySymbol.set(i.symbol, arr)
         })
 
         signalsData?.forEach(s => {
           if (!latestSignal.has(s.symbol)) {
             latestSignal.set(s.symbol, s)
           }
-          const arr = signalsBySymbol.get(s.symbol) || []
-          arr.push(s)
-          signalsBySymbol.set(s.symbol, arr)
         })
 
         indexValuations?.forEach(v => {
@@ -481,23 +467,17 @@ export function useEtfData() {
           }
         })
 
-        // 按 symbol 分组 Butterworth 拟合数据
-        fitData?.forEach(f => {
-          const arr = fitBySymbol.get(f.symbol) || []
-          arr.push(f as ButterworthFit)
-          fitBySymbol.set(f.symbol, arr)
-        })
-
         etfsWithData = etfInfo.map(e => ({
           ...e,
           latest_daily: latestDaily.get(e.symbol),
           latest_indicator: latestIndicators.get(e.symbol),
           latest_signal: latestSignal.get(e.symbol),
           latest_index_valuation: e.tracking_index_code ? latestIndexValuation.get(e.tracking_index_code) : undefined,
-          butterworth_fit: fitBySymbol.get(e.symbol),
-          daily_data: dailyBySymbol.get(e.symbol),
-          indicators: indicatorsBySymbol.get(e.symbol),
-          signals: signalsBySymbol.get(e.symbol)
+          // 历史数据在详情页按需加载，列表页不存储
+          daily_data: undefined,
+          indicators: undefined,
+          signals: undefined,
+          butterworth_fit: undefined
         }))
 
         // 设置最新日期

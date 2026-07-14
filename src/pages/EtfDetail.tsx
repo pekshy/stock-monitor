@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus, Star } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
+import { useEtfDetailData } from '../hooks/useEtfDetailData'
 import {
   ComposedChart,
   Bar,
@@ -352,16 +353,16 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
 const EtfDetail: React.FC = () => {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
-  const { etfs, priceByDateMap, loading, momentumSignals, toggleFocus } = useEtfContext()
+  const { etfs, priceByDateMap, momentumSignals, toggleFocus } = useEtfContext()
+
+  // 按需加载详情页数据
+  const { dailyData, indicators, signals, butterworthFit } = useEtfDetailData(code)
 
   const etf = useMemo(() => {
     return etfs.find(e => e.symbol === code) || null
   }, [etfs, code])
 
-  const dailyData = useMemo(() => etf?.daily_data || [], [etf])
-  const indicators = useMemo(() => etf?.indicators || [], [etf])
-  const signals = useMemo(() => etf?.signals || [], [etf])
-  const butterworthFit = useMemo(() => etf?.butterworth_fit || [], [etf])
+  // dailyData, indicators, signals, butterworthFit 现在从 useEtfDetailData 获取
 
   const momentumSignal = useMemo(() => {
     if (!momentumSignals || momentumSignals.length === 0 || !code) return null
@@ -390,7 +391,8 @@ const EtfDetail: React.FC = () => {
   const prevEtf = currentIndex > 0 ? sortedEtfs[currentIndex - 1] : null
   const nextEtf = currentIndex < etfSymbols.length - 1 ? sortedEtfs[currentIndex + 1] : null
 
-  if (loading) {
+  // etf 列表加载完成后再显示
+  if (etfs.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-gray-500">加载中...</div>
