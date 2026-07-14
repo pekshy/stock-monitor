@@ -356,7 +356,7 @@ const EtfDetail: React.FC = () => {
   const { etfs, priceByDateMap, momentumSignals, toggleFocus } = useEtfContext()
 
   // 按需加载详情页数据
-  const { dailyData, indicators, signals, butterworthFit } = useEtfDetailData(code)
+  const { dailyData, indicators, signals, butterworthFit, loading: detailLoading } = useEtfDetailData(code)
 
   const etf = useMemo(() => {
     return etfs.find(e => e.symbol === code) || null
@@ -544,13 +544,24 @@ const EtfDetail: React.FC = () => {
           <TrendingUp className="h-4 w-4" />
           K线走势
         </h2>
-        <MainChart 
-          dailyData={dailyData} 
-          indicators={indicators} 
-          signals={signals}
-          butterworthFit={butterworthFit}
-        />
-        <VolumeChart data={dailyData} />
+        {detailLoading ? (
+          <div className="flex items-center justify-center h-[380px]">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+              <span className="text-sm text-gray-500">加载中...</span>
+            </div>
+          </div>
+        ) : (
+          <>
+            <MainChart 
+              dailyData={dailyData} 
+              indicators={indicators} 
+              signals={signals}
+              butterworthFit={butterworthFit}
+            />
+            <VolumeChart data={dailyData} />
+          </>
+        )}
       </div>
 
       <TradesSection symbol={etf.symbol} etfName={etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={dailyData} priceByDateMap={priceByDateMap} />
