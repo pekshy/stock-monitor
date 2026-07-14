@@ -27,6 +27,12 @@ const EtfListOnly: React.FC = memo(() => {
   const [searchText, setSearchText] = useState('')
   const [focusFilter, setFocusFilter] = useState<'all' | 'focused'>('all')
   const [signalFilter, setSignalFilter] = useState<'all' | 'sell' | 'buy' | 'watch'>('all')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+
+  const categories = useMemo(() => {
+    const cats = [...new Set(etfs.map(e => e.category).filter(Boolean))].sort()
+    return ['all', ...cats]
+  }, [etfs])
 
   const { sellEtfs, buyEtfs, watchEtfs } = useMemo(() => {
     const sorted = [...etfs].sort((a, b) => {
@@ -47,13 +53,16 @@ const EtfListOnly: React.FC = memo(() => {
     if (focusFilter === 'focused') {
       list = list.filter(e => e.is_focused)
     }
+    if (categoryFilter !== 'all') {
+      list = list.filter(e => e.category === categoryFilter)
+    }
     if (!searchText.trim()) return list
     const kw = searchText.toLowerCase()
     return list.filter(e =>
       (e.name && e.name.toLowerCase().includes(kw)) ||
       (e.symbol && e.symbol.toLowerCase().includes(kw))
     )
-  }, [sellEtfs, searchText, focusFilter, signalFilter])
+  }, [sellEtfs, searchText, focusFilter, signalFilter, categoryFilter])
 
   const filteredBuyEtfs = useMemo(() => {
     if (signalFilter !== 'all' && signalFilter !== 'buy') return []
@@ -61,19 +70,8 @@ const EtfListOnly: React.FC = memo(() => {
     if (focusFilter === 'focused') {
       list = list.filter(e => e.is_focused)
     }
-    if (!searchText.trim()) return list
-    const kw = searchText.toLowerCase()
-    return list.filter(e =>
-      (e.name && e.name.toLowerCase().includes(kw)) ||
-      (e.symbol && e.symbol.toLowerCase().includes(kw))
-    )
-  }, [buyEtfs, searchText, focusFilter, signalFilter])
-
-  const filteredWatchEtfs = useMemo(() => {
-    if (signalFilter !== 'all' && signalFilter !== 'watch') return []
-    let list = watchEtfs
-    if (focusFilter === 'focused') {
-      list = list.filter(e => e.is_focused)
+    if (categoryFilter !== 'all') {
+      list = list.filter(e => e.category === categoryFilter)
     }
     if (!searchText.trim()) return list
     const kw = searchText.toLowerCase()
@@ -81,7 +79,24 @@ const EtfListOnly: React.FC = memo(() => {
       (e.name && e.name.toLowerCase().includes(kw)) ||
       (e.symbol && e.symbol.toLowerCase().includes(kw))
     )
-  }, [watchEtfs, searchText, focusFilter, signalFilter])
+  }, [buyEtfs, searchText, focusFilter, signalFilter, categoryFilter])
+
+  const filteredWatchEtfs = useMemo(() => {
+    if (signalFilter !== 'all' && signalFilter !== 'watch') return []
+    let list = watchEtfs
+    if (focusFilter === 'focused') {
+      list = list.filter(e => e.is_focused)
+    }
+    if (categoryFilter !== 'all') {
+      list = list.filter(e => e.category === categoryFilter)
+    }
+    if (!searchText.trim()) return list
+    const kw = searchText.toLowerCase()
+    return list.filter(e =>
+      (e.name && e.name.toLowerCase().includes(kw)) ||
+      (e.symbol && e.symbol.toLowerCase().includes(kw))
+    )
+  }, [watchEtfs, searchText, focusFilter, signalFilter, categoryFilter])
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -326,6 +341,16 @@ const EtfListOnly: React.FC = memo(() => {
                 观望
               </button>
             </div>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent cursor-pointer"
+            >
+              <option value="all">全部大类</option>
+              {categories.filter(c => c !== 'all').map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
             <button
               onClick={() => setFocusFilter(focusFilter === 'all' ? 'focused' : 'all')}
               className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-sm transition-colors ${
