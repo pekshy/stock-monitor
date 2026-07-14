@@ -386,16 +386,17 @@ export function useEtfData() {
         const indexCodes = etfInfo.map(e => e.tracking_index_code).filter((c): c is string => !!c)
         
         // 并行获取所有 ETF 相关数据
+        // 注意：Supabase 默认返回 1000 行，需要设置更大的 limit 以获取完整历史数据
         const requests = [
-          supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
-          supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
-          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
-          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).order('trade_date', { ascending: false })
+          supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
+          supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
+          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
+          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000)
         ]
         
         if (indexCodes.length > 0) {
           requests.push(
-            supabase.from('etf_tracked_index_history').select('*').in('index_code', indexCodes).order('trade_date', { ascending: false })
+            supabase.from('etf_tracked_index_history').select('*').in('index_code', indexCodes).order('trade_date', { ascending: false }).limit(10000)
           )
         }
         
