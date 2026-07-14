@@ -12,7 +12,16 @@ interface EtfDetailData {
 }
 
 /**
- * 按需加载单个ETF的完整历史数据（用于详情页）
+ * 计算N个月前的日期（格式：YYYY-MM-DD）
+ */
+function getDateMonthsAgo(months: number): string {
+  const date = new Date()
+  date.setMonth(date.getMonth() - months)
+  return date.toISOString().slice(0, 10)
+}
+
+/**
+ * 按需加载单个ETF的历史数据（用于详情页，最近6个月）
  */
 export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
   const [dailyData, setDailyData] = useState<EtfDailyData[]>([])
@@ -33,12 +42,14 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
         setLoading(true)
         setError(null)
 
-        // 并行获取该ETF的所有历史数据
+        // 只获取最近6个月的数据
+        const sixMonthsAgo = getDateMonthsAgo(6)
+
         const [dailyRes, indicatorsRes, signalsRes, fitRes] = await Promise.all([
-          supabase.from('etf_daily_data').select('*').eq('symbol', symbol).order('trade_date', { ascending: false }).limit(1000),
-          supabase.from('etf_indicators').select('*').eq('symbol', symbol).order('trade_date', { ascending: false }).limit(1000),
-          supabase.from('etf_claw_signals').select('*').eq('symbol', symbol).order('trade_date', { ascending: false }).limit(1000),
-          supabase.from('etf_butterworth_fit').select('*').eq('symbol', symbol).order('trade_date', { ascending: false }).limit(1000)
+          supabase.from('etf_daily_data').select('*').eq('symbol', symbol).gte('trade_date', sixMonthsAgo).order('trade_date', { ascending: false }),
+          supabase.from('etf_indicators').select('*').eq('symbol', symbol).gte('trade_date', sixMonthsAgo).order('trade_date', { ascending: false }),
+          supabase.from('etf_claw_signals').select('*').eq('symbol', symbol).gte('trade_date', sixMonthsAgo).order('trade_date', { ascending: false }),
+          supabase.from('etf_butterworth_fit').select('*').eq('symbol', symbol).gte('trade_date', sixMonthsAgo).order('trade_date', { ascending: false })
         ])
 
         if (dailyRes.error) throw dailyRes.error
