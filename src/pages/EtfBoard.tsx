@@ -30,7 +30,7 @@ const EtfListOnly: React.FC = memo(() => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
 
   const categories = useMemo(() => {
-    const cats = [...new Set(etfs.map(e => e.category).filter(Boolean))].sort()
+    const cats = [...new Set(etfs.map(e => e.category).filter((c): c is string => c !== null && c !== undefined))].sort()
     return ['all', ...cats]
   }, [etfs])
 
