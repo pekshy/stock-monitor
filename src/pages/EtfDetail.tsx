@@ -125,6 +125,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
     const signal = signalMap.get(payload.trade_date)
     const trades = tradeRecordMap.get(payload.trade_date) || []
     
+    // 策略信号标记（文字）
     let signalMark = null
     if (signal) {
       const action = signal.action?.toLowerCase() || ''
@@ -133,26 +134,16 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
       const markerX = x + width / 2
       if (isBuy) {
         signalMark = (
-          <g>
-            <path
-              d={`M${markerX},${lowY + 8} L${markerX - 5},${lowY + 16} L${markerX + 5},${lowY + 16} Z`}
-              fill="#ef4444"
-            />
-          </g>
+          <text x={markerX} y={lowY + 14} textAnchor="middle" fontSize={9} fill="#ef4444" fontWeight="bold">买</text>
         )
       } else if (isSell) {
         signalMark = (
-          <g>
-            <path
-              d={`M${markerX},${highY - 8} L${markerX - 5},${highY - 16} L${markerX + 5},${highY - 16} Z`}
-              fill="#22c55e"
-            />
-          </g>
+          <text x={markerX} y={highY - 6} textAnchor="middle" fontSize={9} fill="#22c55e" fontWeight="bold">卖</text>
         )
       }
     }
     
-    // 交易记录标记（实心圆=买入，实心方块=卖出）
+    // 交易记录标记（文字）
     let tradeMarks = null
     if (trades.length > 0) {
       const markerX = x + width / 2
@@ -160,28 +151,11 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         const offset = idx * 12
         if (trade.direction === 'buy') {
           return (
-            <circle
-              key={trade.id}
-              cx={markerX}
-              cy={lowY - 8 - offset}
-              r={4}
-              fill="#f97316"
-              stroke="#fff"
-              strokeWidth={1}
-            />
+            <text key={trade.id} x={markerX} y={lowY - 4 - offset} textAnchor="middle" fontSize={9} fill="#f97316" fontWeight="bold">买入</text>
           )
         } else {
           return (
-            <rect
-              key={trade.id}
-              x={markerX - 4}
-              y={highY + 8 + offset}
-              width={8}
-              height={8}
-              fill="#3b82f6"
-              stroke="#fff"
-              strokeWidth={1}
-            />
+            <text key={trade.id} x={markerX} y={highY + 12 + offset} textAnchor="middle" fontSize={9} fill="#3b82f6" fontWeight="bold">卖出</text>
           )
         }
       })
