@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts'
-import { EtfDailyData, EtfIndicators, EtfClawSignal } from '../types'
+import { EtfDailyData, EtfIndicators, EtfClawSignal, TradeRecord } from '../types'
 import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
 import { ButterworthFit } from '../types'
 import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
@@ -24,11 +24,18 @@ import { TradeRecordItem } from '../components/TradeRecordItem'
 import { TradeModal } from '../components/TradeModal'
 import { SellConfirmModal } from '../components/SellConfirmModal'
 
-const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators[]; signals: EtfClawSignal[]; butterworthFit: ButterworthFit[] }> = ({ dailyData, indicators, signals, butterworthFit }) => {
+const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators[]; signals: EtfClawSignal[]; butterworthFit: ButterworthFit[]; tradeRecords: TradeRecord[] }> = ({ dailyData, indicators, signals, butterworthFit, tradeRecords }) => {
   const indicatorMap = new Map(indicators.map(d => [d.trade_date, d]))
   const signalMap = new Map<string, EtfClawSignal>()
   signals.forEach(sig => {
     signalMap.set(sig.trade_date, sig)
+  })
+  // 交易记录按日期分组
+  const tradeRecordMap = new Map<string, TradeRecord[]>()
+  tradeRecords.forEach(record => {
+    const arr = tradeRecordMap.get(record.trade_date) || []
+    arr.push(record)
+    tradeRecordMap.set(record.trade_date, arr)
   })
   // 拟合数据按 trade_date 索引
   const fitMap = new Map<string, ButterworthFit>()
@@ -74,7 +81,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         changePct,
       }
     })
-  }, [dailyData, indicators, signals, butterworthFit])
+  }, [dailyData, indicators, signals, butterworthFit, tradeRecords])
 
   if (chartData.length === 0) {
     return <div className="flex items-center justify-center min-h-[300px] text-gray-500 text-sm">暂无数据</div>
@@ -116,6 +123,8 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
     const bodyHeight = Math.abs(bodyBottomY - bodyTopY) || 1
     
     const signal = signalMap.get(payload.trade_date)
+    const trades = tradeRecordMap.get(payload.trade_date) || []
+    
     let signalMark = null
     if (signal) {
       const action = signal.action?.toLowerCase() || ''
@@ -143,6 +152,42 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
       }
     }
     
+    // 交易记录标记（实心圆=买入，实心方块=卖出）
+    let tradeMarks = null
+    if (trades.length > 0) {
+      const markerX = x + width / 2
+      const marks = trades.map((trade, idx) => {
+        const offset = idx * 12
+        if (trade.direction === 'buy') {
+          return (
+            <circle
+              key={trade.id}
+              cx={markerX}
+              cy={lowY - 8 - offset}
+              r={4}
+              fill="#f97316"
+              stroke="#fff"
+              strokeWidth={1}
+            />
+          )
+        } else {
+          return (
+            <rect
+              key={trade.id}
+              x={markerX - 4}
+              y={highY + 8 + offset}
+              width={8}
+              height={8}
+              fill="#3b82f6"
+              stroke="#fff"
+              strokeWidth={1}
+            />
+          )
+        }
+      })
+      tradeMarks = <g>{marks}</g>
+    }
+    
     return (
       <g>
         <line
@@ -161,6 +206,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           fill={color}
         />
         {signalMark}
+        {tradeMarks}
       </g>
     )
   }
@@ -358,9 +404,18 @@ const EtfDetail: React.FC = () => {
   // 按需加载详情页数据
   const { dailyData, indicators, signals, butterworthFit, loading: detailLoading } = useEtfDetailData(code)
 
+  // 获取交易记录
+  const { records } = useTradeRecords()
+
   const etf = useMemo(() => {
     return etfs.find(e => e.symbol === code) || null
   }, [etfs, code])
+
+  // 筛选当前ETF的交易记录
+  const tradeRecords = useMemo(() => {
+    if (!code) return []
+    return records.filter(r => r.symbol.toUpperCase() === code.toUpperCase())
+  }, [records, code])
 
   // dailyData, indicators, signals, butterworthFit 现在从 useEtfDetailData 获取
 
@@ -558,6 +613,7 @@ const EtfDetail: React.FC = () => {
               indicators={indicators} 
               signals={signals}
               butterworthFit={butterworthFit}
+              tradeRecords={tradeRecords}
             />
             <VolumeChart data={dailyData} />
           </>
