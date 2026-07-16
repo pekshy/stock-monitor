@@ -122,26 +122,51 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
     const bodyBottomY = getY(payload.bodyBottom)
     const bodyHeight = Math.abs(bodyBottomY - bodyTopY) || 1
     
+    const signal = signalMap.get(payload.trade_date)
     const trades = tradeRecordMap.get(payload.trade_date) || []
-    
-    // 交易记录标记（文字）
+
+    // 策略信号标记（三角）
+    let signalMark = null
+    if (signal) {
+      const action = signal.action?.toLowerCase() || ''
+      const isBuy = action.includes('买') || action.includes('加仓')
+      const isSell = action.includes('卖') || action.includes('减仓')
+      const markerX = x + width / 2
+      if (isBuy) {
+        signalMark = (
+          <path
+            d={`M${markerX},${lowY + 8} L${markerX - 5},${lowY + 16} L${markerX + 5},${lowY + 16} Z`}
+            fill="#ef4444"
+          />
+        )
+      } else if (isSell) {
+        signalMark = (
+          <path
+            d={`M${markerX},${highY - 8} L${markerX - 5},${highY - 16} L${markerX + 5},${highY - 16} Z`}
+            fill="#22c55e"
+          />
+        )
+      }
+    }
+
+    // 实际交易记录标记（文字）
     let tradeMarks = null
     if (trades.length > 0) {
       const markerX = x + width / 2
       const marks = trades.map((trade) => {
         if (trade.direction === 'buy') {
           return (
-            <text key={trade.id} x={markerX} y={lowY + 14} textAnchor="middle" fontSize={9} fill="#ef4444" fontWeight="bold">买入</text>
+            <text key={trade.id} x={markerX} y={lowY + 28} textAnchor="middle" fontSize={9} fill="#f97316" fontWeight="bold">买入</text>
           )
         } else {
           return (
-            <text key={trade.id} x={markerX} y={highY - 6} textAnchor="middle" fontSize={9} fill="#22c55e" fontWeight="bold">卖出</text>
+            <text key={trade.id} x={markerX} y={highY - 18} textAnchor="middle" fontSize={9} fill="#3b82f6" fontWeight="bold">卖出</text>
           )
         }
       })
       tradeMarks = <g>{marks}</g>
     }
-    
+
     return (
       <g>
         <line
@@ -159,6 +184,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           height={bodyHeight}
           fill={color}
         />
+        {signalMark}
         {tradeMarks}
       </g>
     )
