@@ -122,40 +122,20 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
     const bodyBottomY = getY(payload.bodyBottom)
     const bodyHeight = Math.abs(bodyBottomY - bodyTopY) || 1
     
-    const signal = signalMap.get(payload.trade_date)
     const trades = tradeRecordMap.get(payload.trade_date) || []
-    
-    // 策略信号标记（文字）
-    let signalMark = null
-    if (signal) {
-      const action = signal.action?.toLowerCase() || ''
-      const isBuy = action.includes('买') || action.includes('加仓')
-      const isSell = action.includes('卖') || action.includes('减仓')
-      const markerX = x + width / 2
-      if (isBuy) {
-        signalMark = (
-          <text x={markerX} y={lowY + 14} textAnchor="middle" fontSize={9} fill="#ef4444" fontWeight="bold">买</text>
-        )
-      } else if (isSell) {
-        signalMark = (
-          <text x={markerX} y={highY - 6} textAnchor="middle" fontSize={9} fill="#22c55e" fontWeight="bold">卖</text>
-        )
-      }
-    }
     
     // 交易记录标记（文字）
     let tradeMarks = null
     if (trades.length > 0) {
       const markerX = x + width / 2
-      const marks = trades.map((trade, idx) => {
-        const offset = idx * 12
+      const marks = trades.map((trade) => {
         if (trade.direction === 'buy') {
           return (
-            <text key={trade.id} x={markerX} y={lowY - 4 - offset} textAnchor="middle" fontSize={9} fill="#f97316" fontWeight="bold">买入</text>
+            <text key={trade.id} x={markerX} y={lowY + 14} textAnchor="middle" fontSize={9} fill="#ef4444" fontWeight="bold">买入</text>
           )
         } else {
           return (
-            <text key={trade.id} x={markerX} y={highY + 12 + offset} textAnchor="middle" fontSize={9} fill="#3b82f6" fontWeight="bold">卖出</text>
+            <text key={trade.id} x={markerX} y={highY - 6} textAnchor="middle" fontSize={9} fill="#22c55e" fontWeight="bold">卖出</text>
           )
         }
       })
@@ -179,7 +159,6 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
           height={bodyHeight}
           fill={color}
         />
-        {signalMark}
         {tradeMarks}
       </g>
     )
