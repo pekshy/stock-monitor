@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
-import { EtfDailyData, EtfIndicators, EtfClawSignal, ButterworthFit } from '../types'
+import { EtfDailyData, EtfIndicators, EtfClawSignal, ButterworthFit, EtfMomentumSignal } from '../types'
 
 interface EtfDetailData {
   dailyData: EtfDailyData[]
   indicators: EtfIndicators[]
   signals: EtfClawSignal[]
   butterworthFit: ButterworthFit[]
+  momentumHistory: EtfMomentumSignal[]
   loading: boolean
   error: string | null
 }
@@ -33,6 +34,7 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
   const [indicators, setIndicators] = useState<EtfIndicators[]>([])
   const [signals, setSignals] = useState<EtfClawSignal[]>([])
   const [butterworthFit, setButterworthFit] = useState<ButterworthFit[]>([])
+  const [momentumHistory, setMomentumHistory] = useState<EtfMomentumSignal[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -49,6 +51,7 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
       setIndicators(cached.data.indicators)
       setSignals(cached.data.signals)
       setButterworthFit(cached.data.butterworthFit)
+      setMomentumHistory(cached.data.momentumHistory)
       setLoading(false)
       setError(null)
       return
@@ -60,9 +63,10 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
         setError(null)
 
         const sixMonthsAgo = getDateMonthsAgo(6)
+        const threeMonthsAgo = getDateMonthsAgo(3)
 
         // 只查询需要的列，减少数据传输量
-        const [dailyRes, indicatorsRes, signalsRes, fitRes] = await Promise.all([
+        const [dailyRes, indicatorsRes, signalsRes, fitRes, momentumRes] = await Promise.all([
           supabase
             .from('etf_daily_data')
             .select('symbol,trade_date,open,high,low,close,volume,change_pct')
@@ -86,6 +90,12 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
             .select('symbol,trade_date,fitted')
             .eq('symbol', symbol)
             .gte('trade_date', sixMonthsAgo)
+            .order('trade_date', { ascending: false }),
+          supabase
+            .from('etf_momentum_signals')
+            .select('symbol,trade_date,final_score,regression_score,multi_period_score,risk_adjusted_score,technical_score,rank')
+            .eq('symbol', symbol)
+            .gte('trade_date', threeMonthsAgo)
             .order('trade_date', { ascending: false })
         ])
 
@@ -93,18 +103,21 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
         if (indicatorsRes.error) throw indicatorsRes.error
         if (signalsRes.error) throw signalsRes.error
         if (fitRes.error) throw fitRes.error
+        if (momentumRes.error) throw momentumRes.error
 
         const result = {
           dailyData: (dailyRes.data || []) as EtfDailyData[],
           indicators: (indicatorsRes.data || []) as EtfIndicators[],
           signals: (signalsRes.data || []) as EtfClawSignal[],
-          butterworthFit: (fitRes.data || []) as ButterworthFit[]
+          butterworthFit: (fitRes.data || []) as ButterworthFit[],
+          momentumHistory: (momentumRes.data || []) as EtfMomentumSignal[]
         }
 
         setDailyData(result.dailyData)
         setIndicators(result.indicators)
         setSignals(result.signals)
         setButterworthFit(result.butterworthFit)
+        setMomentumHistory(result.momentumHistory)
 
         // 写入缓存
         cache.set(symbol!, { data: result, timestamp: Date.now() })
@@ -119,5 +132,5 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
     fetchDetailData()
   }, [symbol])
 
-  return { dailyData, indicators, signals, butterworthFit, loading, error }
+  return { dailyData, indicators, signals, butterworthFit, momentumHistory, loading, error }
 }

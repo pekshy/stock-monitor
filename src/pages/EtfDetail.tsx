@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus, Star } from 'lucide-react'
+import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus, Star, BarChart3 } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { useEtfDetailData } from '../hooks/useEtfDetailData'
 import {
@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts'
-import { EtfDailyData, EtfIndicators, EtfClawSignal, TradeRecord } from '../types'
+import { EtfDailyData, EtfIndicators, EtfClawSignal, TradeRecord, EtfMomentumSignal } from '../types'
 import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
 import { ButterworthFit } from '../types'
 import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
@@ -375,13 +375,68 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
   )
 }
 
+const MomentumScoreChart: React.FC<{ data: EtfMomentumSignal[] }> = ({ data }) => {
+  const chartData = useMemo(() => {
+    return [...data].reverse().map(d => ({
+      date: formatDate(d.trade_date),
+      final_score: d.final_score,
+      regression_score: d.regression_score,
+      multi_period_score: d.multi_period_score,
+      risk_adjusted_score: d.risk_adjusted_score,
+      technical_score: d.technical_score,
+    }))
+  }, [data])
+
+  if (chartData.length === 0) {
+    return <div className="h-48 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
+  }
+
+  return (
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
+          <YAxis tick={{ fontSize: 10 }} domain={['auto', 'auto']} />
+          <Tooltip
+            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(229, 231, 235, 0.6)', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(2px)' }}
+            wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
+            formatter={(value: any, name: string) => {
+              const labels: Record<string, string> = {
+                final_score: '综合评分',
+                regression_score: '回归评分',
+                multi_period_score: '多周期评分',
+                risk_adjusted_score: '风险调整评分',
+                technical_score: '技术面评分',
+              }
+              return [value != null ? Number(value).toFixed(2) : '--', labels[name] || name]
+            }}
+          />
+          <Legend wrapperStyle={{ fontSize: 11 }} payload={[
+            { value: '综合评分', type: 'line', color: '#8b5cf6' },
+            { value: '回归评分', type: 'line', color: '#f59e0b' },
+            { value: '多周期评分', type: 'line', color: '#06b6d4' },
+            { value: '风险调整评分', type: 'line', color: '#ec4899' },
+            { value: '技术面评分', type: 'line', color: '#22c55e' },
+          ]} />
+          <Line type="monotone" dataKey="final_score" stroke="#8b5cf6" strokeWidth={2} dot={false} name="综合评分" />
+          <Line type="monotone" dataKey="regression_score" stroke="#f59e0b" strokeWidth={1.5} dot={false} strokeDasharray="3 3" name="回归评分" />
+          <Line type="monotone" dataKey="multi_period_score" stroke="#06b6d4" strokeWidth={1.5} dot={false} strokeDasharray="3 3" name="多周期评分" />
+          <Line type="monotone" dataKey="risk_adjusted_score" stroke="#ec4899" strokeWidth={1.5} dot={false} strokeDasharray="3 3" name="风险调整评分" />
+          <Line type="monotone" dataKey="technical_score" stroke="#22c55e" strokeWidth={1.5} dot={false} strokeDasharray="3 3" name="技术面评分" />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
 const EtfDetail: React.FC = () => {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
   const { etfs, priceByDateMap, momentumSignals, toggleFocus } = useEtfContext()
 
   // 按需加载详情页数据
-  const { dailyData, indicators, signals, butterworthFit, loading: detailLoading } = useEtfDetailData(code)
+  const { dailyData, indicators, signals, butterworthFit, momentumHistory, loading: detailLoading } = useEtfDetailData(code)
 
   // 获取交易记录
   const { records } = useTradeRecords()
@@ -598,6 +653,16 @@ const EtfDetail: React.FC = () => {
           </>
         )}
       </div>
+
+      {momentumHistory.length > 0 && (
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            动量评分走势（近3个月）
+          </h2>
+          <MomentumScoreChart data={momentumHistory} />
+        </div>
+      )}
 
       <TradesSection symbol={etf.symbol} etfName={etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={dailyData} priceByDateMap={priceByDateMap} />
 
