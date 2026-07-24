@@ -292,14 +292,10 @@ const MarketViewItem: React.FC<{
   onDelete: (id: number) => Promise<void>
 }> = ({ view, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false)
-  const [editTitle, setEditTitle] = useState(view.title || '')
-  const [editType, setEditType] = useState(view.view_type || '')
   const [editContent, setEditContent] = useState(view.content)
   const [saving, setSaving] = useState(false)
 
   const handleStartEdit = () => {
-    setEditTitle(view.title || '')
-    setEditType(view.view_type || '')
     setEditContent(view.content)
     setIsEditing(true)
   }
@@ -308,11 +304,7 @@ const MarketViewItem: React.FC<{
     if (!editContent.trim()) return
     setSaving(true)
     try {
-      await onUpdate(view.id, {
-        title: editTitle.trim() || null,
-        view_type: editType.trim() || null,
-        content: editContent.trim()
-      })
+      await onUpdate(view.id, { content: editContent.trim() })
       setIsEditing(false)
     } catch {
     } finally {
@@ -322,8 +314,6 @@ const MarketViewItem: React.FC<{
 
   const handleCancel = () => {
     setIsEditing(false)
-    setEditTitle(view.title || '')
-    setEditType(view.view_type || '')
     setEditContent(view.content)
   }
 
@@ -331,34 +321,12 @@ const MarketViewItem: React.FC<{
     <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors group">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
-          {view.title && (
-            <span className="text-sm font-semibold text-gray-900">{view.title}</span>
-          )}
-          {view.view_type && (
-            <span className="text-xs font-medium px-2 py-0.5 rounded bg-orange-200 text-orange-800">
-              {view.view_type}
-            </span>
-          )}
           <span className="text-xs text-gray-400">
             {view.created_at.slice(0, 16).replace('T', ' ')}
           </span>
         </div>
         {isEditing ? (
           <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <input
-                value={editTitle}
-                onChange={e => setEditTitle(e.target.value)}
-                placeholder="标题"
-                className="flex-1 border border-orange-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-              <input
-                value={editType}
-                onChange={e => setEditType(e.target.value)}
-                placeholder="类型标签"
-                className="w-28 border border-orange-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-            </div>
             <textarea
               value={editContent}
               onChange={e => setEditContent(e.target.value)}
@@ -428,8 +396,6 @@ const TradeBoardContent: React.FC = memo(() => {
   const [noteInput, setNoteInput] = useState('')
   const [noteSubmitting, setNoteSubmitting] = useState(false)
 
-  const [marketTitleInput, setMarketTitleInput] = useState('')
-  const [marketTypeInput, setMarketTypeInput] = useState('')
   const [marketContentInput, setMarketContentInput] = useState('')
   const [marketSubmitting, setMarketSubmitting] = useState(false)
 
@@ -484,14 +450,8 @@ const TradeBoardContent: React.FC = memo(() => {
     if (!content) return
     setMarketSubmitting(true)
     try {
-      await addView(
-        content,
-        marketTitleInput.trim() || null,
-        marketTypeInput.trim() || null
-      )
+      await addView(content)
       setMarketContentInput('')
-      setMarketTitleInput('')
-      setMarketTypeInput('')
     } catch {
     } finally {
       setMarketSubmitting(false)
@@ -619,39 +579,21 @@ const TradeBoardContent: React.FC = memo(() => {
             </button>
           </form>
         ) : (
-          <form onSubmit={handleAddMarketView} className="space-y-2 mb-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={marketTitleInput}
-                onChange={e => setMarketTitleInput(e.target.value)}
-                placeholder="标题（可选）"
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-              <input
-                type="text"
-                value={marketTypeInput}
-                onChange={e => setMarketTypeInput(e.target.value)}
-                placeholder="类型标签（可选）"
-                className="w-32 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-            </div>
-            <div className="flex gap-2">
-              <textarea
-                value={marketContentInput}
-                onChange={e => setMarketContentInput(e.target.value)}
-                placeholder="写下对市场的看法..."
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
-                rows={2}
-              />
-              <button
-                type="submit"
-                disabled={marketSubmitting || !marketContentInput.trim()}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors self-end"
-              >
-                添加
-              </button>
-            </div>
+          <form onSubmit={handleAddMarketView} className="flex gap-2 mb-4">
+            <textarea
+              value={marketContentInput}
+              onChange={e => setMarketContentInput(e.target.value)}
+              placeholder="写下对市场的看法..."
+              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+              rows={2}
+            />
+            <button
+              type="submit"
+              disabled={marketSubmitting || !marketContentInput.trim()}
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors self-end"
+            >
+              添加
+            </button>
           </form>
         )}
 
