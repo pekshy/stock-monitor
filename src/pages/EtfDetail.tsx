@@ -380,8 +380,9 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
     const sorted = [...butterworthFit].sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
     return sorted.map((d, i) => {
       let derivative = 0
-      if (i > 0 && d.fitted != null && sorted[i - 1].fitted != null) {
-        derivative = d.fitted - sorted[i - 1].fitted
+      const prev = sorted[i - 1]
+      if (i > 0 && d.fitted != null && prev?.fitted != null) {
+        derivative = d.fitted - prev.fitted
       }
       return {
         date: formatDate(d.trade_date),
