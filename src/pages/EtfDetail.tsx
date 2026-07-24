@@ -375,6 +375,44 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
   )
 }
 
+const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butterworthFit }) => {
+  const chartData = useMemo(() => {
+    const sorted = [...butterworthFit].sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
+    return sorted.map((d, i) => {
+      let derivative = 0
+      if (i > 0 && d.fitted != null && sorted[i - 1].fitted != null) {
+        derivative = d.fitted - sorted[i - 1].fitted
+      }
+      return {
+        date: formatDate(d.trade_date),
+        derivative,
+      }
+    })
+  }, [butterworthFit])
+
+  if (chartData.length === 0) {
+    return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
+  }
+
+  return (
+    <div className="h-24 mt-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
+          <YAxis tick={{ fontSize: 10 }} />
+          <Tooltip
+            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(229, 231, 235, 0.6)', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(2px)' }}
+            wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
+            formatter={(value: any) => [Number(value).toFixed(4), '一阶导数']}
+          />
+          <Line type="monotone" dataKey="derivative" stroke="#c4b5fd" strokeWidth={1.5} dot={false} name="拟合曲线一阶导数" />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
 const MomentumScoreChart: React.FC<{ data: EtfMomentumSignal[] }> = ({ data }) => {
   const chartData = useMemo(() => {
     return [...data].reverse().map(d => ({
@@ -649,6 +687,7 @@ const EtfDetail: React.FC = () => {
               butterworthFit={butterworthFit}
               tradeRecords={tradeRecords}
             />
+            <DerivativeChart butterworthFit={butterworthFit} />
             <VolumeChart data={dailyData} />
           </>
         )}
