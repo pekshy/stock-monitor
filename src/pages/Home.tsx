@@ -1,17 +1,19 @@
 import React, { useState, useMemo, useEffect, memo } from 'react'
-import { RefreshCw, MessageSquare, TrendingUp, ExternalLink } from 'lucide-react'
+import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useEtfContext } from '../context/EtfContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
 import { useEtfNotes } from '../hooks/useEtfNotes'
 import { useStockNotes } from '../hooks/useStockNotes'
+import { useMarketViews } from '../hooks/useMarketViews'
 import IndustryCard from '../components/IndustryCard'
 import StockList from '../components/StockList'
 import UnifiedTradeBoard from '../components/UnifiedTradeBoard'
 import { MarketIndicators } from '../components/MarketIndicators'
 import { NoteItem } from '../components/NoteItem'
 import EtfListOnly from './EtfBoard'
+import { MarketView } from '../types'
 
 type SortOrder = 'change_desc' | 'change_asc'
 type SortPeriod = '1d' | '5d' | '10d' | '20d' | '60d'
@@ -283,17 +285,153 @@ const Home: React.FC = () => {
   )
 }
 
+// ========== 市场观点条目组件 ==========
+const MarketViewItem: React.FC<{
+  view: MarketView
+  onUpdate: (id: number, updates: Partial<MarketView>) => Promise<void>
+  onDelete: (id: number) => Promise<void>
+}> = ({ view, onUpdate, onDelete }) => {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(view.title || '')
+  const [editType, setEditType] = useState(view.view_type || '')
+  const [editContent, setEditContent] = useState(view.content)
+  const [saving, setSaving] = useState(false)
+
+  const handleStartEdit = () => {
+    setEditTitle(view.title || '')
+    setEditType(view.view_type || '')
+    setEditContent(view.content)
+    setIsEditing(true)
+  }
+
+  const handleSave = async () => {
+    if (!editContent.trim()) return
+    setSaving(true)
+    try {
+      await onUpdate(view.id, {
+        title: editTitle.trim() || null,
+        view_type: editType.trim() || null,
+        content: editContent.trim()
+      })
+      setIsEditing(false)
+    } catch {
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    setEditTitle(view.title || '')
+    setEditType(view.view_type || '')
+    setEditContent(view.content)
+  }
+
+  return (
+    <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors group">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          {view.title && (
+            <span className="text-sm font-semibold text-gray-900">{view.title}</span>
+          )}
+          {view.view_type && (
+            <span className="text-xs font-medium px-2 py-0.5 rounded bg-orange-200 text-orange-800">
+              {view.view_type}
+            </span>
+          )}
+          <span className="text-xs text-gray-400">
+            {view.created_at.slice(0, 16).replace('T', ' ')}
+          </span>
+        </div>
+        {isEditing ? (
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <input
+                value={editTitle}
+                onChange={e => setEditTitle(e.target.value)}
+                placeholder="标题"
+                className="flex-1 border border-orange-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              />
+              <input
+                value={editType}
+                onChange={e => setEditType(e.target.value)}
+                placeholder="类型标签"
+                className="w-28 border border-orange-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              />
+            </div>
+            <textarea
+              value={editContent}
+              onChange={e => setEditContent(e.target.value)}
+              className="w-full border border-orange-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+              rows={3}
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleSave}
+                disabled={saving || !editContent.trim()}
+                className="px-2 py-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded text-xs flex items-center gap-1"
+              >
+                <Check className="h-3 w-3" />
+                保存
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={saving}
+                className="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs flex items-center gap-1"
+              >
+                <X className="h-3 w-3" />
+                取消
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-sm text-gray-800 break-words leading-relaxed whitespace-pre-wrap">
+            {view.content}
+          </div>
+        )}
+      </div>
+      {!isEditing && (
+        <div className="flex flex-col gap-1 flex-shrink-0">
+          <button
+            onClick={handleStartEdit}
+            className="p-1.5 text-gray-500 hover:text-orange-600 bg-white hover:bg-orange-50 border border-gray-200 rounded transition-colors"
+            title="编辑"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => {
+              if (confirm('确定要删除这条市场观点吗？')) onDelete(view.id)
+            }}
+            className="p-1.5 text-gray-500 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 rounded transition-colors"
+            title="删除"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ========== 交易看板内容 ==========
 const TradeBoardContent: React.FC = memo(() => {
   const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries, etfs } = useEtfContext()
   const { stocks } = useStockContext()
   const { notes: etfNotes, loading: etfNotesLoading, addNote: addEtfNote, updateNote: updateEtfNote, deleteNote: deleteEtfNote } = useEtfNotes()
   const { notes: stockNotes, loading: stockNotesLoading, addNote: addStockNote, updateNote: updateStockNote, deleteNote: deleteStockNote } = useStockNotes()
+  const { views: marketViews, loading: marketViewsLoading, addView, updateView, deleteView } = useMarketViews()
   
-  const [noteType, setNoteType] = useState<'etf' | 'stock'>('etf')
+  const [noteType, setNoteType] = useState<'etf' | 'stock' | 'market'>('etf')
   const [noteSymbolInput, setNoteSymbolInput] = useState('')
   const [noteInput, setNoteInput] = useState('')
   const [noteSubmitting, setNoteSubmitting] = useState(false)
+
+  const [marketTitleInput, setMarketTitleInput] = useState('')
+  const [marketTypeInput, setMarketTypeInput] = useState('')
+  const [marketContentInput, setMarketContentInput] = useState('')
+  const [marketSubmitting, setMarketSubmitting] = useState(false)
 
   const etfNameMap = useMemo(() => {
     const m = new Map<string, string>()
@@ -329,7 +467,7 @@ const TradeBoardContent: React.FC = memo(() => {
     try {
       if (noteType === 'etf') {
         await addEtfNote(symbol || 'GENERAL', text)
-      } else {
+      } else if (noteType === 'stock') {
         await addStockNote(symbol || 'GENERAL', text)
       }
       setNoteInput('')
@@ -337,6 +475,26 @@ const TradeBoardContent: React.FC = memo(() => {
     } catch {
     } finally {
       setNoteSubmitting(false)
+    }
+  }
+
+  const handleAddMarketView = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const content = marketContentInput.trim()
+    if (!content) return
+    setMarketSubmitting(true)
+    try {
+      await addView(
+        content,
+        marketTitleInput.trim() || null,
+        marketTypeInput.trim() || null
+      )
+      setMarketContentInput('')
+      setMarketTitleInput('')
+      setMarketTypeInput('')
+    } catch {
+    } finally {
+      setMarketSubmitting(false)
     }
   }
 
@@ -398,7 +556,7 @@ const TradeBoardContent: React.FC = memo(() => {
             <MessageSquare className="h-5 w-5 text-blue-500" />
             笔记
             <span className="text-sm font-normal text-gray-500">
-              （ETF {etfNotes.length} 条 · 股票 {stockNotes.length} 条）
+              （ETF {etfNotes.length} 条 · 股票 {stockNotes.length} 条 · 市场观点 {marketViews.length} 条）
             </span>
           </h2>
           <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
@@ -422,54 +580,120 @@ const TradeBoardContent: React.FC = memo(() => {
             >
               股票笔记
             </button>
+            <button
+              onClick={() => setNoteType('market')}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                noteType === 'market'
+                  ? 'bg-white text-orange-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              市场观点
+            </button>
           </div>
         </div>
 
         {/* 快速添加 */}
-        <form onSubmit={handleAddNote} className="flex gap-2 mb-4">
-          <input
-            type="text"
-            value={noteSymbolInput}
-            onChange={e => setNoteSymbolInput(e.target.value)}
-            placeholder={noteType === 'etf' ? 'ETF代码（可选）' : '股票代码（可选）'}
-            className="w-36 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <input
-            type="text"
-            value={noteInput}
-            onChange={e => setNoteInput(e.target.value)}
-            placeholder="写下笔记..."
-            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <button
-            type="submit"
-            disabled={noteSubmitting || !noteInput.trim()}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors"
-          >
-            添加
-          </button>
-        </form>
+        {noteType !== 'market' ? (
+          <form onSubmit={handleAddNote} className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={noteSymbolInput}
+              onChange={e => setNoteSymbolInput(e.target.value)}
+              placeholder={noteType === 'etf' ? 'ETF代码（可选）' : '股票代码（可选）'}
+              className="w-36 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <input
+              type="text"
+              value={noteInput}
+              onChange={e => setNoteInput(e.target.value)}
+              placeholder="写下笔记..."
+              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button
+              type="submit"
+              disabled={noteSubmitting || !noteInput.trim()}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors"
+            >
+              添加
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleAddMarketView} className="space-y-2 mb-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={marketTitleInput}
+                onChange={e => setMarketTitleInput(e.target.value)}
+                placeholder="标题（可选）"
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              />
+              <input
+                type="text"
+                value={marketTypeInput}
+                onChange={e => setMarketTypeInput(e.target.value)}
+                placeholder="类型标签（可选）"
+                className="w-32 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              />
+            </div>
+            <div className="flex gap-2">
+              <textarea
+                value={marketContentInput}
+                onChange={e => setMarketContentInput(e.target.value)}
+                placeholder="写下对市场的看法..."
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+                rows={2}
+              />
+              <button
+                type="submit"
+                disabled={marketSubmitting || !marketContentInput.trim()}
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors self-end"
+              >
+                添加
+              </button>
+            </div>
+          </form>
+        )}
 
         {/* 笔记列表（根据 noteType 过滤） */}
-        {etfNotesLoading || stockNotesLoading ? (
-          <div className="text-sm text-gray-400 py-4 text-center">加载中...</div>
-        ) : allNotes.length === 0 ? (
-          <div className="text-sm text-gray-400 py-4 text-center">暂无笔记</div>
+        {noteType === 'market' ? (
+          marketViewsLoading ? (
+            <div className="text-sm text-gray-400 py-4 text-center">加载中...</div>
+          ) : marketViews.length === 0 ? (
+            <div className="text-sm text-gray-400 py-4 text-center">暂无市场观点</div>
+          ) : (
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {marketViews.map(view => (
+                <MarketViewItem
+                  key={view.id}
+                  view={view}
+                  onUpdate={updateView}
+                  onDelete={deleteView}
+                />
+              ))}
+            </div>
+          )
         ) : (
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {allNotes.filter(item => item.type === noteType).map(item => (
-              <NoteItem
-                key={item.id}
-                note={item.note as any}
-                name={item.name}
-                code={item.symbol}
-                navigatePath={item.navigatePath}
-                onUpdate={(id, text) => handleNoteUpdate(item.type, id, text)}
-                onDelete={(id) => handleNoteDelete(item.type, id)}
-                codeColor={item.type === 'etf' ? 'blue' : 'green'}
-              />
-            ))}
-          </div>
+          etfNotesLoading || stockNotesLoading ? (
+            <div className="text-sm text-gray-400 py-4 text-center">加载中...</div>
+          ) : allNotes.length === 0 ? (
+            <div className="text-sm text-gray-400 py-4 text-center">暂无笔记</div>
+          ) : (
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {allNotes.filter(item => item.type === noteType).map(item => (
+                <NoteItem
+                  key={item.id}
+                  note={item.note as any}
+                  name={item.name}
+                  code={item.symbol}
+                  navigatePath={item.navigatePath}
+                  onUpdate={(id, text) => handleNoteUpdate(item.type, id, text)}
+                  onDelete={(id) => handleNoteDelete(item.type, id)}
+                  codeColor={item.type === 'etf' ? 'blue' : 'green'}
+                />
+              ))}
+            </div>
+          )
         )}
       </div>
 

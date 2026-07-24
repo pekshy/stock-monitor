@@ -212,6 +212,16 @@ export interface StockNote {
   updated_at?: string
 }
 
+// 市场观点
+export interface MarketView {
+  id: number
+  title: string | null
+  content: string
+  view_type: string | null
+  created_at: string
+  updated_at?: string
+}
+
 // 交易记录
 export interface TradeRecord {
   id: number
