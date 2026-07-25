@@ -448,15 +448,37 @@ const EtfListOnly: React.FC = memo(() => {
                         ? (etf.latest_daily.volume_percentile_6m * 100).toFixed(1) + '%'
                         : '--'}
                     </td>
-                    <td className="text-right py-4 px-4 text-gray-700">
-                      {etf.latest_index_valuation?.pe !== null && etf.latest_index_valuation?.pe !== undefined
-                        ? etf.latest_index_valuation.pe.toFixed(2)
-                        : '--'}
+                    <td className="text-right py-4 px-4">
+                      <div className="text-gray-700">
+                        {etf.latest_index_valuation?.pe !== null && etf.latest_index_valuation?.pe !== undefined
+                          ? etf.latest_index_valuation.pe.toFixed(2)
+                          : '--'}
+                      </div>
+                      {(etf.latest_index_valuation?.pe_percent !== null && etf.latest_index_valuation?.pe_percent !== undefined) && (
+                        <div className={`text-xs mt-0.5 ${
+                          etf.latest_index_valuation.pe_percent <= 30 ? 'text-green-600' :
+                          etf.latest_index_valuation.pe_percent >= 70 ? 'text-red-600' :
+                          'text-gray-500'
+                        }`}>
+                          {etf.latest_index_valuation.pe_percent.toFixed(1)}%分位
+                        </div>
+                      )}
                     </td>
-                    <td className="text-right py-4 px-4 text-gray-700">
-                      {etf.latest_index_valuation?.pb !== null && etf.latest_index_valuation?.pb !== undefined
-                        ? etf.latest_index_valuation.pb.toFixed(2)
-                        : '--'}
+                    <td className="text-right py-4 px-4">
+                      <div className="text-gray-700">
+                        {etf.latest_index_valuation?.pb !== null && etf.latest_index_valuation?.pb !== undefined
+                          ? etf.latest_index_valuation.pb.toFixed(2)
+                          : '--'}
+                      </div>
+                      {(etf.latest_index_valuation?.pb_percent !== null && etf.latest_index_valuation?.pb_percent !== undefined) && (
+                        <div className={`text-xs mt-0.5 ${
+                          etf.latest_index_valuation.pb_percent <= 30 ? 'text-green-600' :
+                          etf.latest_index_valuation.pb_percent >= 70 ? 'text-red-600' :
+                          'text-gray-500'
+                        }`}>
+                          {etf.latest_index_valuation.pb_percent.toFixed(1)}%分位
+                        </div>
+                      )}
                     </td>
                     <td className="text-center py-4 px-4">
                       {etf.latest_index_valuation?.valuation ? (
