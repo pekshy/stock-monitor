@@ -611,14 +611,15 @@ const EtfDetail: React.FC = () => {
             )}
           </div>
         </div>
-        {etf.latest_index_valuation && (() => {
-          const v = etf.latest_index_valuation!
-          const hasPE = v.pe != null
-          const hasPB = v.pb != null
+        {(() => {
+          const v = etf.latest_index_valuation
+          const hasPE = v?.pe != null
+          const hasPB = v?.pb != null
           const hasChange5d = latestDaily?.change_5d != null
           const hasClosePercentile = latestDaily?.close_percentile_6m != null
           const hasVolumePercentile = latestDaily?.volume_percentile_6m != null
-          if (!hasPE && !hasPB && !hasChange5d && !hasClosePercentile && !hasVolumePercentile) return null
+          const hasMomentum = !!momentumSignal
+          if (!hasPE && !hasPB && !hasChange5d && !hasClosePercentile && !hasVolumePercentile && !hasMomentum) return null
           return (
             <div className="flex flex-wrap gap-4 mt-3 pt-3 border-t border-gray-100">
               {hasChange5d && (
@@ -656,14 +657,14 @@ const EtfDetail: React.FC = () => {
               {hasPE && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">PE</span>
-                  <span className="text-sm font-semibold text-gray-900">{v.pe!.toFixed(2)}</span>
-                  {v.pe_percent != null && (
+                  <span className="text-sm font-semibold text-gray-900">{v!.pe!.toFixed(2)}</span>
+                  {v!.pe_percent != null && (
                     <span className={`text-xs px-1.5 py-0.5 rounded ${
-                      v.pe_percent <= 30 ? 'bg-green-100 text-green-700' :
-                      v.pe_percent >= 70 ? 'bg-red-100 text-red-700' :
+                      v!.pe_percent <= 30 ? 'bg-green-100 text-green-700' :
+                      v!.pe_percent >= 70 ? 'bg-red-100 text-red-700' :
                       'bg-yellow-100 text-yellow-700'
                     }`}>
-                      {v.pe_percent.toFixed(1)}%
+                      {v!.pe_percent.toFixed(1)}%
                     </span>
                   )}
                 </div>
@@ -671,32 +672,32 @@ const EtfDetail: React.FC = () => {
               {hasPB && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">PB</span>
-                  <span className="text-sm font-semibold text-gray-900">{v.pb!.toFixed(2)}</span>
-                  {v.pb_percent != null && (
+                  <span className="text-sm font-semibold text-gray-900">{v!.pb!.toFixed(2)}</span>
+                  {v!.pb_percent != null && (
                     <span className={`text-xs px-1.5 py-0.5 rounded ${
-                      v.pb_percent <= 30 ? 'bg-green-100 text-green-700' :
-                      v.pb_percent >= 70 ? 'bg-red-100 text-red-700' :
+                      v!.pb_percent <= 30 ? 'bg-green-100 text-green-700' :
+                      v!.pb_percent >= 70 ? 'bg-red-100 text-red-700' :
                       'bg-yellow-100 text-yellow-700'
                     }`}>
-                      {v.pb_percent.toFixed(1)}%
+                      {v!.pb_percent.toFixed(1)}%
                     </span>
                   )}
                 </div>
               )}
-              {momentumSignal && (
+              {hasMomentum && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">动量评分</span>
                   <span className={`text-sm font-semibold ${
-                    momentumSignal.final_score != null && momentumSignal.final_score >= 0
+                    momentumSignal!.final_score != null && momentumSignal!.final_score >= 0
                       ? 'text-purple-600'
                       : 'text-gray-600'
                   }`}>
-                    {momentumSignal.final_score != null ? momentumSignal.final_score.toFixed(2) : '--'}
+                    {momentumSignal!.final_score != null ? momentumSignal!.final_score.toFixed(2) : '--'}
                   </span>
-                  {momentumSignal.rank != null && (
-                    <span className="text-xs text-gray-500">排名 #{momentumSignal.rank}</span>
+                  {momentumSignal!.rank != null && (
+                    <span className="text-xs text-gray-500">排名 #{momentumSignal!.rank}</span>
                   )}
-                  {momentumSignal.selected === true && (
+                  {momentumSignal!.selected === true && (
                     <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">入选</span>
                   )}
                 </div>
