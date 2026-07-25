@@ -460,7 +460,7 @@ const EtfListOnly: React.FC = memo(() => {
                           etf.latest_index_valuation.pe_percent >= 70 ? 'text-red-600' :
                           'text-gray-500'
                         }`}>
-                          {etf.latest_index_valuation.pe_percent.toFixed(1)}%分位
+                          {etf.latest_index_valuation.pe_percent.toFixed(1)}%
                         </div>
                       )}
                     </td>
@@ -476,7 +476,7 @@ const EtfListOnly: React.FC = memo(() => {
                           etf.latest_index_valuation.pb_percent >= 70 ? 'text-red-600' :
                           'text-gray-500'
                         }`}>
-                          {etf.latest_index_valuation.pb_percent.toFixed(1)}%分位
+                          {etf.latest_index_valuation.pb_percent.toFixed(1)}%
                         </div>
                       )}
                     </td>

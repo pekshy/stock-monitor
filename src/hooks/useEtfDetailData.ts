@@ -69,7 +69,7 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
         const [dailyRes, indicatorsRes, signalsRes, fitRes, momentumRes] = await Promise.all([
           supabase
             .from('etf_daily_data')
-            .select('symbol,trade_date,open,high,low,close,volume,change_pct')
+            .select('symbol,trade_date,open,high,low,close,volume,change_pct,change_5d,close_percentile_6m,volume_percentile_6m')
             .eq('symbol', symbol)
             .gte('trade_date', sixMonthsAgo)
             .order('trade_date', { ascending: false }),

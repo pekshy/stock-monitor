@@ -615,9 +615,44 @@ const EtfDetail: React.FC = () => {
           const v = etf.latest_index_valuation!
           const hasPE = v.pe != null
           const hasPB = v.pb != null
-          if (!hasPE && !hasPB) return null
+          const hasChange5d = latestDaily?.change_5d != null
+          const hasClosePercentile = latestDaily?.close_percentile_6m != null
+          const hasVolumePercentile = latestDaily?.volume_percentile_6m != null
+          if (!hasPE && !hasPB && !hasChange5d && !hasClosePercentile && !hasVolumePercentile) return null
           return (
             <div className="flex flex-wrap gap-4 mt-3 pt-3 border-t border-gray-100">
+              {hasChange5d && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">5日涨跌</span>
+                  <span className={`text-sm font-semibold ${getChangeColor(latestDaily!.change_5d)}`}>
+                    {formatPercent(latestDaily!.change_5d)}
+                  </span>
+                </div>
+              )}
+              {hasClosePercentile && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">价格分位</span>
+                  <span className={`text-sm font-semibold ${
+                    latestDaily!.close_percentile_6m! * 100 <= 30 ? 'text-green-600' :
+                    latestDaily!.close_percentile_6m! * 100 >= 70 ? 'text-red-600' :
+                    'text-gray-700'
+                  }`}>
+                    {(latestDaily!.close_percentile_6m! * 100).toFixed(1)}%
+                  </span>
+                </div>
+              )}
+              {hasVolumePercentile && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">量能分位</span>
+                  <span className={`text-sm font-semibold ${
+                    latestDaily!.volume_percentile_6m! * 100 <= 30 ? 'text-green-600' :
+                    latestDaily!.volume_percentile_6m! * 100 >= 70 ? 'text-red-600' :
+                    'text-gray-700'
+                  }`}>
+                    {(latestDaily!.volume_percentile_6m! * 100).toFixed(1)}%
+                  </span>
+                </div>
+              )}
               {hasPE && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">PE</span>
@@ -628,7 +663,7 @@ const EtfDetail: React.FC = () => {
                       v.pe_percent >= 70 ? 'bg-red-100 text-red-700' :
                       'bg-yellow-100 text-yellow-700'
                     }`}>
-                      {v.pe_percent.toFixed(1)}%分位
+                      {v.pe_percent.toFixed(1)}%
                     </span>
                   )}
                 </div>
@@ -643,7 +678,7 @@ const EtfDetail: React.FC = () => {
                       v.pb_percent >= 70 ? 'bg-red-100 text-red-700' :
                       'bg-yellow-100 text-yellow-700'
                     }`}>
-                      {v.pb_percent.toFixed(1)}%分位
+                      {v.pb_percent.toFixed(1)}%
                     </span>
                   )}
                 </div>
