@@ -83,6 +83,9 @@ export interface EtfDailyData {
   volume: number | null
   amount: number | null
   change_pct: number | null
+  change_5d: number | null
+  close_percentile_6m: number | null
+  volume_percentile_6m: number | null
   created_at: string
 }
 

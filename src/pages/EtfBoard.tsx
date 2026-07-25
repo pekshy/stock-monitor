@@ -383,9 +383,9 @@ const EtfListOnly: React.FC = memo(() => {
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">ETF名称</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap min-w-[80px]">最新价</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">涨跌</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">MA5</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">MA20</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">RSI</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">5日涨跌</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">价格分位</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">量能分位</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">PE</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">PB</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">估值</th>
@@ -435,22 +435,18 @@ const EtfListOnly: React.FC = memo(() => {
                     <td className={`text-right py-4 px-4 font-semibold ${getChangeColor(etf.latest_daily?.change_pct)}`}>
                       {formatPercent(etf.latest_daily?.change_pct)}
                     </td>
+                    <td className={`text-right py-4 px-4 font-semibold ${getChangeColor(etf.latest_daily?.change_5d)}`}>
+                      {formatPercent(etf.latest_daily?.change_5d)}
+                    </td>
                     <td className="text-right py-4 px-4 text-gray-700">
-                      {etf.latest_indicator?.ma5 !== null && etf.latest_indicator?.ma5 !== undefined
-                        ? etf.latest_indicator.ma5.toFixed(3)
+                      {etf.latest_daily?.close_percentile_6m !== null && etf.latest_daily?.close_percentile_6m !== undefined
+                        ? (etf.latest_daily.close_percentile_6m * 100).toFixed(1) + '%'
                         : '--'}
                     </td>
                     <td className="text-right py-4 px-4 text-gray-700">
-                      {etf.latest_indicator?.ma20 !== null && etf.latest_indicator?.ma20 !== undefined
-                        ? etf.latest_indicator.ma20.toFixed(3)
+                      {etf.latest_daily?.volume_percentile_6m !== null && etf.latest_daily?.volume_percentile_6m !== undefined
+                        ? (etf.latest_daily.volume_percentile_6m * 100).toFixed(1) + '%'
                         : '--'}
-                    </td>
-                    <td className="text-right py-4 px-4 text-gray-700">
-                      {etf.latest_signal?.rsi !== null && etf.latest_signal?.rsi !== undefined
-                        ? etf.latest_signal.rsi.toFixed(1)
-                        : (etf.latest_indicator?.rsi6 !== null && etf.latest_indicator?.rsi6 !== undefined
-                          ? etf.latest_indicator.rsi6.toFixed(1)
-                          : '--')}
                     </td>
                     <td className="text-right py-4 px-4 text-gray-700">
                       {etf.latest_index_valuation?.pe !== null && etf.latest_index_valuation?.pe !== undefined

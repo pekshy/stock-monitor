@@ -7,12 +7,14 @@ import {
   ComposedChart,
   Bar,
   Line,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
+  Legend,
+  ReferenceLine
 } from 'recharts'
 import { EtfDailyData, EtfIndicators, EtfClawSignal, TradeRecord, EtfMomentumSignal } from '../types'
 import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
@@ -386,7 +388,8 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
       }
       return {
         date: formatDate(d.trade_date),
-        derivative,
+        positive: derivative > 0 ? derivative : 0,
+        negative: derivative < 0 ? derivative : 0,
       }
     })
   }, [butterworthFit])
@@ -407,7 +410,9 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
             wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
             formatter={(value: any) => [Number(value).toFixed(4), '一阶导数']}
           />
-          <Line type="monotone" dataKey="derivative" stroke="#c4b5fd" strokeWidth={1.5} dot={false} name="拟合曲线一阶导数" />
+          <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
+          <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
+          <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -681,28 +686,27 @@ const EtfDetail: React.FC = () => {
           </div>
         ) : (
           <>
-            <MainChart 
-              dailyData={dailyData} 
-              indicators={indicators} 
+            <MainChart
+              dailyData={dailyData}
+              indicators={indicators}
               signals={signals}
               butterworthFit={butterworthFit}
               tradeRecords={tradeRecords}
             />
             <DerivativeChart butterworthFit={butterworthFit} />
             <VolumeChart data={dailyData} />
+            {momentumHistory.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <h3 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  动量评分走势（近3个月）
+                </h3>
+                <MomentumScoreChart data={momentumHistory} />
+              </div>
+            )}
           </>
         )}
       </div>
-
-      {momentumHistory.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            动量评分走势（近3个月）
-          </h2>
-          <MomentumScoreChart data={momentumHistory} />
-        </div>
-      )}
 
       <TradesSection symbol={etf.symbol} etfName={etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={dailyData} priceByDateMap={priceByDateMap} />
 
