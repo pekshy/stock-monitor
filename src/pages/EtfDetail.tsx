@@ -13,7 +13,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  ReferenceLine
+  ReferenceLine,
+  Scatter
 } from 'recharts'
 import { EtfDailyData, EtfIndicators, EtfClawSignal, TradeRecord, EtfMomentumSignal } from '../types'
 import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
@@ -380,18 +381,20 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
   const chartData = useMemo(() => {
     const sorted = [...butterworthFit].sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
     return sorted.map((d, i) => {
-      let derivative = 0
-      const prev = sorted[i - 1]
-      if (i > 0 && d.fitted != null && prev?.fitted != null) {
-        derivative = d.fitted - prev.fitted
-      }
+      const derivative = d.derivative ?? 0
       return {
         date: formatDate(d.trade_date),
         positive: derivative > 0 ? derivative : 0,
         negative: derivative < 0 ? derivative : 0,
+        derivative: derivative,
+        trend_signal: d.trend_signal,
       }
     })
   }, [butterworthFit])
+
+  // 买卖信号点 - 使用对应的导数值作为 y 坐标
+  const buySignals = useMemo(() => chartData.filter(d => d.trend_signal === 'BUY'), [chartData])
+  const sellSignals = useMemo(() => chartData.filter(d => d.trend_signal === 'SELL'), [chartData])
 
   if (chartData.length === 0) {
     return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
@@ -407,11 +410,16 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
           <Tooltip
             contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(229, 231, 235, 0.6)', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(2px)' }}
             wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
-            formatter={(value: any) => [Number(value).toFixed(4), '一阶导数']}
+            formatter={(value: any, name: string) => {
+              if (name === '买入' || name === '卖出') return [name, name]
+              return [Number(value).toFixed(4), '一阶导数']
+            }}
           />
           <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
           <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
           <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
+          <Scatter data={buySignals} dataKey="derivative" fill="#22c55e" shape="triangle" name="买入" r={8} />
+          <Scatter data={sellSignals} dataKey="derivative" fill="#ef4444" shape="triangle" name="卖出" r={8} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

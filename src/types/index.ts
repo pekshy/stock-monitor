@@ -319,6 +319,8 @@ export interface ButterworthFit {
   signal: string | null
   order: number | null
   cutoff: number | null
+  derivative: number | null
+  trend_signal: string | null
 }
 
 export interface EtfMomentumSignal {
