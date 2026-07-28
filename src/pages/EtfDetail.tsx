@@ -418,15 +418,15 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
 
   // 买入：绿色正三角；卖出：红色倒三角
   const BuyShape = (props: any) => {
-    if (props.cx == null || props.cy == null) return null
     const { cx, cy } = props
+    if (cx == null || cy == null) return <g />
     const size = 6
     const points = `${cx},${cy - size} ${cx - size},${cy + size} ${cx + size},${cy + size}`
     return <polygon points={points} fill="#22c55e" />
   }
   const SellShape = (props: any) => {
-    if (props.cx == null || props.cy == null) return null
     const { cx, cy } = props
+    if (cx == null || cy == null) return <g />
     const size = 6
     const points = `${cx},${cy + size} ${cx - size},${cy - size} ${cx + size},${cy - size}`
     return <polygon points={points} fill="#ef4444" />
