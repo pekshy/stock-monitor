@@ -380,12 +380,8 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
 const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butterworthFit }) => {
   const chartData = useMemo(() => {
     const sorted = [...butterworthFit].sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
-    return sorted.map((d, i) => {
-      let derivative: number | null = null
-      const prev = sorted[i - 1]
-      if (i > 0 && d.fitted != null && prev?.fitted != null) {
-        derivative = d.fitted - prev.fitted
-      }
+    return sorted.map((d) => {
+      const derivative = d.derivative
       const ts = d.trend_signal?.toUpperCase()
       const signalY = derivative ?? 0
       const point: any = {
