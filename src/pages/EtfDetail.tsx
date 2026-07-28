@@ -399,18 +399,12 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
     })
   }, [butterworthFit])
 
-  // 过滤出只有 buySignal / sellSignal 的点（避免 Scatter 把 null 当 0 画）
-  const buyData = useMemo(
-    () => chartData.filter(d => d.buySignal != null).map(d => ({ date: d.date, buySignal: d.buySignal })),
-    [chartData]
-  )
-  const sellData = useMemo(
-    () => chartData.filter(d => d.sellSignal != null).map(d => ({ date: d.date, sellSignal: d.sellSignal })),
-    [chartData]
-  )
+  // 过滤出只有 buySignal / sellSignal 的点（用于 shape 函数判断）
+  const hasBuySignal = useMemo(() => new Set(chartData.filter(d => d.buySignal != null).map(d => d.date)), [chartData])
+  const hasSellSignal = useMemo(() => new Set(chartData.filter(d => d.sellSignal != null).map(d => d.date)), [chartData])
 
   if (typeof window !== 'undefined') {
-    console.log('[DerivativeChart] buyData:', buyData.length, 'sellData:', sellData.length, '总数据:', chartData.length)
+    console.log('[DerivativeChart] BUY信号数:', hasBuySignal.size, 'SELL信号数:', hasSellSignal.size, '总数据:', chartData.length)
   }
 
   if (chartData.length === 0) {
@@ -419,15 +413,15 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
 
   // 买入：绿色正三角；卖出：红色倒三角
   const BuyShape = (props: any) => {
-    const { cx, cy } = props
-    if (cx == null || cy == null) return <g />
+    const { cx, cy, payload } = props
+    if (cx == null || cy == null || !payload?.buySignal) return <g />
     const size = 6
     const points = `${cx},${cy - size} ${cx - size},${cy + size} ${cx + size},${cy + size}`
     return <polygon points={points} fill="#22c55e" />
   }
   const SellShape = (props: any) => {
-    const { cx, cy } = props
-    if (cx == null || cy == null) return <g />
+    const { cx, cy, payload } = props
+    if (cx == null || cy == null || !payload?.sellSignal) return <g />
     const size = 6
     const points = `${cx},${cy + size} ${cx - size},${cy - size} ${cx + size},${cy - size}`
     return <polygon points={points} fill="#ef4444" />
@@ -451,8 +445,8 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
           <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
           <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
           <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
-          <Scatter data={buyData} xKey="date" yKey="buySignal" fill="#22c55e" shape={BuyShape} name="买入" />
-          <Scatter data={sellData} xKey="date" yKey="sellSignal" fill="#ef4444" shape={SellShape} name="卖出" />
+          <Scatter dataKey="buySignal" fill="#22c55e" shape={BuyShape} name="买入" />
+          <Scatter dataKey="sellSignal" fill="#ef4444" shape={SellShape} name="卖出" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
