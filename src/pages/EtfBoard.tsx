@@ -470,11 +470,11 @@ const EtfListOnly: React.FC = memo(() => {
                         <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${
                           etf.latest_trend_signal.toUpperCase() === 'BUY' ? 'bg-red-100 text-red-600' :
                           etf.latest_trend_signal.toUpperCase() === 'SELL' ? 'bg-green-100 text-green-600' :
-                          'bg-gray-100 text-gray-600'
+                          'bg-blue-100 text-blue-600'
                         }`}>
                           {etf.latest_trend_signal.toUpperCase() === 'BUY' ? '买入' :
                            etf.latest_trend_signal.toUpperCase() === 'SELL' ? '卖出' :
-                           etf.latest_trend_signal}
+                           '观望'}
                         </span>
                       ) : (
                         <span className="text-gray-400 text-sm">--</span>
