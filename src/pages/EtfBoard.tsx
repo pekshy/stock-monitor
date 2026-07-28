@@ -119,21 +119,6 @@ const EtfListOnly: React.FC = memo(() => {
     return 'bg-blue-100 text-blue-600'
   }
 
-  const getValuationColor = (valuation: string | null | undefined) => {
-    if (!valuation) return 'bg-gray-100 text-gray-600'
-    const v = valuation.toLowerCase()
-    if (v.includes('极度低估') || v.includes('低估') || v.includes('低')) {
-      return 'bg-green-100 text-green-600'
-    }
-    if (v.includes('极度高估') || v.includes('高估') || v.includes('高')) {
-      return 'bg-red-100 text-red-600'
-    }
-    if (v.includes('正常') || v.includes('适中')) {
-      return 'bg-yellow-100 text-yellow-600'
-    }
-    return 'bg-gray-100 text-gray-600'
-  }
-
   const momentumData = useMemo(() => {
     if (!momentumSignals || momentumSignals.length === 0) return null
     const latestDate = momentumSignals[0]?.trade_date
@@ -388,7 +373,7 @@ const EtfListOnly: React.FC = memo(() => {
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">量能分位</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">PE</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">PB</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">估值</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">趋势信号</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700 whitespace-nowrap min-w-[95px]">技术指标建议</th>
                   <th className="text-right py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">动量模型评分</th>
                 </tr>
@@ -481,10 +466,16 @@ const EtfListOnly: React.FC = memo(() => {
                       )}
                     </td>
                     <td className="text-center py-4 px-4">
-                      {etf.latest_index_valuation?.valuation ? (
-                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${getValuationColor(etf.latest_index_valuation.valuation)}`}>
-                          {etf.latest_index_valuation.valuation}
-                        </div>
+                      {etf.latest_trend_signal ? (
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${
+                          etf.latest_trend_signal.toUpperCase() === 'BUY' ? 'bg-red-100 text-red-600' :
+                          etf.latest_trend_signal.toUpperCase() === 'SELL' ? 'bg-green-100 text-green-600' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {etf.latest_trend_signal.toUpperCase() === 'BUY' ? '买入' :
+                           etf.latest_trend_signal.toUpperCase() === 'SELL' ? '卖出' :
+                           etf.latest_trend_signal}
+                        </span>
                       ) : (
                         <span className="text-gray-400 text-sm">--</span>
                       )}

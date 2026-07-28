@@ -442,6 +442,7 @@ export function useEtfData() {
         const latestIndicators = new Map<string, EtfIndicators>()
         const latestSignal = new Map<string, EtfClawSignal>()
         const latestIndexValuation = new Map<string, EtfTrackedIndexHistory>()
+        const latestTrendSignal = new Map<string, string | null>()
 
         dailyData?.forEach(d => {
           if (!latestDaily.has(d.symbol)) {
@@ -467,12 +468,19 @@ export function useEtfData() {
           }
         })
 
+        fitData?.forEach(f => {
+          if (!latestTrendSignal.has(f.symbol) && f.trend_signal) {
+            latestTrendSignal.set(f.symbol, f.trend_signal)
+          }
+        })
+
         etfsWithData = etfInfo.map(e => ({
           ...e,
           latest_daily: latestDaily.get(e.symbol),
           latest_indicator: latestIndicators.get(e.symbol),
           latest_signal: latestSignal.get(e.symbol),
           latest_index_valuation: e.tracking_index_code ? latestIndexValuation.get(e.tracking_index_code) : undefined,
+          latest_trend_signal: latestTrendSignal.get(e.symbol) ?? null,
           // 历史数据在详情页按需加载，列表页不存储
           daily_data: undefined,
           indicators: undefined,
