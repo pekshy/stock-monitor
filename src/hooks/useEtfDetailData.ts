@@ -87,7 +87,7 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
             .order('trade_date', { ascending: false }),
           supabase
             .from('etf_butterworth_fit')
-            .select('symbol,trade_date,fitted')
+            .select('symbol,trade_date,fitted,derivative,trend_signal')
             .eq('symbol', symbol)
             .gte('trade_date', sixMonthsAgo)
             .order('trade_date', { ascending: false }),
