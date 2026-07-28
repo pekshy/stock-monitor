@@ -401,6 +401,16 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
 
   if (typeof window !== 'undefined') {
     console.log('[DerivativeChart] BUY信号数:', hasBuySignal.size, 'SELL信号数:', hasSellSignal.size, '总数据:', chartData.length)
+    if (butterworthFit.length > 0) {
+      console.log('[DerivativeChart] 原始数据样例:', {
+        trade_date: butterworthFit[0].trade_date,
+        derivative: butterworthFit[0].derivative,
+        trend_signal: butterworthFit[0].trend_signal,
+        fitted: butterworthFit[0].fitted,
+      })
+      const firstSignal = butterworthFit.find(d => d.trend_signal != null)
+      console.log('[DerivativeChart] 第一个有信号的数据:', firstSignal)
+    }
   }
 
   if (chartData.length === 0) {
