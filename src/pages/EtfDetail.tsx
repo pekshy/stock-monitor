@@ -396,9 +396,15 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
     })
   }, [butterworthFit])
 
-  // 买卖信号点 - 使用对应的导数值作为 y 坐标（兼容大小写）
-  const buySignals = useMemo(() => chartData.filter(d => d.trend_signal?.toUpperCase() === 'BUY'), [chartData])
-  const sellSignals = useMemo(() => chartData.filter(d => d.trend_signal?.toUpperCase() === 'SELL'), [chartData])
+  // 买卖信号点 - x 对齐日期，y 对齐导数值（兼容大小写）
+  const buySignals = useMemo(
+    () => chartData.filter(d => d.trend_signal?.toUpperCase() === 'BUY' && d.derivative != null),
+    [chartData]
+  )
+  const sellSignals = useMemo(
+    () => chartData.filter(d => d.trend_signal?.toUpperCase() === 'SELL' && d.derivative != null),
+    [chartData]
+  )
 
   if (chartData.length === 0) {
     return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
@@ -436,8 +442,8 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
           <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
           <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
           <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
-          <Scatter data={buySignals} dataKey="derivative" fill="#22c55e" shape={BuyShape} name="买入信号" r={8} />
-          <Scatter data={sellSignals} dataKey="derivative" fill="#ef4444" shape={SellShape} name="卖出信号" r={8} />
+          <Scatter dataKey="y" data={buySignals.map(d => ({ x: d.date, y: d.derivative }))} fill="#22c55e" shape={BuyShape} name="买入信号" />
+          <Scatter dataKey="y" data={sellSignals.map(d => ({ x: d.date, y: d.derivative }))} fill="#ef4444" shape={SellShape} name="卖出信号" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
