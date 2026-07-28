@@ -398,18 +398,29 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
     })
   }, [butterworthFit])
 
+  // 调试：打印有多少个买入/卖出信号
+  if (typeof window !== 'undefined') {
+    const buyCount = chartData.filter(d => d.buySignal != null).length
+    const sellCount = chartData.filter(d => d.sellSignal != null).length
+    const rawBuy = butterworthFit.filter(d => d.trend_signal?.toUpperCase() === 'BUY').length
+    const rawSell = butterworthFit.filter(d => d.trend_signal?.toUpperCase() === 'SELL').length
+    console.log('[DerivativeChart] 原始 BUY:', rawBuy, 'SELL:', rawSell, '派生 BUY:', buyCount, 'SELL:', sellCount, '总数据:', chartData.length)
+  }
+
   if (chartData.length === 0) {
     return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
   }
 
   // 买入：绿色正三角；卖出：红色倒三角
   const BuyShape = (props: any) => {
+    if (props.cx == null || props.cy == null) return null
     const { cx, cy } = props
     const size = 6
     const points = `${cx},${cy - size} ${cx - size},${cy + size} ${cx + size},${cy + size}`
     return <polygon points={points} fill="#22c55e" />
   }
   const SellShape = (props: any) => {
+    if (props.cx == null || props.cy == null) return null
     const { cx, cy } = props
     const size = 6
     const points = `${cx},${cy + size} ${cx - size},${cy - size} ${cx + size},${cy - size}`
