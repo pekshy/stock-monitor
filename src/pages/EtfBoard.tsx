@@ -133,13 +133,15 @@ const EtfListOnly: React.FC = memo(() => {
   }, [momentumSignals])
 
   const momentumBySymbol = useMemo(() => {
-    const map = new Map<string, { final_score: number | null; rank: number | null }>()
+    const map = new Map<string, { final_score: number | null; rank: number | null; prev_score: number | null }>()
     if (!momentumSignals || momentumSignals.length === 0) return map
     const latestDate = momentumSignals[0]?.trade_date
+    const prevDate = momentumSignals.find(s => s.trade_date !== latestDate)?.trade_date
     momentumSignals
       .filter(s => s.trade_date === latestDate)
       .forEach(s => {
-        map.set(s.symbol, { final_score: s.final_score, rank: s.rank })
+        const prev = momentumSignals.find(p => p.symbol === s.symbol && p.trade_date === prevDate)
+        map.set(s.symbol, { final_score: s.final_score, rank: s.rank, prev_score: prev?.final_score ?? null })
       })
     return map
   }, [momentumSignals])
@@ -498,6 +500,19 @@ const EtfListOnly: React.FC = memo(() => {
                               ? momentumBySymbol.get(etf.symbol)!.final_score!.toFixed(2)
                               : '--'}
                           </span>
+                          {(() => {
+                            const data = momentumBySymbol.get(etf.symbol)!
+                            if (data.final_score != null && data.prev_score != null) {
+                              const change = data.final_score - data.prev_score
+                              if (Math.abs(change) < 0.001) return null
+                              return (
+                                <span className={`text-xs ${change > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                  {change > 0 ? '+' : ''}{change.toFixed(2)}
+                                </span>
+                              )
+                            }
+                            return null
+                          })()}
                           {momentumBySymbol.get(etf.symbol)!.rank != null && (
                             <span className="text-xs text-gray-500">
                               #{momentumBySymbol.get(etf.symbol)!.rank}
