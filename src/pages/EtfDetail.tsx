@@ -386,25 +386,16 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
       if (i > 0 && d.fitted != null && prev?.fitted != null) {
         derivative = d.fitted - prev.fitted
       }
+      const ts = d.trend_signal?.toUpperCase()
       return {
         date: formatDate(d.trade_date),
         positive: derivative != null && derivative > 0 ? derivative : null,
         negative: derivative != null && derivative < 0 ? derivative : null,
-        derivative: derivative,
-        trend_signal: d.trend_signal,
+        buySignal: ts === 'BUY' && derivative != null ? derivative : null,
+        sellSignal: ts === 'SELL' && derivative != null ? derivative : null,
       }
     })
   }, [butterworthFit])
-
-  // 买卖信号点 - x 对齐日期，y 对齐导数值（兼容大小写）
-  const buySignals = useMemo(
-    () => chartData.filter(d => d.trend_signal?.toUpperCase() === 'BUY' && d.derivative != null),
-    [chartData]
-  )
-  const sellSignals = useMemo(
-    () => chartData.filter(d => d.trend_signal?.toUpperCase() === 'SELL' && d.derivative != null),
-    [chartData]
-  )
 
   if (chartData.length === 0) {
     return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
@@ -435,15 +426,15 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
             contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(229, 231, 235, 0.6)', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(2px)' }}
             wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
             formatter={(value: any, name: string) => {
-              if (name === '买入信号' || name === '卖出信号') return [name.replace('信号', ''), '交易信号']
+              if (name === '买入' || name === '卖出') return [name, '交易信号']
               return [Number(value).toFixed(4), '一阶导数']
             }}
           />
           <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
           <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
           <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
-          <Scatter dataKey="y" data={buySignals.map(d => ({ x: d.date, y: d.derivative }))} fill="#22c55e" shape={BuyShape} name="买入信号" />
-          <Scatter dataKey="y" data={sellSignals.map(d => ({ x: d.date, y: d.derivative }))} fill="#ef4444" shape={SellShape} name="卖出信号" />
+          <Scatter dataKey="buySignal" fill="#22c55e" shape={BuyShape} name="买入" />
+          <Scatter dataKey="sellSignal" fill="#ef4444" shape={SellShape} name="卖出" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
