@@ -381,11 +381,11 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
   const chartData = useMemo(() => {
     const sorted = [...butterworthFit].sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
     return sorted.map((d) => {
-      const derivative = d.derivative ?? 0
+      const derivative = d.derivative
       return {
         date: formatDate(d.trade_date),
-        positive: derivative > 0 ? derivative : 0,
-        negative: derivative < 0 ? derivative : 0,
+        positive: derivative != null && derivative > 0 ? derivative : null,
+        negative: derivative != null && derivative < 0 ? derivative : null,
         derivative: derivative,
         trend_signal: d.trend_signal,
       }
