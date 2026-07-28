@@ -387,13 +387,14 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
         derivative = d.fitted - prev.fitted
       }
       const ts = d.trend_signal?.toUpperCase()
+      const signalY = derivative ?? 0
       const point: any = {
         date: formatDate(d.trade_date),
         positive: derivative != null && derivative > 0 ? derivative : null,
         negative: derivative != null && derivative < 0 ? derivative : null,
       }
-      if (ts === 'BUY' && derivative != null) point.buySignal = derivative
-      if (ts === 'SELL' && derivative != null) point.sellSignal = derivative
+      if (ts === 'BUY') point.buySignal = signalY
+      if (ts === 'SELL') point.sellSignal = signalY
       return point
     })
   }, [butterworthFit])
@@ -450,8 +451,8 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
           <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
           <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
           <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
-          <Scatter data={buyData} dataKey="buySignal" fill="#22c55e" shape={BuyShape} name="买入" />
-          <Scatter data={sellData} dataKey="sellSignal" fill="#ef4444" shape={SellShape} name="卖出" />
+          <Scatter data={buyData} xKey="date" yKey="buySignal" fill="#22c55e" shape={BuyShape} name="买入" />
+          <Scatter data={sellData} xKey="date" yKey="sellSignal" fill="#ef4444" shape={SellShape} name="卖出" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
