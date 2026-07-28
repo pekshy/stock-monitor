@@ -417,20 +417,23 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
     return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
   }
 
-  // 买入：绿色正三角；卖出：红色倒三角
+  // 买入：红色正三角（箭头朝上），放柱状图下方
   const BuyShape = (props: any) => {
     const { cx, cy, payload } = props
     if (cx == null || cy == null || !payload?.buySignal) return <g />
     const size = 6
-    const points = `${cx},${cy - size} ${cx - size},${cy + size} ${cx + size},${cy + size}`
-    return <polygon points={points} fill="#22c55e" />
+    const offsetY = size + 2
+    const points = `${cx},${cy + offsetY - size} ${cx - size},${cy + offsetY + size} ${cx + size},${cy + offsetY + size}`
+    return <polygon points={points} fill="#ef4444" />
   }
+  // 卖出：绿色倒三角（箭头朝下），放柱状图上方
   const SellShape = (props: any) => {
     const { cx, cy, payload } = props
     if (cx == null || cy == null || !payload?.sellSignal) return <g />
     const size = 6
-    const points = `${cx},${cy + size} ${cx - size},${cy - size} ${cx + size},${cy - size}`
-    return <polygon points={points} fill="#ef4444" />
+    const offsetY = size + 2
+    const points = `${cx},${cy - offsetY + size} ${cx - size},${cy - offsetY - size} ${cx + size},${cy - offsetY - size}`
+    return <polygon points={points} fill="#22c55e" />
   }
 
   return (
@@ -451,8 +454,8 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
           <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
           <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
           <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
-          <Scatter dataKey="buySignal" fill="#22c55e" shape={BuyShape} name="买入" />
-          <Scatter dataKey="sellSignal" fill="#ef4444" shape={SellShape} name="卖出" />
+          <Scatter dataKey="buySignal" fill="#ef4444" shape={BuyShape} name="买入" />
+          <Scatter dataKey="sellSignal" fill="#22c55e" shape={SellShape} name="卖出" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
