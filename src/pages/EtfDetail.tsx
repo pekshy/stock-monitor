@@ -398,13 +398,18 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
     })
   }, [butterworthFit])
 
-  // 调试：打印有多少个买入/卖出信号
+  // 过滤出只有 buySignal / sellSignal 的点（避免 Scatter 把 null 当 0 画）
+  const buyData = useMemo(
+    () => chartData.filter(d => d.buySignal != null).map(d => ({ date: d.date, buySignal: d.buySignal })),
+    [chartData]
+  )
+  const sellData = useMemo(
+    () => chartData.filter(d => d.sellSignal != null).map(d => ({ date: d.date, sellSignal: d.sellSignal })),
+    [chartData]
+  )
+
   if (typeof window !== 'undefined') {
-    const buyCount = chartData.filter(d => d.buySignal != null).length
-    const sellCount = chartData.filter(d => d.sellSignal != null).length
-    const rawBuy = butterworthFit.filter(d => d.trend_signal?.toUpperCase() === 'BUY').length
-    const rawSell = butterworthFit.filter(d => d.trend_signal?.toUpperCase() === 'SELL').length
-    console.log('[DerivativeChart] 原始 BUY:', rawBuy, 'SELL:', rawSell, '派生 BUY:', buyCount, 'SELL:', sellCount, '总数据:', chartData.length)
+    console.log('[DerivativeChart] buyData:', buyData.length, 'sellData:', sellData.length, '总数据:', chartData.length)
   }
 
   if (chartData.length === 0) {
@@ -445,8 +450,8 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
           <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
           <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
           <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
-          <Scatter dataKey="buySignal" fill="#22c55e" shape={BuyShape} name="买入" />
-          <Scatter dataKey="sellSignal" fill="#ef4444" shape={SellShape} name="卖出" />
+          <Scatter data={buyData} dataKey="buySignal" fill="#22c55e" shape={BuyShape} name="买入" />
+          <Scatter data={sellData} dataKey="sellSignal" fill="#ef4444" shape={SellShape} name="卖出" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
