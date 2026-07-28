@@ -387,13 +387,14 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
         derivative = d.fitted - prev.fitted
       }
       const ts = d.trend_signal?.toUpperCase()
-      return {
+      const point: any = {
         date: formatDate(d.trade_date),
         positive: derivative != null && derivative > 0 ? derivative : null,
         negative: derivative != null && derivative < 0 ? derivative : null,
-        buySignal: ts === 'BUY' && derivative != null ? derivative : null,
-        sellSignal: ts === 'SELL' && derivative != null ? derivative : null,
       }
+      if (ts === 'BUY' && derivative != null) point.buySignal = derivative
+      if (ts === 'SELL' && derivative != null) point.sellSignal = derivative
+      return point
     })
   }, [butterworthFit])
 
