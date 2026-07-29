@@ -469,8 +469,8 @@ export function useEtfData() {
         })
 
         fitData?.forEach(f => {
-          if (!latestTrendSignal.has(f.symbol) && f.trend_signal) {
-            latestTrendSignal.set(f.symbol, f.trend_signal)
+          if (!latestTrendSignal.has(f.symbol)) {
+            latestTrendSignal.set(f.symbol, f.trend_signal ?? null)
           }
         })
 
