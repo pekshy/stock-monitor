@@ -134,8 +134,21 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
   const portfolioSummary = useMemo(() => {
     const totalCost = positions.reduce((sum, p) => sum + p.totalBuy, 0)
     const totalValue = positions.reduce((sum, p) => sum + p.currentPrice * p.totalShares, 0)
-    const totalProfitLoss = totalValue - totalCost
-    const totalProfitLossPct = totalCost > 0 ? (totalProfitLoss / totalCost) * 100 : 0
+    const unrealizedProfitLoss = totalValue - totalCost
+
+    // 已清仓损益：卖出记录 linked_id 指向买入记录，损益 = 卖出金额 - 买入金额
+    const realizedProfitLoss = records.reduce((sum, r) => {
+      if (r.direction === 'sell' && r.linked_id != null) {
+        const buyRecord = records.find(b => b.id === r.linked_id)
+        if (buyRecord) {
+          return sum + (r.amount - buyRecord.amount)
+        }
+      }
+      return sum
+    }, 0)
+
+    const totalProfitLoss = unrealizedProfitLoss + realizedProfitLoss
+    const totalProfitLossPct = totalCost > 0 ? (unrealizedProfitLoss / totalCost) * 100 : 0
     const returnOnPrincipal = principal > 0 ? (totalProfitLoss / principal) * 100 : 0
     const cashRatio = principal > 0 ? ((principal - totalCost) / principal) * 100 : 0
     const positionRatio = principal > 0 ? (totalCost / principal) * 100 : 0
@@ -143,6 +156,8 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
     return {
       totalCost,
       totalValue,
+      unrealizedProfitLoss,
+      realizedProfitLoss,
       totalProfitLoss,
       totalProfitLossPct,
       returnOnPrincipal,
@@ -157,7 +172,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
         profitLossPct: p.profitLossPct,
       })).sort((a, b) => b.cost - a.cost)
     }
-  }, [positions, principal])
+  }, [positions, records, principal])
 
   const getCurrentPrice = (symbol: string): number | undefined => {
     if (isEtfCode(symbol)) {
@@ -327,7 +342,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
         </div>
 
         {/* 总览数据 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
           <div className="bg-white rounded-lg p-3">
             <div className="text-xs text-gray-500 mb-1">持仓市值</div>
             <div className="text-lg font-bold text-gray-900">¥{portfolioSummary.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
@@ -337,17 +352,26 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
             <div className="text-lg font-bold text-gray-900">¥{portfolioSummary.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
           </div>
           <div className="bg-white rounded-lg p-3">
-            <div className="text-xs text-gray-500 mb-1">总收益</div>
-            <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.totalProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
-              {portfolioSummary.totalProfitLoss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-              {portfolioSummary.totalProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.totalProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-              <span className="text-xs">({portfolioSummary.totalProfitLoss >= 0 ? '+' : ''}{portfolioSummary.totalProfitLossPct.toFixed(2)}%)</span>
+            <div className="text-xs text-gray-500 mb-1">浮动盈亏</div>
+            <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.unrealizedProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+              {portfolioSummary.unrealizedProfitLoss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+              {portfolioSummary.unrealizedProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.unrealizedProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              <span className="text-xs">({portfolioSummary.unrealizedProfitLoss >= 0 ? '+' : ''}{portfolioSummary.totalProfitLossPct.toFixed(2)}%)</span>
             </div>
           </div>
           <div className="bg-white rounded-lg p-3">
-            <div className="text-xs text-gray-500 mb-1">本金收益率</div>
-            <div className={`text-lg font-bold ${portfolioSummary.returnOnPrincipal >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <div className="text-xs text-gray-500 mb-1">已清仓损益</div>
+            <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.realizedProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+              {portfolioSummary.realizedProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.realizedProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            </div>
+          </div>
+          <div className="bg-white rounded-lg p-3">
+            <div className="text-xs text-gray-500 mb-1">总收益率（vs本金）</div>
+            <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.returnOnPrincipal >= 0 ? 'text-red-600' : 'text-green-600'}`}>
               {portfolioSummary.returnOnPrincipal >= 0 ? '+' : ''}{portfolioSummary.returnOnPrincipal.toFixed(2)}%
+              <span className="text-xs whitespace-nowrap">
+                ({portfolioSummary.totalProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.totalProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })})
+              </span>
             </div>
           </div>
         </div>
