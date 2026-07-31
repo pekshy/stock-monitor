@@ -1,5 +1,5 @@
 import React, { useState, useMemo, memo } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Wallet, TrendingUp, TrendingDown, Edit3, Check } from 'lucide-react'
 import { useTradeRecords } from '../hooks/useTradeRecords'
 import { useEtfContext } from '../context/EtfContext'
 import { useStockContext } from '../context/StockContext'
@@ -20,6 +20,24 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
   const [editRecord, setEditRecord] = useState<TradeRecord | null>(null)
   const [sellModalOpen, setSellModalOpen] = useState(false)
   const [sellRecord, setSellRecord] = useState<TradeRecord | null>(null)
+
+  // 可配置本金
+  const [principal, setPrincipal] = useState<number>(() => {
+    const saved = localStorage.getItem('trade_principal')
+    return saved ? parseFloat(saved) : 100000
+  })
+  const [editingPrincipal, setEditingPrincipal] = useState(false)
+  const [principalInput, setPrincipalInput] = useState('')
+
+  const savePrincipal = () => {
+    const val = parseFloat(principalInput)
+    if (!isNaN(val) && val > 0) {
+      setPrincipal(val)
+      localStorage.setItem('trade_principal', String(val))
+    }
+    setEditingPrincipal(false)
+    setPrincipalInput('')
+  }
 
   const isEtfCode = (symbol: string) => {
     const s = symbol.toUpperCase()
@@ -111,6 +129,35 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
 
     return Array.from(symbolMap.values()).filter(p => p.netPosition > 0)
   }, [filteredRecords, etfPriceMap, stockPriceMap])
+
+  // 仓位配置与总收益
+  const portfolioSummary = useMemo(() => {
+    const totalCost = positions.reduce((sum, p) => sum + p.totalBuy, 0)
+    const totalValue = positions.reduce((sum, p) => sum + p.currentPrice * p.totalShares, 0)
+    const totalProfitLoss = totalValue - totalCost
+    const totalProfitLossPct = totalCost > 0 ? (totalProfitLoss / totalCost) * 100 : 0
+    const returnOnPrincipal = principal > 0 ? (totalProfitLoss / principal) * 100 : 0
+    const cashRatio = principal > 0 ? ((principal - totalCost) / principal) * 100 : 0
+    const positionRatio = principal > 0 ? (totalCost / principal) * 100 : 0
+
+    return {
+      totalCost,
+      totalValue,
+      totalProfitLoss,
+      totalProfitLossPct,
+      returnOnPrincipal,
+      cashRatio: Math.max(0, cashRatio),
+      positionRatio: Math.min(100, positionRatio),
+      positions: positions.map(p => ({
+        symbol: p.symbol,
+        name: p.name || p.symbol,
+        cost: p.totalBuy,
+        ratio: principal > 0 ? (p.totalBuy / principal) * 100 : 0,
+        profitLoss: p.profitLoss,
+        profitLossPct: p.profitLossPct,
+      })).sort((a, b) => b.cost - a.cost)
+    }
+  }, [positions, principal])
 
   const getCurrentPrice = (symbol: string): number | undefined => {
     if (isEtfCode(symbol)) {
@@ -240,6 +287,135 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
             <Plus className="h-4 w-4" />
             添加交易
           </button>
+        </div>
+      </div>
+
+      {/* 仓位配置与总收益 */}
+      <div className="mb-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Wallet className="h-5 w-5 text-gray-700" />
+            <span className="text-sm font-semibold text-gray-700">仓位配置与收益</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500">总本金</span>
+            {editingPrincipal ? (
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  value={principalInput}
+                  onChange={e => setPrincipalInput(e.target.value)}
+                  placeholder={principal.toLocaleString()}
+                  className="w-28 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  autoFocus
+                  onKeyDown={e => { if (e.key === 'Enter') savePrincipal(); if (e.key === 'Escape') setEditingPrincipal(false) }}
+                />
+                <button onClick={savePrincipal} className="p-1 text-green-600 hover:bg-green-50 rounded">
+                  <Check className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setPrincipalInput(String(principal)); setEditingPrincipal(true) }}
+                className="flex items-center gap-1 text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+              >
+                ¥{principal.toLocaleString()}
+                <Edit3 className="h-3 w-3 text-gray-400" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* 总览数据 */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <div className="bg-white rounded-lg p-3">
+            <div className="text-xs text-gray-500 mb-1">持仓市值</div>
+            <div className="text-lg font-bold text-gray-900">¥{portfolioSummary.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+          </div>
+          <div className="bg-white rounded-lg p-3">
+            <div className="text-xs text-gray-500 mb-1">投入成本</div>
+            <div className="text-lg font-bold text-gray-900">¥{portfolioSummary.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+          </div>
+          <div className="bg-white rounded-lg p-3">
+            <div className="text-xs text-gray-500 mb-1">总收益</div>
+            <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.totalProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+              {portfolioSummary.totalProfitLoss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+              {portfolioSummary.totalProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.totalProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              <span className="text-xs">({portfolioSummary.totalProfitLoss >= 0 ? '+' : ''}{portfolioSummary.totalProfitLossPct.toFixed(2)}%)</span>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg p-3">
+            <div className="text-xs text-gray-500 mb-1">本金收益率</div>
+            <div className={`text-lg font-bold ${portfolioSummary.returnOnPrincipal >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+              {portfolioSummary.returnOnPrincipal >= 0 ? '+' : ''}{portfolioSummary.returnOnPrincipal.toFixed(2)}%
+            </div>
+          </div>
+        </div>
+
+        {/* 仓位配置比例条 */}
+        <div className="mb-3">
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
+            <span>仓位配置</span>
+            <span>持仓 {portfolioSummary.positionRatio.toFixed(1)}% · 现金 {portfolioSummary.cashRatio.toFixed(1)}%</span>
+          </div>
+          <div className="flex h-6 rounded-full overflow-hidden bg-gray-200">
+            {portfolioSummary.positions.map((p, i) => {
+              const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6']
+              return p.ratio > 0 && (
+                <div
+                  key={p.symbol}
+                  className="flex items-center justify-center text-xs text-white font-medium transition-all hover:brightness-110"
+                  style={{ width: `${p.ratio}%`, backgroundColor: colors[i % colors.length] }}
+                  title={`${p.name}: ${p.ratio.toFixed(1)}%`}
+                >
+                  {p.ratio > 5 ? `${p.ratio.toFixed(0)}%` : ''}
+                </div>
+              )
+            })}
+            {portfolioSummary.cashRatio > 0 && (
+              <div className="flex items-center justify-center text-xs text-gray-600 font-medium bg-gray-200" style={{ width: `${portfolioSummary.cashRatio}%` }}>
+                {portfolioSummary.cashRatio > 5 ? `${portfolioSummary.cashRatio.toFixed(0)}%` : ''}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 各持仓明细 */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs text-gray-500 border-b border-gray-200">
+                <th className="text-left py-1.5 px-2 font-medium">名称</th>
+                <th className="text-right py-1.5 px-2 font-medium">投入</th>
+                <th className="text-right py-1.5 px-2 font-medium">占比</th>
+                <th className="text-right py-1.5 px-2 font-medium">收益</th>
+                <th className="text-right py-1.5 px-2 font-medium">收益率</th>
+              </tr>
+            </thead>
+            <tbody>
+              {portfolioSummary.positions.map((p, i) => {
+                const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6']
+                return (
+                  <tr key={p.symbol} className="border-b border-gray-100">
+                    <td className="py-1.5 px-2">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors[i % colors.length] }} />
+                        <span className="font-medium text-gray-700">{p.name}</span>
+                      </span>
+                    </td>
+                    <td className="text-right py-1.5 px-2 text-gray-600">¥{p.cost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                    <td className="text-right py-1.5 px-2 text-gray-600">{p.ratio.toFixed(1)}%</td>
+                    <td className={`text-right py-1.5 px-2 font-medium ${p.profitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      {p.profitLoss >= 0 ? '+' : ''}¥{p.profitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </td>
+                    <td className={`text-right py-1.5 px-2 font-medium ${p.profitLossPct >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      {p.profitLossPct >= 0 ? '+' : ''}{p.profitLossPct.toFixed(2)}%
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
