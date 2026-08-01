@@ -136,12 +136,14 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
     const totalValue = positions.reduce((sum, p) => sum + p.currentPrice * p.totalShares, 0)
     const unrealizedProfitLoss = totalValue - totalCost
 
-    // 已清仓损益：卖出记录 linked_id 指向买入记录，损益 = 卖出金额 - 买入金额
+    // 已清仓损益：卖出记录 linked_id 指向买入记录
+    // 损益 = 股数 × (卖出价 - 买入价)，股数 = 买入金额 / 买入价
     const realizedProfitLoss = records.reduce((sum, r) => {
       if (r.direction === 'sell' && r.linked_id != null) {
         const buyRecord = records.find(b => b.id === r.linked_id)
-        if (buyRecord) {
-          return sum + (r.amount - buyRecord.amount)
+        if (buyRecord && buyRecord.buy_price && buyRecord.buy_price > 0 && r.buy_price) {
+          const shares = buyRecord.amount / buyRecord.buy_price
+          return sum + shares * (r.buy_price - buyRecord.buy_price)
         }
       }
       return sum
@@ -201,9 +203,23 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
     setModalOpen(true)
   }
 
-  const handleDelete = (id: number) => {
-    if (!window.confirm('确定删除这笔交易记录吗？')) return
-    deleteRecord(id)
+  const handleDelete = async (id: number) => {
+    // 查找是否有卖出记录通过 linked_id 引用此记录
+    const pairedSells = records.filter(r => r.direction === 'sell' && r.linked_id === id)
+    const message = pairedSells.length > 0
+      ? `该记录有关联的卖出记录（${pairedSells.length}条），将一并删除。确定删除吗？`
+      : '确定删除这笔交易记录吗？'
+    if (!window.confirm(message)) return
+    try {
+      // 先删除关联的卖出记录，避免外键约束失败
+      for (const sell of pairedSells) {
+        await deleteRecord(sell.id)
+      }
+      await deleteRecord(id)
+    } catch (error) {
+      console.error('删除交易记录失败:', error)
+      alert('删除失败，请重试')
+    }
   }
 
   const handleSell = (record: TradeRecord) => {
@@ -352,7 +368,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
             <div className="text-lg font-bold text-gray-900">¥{portfolioSummary.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
           </div>
           <div className="bg-white rounded-lg p-3">
-            <div className="text-xs text-gray-500 mb-1">浮动盈亏</div>
+            <div className="text-xs text-gray-500 mb-1">当前持仓损益</div>
             <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.unrealizedProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
               {portfolioSummary.unrealizedProfitLoss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
               {portfolioSummary.unrealizedProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.unrealizedProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
