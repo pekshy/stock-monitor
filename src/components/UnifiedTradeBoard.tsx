@@ -7,7 +7,6 @@ import { TradeRecord, Position } from '../types'
 import { TradeRecordItem } from './TradeRecordItem'
 import { TradeModal } from './TradeModal'
 import { SellConfirmModal } from './SellConfirmModal'
-import { PositionCard } from './PositionCard'
 
 type TradeFilter = 'all' | 'etf' | 'stock'
 
@@ -458,18 +457,6 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
           </table>
         </div>
       </div>
-
-      {/* 持仓概览 */}
-      {positions.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">持仓概览</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {positions.map(pos => (
-              <PositionCard key={pos.symbol} position={pos} />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* 交易记录列表 */}
       {loading ? (
