@@ -51,7 +51,7 @@ export function useEtfNotes() {
     try {
       const { data, error } = await supabase
         .from('etf_notes')
-        .update({ note: text, updated_at: new Date().toISOString() })
+        .update({ note: text })
         .eq('id', id)
         .select()
         .single()
@@ -129,7 +129,7 @@ export function useEtfNotesBySymbol(symbol: string) {
     try {
       const { data, error } = await supabase
         .from('etf_notes')
-        .update({ note: text, updated_at: new Date().toISOString() })
+        .update({ note: text })
         .eq('id', id)
         .select()
         .single()
