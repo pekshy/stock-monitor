@@ -385,17 +385,18 @@ export function useEtfData() {
         const indexCodes = etfInfo.map(e => e.tracking_index_code).filter((c): c is string => !!c)
 
         // 列表页只需要最新数据，详情页按需加载历史数据
-        // 使用 .limit(1) 获取每个 symbol 的最新一条数据，避免一次性加载过多数据
+        // 增加 limit 避免 Supabase 默认 1000 行截断导致部分 ETF 最新数据丢失
         const requests = [
-          supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
-          supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
-          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }),
-          supabase.from('etf_butterworth_fit').select('*').in('symbol', symbols).order('trade_date', { ascending: false })
+          supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
+          supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
+          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
+          // 只需 trend_signal 字段，按 trade_date 降序取每个 symbol 最新一条
+          supabase.from('etf_butterworth_fit').select('symbol,trade_date,trend_signal').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000)
         ]
 
         if (indexCodes.length > 0) {
           requests.push(
-            supabase.from('etf_tracked_index_history').select('*').in('index_code', indexCodes).order('trade_date', { ascending: false })
+            supabase.from('etf_tracked_index_history').select('*').in('index_code', indexCodes).order('trade_date', { ascending: false }).limit(10000)
           )
         }
         
@@ -433,7 +434,7 @@ export function useEtfData() {
         if (indexCodes.length > 0 && results[4]) {
           const { data: indexData, error: indexErr } = results[4]
           if (indexErr) throw indexErr
-          indexValuations = indexData || []
+          indexValuations = (indexData as EtfTrackedIndexHistory[]) || []
           console.log('Index valuations:', indexData)
         }
 
