@@ -2,11 +2,18 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../utils/supabase'
 import { EtfNote } from '../types'
 
+function sortByUpdatedTime<T extends { updated_at?: string; created_at: string }>(list: T[]): T[] {
+  return [...list].sort((a, b) => {
+    const aTime = (a as any).updated_at || a.created_at
+    const bTime = (b as any).updated_at || b.created_at
+    return bTime.localeCompare(aTime)
+  })
+}
+
 export function useEtfNotes() {
   const [notes, setNotes] = useState<EtfNote[]>([])
   const [loading, setLoading] = useState(false)
 
-  // 获取所有笔记（倒序，最新在前）
   const fetchNotes = useCallback(async () => {
     setLoading(true)
     try {
@@ -15,7 +22,7 @@ export function useEtfNotes() {
         .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
-      setNotes((data as EtfNote[]) || [])
+      setNotes(sortByUpdatedTime((data as EtfNote[]) || []))
     } catch (err) {
       console.error('Error fetching ETF notes:', err)
     } finally {
@@ -27,7 +34,6 @@ export function useEtfNotes() {
     fetchNotes()
   }, [fetchNotes])
 
-  // 添加笔记
   const addNote = useCallback(async (symbol: string, noteText: string) => {
     if (!noteText.trim()) return
     try {
@@ -37,14 +43,13 @@ export function useEtfNotes() {
         .select()
         .single()
       if (error) throw error
-      setNotes(prev => [data as EtfNote, ...prev])
+      setNotes(prev => sortByUpdatedTime([data as EtfNote, ...prev]))
     } catch (err) {
       console.error('Error adding ETF note:', err)
       throw err
     }
   }, [])
 
-  // 修改笔记
   const updateNote = useCallback(async (id: number, newText: string) => {
     const text = newText.trim()
     if (!text) return
@@ -57,14 +62,13 @@ export function useEtfNotes() {
         .select()
         .single()
       if (error) throw error
-      setNotes(prev => prev.map(n => n.id === id ? (data as EtfNote) : n))
+      setNotes(prev => sortByUpdatedTime(prev.map(n => n.id === id ? (data as EtfNote) : n)))
     } catch (err) {
       console.error('Error updating ETF note:', err)
       throw err
     }
   }, [])
 
-  // 删除笔记
   const deleteNote = useCallback(async (id: number) => {
     try {
       const { error } = await supabase
@@ -98,7 +102,7 @@ export function useEtfNotesBySymbol(symbol: string) {
           .eq('symbol', symbol)
           .order('created_at', { ascending: false })
         if (error) throw error
-        setNotes((data as EtfNote[]) || [])
+        setNotes(sortByUpdatedTime((data as EtfNote[]) || []))
       } catch (err) {
         console.error('Error fetching ETF notes:', err)
       } finally {
@@ -117,7 +121,7 @@ export function useEtfNotesBySymbol(symbol: string) {
         .select()
         .single()
       if (error) throw error
-      setNotes(prev => [data as EtfNote, ...prev])
+      setNotes(prev => sortByUpdatedTime([data as EtfNote, ...prev]))
     } catch (err) {
       console.error('Error adding ETF note:', err)
       throw err
@@ -136,7 +140,7 @@ export function useEtfNotesBySymbol(symbol: string) {
         .select()
         .single()
       if (error) throw error
-      setNotes(prev => prev.map(n => n.id === id ? (data as EtfNote) : n))
+      setNotes(prev => sortByUpdatedTime(prev.map(n => n.id === id ? (data as EtfNote) : n)))
     } catch (err) {
       console.error('Error updating ETF note:', err)
       throw err
