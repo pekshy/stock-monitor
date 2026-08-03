@@ -385,13 +385,12 @@ export function useEtfData() {
         const indexCodes = etfInfo.map(e => e.tracking_index_code).filter((c): c is string => !!c)
 
         // 列表页只需要最新数据，详情页按需加载历史数据
-        // 增加 limit 避免 Supabase 默认 1000 行截断导致部分 ETF 最新数据丢失
+        // etf_butterworth_fit 单独处理：先取最新日期，再查最近 7 天数据
+        // 确保每个 symbol 都能拿到最新 trend_signal，避免 limit 截断导致部分 ETF 数据丢失
         const requests = [
           supabase.from('etf_daily_data').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
           supabase.from('etf_indicators').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
-          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000),
-          // 只需 trend_signal 字段，按 trade_date 降序取每个 symbol 最新一条
-          supabase.from('etf_butterworth_fit').select('symbol,trade_date,trend_signal').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000)
+          supabase.from('etf_claw_signals').select('*').in('symbol', symbols).order('trade_date', { ascending: false }).limit(10000)
         ]
 
         if (indexCodes.length > 0) {
@@ -399,9 +398,17 @@ export function useEtfData() {
             supabase.from('etf_tracked_index_history').select('*').in('index_code', indexCodes).order('trade_date', { ascending: false }).limit(10000)
           )
         }
-        
-        const results = await Promise.all(requests)
-        
+
+        // 并行：requests 数组 + butterworth_fit 最新日期查询（limit 1，很快）
+        const fitLatestPromise = supabase
+          .from('etf_butterworth_fit')
+          .select('trade_date')
+          .order('trade_date', { ascending: false })
+          .limit(1)
+          .single()
+
+        const [results, fitLatestRes] = await Promise.all([Promise.all(requests), fitLatestPromise])
+
         const { data: dailyData, error: dailyErr } = results[0]
         if (dailyErr) throw dailyErr
         console.log('ETF daily data:', dailyData)
@@ -426,13 +433,26 @@ export function useEtfData() {
         if (signalsErr) throw signalsErr
         console.log('ETF signals:', signalsData)
 
-        const { data: fitData, error: fitErr } = results[3]
-        if (fitErr) throw fitErr
+        // butterworth_fit：基于最新日期查最近 7 天数据，确保覆盖所有 symbol 的最新值
+        let fitData: { symbol: string; trade_date: string; trend_signal: string | null }[] = []
+        if (!fitLatestRes.error && fitLatestRes.data?.trade_date) {
+          const latestFitDate = new Date(fitLatestRes.data.trade_date)
+          latestFitDate.setDate(latestFitDate.getDate() - 7)
+          const sevenDaysAgo = latestFitDate.toISOString().split('T')[0]
+          const { data: fitRecent, error: fitErr } = await supabase
+            .from('etf_butterworth_fit')
+            .select('symbol,trade_date,trend_signal')
+            .in('symbol', symbols)
+            .gte('trade_date', sevenDaysAgo)
+            .order('trade_date', { ascending: false })
+          if (fitErr) throw fitErr
+          fitData = fitRecent || []
+        }
         console.log('Butterworth fit data:', fitData)
 
         let indexValuations: EtfTrackedIndexHistory[] = []
-        if (indexCodes.length > 0 && results[4]) {
-          const { data: indexData, error: indexErr } = results[4]
+        if (indexCodes.length > 0 && results[3]) {
+          const { data: indexData, error: indexErr } = results[3]
           if (indexErr) throw indexErr
           indexValuations = (indexData as EtfTrackedIndexHistory[]) || []
           console.log('Index valuations:', indexData)
