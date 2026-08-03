@@ -1,7 +1,8 @@
-import React, { useMemo, useState, memo } from 'react'
+import React, { useMemo, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Target, ChevronDown, ChevronUp, Search, TrendingUp, Star } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
+import { usePersistentState } from '../hooks/usePersistentState'
 import { formatPercent, getChangeColor } from '../utils/formatters'
 
 const EtfListOnly: React.FC = memo(() => {
@@ -23,11 +24,11 @@ const EtfListOnly: React.FC = memo(() => {
     return 3
   }
 
-  const [showAll, setShowAll] = useState(false)
-  const [searchText, setSearchText] = useState('')
-  const [focusFilter, setFocusFilter] = useState<'all' | 'focused'>('all')
-  const [signalFilter, setSignalFilter] = useState<'all' | 'sell' | 'buy' | 'watch'>('all')
-  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [showAll, setShowAll] = usePersistentState('etf_filter_showAll', false)
+  const [searchText, setSearchText] = usePersistentState('etf_filter_searchText', '')
+  const [focusFilter, setFocusFilter] = usePersistentState<'all' | 'focused'>('etf_filter_focusFilter', 'all')
+  const [signalFilter, setSignalFilter] = usePersistentState<'all' | 'sell' | 'buy' | 'watch'>('etf_filter_signalFilter', 'all')
+  const [categoryFilter, setCategoryFilter] = usePersistentState<string>('etf_filter_categoryFilter', 'all')
 
   const categories = useMemo(() => {
     const cats = [...new Set(etfs.map(e => e.category).filter((c): c is string => c !== null && c !== undefined))].sort()
