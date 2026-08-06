@@ -479,15 +479,17 @@ export const MarketIndicators: React.FC<MarketIndicatorsProps> = ({
 }) => {
   const globalCategories = useMemo(
     () => {
-      const nonInflationRules = GLOBAL_CATEGORIES.filter(c => c.id !== 'inflation')
-      const nonInflationCats = buildIndicatorCategories(globalIndicatorSeries, nonInflationRules)
+      // 从 chinaIndicatorSeries 构建的分类（中国宏观指标表中的数据）
+      const chinaRuleIds = ['inflation', 'margin_balance']
+      const chinaRules = GLOBAL_CATEGORIES.filter(c => chinaRuleIds.includes(c.id))
+      const chinaCats = buildIndicatorCategories(chinaIndicatorSeries, chinaRules)
 
-      const inflationRules = GLOBAL_CATEGORIES.filter(c => c.id === 'inflation')
-      const inflationCats = buildIndicatorCategories(chinaIndicatorSeries, inflationRules)
+      const globalRules = GLOBAL_CATEGORIES.filter(c => !chinaRuleIds.includes(c.id))
+      const globalCats = buildIndicatorCategories(globalIndicatorSeries, globalRules)
 
       const catsById = new Map<string, IndicatorCategory>()
-      nonInflationCats.forEach(c => catsById.set(c.id, c))
-      inflationCats.forEach(c => catsById.set(c.id, c))
+      globalCats.forEach(c => catsById.set(c.id, c))
+      chinaCats.forEach(c => catsById.set(c.id, c))
       return GLOBAL_CATEGORIES
         .map(rule => catsById.get(rule.id))
         .filter((c): c is IndicatorCategory => !!c)

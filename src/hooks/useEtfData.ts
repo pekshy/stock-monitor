@@ -202,6 +202,16 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
       return u.includes('STOCK_MARKET_VOLUME') || u.includes('A_STOCK') || u.includes('A股') || u === 'VOLUME'
     },
     defaultIndicator: 'stock_market_volume'
+  },
+  {
+    id: 'margin_balance',
+    label: 'A股融资融券',
+    color: '#0d9488',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'MARGIN_BALANCE' || u.includes('MARGIN')
+    },
+    defaultIndicator: 'margin_balance'
   }
 ]
 
