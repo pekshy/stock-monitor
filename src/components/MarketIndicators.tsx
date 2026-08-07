@@ -101,6 +101,7 @@ const getIndicatorLabel = (id: string): string => {
     'CPI': 'CPI',
     'CORE.CPI': '核心CPI',
     'PPI': 'PPI',
+    'PMI': 'PMI',
     'GDP': 'GDP',
     'DURABLE.ORDERS': '耐用品',
     'CAPACITY.UTILIZATION': '产能',
@@ -250,7 +251,6 @@ const FearGreedCard: React.FC<{ series: FearGreedSeries }> = ({ series }) => {
         <div className="font-bold" style={{ color }}>
           A股恐贪指数
         </div>
-        <div className="text-xs text-gray-400">{series.latest_date}</div>
       </div>
 
       <div className="flex items-start justify-between mb-2">
@@ -341,6 +341,12 @@ const FearGreedCard: React.FC<{ series: FearGreedSeries }> = ({ series }) => {
           />
         </LineChart>
       </ResponsiveContainer>
+
+      {series.latest_date && (
+        <div className="text-xs text-gray-400 mt-1 text-right">
+          更新于 {series.latest_date}
+        </div>
+      )}
     </div>
   )
 }
@@ -485,7 +491,7 @@ export const MarketIndicators: React.FC<MarketIndicatorsProps> = ({
   const globalCategories = useMemo(
     () => {
       // 从 chinaIndicatorSeries 构建的分类（中国宏观指标表中的数据）
-      const chinaRuleIds = ['inflation_cn', 'margin_balance']
+      const chinaRuleIds = ['cn_macro', 'margin_balance']
       const chinaRules = GLOBAL_CATEGORIES.filter(c => chinaRuleIds.includes(c.id))
       const chinaCats = buildIndicatorCategories(chinaIndicatorSeries, chinaRules)
 
@@ -514,7 +520,7 @@ export const MarketIndicators: React.FC<MarketIndicatorsProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {(() => {
             // A股恐贪指数插入到中国通胀之后、A股成交量之前
-            const insertAfterId = 'inflation_cn'
+            const insertAfterId = 'cn_macro'
             const insertIdx = globalCategories.findIndex(c => c.id === insertAfterId) + 1
             const beforeCards = globalCategories.slice(0, insertIdx)
             const afterCards = globalCategories.slice(insertIdx)

@@ -104,15 +104,15 @@ type CategoryRule = {
   memberOrder?: string[] // 可选：indicator_id 优先级/展示顺序（从左到右）
 }
 
-// 通胀类别的精确匹配 ID
-// 中国数据用短 ID（cpi/ppi），来自 china_indicators 表（同比指数，上年同月=100）
+// 通胀/宏观类别的精确匹配 ID
+// 中国数据用短 ID（cpi/ppi/pmi），来自 china_indicators 表
 // 美国数据用 us_ 前缀 ID，来自 fred_indicators 表（定基指数）
-const INFLATION_CN_IDS = ['CPI', 'PPI']
+const CN_MACRO_IDS = ['CPI', 'PPI', 'PMI']
 const INFLATION_US_IDS = ['US_CPI', 'US_PPI', 'US_CORE_CPI', 'US_PCE', 'US_CORE_PCE']
 
 // 全球指标分类（按看板展示顺序：
 // 第一行-美国：美元指数、美债收益率、美国通胀、恐慌指数
-// 第二行-中国：人民币汇率、货币、中国通胀、A股恐贪指数、A股成交量、A股融资融券
+// 第二行-中国：人民币汇率、货币、中国宏观经济、A股恐贪指数、A股成交量、A股融资融券
 // 最后-全球商品：贵金属、能源、数字货币）
 const GLOBAL_CATEGORIES: CategoryRule[] = [
   // === 美国相关指标 ===
@@ -179,13 +179,13 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     defaultIndicator: 'SHIBOR'
   },
   {
-    id: 'inflation_cn',
-    label: '中国通胀',
+    id: 'cn_macro',
+    label: '中国宏观经济',
     color: '#dc2626',
-    // 中国 CPI/PPI（同比指数，上年同月=100），来自 china_indicators 表
-    matches: (id) => INFLATION_CN_IDS.includes(id.toUpperCase()),
+    // 中国 CPI/PPI/PMI，来自 china_indicators 表
+    matches: (id) => CN_MACRO_IDS.includes(id.toUpperCase()),
     defaultIndicator: 'cpi',
-    memberOrder: ['cpi', 'ppi']
+    memberOrder: ['cpi', 'ppi', 'pmi']
   },
   {
     id: 'a_stock_volume',
