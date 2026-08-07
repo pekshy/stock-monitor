@@ -17,7 +17,7 @@ import {
   Scatter
 } from 'recharts'
 import { EtfDailyData, EtfIndicators, EtfClawSignal, TradeRecord, EtfMomentumSignal } from '../types'
-import { formatPercent, formatPrice, formatDate, getChangeColor } from '../utils/formatters'
+import { formatPercent, formatDate, getChangeColor } from '../utils/formatters'
 import { ButterworthFit } from '../types'
 import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
 import { useTradeRecords } from '../hooks/useTradeRecords'
@@ -239,14 +239,14 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                   <div className="text-gray-600 text-sm mb-2">{data.date}</div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                     <span className="text-gray-500">开盘:</span>
-                    <span className="text-right font-medium">{data.open?.toFixed(2)}</span>
+                    <span className="text-right font-medium">{data.open?.toFixed(3)}</span>
                     <span className="text-gray-500">最高:</span>
-                    <span className="text-right font-medium">{data.high?.toFixed(2)}</span>
+                    <span className="text-right font-medium">{data.high?.toFixed(3)}</span>
                     <span className="text-gray-500">最低:</span>
-                    <span className="text-right font-medium">{data.low?.toFixed(2)}</span>
+                    <span className="text-right font-medium">{data.low?.toFixed(3)}</span>
                     <span className="text-gray-500">收盘:</span>
                     <span className="text-right font-medium">
-                      {data.close?.toFixed(2)}
+                      {data.close?.toFixed(3)}
                       {data.changePct != null && (
                         <span className={`ml-2 ${data.changePct >= 0 ? 'text-red-600' : 'text-green-600'}`}>
                           {data.changePct >= 0 ? '+' : ''}{data.changePct.toFixed(2)}%
@@ -254,17 +254,17 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                       )}
                     </span>
                     <span className="text-gray-500">MA5:</span>
-                    <span className="text-right font-medium">{data.ma5?.toFixed(2) || '--'}</span>
+                    <span className="text-right font-medium">{data.ma5?.toFixed(3) || '--'}</span>
                     <span className="text-gray-500">MA10:</span>
-                    <span className="text-right font-medium">{data.ma10?.toFixed(2) || '--'}</span>
+                    <span className="text-right font-medium">{data.ma10?.toFixed(3) || '--'}</span>
                     <span className="text-gray-500">MA20:</span>
-                    <span className="text-right font-medium">{data.ma20?.toFixed(2) || '--'}</span>
+                    <span className="text-right font-medium">{data.ma20?.toFixed(3) || '--'}</span>
                     <span className="text-gray-500">MA60:</span>
-                    <span className="text-right font-medium">{data.ma60?.toFixed(2) || '--'}</span>
+                    <span className="text-right font-medium">{data.ma60?.toFixed(3) || '--'}</span>
                     {(data.fitted != null) && (
                       <>
                         <span className="text-gray-500">拟合值:</span>
-                        <span className="text-right font-medium text-indigo-400">{data.fitted?.toFixed(2) || '--'}</span>
+                        <span className="text-right font-medium text-indigo-400">{data.fitted?.toFixed(3) || '--'}</span>
                       </>
                     )}
                   </div>
@@ -646,7 +646,7 @@ const EtfDetail: React.FC = () => {
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-gray-900">
-              {formatPrice(latestDaily?.close)}
+              {latestDaily?.close != null ? latestDaily.close.toFixed(3) : '--'}
             </div>
             {latestDaily?.change_pct != null && (
               <div className={`text-lg font-semibold mt-0.5 ${getChangeColor(latestDaily.change_pct)}`}>
