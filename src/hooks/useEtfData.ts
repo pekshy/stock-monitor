@@ -104,12 +104,18 @@ type CategoryRule = {
   memberOrder?: string[] // 可选：indicator_id 优先级/展示顺序（从左到右）
 }
 
-// 通胀类别的精确匹配 ID（中国数据用短 ID，如 CPI/PPI/CORE_CPI）
-// 用于在分类时区分中国 CPI/PPI（同比指数，值约100-105）与美国 CPIAUCSL/PPIACO（基准指数，值约250-350）
-const INFLATION_CN_IDS = ['CPI', 'PPI', 'CORE_CPI', 'CORECPI']
+// 通胀类别的精确匹配 ID
+// 中国数据用短 ID（cpi/ppi），来自 china_indicators 表（同比指数，上年同月=100）
+// 美国数据用 us_ 前缀 ID，来自 fred_indicators 表（定基指数）
+const INFLATION_CN_IDS = ['CPI', 'PPI']
+const INFLATION_US_IDS = ['US_CPI', 'US_PPI', 'US_CORE_CPI', 'US_PCE', 'US_CORE_PCE']
 
-// 全球指标分类（按看板展示顺序：美元指数、美债收益率、人民币汇率、货币、贵金属、能源、数字货币、通胀、A股成交量）
+// 全球指标分类（按看板展示顺序：
+// 第一行-美国：美元指数、美债收益率、美国通胀、恐慌指数
+// 第二行-中国：人民币汇率、货币、中国通胀、A股恐贪指数、A股成交量、A股融资融券
+// 最后-全球商品：贵金属、能源、数字货币）
 const GLOBAL_CATEGORIES: CategoryRule[] = [
+  // === 美国相关指标 ===
   {
     id: 'dollar_index',
     label: '美元指数',
@@ -132,6 +138,27 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     memberOrder: ['DGS3MO', 'treasury_3m', 'DGS2', 'treasury_2y', 'DGS10', 'treasury_10y', 'DGS30', 'treasury_30y', 'DGS1MO', 'treasury_1m', 'DGS6MO', 'treasury_6m', 'DGS1', 'treasury_1y', 'DGS5', 'treasury_5y', 'DGS7', 'treasury_7y', 'DGS20', 'treasury_20y']
   },
   {
+    id: 'inflation_us',
+    label: '美国通胀',
+    color: '#b91c1c',
+    // 美国通胀指标（定基指数），来自 fred_indicators 表
+    matches: (id) => INFLATION_US_IDS.includes(id.toUpperCase()),
+    defaultIndicator: 'us_cpi',
+    memberOrder: ['us_cpi', 'us_core_cpi', 'us_ppi', 'us_pce', 'us_core_pce']
+  },
+  {
+    id: 'fear_index',
+    label: '恐慌指数',
+    color: '#7c3aed',
+    // VIX（CBOE波动率指数），来自 fred_indicators 表
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'VIXCLS' || u === 'VIX' || u.includes('VOLATILITY')
+    },
+    defaultIndicator: 'vix'
+  },
+  // === 中国相关指标 ===
+  {
     id: 'cny_exchange',
     label: '人民币汇率',
     color: '#059669',
@@ -151,6 +178,36 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     },
     defaultIndicator: 'SHIBOR'
   },
+  {
+    id: 'inflation_cn',
+    label: '中国通胀',
+    color: '#dc2626',
+    // 中国 CPI/PPI（同比指数，上年同月=100），来自 china_indicators 表
+    matches: (id) => INFLATION_CN_IDS.includes(id.toUpperCase()),
+    defaultIndicator: 'cpi',
+    memberOrder: ['cpi', 'ppi']
+  },
+  {
+    id: 'a_stock_volume',
+    label: 'A股成交量',
+    color: '#9333ea',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('STOCK_MARKET_VOLUME') || u.includes('A_STOCK') || u.includes('A股') || u === 'VOLUME'
+    },
+    defaultIndicator: 'stock_market_volume'
+  },
+  {
+    id: 'margin_balance',
+    label: 'A股融资融券',
+    color: '#0d9488',
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'MARGIN_BALANCE' || u.includes('MARGIN')
+    },
+    defaultIndicator: 'margin_balance'
+  },
+  // === 全球商品指标 ===
   {
     id: 'precious_metals',
     label: '贵金属',
@@ -180,38 +237,6 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
       return u.includes('BTC') || u.includes('BITCOIN') || u.includes('ETH') || u.includes('ETHEREUM')
     },
     defaultIndicator: 'BITCOIN'
-  },
-  {
-    id: 'inflation',
-    label: '通胀',
-    color: '#dc2626',
-    // 精确匹配中国 CPI/PPI，排除 FRED 的 CPIAUCSL/PPIACO 等长 ID
-    // 避免不同基准的数据（同比指数100+ vs 基准指数300+）被混合到同一条序列
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return INFLATION_CN_IDS.includes(u)
-    },
-    defaultIndicator: 'CPI'
-  },
-  {
-    id: 'a_stock_volume',
-    label: 'A股成交量',
-    color: '#9333ea',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u.includes('STOCK_MARKET_VOLUME') || u.includes('A_STOCK') || u.includes('A股') || u === 'VOLUME'
-    },
-    defaultIndicator: 'stock_market_volume'
-  },
-  {
-    id: 'margin_balance',
-    label: 'A股融资融券',
-    color: '#0d9488',
-    matches: (id) => {
-      const u = id.toUpperCase()
-      return u === 'MARGIN_BALANCE' || u.includes('MARGIN')
-    },
-    defaultIndicator: 'margin_balance'
   }
 ]
 

@@ -45,6 +45,9 @@ const formatValue = (value: number | null, indicatorId: string): string => {
     if (value >= 10000) return (value / 10000).toFixed(2) + '万'
     return value.toLocaleString()
   }
+  if (u === 'VIX' || u === 'VIXCLS') {
+    return value.toFixed(2)
+  }
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 
@@ -102,7 +105,9 @@ const getIndicatorLabel = (id: string): string => {
     'DURABLE.ORDERS': '耐用品',
     'CAPACITY.UTILIZATION': '产能',
     'TRADE.BALANCE': '贸易',
-    'SOCIAL.FINANCING': '社融'
+    'SOCIAL.FINANCING': '社融',
+    'VIX': 'VIX',
+    'VIXCLS': 'VIX'
   }
   return map[id] || id
 }
@@ -243,7 +248,7 @@ const FearGreedCard: React.FC<{ series: FearGreedSeries }> = ({ series }) => {
     >
       <div className="flex items-center justify-between mb-3">
         <div className="font-bold" style={{ color }}>
-          恐贪指数
+          A股恐贪指数
         </div>
         <div className="text-xs text-gray-400">{series.latest_date}</div>
       </div>
@@ -312,7 +317,7 @@ const FearGreedCard: React.FC<{ series: FearGreedSeries }> = ({ series }) => {
             }}
             formatter={(value: number) => [
               `${value.toFixed(0)}`,
-              '恐贪指数'
+              'A股恐贪指数'
             ]}
             labelFormatter={(label) => {
               const point = chartData.find((d: any) => d.date === label)
@@ -480,7 +485,7 @@ export const MarketIndicators: React.FC<MarketIndicatorsProps> = ({
   const globalCategories = useMemo(
     () => {
       // 从 chinaIndicatorSeries 构建的分类（中国宏观指标表中的数据）
-      const chinaRuleIds = ['inflation', 'margin_balance']
+      const chinaRuleIds = ['inflation_cn', 'margin_balance']
       const chinaRules = GLOBAL_CATEGORIES.filter(c => chinaRuleIds.includes(c.id))
       const chinaCats = buildIndicatorCategories(chinaIndicatorSeries, chinaRules)
 
@@ -507,12 +512,26 @@ export const MarketIndicators: React.FC<MarketIndicatorsProps> = ({
       </div>
       {globalCategories.length > 0 || fearGreedSeries ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {globalCategories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
-          {fearGreedSeries && (
-            <FearGreedCard series={fearGreedSeries} />
-          )}
+          {(() => {
+            // A股恐贪指数插入到中国通胀之后、A股成交量之前
+            const insertAfterId = 'inflation_cn'
+            const insertIdx = globalCategories.findIndex(c => c.id === insertAfterId) + 1
+            const beforeCards = globalCategories.slice(0, insertIdx)
+            const afterCards = globalCategories.slice(insertIdx)
+            return (
+              <>
+                {beforeCards.map((category) => (
+                  <CategoryCard key={category.id} category={category} />
+                ))}
+                {fearGreedSeries && (
+                  <FearGreedCard series={fearGreedSeries} />
+                )}
+                {afterCards.map((category) => (
+                  <CategoryCard key={category.id} category={category} />
+                ))}
+              </>
+            )
+          })()}
         </div>
       ) : (
         <div className="text-gray-500 text-center py-8">暂无指标数据</div>
