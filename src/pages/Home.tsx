@@ -582,7 +582,30 @@ const TradeBoardContent: React.FC = memo(() => {
     }
   }
 
-  // 计算笔记中触发交易价格的提醒
+  const [expandedTrigger, setExpandedTrigger] = useState<string | null>(null)
+
+  // 已处理的提醒ID（已交易/忽略），持久化到 localStorage
+  const [dismissedTriggerIds, setDismissedTriggerIds] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem('triggered_note_dismissed')
+      return new Set(raw ? JSON.parse(raw) : [])
+    } catch {
+      return new Set()
+    }
+  })
+
+  const dismissTrigger = (id: string) => {
+    setDismissedTriggerIds(prev => {
+      const next = new Set(prev)
+      next.add(id)
+      try {
+        localStorage.setItem('triggered_note_dismissed', JSON.stringify(Array.from(next)))
+      } catch {}
+      return next
+    })
+  }
+
+  // 计算笔记中触发交易价格的提醒（过滤掉已处理的）
   const triggeredNotes = useMemo(() => {
     const results: { id: string; type: 'etf' | 'stock'; symbol: string; name: string; action: 'buy' | 'sell'; execPrice: number; currentPrice: number; note: string; navigatePath: string }[] = []
 
@@ -608,8 +631,10 @@ const TradeBoardContent: React.FC = memo(() => {
         ? currentPrice <= n.execution_price
         : currentPrice >= n.execution_price
       if (triggered) {
+        const id = `etf_${n.id}`
+        if (dismissedTriggerIds.has(id)) return
         results.push({
-          id: `etf_${n.id}`,
+          id,
           type: 'etf',
           symbol: n.symbol,
           name: getEtfDisplayName(n.symbol),
@@ -631,8 +656,10 @@ const TradeBoardContent: React.FC = memo(() => {
         ? currentPrice <= n.execution_price
         : currentPrice >= n.execution_price
       if (triggered) {
+        const id = `stock_${n.id}`
+        if (dismissedTriggerIds.has(id)) return
         results.push({
-          id: `stock_${n.id}`,
+          id,
           type: 'stock',
           symbol: n.stock_code,
           name: getStockDisplayName(n.stock_code),
@@ -646,9 +673,7 @@ const TradeBoardContent: React.FC = memo(() => {
     })
 
     return results
-  }, [etfNotes, stockNotes, priceByDateMap, stocks, etfNameMap, stockNameMap])
-
-  const [expandedTrigger, setExpandedTrigger] = useState<string | null>(null)
+  }, [etfNotes, stockNotes, priceByDateMap, stocks, etfNameMap, stockNameMap, dismissedTriggerIds])
 
   return (
     <div className="space-y-6">
@@ -657,6 +682,64 @@ const TradeBoardContent: React.FC = memo(() => {
 
       {/* 笔记模块 */}
       <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-blue-500" />
+            笔记
+            <span className="text-sm font-normal text-gray-500">
+              （ETF {etfNotes.length} 条 · 股票 {stockNotes.length} 条 · 市场观点 {marketViews.length} 条）
+            </span>
+          </h2>
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setNoteType('etf')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  noteType === 'etf'
+                    ? 'bg-white text-purple-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                ETF笔记
+              </button>
+              <button
+                onClick={() => setNoteType('stock')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  noteType === 'stock'
+                    ? 'bg-white text-green-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                股票笔记
+              </button>
+              <button
+                onClick={() => setNoteType('market')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  noteType === 'market'
+                    ? 'bg-white text-orange-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                市场观点
+              </button>
+            </div>
+            {noteType !== 'market' && (
+              <button
+                type="button"
+                onClick={handleOpenAddNoteModal}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
+                  noteType === 'etf'
+                    ? 'bg-blue-500 text-white hover:bg-blue-600'
+                    : 'bg-green-500 text-white hover:bg-green-600'
+                }`}
+              >
+                <Plus className="h-3.5 w-3.5" />
+                添加{noteType === 'etf' ? 'ETF' : '股票'}笔记
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* 价格触发提醒 */}
         {triggeredNotes.length > 0 && (
           <div className="mb-4 bg-orange-50 rounded-lg p-3 border-l-4 border-orange-400">
@@ -695,6 +778,20 @@ const TradeBoardContent: React.FC = memo(() => {
                       >
                         查看详情
                       </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); dismissTrigger(t.id) }}
+                        className="text-xs px-2 py-0.5 rounded bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
+                        title="标记为已交易，不再提醒"
+                      >
+                        已交易
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); dismissTrigger(t.id) }}
+                        className="text-xs px-2 py-0.5 rounded bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                        title="忽略此提醒"
+                      >
+                        忽略
+                      </button>
                       {expandedTrigger === t.id
                         ? <ChevronUp className="h-3.5 w-3.5 text-gray-400" />
                         : <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
@@ -712,65 +809,8 @@ const TradeBoardContent: React.FC = memo(() => {
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-blue-500" />
-            笔记
-            <span className="text-sm font-normal text-gray-500">
-              （ETF {etfNotes.length} 条 · 股票 {stockNotes.length} 条 · 市场观点 {marketViews.length} 条）
-            </span>
-          </h2>
-          <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setNoteType('etf')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                noteType === 'etf'
-                  ? 'bg-white text-purple-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              ETF笔记
-            </button>
-            <button
-              onClick={() => setNoteType('stock')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                noteType === 'stock'
-                  ? 'bg-white text-green-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              股票笔记
-            </button>
-            <button
-              onClick={() => setNoteType('market')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                noteType === 'market'
-                  ? 'bg-white text-orange-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              市场观点
-            </button>
-          </div>
-        </div>
-
-        {/* 快速添加：改为弹窗按钮 */}
-        {noteType !== 'market' ? (
-          <div className="mb-4">
-            <button
-              type="button"
-              onClick={handleOpenAddNoteModal}
-              className={`w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                noteType === 'etf'
-                  ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-dashed border-blue-200'
-                  : 'bg-green-50 text-green-600 hover:bg-green-100 border border-dashed border-green-200'
-              }`}
-            >
-              <Plus className="h-4 w-4" />
-              添加{noteType === 'etf' ? 'ETF' : '股票'}笔记
-            </button>
-          </div>
-        ) : (
+        {/* 市场观点内联表单 */}
+        {noteType === 'market' && (
           <form onSubmit={handleAddMarketView} className="flex gap-2 mb-4">
             <textarea
               value={marketContentInput}
