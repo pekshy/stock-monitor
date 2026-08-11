@@ -4,6 +4,12 @@ import { StockNote } from '../types'
 
 type TradeAction = 'buy' | 'sell' | 'watch' | null
 
+interface UpdateNoteValues {
+  note: string
+  tradeAction?: 'buy' | 'sell' | 'watch' | '' | null
+  executionPrice?: number | null
+}
+
 function sortByUpdatedTime<T extends { updated_at?: string; created_at: string }>(list: T[]): T[] {
   return [...list].sort((a, b) => {
     const aTime = (a as any).updated_at || a.created_at
@@ -57,13 +63,20 @@ export function useStockNotes() {
     }
   }, [])
 
-  const updateNote = useCallback(async (id: number, newText: string) => {
-    const text = newText.trim()
+  const updateNote = useCallback(async (id: number, values: UpdateNoteValues | string) => {
+    const text = typeof values === 'string' ? values.trim() : values.note.trim()
     if (!text) return
     try {
+      const now = new Date().toISOString()
+      const payload: Record<string, any> = { note: text, updated_at: now }
+      if (typeof values === 'object') {
+        const action = values.tradeAction || null
+        payload.trade_action = action
+        payload.execution_price = (action === 'buy' || action === 'sell') ? (values.executionPrice ?? null) : null
+      }
       const { data, error } = await supabase
         .from('stock_notes')
-        .update({ note: text, updated_at: new Date().toISOString() })
+        .update(payload)
         .eq('id', id)
         .select()
         .single()
@@ -138,13 +151,20 @@ export function useStockNotesByCode(stockCode: string) {
     }
   }, [stockCode])
 
-  const updateNote = useCallback(async (id: number, newText: string) => {
-    const text = newText.trim()
+  const updateNote = useCallback(async (id: number, values: UpdateNoteValues | string) => {
+    const text = typeof values === 'string' ? values.trim() : values.note.trim()
     if (!text) return
     try {
+      const now = new Date().toISOString()
+      const payload: Record<string, any> = { note: text, updated_at: now }
+      if (typeof values === 'object') {
+        const action = values.tradeAction || null
+        payload.trade_action = action
+        payload.execution_price = (action === 'buy' || action === 'sell') ? (values.executionPrice ?? null) : null
+      }
       const { data, error } = await supabase
         .from('stock_notes')
-        .update({ note: text, updated_at: new Date().toISOString() })
+        .update(payload)
         .eq('id', id)
         .select()
         .single()

@@ -1,17 +1,26 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { EtfNote, StockNote } from '../types'
-import { Pencil, Trash2, Check, X } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
+import type { TradeAction } from './NoteModal'
 
 type NoteType = EtfNote | StockNote
+
+export interface NoteEditPayload {
+  id: number
+  note: string
+  tradeAction: TradeAction
+  executionPrice: number | null
+}
 
 interface NoteItemProps {
   note: NoteType
   name?: string | null
   code: string
   navigatePath: string
-  onUpdate: (id: number, newText: string) => Promise<void>
+  onUpdate: (id: number, values: { note: string; tradeAction: TradeAction; executionPrice: number | null }) => Promise<void>
   onDelete: (id: number) => Promise<void>
+  onEdit?: (note: NoteType) => void
   compact?: boolean
   showCode?: boolean
   codeColor?: 'blue' | 'green'
@@ -22,17 +31,14 @@ export const NoteItem: React.FC<NoteItemProps> = ({
   name,
   code,
   navigatePath,
-  onUpdate,
+  onUpdate: _onUpdate,
   onDelete,
+  onEdit,
   compact = false,
   showCode = true,
   codeColor = 'blue'
 }) => {
   const navigate = useNavigate()
-  const [isEditing, setIsEditing] = useState(false)
-  const [editText, setEditText] = useState(note.note)
-  const [saving, setSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
 
   const showName = name && name !== code
   const isGeneral = code === 'GENERAL'
@@ -43,39 +49,9 @@ export const NoteItem: React.FC<NoteItemProps> = ({
     navigate(navigatePath)
   }
 
-  const handleStartEdit = () => {
-    setEditText(note.note)
-    setSaveError(null)
-    setIsEditing(true)
-  }
-
-  const handleSave = async () => {
-    if (!editText.trim()) {
-      setIsEditing(false)
-      setEditText(note.note)
-      return
-    }
-    if (editText === note.note) {
-      setIsEditing(false)
-      return
-    }
-    setSaving(true)
-    setSaveError(null)
-    try {
-      await onUpdate(note.id, editText)
-      setIsEditing(false)
-    } catch (err: any) {
-      console.error('保存笔记失败:', err)
-      setSaveError(err?.message || '保存失败，请重试')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleCancel = () => {
-    setIsEditing(false)
-    setEditText(note.note)
-    setSaveError(null)
+  const handleStartEdit = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onEdit?.(note)
   }
 
   const codeBgClass = codeColor === 'green'
@@ -127,65 +103,27 @@ export const NoteItem: React.FC<NoteItemProps> = ({
           )}
         </div>
 
-        {isEditing ? (
-          <div className="flex flex-col gap-2">
-            <textarea
-              value={editText}
-              onChange={e => setEditText(e.target.value)}
-              disabled={saving}
-              className="w-full border border-blue-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-              rows={2}
-              autoFocus
-            />
-            <div className="flex flex-col gap-2">
-              {saveError && (
-                <div className="text-xs text-red-500">{saveError}</div>
-              )}
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSave}
-                  disabled={saving || !editText.trim()}
-                  className="px-2 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded text-xs flex items-center gap-1"
-                >
-                  <Check className="h-3 w-3" />
-                  保存
-                </button>
-                <button
-                  onClick={handleCancel}
-                  disabled={saving}
-                  className="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" />
-                  取消
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className={`${compact ? 'text-sm' : 'text-sm'} text-gray-800 break-words leading-relaxed whitespace-pre-wrap`}>
-            {note.note}
-          </div>
-        )}
+        <div className={`${compact ? 'text-sm' : 'text-sm'} text-gray-800 break-words leading-relaxed whitespace-pre-wrap`}>
+          {note.note}
+        </div>
       </div>
 
-      {!isEditing && (
-        <div className="flex flex-col gap-1 flex-shrink-0">
-          <button
-            onClick={handleStartEdit}
-            className="p-1.5 text-gray-500 hover:text-blue-600 bg-white hover:bg-blue-50 border border-gray-200 rounded transition-colors"
-            title="编辑"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={() => onDelete(note.id)}
-            className="p-1.5 text-gray-500 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 rounded transition-colors"
-            title="删除"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      )}
+      <div className="flex flex-col gap-1 flex-shrink-0">
+        <button
+          onClick={handleStartEdit}
+          className="p-1.5 text-gray-500 hover:text-blue-600 bg-white hover:bg-blue-50 border border-gray-200 rounded transition-colors"
+          title="编辑"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(note.id) }}
+          className="p-1.5 text-gray-500 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 rounded transition-colors"
+          title="删除"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, memo } from 'react'
-import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp } from 'lucide-react'
+import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useEtfContext } from '../context/EtfContext'
@@ -12,9 +12,9 @@ import StockList from '../components/StockList'
 import UnifiedTradeBoard from '../components/UnifiedTradeBoard'
 import { MarketIndicators } from '../components/MarketIndicators'
 import { NoteItem } from '../components/NoteItem'
-import { suggestExecutionPrice } from '../utils/formatters'
+import { NoteModal, type TradeAction, type NoteModalInitialValues } from '../components/NoteModal'
 import EtfListOnly from './EtfBoard'
-import { MarketView } from '../types'
+import { MarketView, EtfNote, StockNote } from '../types'
 
 type SortOrder = 'change_desc' | 'change_asc'
 type SortPeriod = '1d' | '5d' | '10d' | '20d' | '60d'
@@ -394,41 +394,41 @@ const TradeBoardContent: React.FC = memo(() => {
   const { views: marketViews, loading: marketViewsLoading, addView, updateView, deleteView } = useMarketViews()
   
   const [noteType, setNoteType] = useState<'etf' | 'stock' | 'market'>('etf')
-  const [noteSymbolInput, setNoteSymbolInput] = useState('')
-  const [noteInput, setNoteInput] = useState('')
-  const [noteTradeAction, setNoteTradeAction] = useState<'buy' | 'sell' | 'watch' | ''>('')
-  const [noteExecutionPrice, setNoteExecutionPrice] = useState('')
-  const [noteSubmitting, setNoteSubmitting] = useState(false)
+
+  // 弹窗状态
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false)
+  const [modalCodeInput, setModalCodeInput] = useState('')
+  const [noteModalSubmitting, setNoteModalSubmitting] = useState(false)
+  // 编辑模式：存储正在编辑的笔记信息
+  const [editingNoteInfo, setEditingNoteInfo] = useState<{
+    id: number
+    type: 'etf' | 'stock'
+    initial: NoteModalInitialValues
+  } | null>(null)
 
   // 获取ETF/股票近30天收盘价数组（最新在前）
-  const getRecentCloses = useCallback((symbol: string): number[] => {
+  const getRecentCloses = useCallback((symbol: string, type: 'etf' | 'stock'): number[] => {
     if (!symbol || symbol === 'GENERAL') return []
-    if (noteType === 'etf') {
+    if (type === 'etf') {
       const history = priceByDateMap.get(symbol)
       if (!history || history.size === 0) return []
       const dates = Array.from(history.keys()).sort()
-      return dates.slice(-30).map(d => history.get(d) ?? 0)
+      return dates.slice(-30).map(d => history.get(d) ?? 0).reverse()
     } else {
       const stock = stocks.find(s => s.stock_code === symbol)
-      // stock_quote 数组可能在 latest_quote 中没有历史，这里仅用 latest_quote
       const price = stock?.latest_quote?.close_price
       return (price != null && !isNaN(price)) ? [price] : []
     }
-  }, [noteType, priceByDateMap, stocks])
+  }, [priceByDateMap, stocks])
 
-  // 选择买入/卖出时根据近一个月走势给出建议价格
-  useEffect(() => {
-    if (noteTradeAction === 'buy' || noteTradeAction === 'sell') {
-      const symbol = noteSymbolInput.trim().toUpperCase()
-      const closes = getRecentCloses(symbol)
-      const suggested = suggestExecutionPrice(closes, noteTradeAction)
-      if (suggested != null) {
-        setNoteExecutionPrice(suggested.toFixed(3))
-      }
-    } else {
-      setNoteExecutionPrice('')
-    }
-  }, [noteTradeAction, noteSymbolInput])
+  const modalRecentCloses = useMemo(() => {
+    const t = editingNoteInfo?.type ?? (noteType === 'stock' ? 'stock' : 'etf')
+    const code = editingNoteInfo ? (t === 'etf'
+      ? (etfNotes.find(n => n.id === editingNoteInfo.id)?.symbol ?? '')
+      : (stockNotes.find(n => n.id === editingNoteInfo.id)?.stock_code ?? ''))
+      : modalCodeInput
+    return getRecentCloses(code.trim().toUpperCase(), t as 'etf' | 'stock')
+  }, [modalCodeInput, editingNoteInfo, getRecentCloses, noteType, etfNotes, stockNotes])
 
   const [marketContentInput, setMarketContentInput] = useState('')
   const [marketSubmitting, setMarketSubmitting] = useState(false)
@@ -458,29 +458,68 @@ const TradeBoardContent: React.FC = memo(() => {
     return stockNameMap.get(code) || code
   }
 
-  const handleAddNote = async () => {
-    const text = noteInput.trim()
-    if (!text) return
-    const symbol = noteSymbolInput.trim().toUpperCase()
-    const tradeAction = noteTradeAction || null
-    const execPrice = (tradeAction === 'buy' || tradeAction === 'sell') && noteExecutionPrice
-      ? parseFloat(noteExecutionPrice)
-      : null
-    setNoteSubmitting(true)
+  // 弹窗保存：新增或编辑
+  const handleNoteModalSave = async (values: { note: string; tradeAction: TradeAction; executionPrice: number | null }) => {
+    setNoteModalSubmitting(true)
     try {
-      if (noteType === 'etf') {
-        await addEtfNote(symbol || 'GENERAL', text, tradeAction, execPrice)
-      } else if (noteType === 'stock') {
-        await addStockNote(symbol || 'GENERAL', text, tradeAction, execPrice)
+      if (editingNoteInfo) {
+        // 编辑模式
+        const action = values.tradeAction || null
+        if (editingNoteInfo.type === 'etf') {
+          await updateEtfNote(editingNoteInfo.id, {
+            note: values.note,
+            tradeAction: action,
+            executionPrice: values.executionPrice,
+          })
+        } else {
+          await updateStockNote(editingNoteInfo.id, {
+            note: values.note,
+            tradeAction: action,
+            executionPrice: values.executionPrice,
+          })
+        }
+      } else {
+        // 新增模式
+        const symbol = modalCodeInput.trim().toUpperCase() || 'GENERAL'
+        const action = values.tradeAction || null
+        const execPrice = (action === 'buy' || action === 'sell') ? values.executionPrice : null
+        if (noteType === 'etf') {
+          await addEtfNote(symbol, values.note, action, execPrice)
+        } else if (noteType === 'stock') {
+          await addStockNote(symbol, values.note, action, execPrice)
+        }
       }
-      setNoteInput('')
-      setNoteSymbolInput('')
-      setNoteTradeAction('')
-      setNoteExecutionPrice('')
-    } catch {
+      setIsNoteModalOpen(false)
+      setEditingNoteInfo(null)
+      setModalCodeInput('')
     } finally {
-      setNoteSubmitting(false)
+      setNoteModalSubmitting(false)
     }
+  }
+
+  const handleCloseNoteModal = () => {
+    setIsNoteModalOpen(false)
+    setEditingNoteInfo(null)
+    setModalCodeInput('')
+  }
+
+  const handleOpenAddNoteModal = () => {
+    setEditingNoteInfo(null)
+    setModalCodeInput('')
+    setIsNoteModalOpen(true)
+  }
+
+  const handleEditNote = (type: 'etf' | 'stock', note: EtfNote | StockNote) => {
+    setEditingNoteInfo({
+      id: note.id,
+      type,
+      initial: {
+        note: note.note,
+        tradeAction: (note.trade_action as TradeAction) || '',
+        executionPrice: note.execution_price != null ? note.execution_price.toString() : '',
+      },
+    })
+    setIsNoteModalOpen(true)
   }
 
   const handleAddMarketView = async (e: React.FormEvent) => {
@@ -715,60 +754,21 @@ const TradeBoardContent: React.FC = memo(() => {
           </div>
         </div>
 
-        {/* 快速添加 */}
+        {/* 快速添加：改为弹窗按钮 */}
         {noteType !== 'market' ? (
-          <div className="mb-4 bg-gray-50 rounded-lg p-3 space-y-2">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={noteSymbolInput}
-                onChange={e => setNoteSymbolInput(e.target.value)}
-                placeholder={noteType === 'etf' ? 'ETF代码' : '股票代码'}
-                className="w-32 border border-gray-200 rounded-md px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-              />
-              <textarea
-                value={noteInput}
-                onChange={e => setNoteInput(e.target.value)}
-                placeholder="写下笔记，记录交易思路..."
-                rows={1}
-                className="flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white resize-none"
-              />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <select
-                  value={noteTradeAction}
-                  onChange={e => setNoteTradeAction(e.target.value as 'buy' | 'sell' | 'watch' | '')}
-                  className="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="">无交易判断</option>
-                  <option value="buy">📈 买入</option>
-                  <option value="sell">📉 卖出</option>
-                  <option value="watch">👁️ 观望</option>
-                </select>
-                {(noteTradeAction === 'buy' || noteTradeAction === 'sell') && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-gray-500">执行价</span>
-                    <input
-                      type="number"
-                      step="0.001"
-                      value={noteExecutionPrice}
-                      onChange={e => setNoteExecutionPrice(e.target.value)}
-                      placeholder="已填建议价"
-                      className="w-28 border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={handleAddNote}
-                disabled={noteSubmitting || !noteInput.trim()}
-                className="px-4 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-md text-xs font-medium transition-colors"
-              >
-                添加
-              </button>
-            </div>
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={handleOpenAddNoteModal}
+              className={`w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                noteType === 'etf'
+                  ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-dashed border-blue-200'
+                  : 'bg-green-50 text-green-600 hover:bg-green-100 border border-dashed border-green-200'
+              }`}
+            >
+              <Plus className="h-4 w-4" />
+              添加{noteType === 'etf' ? 'ETF' : '股票'}笔记
+            </button>
           </div>
         ) : (
           <form onSubmit={handleAddMarketView} className="flex gap-2 mb-4">
@@ -821,8 +821,9 @@ const TradeBoardContent: React.FC = memo(() => {
                   name={item.name}
                   code={item.symbol}
                   navigatePath={item.navigatePath}
-                  onUpdate={(id, text) => handleNoteUpdate(item.type, id, text)}
+                  onUpdate={(id, values) => handleNoteUpdate(item.type, id, typeof values === 'string' ? values : values.note)}
                   onDelete={(id) => handleNoteDelete(item.type, id)}
+                  onEdit={(note) => handleEditNote(item.type, note as EtfNote | StockNote)}
                   codeColor={item.type === 'etf' ? 'blue' : 'green'}
                 />
               ))}
@@ -830,6 +831,25 @@ const TradeBoardContent: React.FC = memo(() => {
           )
         )}
       </div>
+
+      {/* 笔记弹窗 */}
+      {noteType !== 'market' && (
+        <NoteModal
+          isOpen={isNoteModalOpen}
+          onClose={handleCloseNoteModal}
+          onSave={handleNoteModalSave}
+          title={editingNoteInfo ? '编辑笔记' : `添加${noteType === 'etf' ? 'ETF' : '股票'}笔记`}
+          submitText={editingNoteInfo ? '保存修改' : '添加笔记'}
+          showCodeInput={!editingNoteInfo}
+          codeLabel={noteType === 'etf' ? 'ETF代码' : '股票代码'}
+          initialCode={modalCodeInput}
+          onCodeChange={setModalCodeInput}
+          recentCloses={modalRecentCloses}
+          initial={editingNoteInfo?.initial}
+          theme={editingNoteInfo ? (editingNoteInfo.type === 'etf' ? 'blue' : 'green') : (noteType === 'etf' ? 'blue' : 'green')}
+          submitting={noteModalSubmitting}
+        />
+      )}
 
       {/* 市场指标 */}
       <MarketIndicators
