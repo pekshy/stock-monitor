@@ -378,6 +378,7 @@ export function useEtfData() {
       const { data: momentumData, error: momentumErr } = momentumResult
       if (momentumErr) throw momentumErr
       console.log('Momentum signals:', momentumData)
+      // 提前设置动量信号（持仓评分/标签不依赖其他数据）
       setMomentumSignals(momentumData || [])
 
       // 4. 分组为时序数据
@@ -385,7 +386,10 @@ export function useEtfData() {
       // 例如 indicator_id='cny_exchange_rate' 表示人民币汇率
       const chinaSeries = groupIndicatorsBySeries(chinaData || [])
       console.log('China indicator series (IDs):', chinaSeries.map(s => s.indicator_id))
+      setChinaIndicators(chinaData || [])
       setChinaIndicatorSeries(chinaSeries)
+      setFredIndicators(fredData || [])
+      setMarketIndicators(marketData || [])
       setGlobalIndicatorSeries(mergeIndicatorSeries(
         groupIndicatorsBySeries(fredData || []),
         groupIndicatorsBySeries(marketData || []),
@@ -418,6 +422,22 @@ export function useEtfData() {
       if (etfInfo.length > 0) {
         const symbols = etfInfo.map(e => e.symbol)
         const indexCodes = etfInfo.map(e => e.tracking_index_code).filter((c): c is string => !!c)
+
+        // 先用基础数据渲染（不等待慢速数据），持仓ETF标签能立刻显示
+        // butterworth 趋势信号 / 技术指标稍后补齐
+        const baseEtfs: EtfWithData[] = etfInfo.map(e => ({
+          ...e,
+          latest_daily: undefined,
+          latest_indicator: undefined,
+          latest_signal: undefined,
+          latest_index_valuation: undefined,
+          latest_trend_signal: null,
+          daily_data: undefined,
+          indicators: undefined,
+          signals: undefined,
+          butterworth_fit: undefined
+        }))
+        setEtfs(baseEtfs)
 
         // 列表页只需要最新数据，详情页按需加载历史数据
         // etf_butterworth_fit 单独处理：先取最新日期，再查最近 7 天数据
