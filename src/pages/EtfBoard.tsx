@@ -136,12 +136,14 @@ const EtfListOnly: React.FC = memo(() => {
   const momentumBySymbol = useMemo(() => {
     const map = new Map<string, { final_score: number | null; rank: number | null; prev_score: number | null }>()
     if (!momentumSignals || momentumSignals.length === 0) return map
-    const latestDate = momentumSignals[0]?.trade_date
-    const prevDate = momentumSignals.find(s => s.trade_date !== latestDate)?.trade_date
+    // 取最近 5 个唯一交易日（倒序），作为 prev 对比基期
+    const uniqueDates = Array.from(new Set(momentumSignals.map(s => s.trade_date))).sort((a, b) => (a < b ? 1 : -1))
+    const latestDate = uniqueDates[0]
+    const compareDate = uniqueDates[Math.min(4, uniqueDates.length - 1)] || null
     momentumSignals
       .filter(s => s.trade_date === latestDate)
       .forEach(s => {
-        const prev = momentumSignals.find(p => p.symbol === s.symbol && p.trade_date === prevDate)
+        const prev = compareDate ? momentumSignals.find(p => p.symbol === s.symbol && p.trade_date === compareDate) : undefined
         map.set(s.symbol, { final_score: s.final_score, rank: s.rank, prev_score: prev?.final_score ?? null })
       })
     return map
