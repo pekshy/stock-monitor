@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus, Star, BarChart3 } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
@@ -17,7 +17,7 @@ import {
   Scatter
 } from 'recharts'
 import { EtfDailyData, EtfIndicators, EtfClawSignal, TradeRecord, EtfMomentumSignal } from '../types'
-import { formatPercent, formatDate, getChangeColor } from '../utils/formatters'
+import { formatPercent, formatDate, getChangeColor, suggestExecutionPrice } from '../utils/formatters'
 import { ButterworthFit } from '../types'
 import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
 import { useTradeRecords } from '../hooks/useTradeRecords'
@@ -637,8 +637,8 @@ const EtfDetail: React.FC = () => {
               </button>
             </h1>
             <div className="text-gray-500 text-sm mt-0.5">{etf.symbol}</div>
-            {etf.category && (
-              <div className="text-xs text-gray-600 mt-1">{etf.category}</div>
+            {etf.strategy_type && (
+              <div className="text-xs text-gray-600 mt-1">{etf.strategy_type}</div>
             )}
             {etf.tracking_index_name && (
               <div className="text-xs text-gray-500 mt-0.5">跟踪: {etf.tracking_index_name}</div>
@@ -789,7 +789,7 @@ const EtfDetail: React.FC = () => {
 
       <TradesSection symbol={etf.symbol} etfName={etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={dailyData} priceByDateMap={priceByDateMap} />
 
-      <NotesSection symbol={etf.symbol} etfName={etf.name} />
+      <NotesSection symbol={etf.symbol} etfName={etf.name} closes={dailyData.map(d => d.close ?? 0)} />
     </div>
   )
 }
@@ -971,18 +971,38 @@ function TradesSection({ symbol, etfName, currentPrice, dailyData, priceByDateMa
   )
 }
 
-function NotesSection({ symbol, etfName }: { symbol: string; etfName: string | null }) {
+function NotesSection({ symbol, etfName, closes }: { symbol: string; etfName: string | null; closes: number[] }) {
   const { notes, loading, addNote, updateNote, deleteNote } = useEtfNotesBySymbol(symbol)
   const [input, setInput] = useState('')
+  const [tradeAction, setTradeAction] = useState<'buy' | 'sell' | 'watch' | ''>('')
+  const [executionPrice, setExecutionPrice] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  // 选择买入/卖出时根据近一个月走势给出建议价格
+  useEffect(() => {
+    if (tradeAction === 'buy' || tradeAction === 'sell') {
+      const suggested = suggestExecutionPrice(closes, tradeAction)
+      if (suggested != null && !executionPrice) {
+        setExecutionPrice(suggested.toFixed(3))
+      }
+    } else {
+      setExecutionPrice('')
+    }
+  }, [tradeAction])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim()) return
     setSubmitting(true)
     try {
-      await addNote(input)
+      const action = tradeAction || null
+      const execPrice = (action === 'buy' || action === 'sell') && executionPrice
+        ? parseFloat(executionPrice)
+        : null
+      await addNote(input, action, execPrice)
       setInput('')
+      setTradeAction('')
+      setExecutionPrice('')
     } catch {
       // error already logged
     } finally {
@@ -998,23 +1018,47 @@ function NotesSection({ symbol, etfName }: { symbol: string; etfName: string | n
       </h2>
 
       {/* 输入框 */}
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="添加笔记..."
-          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <button
-          type="submit"
-          disabled={submitting || !input.trim()}
-          className="px-3 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm flex items-center gap-1 transition-colors"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          添加
-        </button>
-      </form>
+      <div className="mb-4 space-y-2">
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="添加笔记..."
+            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button
+            type="submit"
+            disabled={submitting || !input.trim()}
+            className="px-3 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm flex items-center gap-1 transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            添加
+          </button>
+        </form>
+        <div className="flex gap-2 items-center">
+          <select
+            value={tradeAction}
+            onChange={e => setTradeAction(e.target.value as 'buy' | 'sell' | 'watch' | '')}
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+          >
+            <option value="">无交易判断</option>
+            <option value="buy">买入</option>
+            <option value="sell">卖出</option>
+            <option value="watch">观望</option>
+          </select>
+          {(tradeAction === 'buy' || tradeAction === 'sell') && (
+                <input
+                  type="number"
+                  step="0.001"
+                  value={executionPrice}
+                  onChange={e => setExecutionPrice(e.target.value)}
+                  placeholder="执行价格（已填建议价，可修改）"
+                  className="w-48 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              )}
+        </div>
+      </div>
 
       {/* 历史笔记列表 */}
       {loading ? (

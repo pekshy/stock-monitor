@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Building2, TrendingUp, Star, MessageSquare, Plus } from 'lucide-react'
 import { useStockDetail } from '../hooks/useStockData'
@@ -25,7 +25,8 @@ import {
   formatPrice,
   getChangeColor,
   formatDate,
-  formatValuation
+  formatValuation,
+  suggestExecutionPrice
 } from '../utils/formatters'
 
 function getMarketType(stockCode: string): 'us' | 'hk' | 'cn' {
@@ -475,7 +476,7 @@ const StockDetail: React.FC = () => {
 
       <TradesSection stockCode={stock.stock_code} stockName={stock.stock_name} currentPrice={latestQuote?.close_price ?? undefined} quotes={quotes} />
 
-      <NotesSection stockCode={stock.stock_code} stockName={stock.stock_name} />
+      <NotesSection stockCode={stock.stock_code} stockName={stock.stock_name} closes={quotes.map(q => q.close_price ?? 0)} />
     </div>
   )
 }
@@ -665,18 +666,38 @@ function TradesSection({ stockCode, stockName, currentPrice, quotes }: { stockCo
   )
 }
 
-function NotesSection({ stockCode, stockName }: { stockCode: string; stockName: string }) {
+function NotesSection({ stockCode, stockName, closes }: { stockCode: string; stockName: string; closes: number[] }) {
   const { notes, loading, addNote, updateNote, deleteNote } = useStockNotesByCode(stockCode)
   const [input, setInput] = useState('')
+  const [tradeAction, setTradeAction] = useState<'buy' | 'sell' | 'watch' | ''>('')
+  const [executionPrice, setExecutionPrice] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  // 选择买入/卖出时根据近一个月走势给出建议价格
+  useEffect(() => {
+    if (tradeAction === 'buy' || tradeAction === 'sell') {
+      const suggested = suggestExecutionPrice(closes, tradeAction)
+      if (suggested != null && !executionPrice) {
+        setExecutionPrice(suggested.toFixed(3))
+      }
+    } else {
+      setExecutionPrice('')
+    }
+  }, [tradeAction])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim()) return
     setSubmitting(true)
     try {
-      await addNote(input)
+      const action = tradeAction || null
+      const execPrice = (action === 'buy' || action === 'sell') && executionPrice
+        ? parseFloat(executionPrice)
+        : null
+      await addNote(input, action, execPrice)
       setInput('')
+      setTradeAction('')
+      setExecutionPrice('')
     } catch {
     } finally {
       setSubmitting(false)
@@ -690,23 +711,47 @@ function NotesSection({ stockCode, stockName }: { stockCode: string; stockName: 
         笔记
       </h2>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="添加笔记..."
-          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-        />
-        <button
-          type="submit"
-          disabled={submitting || !input.trim()}
-          className="px-3 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white rounded-lg text-sm flex items-center gap-1 transition-colors"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          添加
-        </button>
-      </form>
+      <div className="mb-4 space-y-2">
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="添加笔记..."
+            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
+          <button
+            type="submit"
+            disabled={submitting || !input.trim()}
+            className="px-3 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white rounded-lg text-sm flex items-center gap-1 transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            添加
+          </button>
+        </form>
+        <div className="flex gap-2 items-center">
+          <select
+            value={tradeAction}
+            onChange={e => setTradeAction(e.target.value as 'buy' | 'sell' | 'watch' | '')}
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white"
+          >
+            <option value="">无交易判断</option>
+            <option value="buy">买入</option>
+            <option value="sell">卖出</option>
+            <option value="watch">观望</option>
+          </select>
+          {(tradeAction === 'buy' || tradeAction === 'sell') && (
+                <input
+                  type="number"
+                  step="0.001"
+                  value={executionPrice}
+                  onChange={e => setExecutionPrice(e.target.value)}
+                  placeholder="执行价格（已填建议价，可修改）"
+                  className="w-48 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
+              )}
+        </div>
+      </div>
 
       {loading ? (
         <div className="text-sm text-gray-400 py-2">加载中...</div>

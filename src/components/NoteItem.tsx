@@ -113,6 +113,18 @@ export const NoteItem: React.FC<NoteItemProps> = ({
           <span className="text-xs text-gray-400">
             {((note as any).updated_at || note.created_at).slice(0, 16).replace('T', ' ')}
           </span>
+          {note.trade_action && (
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+              note.trade_action === 'buy'
+                ? 'text-red-600 bg-red-50'
+                : note.trade_action === 'sell'
+                ? 'text-green-600 bg-green-50'
+                : 'text-gray-600 bg-gray-100'
+            }`}>
+              {note.trade_action === 'buy' ? '买入' : note.trade_action === 'sell' ? '卖出' : '观望'}
+              {note.execution_price != null && ` @ ${note.execution_price}`}
+            </span>
+          )}
         </div>
 
         {isEditing ? (

@@ -31,7 +31,7 @@ const EtfListOnly: React.FC = memo(() => {
   const [categoryFilter, setCategoryFilter] = usePersistentState<string>('etf_filter_categoryFilter', 'all')
 
   const categories = useMemo(() => {
-    const cats = [...new Set(etfs.map(e => e.category).filter((c): c is string => c !== null && c !== undefined))].sort()
+    const cats = [...new Set(etfs.map(e => e.strategy_type).filter((c): c is string => c !== null && c !== undefined))].sort()
     return ['all', ...cats]
   }, [etfs])
 
@@ -55,7 +55,7 @@ const EtfListOnly: React.FC = memo(() => {
       list = list.filter(e => e.is_focused)
     }
     if (categoryFilter !== 'all') {
-      list = list.filter(e => e.category === categoryFilter)
+      list = list.filter(e => e.strategy_type === categoryFilter)
     }
     if (!searchText.trim()) return list
     const kw = searchText.toLowerCase()
@@ -72,7 +72,7 @@ const EtfListOnly: React.FC = memo(() => {
       list = list.filter(e => e.is_focused)
     }
     if (categoryFilter !== 'all') {
-      list = list.filter(e => e.category === categoryFilter)
+      list = list.filter(e => e.strategy_type === categoryFilter)
     }
     if (!searchText.trim()) return list
     const kw = searchText.toLowerCase()
@@ -89,7 +89,7 @@ const EtfListOnly: React.FC = memo(() => {
       list = list.filter(e => e.is_focused)
     }
     if (categoryFilter !== 'all') {
-      list = list.filter(e => e.category === categoryFilter)
+      list = list.filter(e => e.strategy_type === categoryFilter)
     }
     if (!searchText.trim()) return list
     const kw = searchText.toLowerCase()
@@ -411,7 +411,7 @@ const EtfListOnly: React.FC = memo(() => {
                       <div className="text-sm text-gray-500">
                         {etf.symbol}
                         {etf.tracking_index_name && ` · ${etf.tracking_index_name}`}
-                        {etf.category && ` [${etf.category}]`}
+                        {etf.strategy_type && ` [${etf.strategy_type}]`}
                         {etf.latest_daily?.trade_date && ` · ${formatDate(etf.latest_daily.trade_date)}`}
                       </div>
                     </td>

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../utils/supabase'
 import { StockNote } from '../types'
 
+type TradeAction = 'buy' | 'sell' | 'watch' | null
+
 function sortByUpdatedTime<T extends { updated_at?: string; created_at: string }>(list: T[]): T[] {
   return [...list].sort((a, b) => {
     const aTime = (a as any).updated_at || a.created_at
@@ -34,12 +36,17 @@ export function useStockNotes() {
     fetchNotes()
   }, [fetchNotes])
 
-  const addNote = useCallback(async (stockCode: string, noteText: string) => {
+  const addNote = useCallback(async (stockCode: string, noteText: string, tradeAction: TradeAction = null, executionPrice: number | null = null) => {
     if (!noteText.trim()) return
     try {
+      const payload: Record<string, any> = { stock_code: stockCode, note: noteText.trim() }
+      if (tradeAction) {
+        payload.trade_action = tradeAction
+        payload.execution_price = tradeAction === 'watch' ? null : executionPrice
+      }
       const { data, error } = await supabase
         .from('stock_notes')
-        .insert({ stock_code: stockCode, note: noteText.trim() })
+        .insert(payload)
         .select()
         .single()
       if (error) throw error
@@ -110,12 +117,17 @@ export function useStockNotesByCode(stockCode: string) {
     fetch()
   }, [stockCode])
 
-  const addNote = useCallback(async (noteText: string) => {
+  const addNote = useCallback(async (noteText: string, tradeAction: TradeAction = null, executionPrice: number | null = null) => {
     if (!noteText.trim()) return
     try {
+      const payload: Record<string, any> = { stock_code: stockCode, note: noteText.trim() }
+      if (tradeAction) {
+        payload.trade_action = tradeAction
+        payload.execution_price = tradeAction === 'watch' ? null : executionPrice
+      }
       const { data, error } = await supabase
         .from('stock_notes')
-        .insert({ stock_code: stockCode, note: noteText.trim() })
+        .insert(payload)
         .select()
         .single()
       if (error) throw error

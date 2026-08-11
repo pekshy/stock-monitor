@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect, memo } from 'react'
-import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X } from 'lucide-react'
+import React, { useState, useMemo, useEffect, useCallback, memo } from 'react'
+import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useEtfContext } from '../context/EtfContext'
@@ -12,6 +12,7 @@ import StockList from '../components/StockList'
 import UnifiedTradeBoard from '../components/UnifiedTradeBoard'
 import { MarketIndicators } from '../components/MarketIndicators'
 import { NoteItem } from '../components/NoteItem'
+import { suggestExecutionPrice } from '../utils/formatters'
 import EtfListOnly from './EtfBoard'
 import { MarketView } from '../types'
 
@@ -210,7 +211,7 @@ const Home: React.FC = () => {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            交易看板
+            交易
           </button>
           <button
             onClick={() => switchTab('etf')}
@@ -220,7 +221,7 @@ const Home: React.FC = () => {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            ETF看板
+            ETF
           </button>
           <button
             onClick={() => switchTab('stock')}
@@ -230,7 +231,7 @@ const Home: React.FC = () => {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            股票看板
+            股票
           </button>
           {activeTab === 'etf' && etfLatestDate && (
             <span className="text-sm text-gray-500 ml-2">数据更新至：{formatDate(etfLatestDate)}</span>
@@ -383,9 +384,10 @@ const MarketViewItem: React.FC<{
   )
 }
 
-// ========== 交易看板内容 ==========
+// ========== 交易内容 ==========
 const TradeBoardContent: React.FC = memo(() => {
-  const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries, etfs } = useEtfContext()
+  const navigate = useNavigate()
+  const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries, etfs, priceByDateMap } = useEtfContext()
   const { stocks } = useStockContext()
   const { notes: etfNotes, loading: etfNotesLoading, addNote: addEtfNote, updateNote: updateEtfNote, deleteNote: deleteEtfNote } = useEtfNotes()
   const { notes: stockNotes, loading: stockNotesLoading, addNote: addStockNote, updateNote: updateStockNote, deleteNote: deleteStockNote } = useStockNotes()
@@ -394,7 +396,39 @@ const TradeBoardContent: React.FC = memo(() => {
   const [noteType, setNoteType] = useState<'etf' | 'stock' | 'market'>('etf')
   const [noteSymbolInput, setNoteSymbolInput] = useState('')
   const [noteInput, setNoteInput] = useState('')
+  const [noteTradeAction, setNoteTradeAction] = useState<'buy' | 'sell' | 'watch' | ''>('')
+  const [noteExecutionPrice, setNoteExecutionPrice] = useState('')
   const [noteSubmitting, setNoteSubmitting] = useState(false)
+
+  // 获取ETF/股票近30天收盘价数组（最新在前）
+  const getRecentCloses = useCallback((symbol: string): number[] => {
+    if (!symbol || symbol === 'GENERAL') return []
+    if (noteType === 'etf') {
+      const history = priceByDateMap.get(symbol)
+      if (!history || history.size === 0) return []
+      const dates = Array.from(history.keys()).sort()
+      return dates.slice(-30).map(d => history.get(d) ?? 0)
+    } else {
+      const stock = stocks.find(s => s.stock_code === symbol)
+      // stock_quote 数组可能在 latest_quote 中没有历史，这里仅用 latest_quote
+      const price = stock?.latest_quote?.close_price
+      return (price != null && !isNaN(price)) ? [price] : []
+    }
+  }, [noteType, priceByDateMap, stocks])
+
+  // 选择买入/卖出时根据近一个月走势给出建议价格
+  useEffect(() => {
+    if (noteTradeAction === 'buy' || noteTradeAction === 'sell') {
+      const symbol = noteSymbolInput.trim().toUpperCase()
+      const closes = getRecentCloses(symbol)
+      const suggested = suggestExecutionPrice(closes, noteTradeAction)
+      if (suggested != null) {
+        setNoteExecutionPrice(suggested.toFixed(3))
+      }
+    } else {
+      setNoteExecutionPrice('')
+    }
+  }, [noteTradeAction, noteSymbolInput])
 
   const [marketContentInput, setMarketContentInput] = useState('')
   const [marketSubmitting, setMarketSubmitting] = useState(false)
@@ -429,15 +463,21 @@ const TradeBoardContent: React.FC = memo(() => {
     const text = noteInput.trim()
     if (!text) return
     const symbol = noteSymbolInput.trim().toUpperCase()
+    const tradeAction = noteTradeAction || null
+    const execPrice = (tradeAction === 'buy' || tradeAction === 'sell') && noteExecutionPrice
+      ? parseFloat(noteExecutionPrice)
+      : null
     setNoteSubmitting(true)
     try {
       if (noteType === 'etf') {
-        await addEtfNote(symbol || 'GENERAL', text)
+        await addEtfNote(symbol || 'GENERAL', text, tradeAction, execPrice)
       } else if (noteType === 'stock') {
-        await addStockNote(symbol || 'GENERAL', text)
+        await addStockNote(symbol || 'GENERAL', text, tradeAction, execPrice)
       }
       setNoteInput('')
       setNoteSymbolInput('')
+      setNoteTradeAction('')
+      setNoteExecutionPrice('')
     } catch {
     } finally {
       setNoteSubmitting(false)
@@ -504,6 +544,74 @@ const TradeBoardContent: React.FC = memo(() => {
     }
   }
 
+  // 计算笔记中触发交易价格的提醒
+  const triggeredNotes = useMemo(() => {
+    const results: { id: string; type: 'etf' | 'stock'; symbol: string; name: string; action: 'buy' | 'sell'; execPrice: number; currentPrice: number; note: string; navigatePath: string }[] = []
+
+    const getLatestEtfPrice = (symbol: string): number | null => {
+      const history = priceByDateMap.get(symbol)
+      if (!history || history.size === 0) return null
+      const dates = Array.from(history.keys()).sort()
+      return history.get(dates[dates.length - 1]) ?? null
+    }
+
+    const getLatestStockPrice = (code: string): number | null => {
+      const stock = stocks.find(s => s.stock_code === code)
+      const price = stock?.latest_quote?.close_price
+      return (price != null && !isNaN(price)) ? price : null
+    }
+
+    etfNotes.forEach(n => {
+      if (!n.trade_action || n.trade_action === 'watch' || n.execution_price == null) return
+      if (n.symbol === 'GENERAL') return
+      const currentPrice = getLatestEtfPrice(n.symbol)
+      if (currentPrice == null) return
+      const triggered = n.trade_action === 'buy'
+        ? currentPrice <= n.execution_price
+        : currentPrice >= n.execution_price
+      if (triggered) {
+        results.push({
+          id: `etf_${n.id}`,
+          type: 'etf',
+          symbol: n.symbol,
+          name: getEtfDisplayName(n.symbol),
+          action: n.trade_action,
+          execPrice: n.execution_price,
+          currentPrice,
+          note: n.note,
+          navigatePath: `/etf/${n.symbol}`
+        })
+      }
+    })
+
+    stockNotes.forEach(n => {
+      if (!n.trade_action || n.trade_action === 'watch' || n.execution_price == null) return
+      if (n.stock_code === 'GENERAL') return
+      const currentPrice = getLatestStockPrice(n.stock_code)
+      if (currentPrice == null) return
+      const triggered = n.trade_action === 'buy'
+        ? currentPrice <= n.execution_price
+        : currentPrice >= n.execution_price
+      if (triggered) {
+        results.push({
+          id: `stock_${n.id}`,
+          type: 'stock',
+          symbol: n.stock_code,
+          name: getStockDisplayName(n.stock_code),
+          action: n.trade_action,
+          execPrice: n.execution_price,
+          currentPrice,
+          note: n.note,
+          navigatePath: `/stock/${n.stock_code}`
+        })
+      }
+    })
+
+    return results
+  }, [etfNotes, stockNotes, priceByDateMap, stocks, etfNameMap, stockNameMap])
+
+  const [expandedTrigger, setExpandedTrigger] = useState<string | null>(null)
+
   return (
     <div className="space-y-6">
       {/* 统一交易看板 */}
@@ -511,6 +619,61 @@ const TradeBoardContent: React.FC = memo(() => {
 
       {/* 笔记模块 */}
       <div className="bg-white rounded-xl shadow-md p-6">
+        {/* 价格触发提醒 */}
+        {triggeredNotes.length > 0 && (
+          <div className="mb-4 bg-orange-50 rounded-lg p-3 border-l-4 border-orange-400">
+            <div className="flex items-center gap-2 mb-2">
+              <Bell className="h-4 w-4 text-orange-500 animate-pulse" />
+              <span className="text-sm font-bold text-gray-900">
+                价格触发提醒
+              </span>
+              <span className="text-xs text-gray-500">
+                ({triggeredNotes.length} 条笔记已触发交易价格)
+              </span>
+            </div>
+            <div className="space-y-2">
+              {triggeredNotes.map(t => (
+                <div key={t.id} className="bg-white rounded-lg p-3">
+                  <div
+                    className="flex items-center justify-between cursor-pointer"
+                    onClick={() => setExpandedTrigger(expandedTrigger === t.id ? null : t.id)}
+                  >
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                        t.action === 'buy' ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'
+                      }`}>
+                        {t.action === 'buy' ? '买入' : '卖出'} @ {t.execPrice}
+                      </span>
+                      <span className="text-sm font-medium text-gray-700">{t.name}</span>
+                      <span className="text-xs text-gray-500">{t.symbol}</span>
+                      <span className="text-xs text-gray-600">
+                        现价 <span className={t.action === 'buy' ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>{t.currentPrice.toFixed(3)}</span>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate(t.navigatePath) }}
+                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        查看详情
+                      </button>
+                      {expandedTrigger === t.id
+                        ? <ChevronUp className="h-3.5 w-3.5 text-gray-400" />
+                        : <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+                      }
+                    </div>
+                  </div>
+                  {expandedTrigger === t.id && (
+                    <div className="mt-2 pt-2 border-t border-gray-200 text-sm text-gray-700 whitespace-pre-wrap break-words leading-relaxed">
+                      {t.note}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-blue-500" />
@@ -555,29 +718,53 @@ const TradeBoardContent: React.FC = memo(() => {
 
         {/* 快速添加 */}
         {noteType !== 'market' ? (
-          <form onSubmit={handleAddNote} className="flex gap-2 mb-4">
-            <input
-              type="text"
-              value={noteSymbolInput}
-              onChange={e => setNoteSymbolInput(e.target.value)}
-              placeholder={noteType === 'etf' ? 'ETF代码（可选）' : '股票代码（可选）'}
-              className="w-36 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="text"
-              value={noteInput}
-              onChange={e => setNoteInput(e.target.value)}
-              placeholder="写下笔记..."
-              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <button
-              type="submit"
-              disabled={noteSubmitting || !noteInput.trim()}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors"
-            >
-              添加
-            </button>
-          </form>
+          <div className="mb-4 space-y-2">
+            <form onSubmit={handleAddNote} className="flex gap-2">
+              <input
+                type="text"
+                value={noteSymbolInput}
+                onChange={e => setNoteSymbolInput(e.target.value)}
+                placeholder={noteType === 'etf' ? 'ETF代码（可选）' : '股票代码（可选）'}
+                className="w-36 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              <input
+                type="text"
+                value={noteInput}
+                onChange={e => setNoteInput(e.target.value)}
+                placeholder="写下笔记..."
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              <button
+                type="submit"
+                disabled={noteSubmitting || !noteInput.trim()}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors"
+              >
+                添加
+              </button>
+            </form>
+            <div className="flex gap-2 items-center">
+              <select
+                value={noteTradeAction}
+                onChange={e => setNoteTradeAction(e.target.value as 'buy' | 'sell' | 'watch' | '')}
+                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+              >
+                <option value="">无交易判断</option>
+                <option value="buy">买入</option>
+                <option value="sell">卖出</option>
+                <option value="watch">观望</option>
+              </select>
+              {(noteTradeAction === 'buy' || noteTradeAction === 'sell') && (
+                <input
+                  type="number"
+                  step="0.001"
+                  value={noteExecutionPrice}
+                  onChange={e => setNoteExecutionPrice(e.target.value)}
+                  placeholder="执行价格（已填建议价，可修改）"
+                  className="w-48 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              )}
+            </div>
+          </div>
         ) : (
           <form onSubmit={handleAddMarketView} className="flex gap-2 mb-4">
             <textarea
@@ -649,7 +836,7 @@ const TradeBoardContent: React.FC = memo(() => {
   )
 })
 
-// ========== 股票看板内容 ==========
+// ========== 股票内容 ==========
 interface StockBoardContentProps {
   industrySummaries: any[]
   selectedIndustry1: string

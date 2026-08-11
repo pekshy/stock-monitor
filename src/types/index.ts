@@ -65,6 +65,7 @@ export interface EtfInfo {
   symbol: string
   name: string | null
   category: string | null
+  strategy_type: string | null
   tracking_index_name: string | null
   tracking_index_code: string | null
   is_focused: boolean | null
@@ -202,6 +203,8 @@ export interface EtfNote {
   id: number
   symbol: string
   note: string
+  trade_action: 'buy' | 'sell' | 'watch' | null
+  execution_price: number | null
   created_at: string
   updated_at?: string
 }
@@ -211,6 +214,8 @@ export interface StockNote {
   id: number
   stock_code: string
   note: string
+  trade_action: 'buy' | 'sell' | 'watch' | null
+  execution_price: number | null
   created_at: string
   updated_at?: string
 }
