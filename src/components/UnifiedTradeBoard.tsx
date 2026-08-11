@@ -67,7 +67,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
                 'bg-blue-100 text-blue-600'
     const label = t === 'BUY' ? '买入' : t === 'SELL' ? '卖出' : '观望'
     return (
-      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${cls}`} title="趋势信号">
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${cls}`} title="趋势信号">
         趋势·{label}
       </span>
     )
@@ -80,7 +80,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
                 act.includes('卖出') || act.includes('卖') || act.includes('sell') || act.includes('bear') ? 'bg-green-100 text-green-600' :
                 'bg-blue-100 text-blue-600'
     return (
-      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${cls}`} title="技术指标建议">
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${cls}`} title="技术指标建议">
         技术·{action}
       </span>
     )
@@ -107,7 +107,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
       }
     }
     return (
-      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${cls}`} title={`动量模型评分${m.rank != null ? ` · 排名#${m.rank}` : ''}`}>
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${cls}`} title={`动量模型评分${m.rank != null ? ` · 排名#${m.rank}` : ''}`}>
         动量·{score.toFixed(1)}
         {changeTag}
       </span>
@@ -534,7 +534,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
                             {!etfSignalMap.get(p.symbol)?.trend_signal &&
                              !etfSignalMap.get(p.symbol)?.tech_action &&
                              !momentumBySymbolMap.has(p.symbol) && (
-                              <span className="text-[10px] text-gray-400 shrink-0">暂无指标</span>
+                              <span className="text-xs text-gray-400 shrink-0">暂无指标</span>
                             )}
                           </>
                         )}
