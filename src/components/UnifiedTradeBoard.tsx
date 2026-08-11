@@ -12,7 +12,7 @@ type TradeFilter = 'all' | 'etf' | 'stock'
 
 export const UnifiedTradeBoard: React.FC = memo(() => {
   const { records, loading, addRecord, updateRecord, deleteRecord } = useTradeRecords()
-  const { etfs, priceByDateMap: etfPriceMap } = useEtfContext()
+  const { etfs, priceByDateMap: etfPriceMap, momentumSignals } = useEtfContext()
   const { stocks } = useStockContext()
   const [filter, setFilter] = useState<TradeFilter>('all')
   const [modalOpen, setModalOpen] = useState(false)
@@ -27,6 +27,92 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
   })
   const [editingPrincipal, setEditingPrincipal] = useState(false)
   const [principalInput, setPrincipalInput] = useState('')
+
+  // ETF 指标映射：趋势信号 / 技术指标建议 / 动量评分
+  const { etfSignalMap, momentumBySymbolMap } = useMemo(() => {
+    const signalMap = new Map<string, {
+      trend_signal: string | null
+      tech_action: string | null
+    }>()
+    etfs.forEach(e => {
+      signalMap.set(e.symbol, {
+        trend_signal: e.latest_trend_signal || null,
+        tech_action: e.latest_signal?.action || null
+      })
+    })
+
+    const momentumMap = new Map<string, { final_score: number | null; rank: number | null; prev_score: number | null }>()
+    if (momentumSignals && momentumSignals.length > 0) {
+      const latestDate = momentumSignals[0]?.trade_date
+      const prevDate = momentumSignals.find(s => s.trade_date !== latestDate)?.trade_date
+      momentumSignals
+        .filter(s => s.trade_date === latestDate)
+        .forEach(s => {
+          const prev = momentumSignals.find(p => p.symbol === s.symbol && p.trade_date === prevDate)
+          momentumMap.set(s.symbol, {
+            final_score: s.final_score != null ? Number(s.final_score) : null,
+            rank: s.rank != null ? Number(s.rank) : null,
+            prev_score: prev?.final_score != null ? Number(prev.final_score) : null
+          })
+        })
+    }
+    return { etfSignalMap: signalMap, momentumBySymbolMap: momentumMap }
+  }, [etfs, momentumSignals])
+
+  const getTrendSignalBadge = (trend: string | null | undefined) => {
+    if (!trend) return null
+    const t = trend.toUpperCase()
+    const cls = t === 'BUY' ? 'bg-red-100 text-red-600' :
+                t === 'SELL' ? 'bg-green-100 text-green-600' :
+                'bg-blue-100 text-blue-600'
+    const label = t === 'BUY' ? '买入' : t === 'SELL' ? '卖出' : '观望'
+    return (
+      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${cls}`} title="趋势信号">
+        趋势·{label}
+      </span>
+    )
+  }
+
+  const getTechSignalBadge = (action: string | null | undefined) => {
+    if (!action) return null
+    const act = action.toLowerCase()
+    const cls = act.includes('买入') || act.includes('买') || act.includes('buy') || act.includes('bull') ? 'bg-red-100 text-red-600' :
+                act.includes('卖出') || act.includes('卖') || act.includes('sell') || act.includes('bear') ? 'bg-green-100 text-green-600' :
+                'bg-blue-100 text-blue-600'
+    return (
+      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${cls}`} title="技术指标建议">
+        技术·{action}
+      </span>
+    )
+  }
+
+  const getMomentumBadge = (symbol: string) => {
+    const m = momentumBySymbolMap.get(symbol)
+    if (!m || m.final_score == null) return null
+    const score = m.final_score
+    const cls = score >= 80 ? 'bg-red-100 text-red-600' :
+                score >= 60 ? 'bg-orange-100 text-orange-600' :
+                score >= 40 ? 'bg-blue-100 text-blue-600' :
+                score >= 20 ? 'bg-gray-100 text-gray-600' :
+                'bg-green-100 text-green-600'
+    let changeTag = null
+    if (m.prev_score != null) {
+      const ch = score - m.prev_score
+      if (Math.abs(ch) >= 0.01) {
+        changeTag = (
+          <span className={`ml-0.5 ${ch > 0 ? 'text-red-500' : 'text-green-500'}`}>
+            {ch > 0 ? '↑' : '↓'}{Math.abs(ch).toFixed(1)}
+          </span>
+        )
+      }
+    }
+    return (
+      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${cls}`} title={`动量模型评分${m.rank != null ? ` · 排名#${m.rank}` : ''}`}>
+        动量·{score.toFixed(1)}
+        {changeTag}
+      </span>
+    )
+  }
 
   const savePrincipal = () => {
     const val = parseFloat(principalInput)
@@ -437,10 +523,24 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
                 return (
                   <tr key={p.symbol} className="border-b border-gray-100">
                     <td className="py-1.5 px-2">
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors[i % colors.length] }} />
-                        <span className="font-medium text-gray-700">{p.name}</span>
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors[i % colors.length] }} />
+                          <span className="font-medium text-gray-700">{p.name}</span>
+                        </span>
+                        {isEtfCode(p.symbol) && (
+                          <div className="flex flex-wrap items-center gap-1">
+                            {getTrendSignalBadge(etfSignalMap.get(p.symbol)?.trend_signal)}
+                            {getTechSignalBadge(etfSignalMap.get(p.symbol)?.tech_action)}
+                            {getMomentumBadge(p.symbol)}
+                            {!etfSignalMap.get(p.symbol)?.trend_signal &&
+                             !etfSignalMap.get(p.symbol)?.tech_action &&
+                             !momentumBySymbolMap.has(p.symbol) && (
+                              <span className="text-[10px] text-gray-400">暂无指标数据</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="text-right py-1.5 px-2 text-gray-600">¥{p.cost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
                     <td className="text-right py-1.5 px-2 text-gray-600">{p.ratio.toFixed(1)}%</td>
