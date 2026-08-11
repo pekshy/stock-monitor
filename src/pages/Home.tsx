@@ -458,8 +458,7 @@ const TradeBoardContent: React.FC = memo(() => {
     return stockNameMap.get(code) || code
   }
 
-  const handleAddNote = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleAddNote = async () => {
     const text = noteInput.trim()
     if (!text) return
     const symbol = noteSymbolInput.trim().toUpperCase()
@@ -718,51 +717,57 @@ const TradeBoardContent: React.FC = memo(() => {
 
         {/* 快速添加 */}
         {noteType !== 'market' ? (
-          <div className="mb-4 space-y-2">
-            <form onSubmit={handleAddNote} className="flex gap-2">
+          <div className="mb-4 bg-gray-50 rounded-lg p-3 space-y-2">
+            <div className="flex gap-2">
               <input
                 type="text"
                 value={noteSymbolInput}
                 onChange={e => setNoteSymbolInput(e.target.value)}
-                placeholder={noteType === 'etf' ? 'ETF代码（可选）' : '股票代码（可选）'}
-                className="w-36 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder={noteType === 'etf' ? 'ETF代码' : '股票代码'}
+                className="w-32 border border-gray-200 rounded-md px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
               />
-              <input
-                type="text"
+              <textarea
                 value={noteInput}
                 onChange={e => setNoteInput(e.target.value)}
-                placeholder="写下笔记..."
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="写下笔记，记录交易思路..."
+                rows={1}
+                className="flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white resize-none"
               />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <select
+                  value={noteTradeAction}
+                  onChange={e => setNoteTradeAction(e.target.value as 'buy' | 'sell' | 'watch' | '')}
+                  className="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  <option value="">无交易判断</option>
+                  <option value="buy">📈 买入</option>
+                  <option value="sell">📉 卖出</option>
+                  <option value="watch">👁️ 观望</option>
+                </select>
+                {(noteTradeAction === 'buy' || noteTradeAction === 'sell') && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-gray-500">执行价</span>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={noteExecutionPrice}
+                      onChange={e => setNoteExecutionPrice(e.target.value)}
+                      placeholder="已填建议价"
+                      className="w-28 border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                  </div>
+                )}
+              </div>
               <button
-                type="submit"
+                type="button"
+                onClick={handleAddNote}
                 disabled={noteSubmitting || !noteInput.trim()}
-                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm transition-colors"
+                className="px-4 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-md text-xs font-medium transition-colors"
               >
                 添加
               </button>
-            </form>
-            <div className="flex gap-2 items-center">
-              <select
-                value={noteTradeAction}
-                onChange={e => setNoteTradeAction(e.target.value as 'buy' | 'sell' | 'watch' | '')}
-                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-              >
-                <option value="">无交易判断</option>
-                <option value="buy">买入</option>
-                <option value="sell">卖出</option>
-                <option value="watch">观望</option>
-              </select>
-              {(noteTradeAction === 'buy' || noteTradeAction === 'sell') && (
-                <input
-                  type="number"
-                  step="0.001"
-                  value={noteExecutionPrice}
-                  onChange={e => setNoteExecutionPrice(e.target.value)}
-                  placeholder="执行价格（已填建议价，可修改）"
-                  className="w-48 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              )}
             </div>
           </div>
         ) : (

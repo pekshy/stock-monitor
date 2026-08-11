@@ -711,45 +711,49 @@ function NotesSection({ stockCode, stockName, closes }: { stockCode: string; sto
         笔记
       </h2>
 
-      <div className="mb-4 space-y-2">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder="添加笔记..."
-            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-          />
-          <button
-            type="submit"
-            disabled={submitting || !input.trim()}
-            className="px-3 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white rounded-lg text-sm flex items-center gap-1 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            添加
-          </button>
-        </form>
-        <div className="flex gap-2 items-center">
-          <select
-            value={tradeAction}
-            onChange={e => setTradeAction(e.target.value as 'buy' | 'sell' | 'watch' | '')}
-            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white"
-          >
-            <option value="">无交易判断</option>
-            <option value="buy">买入</option>
-            <option value="sell">卖出</option>
-            <option value="watch">观望</option>
-          </select>
-          {(tradeAction === 'buy' || tradeAction === 'sell') && (
+      <div className="mb-4 bg-gray-50 rounded-lg p-3 space-y-2">
+        <textarea
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="写下笔记，记录交易思路..."
+          rows={2}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white resize-none"
+        />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <select
+              value={tradeAction}
+              onChange={e => setTradeAction(e.target.value as 'buy' | 'sell' | 'watch' | '')}
+              className="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-green-400"
+            >
+              <option value="">无交易判断</option>
+              <option value="buy">📈 买入</option>
+              <option value="sell">📉 卖出</option>
+              <option value="watch">👁️ 观望</option>
+            </select>
+            {(tradeAction === 'buy' || tradeAction === 'sell') && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-500">执行价</span>
                 <input
                   type="number"
                   step="0.001"
                   value={executionPrice}
                   onChange={e => setExecutionPrice(e.target.value)}
-                  placeholder="执行价格（已填建议价，可修改）"
-                  className="w-48 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  placeholder="已填建议价"
+                  className="w-28 border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
-              )}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting || !input.trim()}
+            className="px-4 py-1.5 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+          >
+            <Plus className="h-3 w-3" />
+            添加
+          </button>
         </div>
       </div>
 
