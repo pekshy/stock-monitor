@@ -523,24 +523,22 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
                 return (
                   <tr key={p.symbol} className="border-b border-gray-100">
                     <td className="py-1.5 px-2">
-                      <div className="flex flex-col gap-1">
-                        <span className="inline-flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors[i % colors.length] }} />
-                          <span className="font-medium text-gray-700">{p.name}</span>
-                        </span>
+                      <span className="inline-flex items-center gap-1.5 flex-wrap">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: colors[i % colors.length] }} />
+                        <span className="font-medium text-gray-700">{p.name}</span>
                         {isEtfCode(p.symbol) && (
-                          <div className="flex flex-wrap items-center gap-1">
+                          <>
                             {getTrendSignalBadge(etfSignalMap.get(p.symbol)?.trend_signal)}
                             {getTechSignalBadge(etfSignalMap.get(p.symbol)?.tech_action)}
                             {getMomentumBadge(p.symbol)}
                             {!etfSignalMap.get(p.symbol)?.trend_signal &&
                              !etfSignalMap.get(p.symbol)?.tech_action &&
                              !momentumBySymbolMap.has(p.symbol) && (
-                              <span className="text-[10px] text-gray-400">暂无指标数据</span>
+                              <span className="text-[10px] text-gray-400 shrink-0">暂无指标</span>
                             )}
-                          </div>
+                          </>
                         )}
-                      </div>
+                      </span>
                     </td>
                     <td className="text-right py-1.5 px-2 text-gray-600">¥{p.cost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
                     <td className="text-right py-1.5 px-2 text-gray-600">{p.ratio.toFixed(1)}%</td>
