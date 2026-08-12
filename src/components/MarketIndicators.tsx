@@ -487,9 +487,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
       )}
 
       {category.id === 'hk_connect_capital' && (
-        <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400 leading-relaxed space-y-0.5">
-          <div><span className="text-gray-500 font-medium">北向资金</span>：境外资金通过沪深股通买入 A 股的净买额，正值表示资金流入 A 股</div>
-          <div><span className="text-gray-500 font-medium">南向资金</span>：内地资金通过港股通买入港股的净买额，正值表示资金流入港股</div>
+        <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400 leading-relaxed">
+          北向：外资经沪深股通净买A股｜南向：内资经港股通净买港股
         </div>
       )}
     </div>
