@@ -296,7 +296,8 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                         const buyCount = data.eventBuyCount != null ? Number(data.eventBuyCount) : (data.signalBuyCount != null ? Number(data.signalBuyCount) : null)
                         const sellCount = data.eventSellCount != null ? Number(data.eventSellCount) : (data.signalSellCount != null ? Number(data.signalSellCount) : null)
                         const countDiff = (buyCount != null && sellCount != null) ? buyCount - sellCount : null
-                        const score = data.signalScore != null ? Number(data.signalScore) : null
+                        // signal_score 可能是数值 0（有效评分），必须用 != null 判断而不是 falsy
+                        const score = (data.signalScore != null && data.signalScore !== '') ? Number(data.signalScore) : null
 
                         return (
                           <>
@@ -315,8 +316,8 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                               </div>
                             </div>
 
-                            {/* ② 评分强度 */}
-                            {(score != null || data.signalScore != null) && (
+                            {/* ② 评分强度 (signal_score) — 注意：0 也是有效评分，必须严格基于 != null 判断 */}
+                            {(data.signalScore != null && data.signalScore !== '') && (
                               <div className="flex items-center justify-between text-xs">
                                 <span className="text-gray-500">评分强度 (signal_score)</span>
                                 <span className={`font-semibold ${
