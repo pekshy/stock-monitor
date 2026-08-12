@@ -85,3 +85,58 @@ export function suggestExecutionPrice(
     return Math.round(max * 0.99 * 1000) / 1000
   }
 }
+
+export type TechDirection = 'buy' | 'sell' | 'neutral'
+
+/**
+ * 技术指标买卖判断：双维度阈值 + 信号评分绝对值综合判断
+ * 优先使用 signal_score（-100 ~ 100）：
+ *   - signal_score >= 40 → 买入
+ *   - signal_score <= -40 → 卖出
+ *   - 其他 → 观望
+ * 若 signal_score 不存在，则回退到旧逻辑：
+ *   - 用 event_buy_count / buy_count / event_sell_count / sell_count 的相对阈值判断
+ *   - 并用 action 字段文字作为兜底
+ */
+export function resolveTechDirection(
+  sig: {
+    signal_score?: number | null
+    event_buy_count?: number | null
+    event_sell_count?: number | null
+    buy_count?: number | null
+    sell_count?: number | null
+    action?: string | null
+  } | null | undefined
+): TechDirection {
+  if (!sig) return 'neutral'
+
+  if (sig.signal_score != null) {
+    const score = Number(sig.signal_score)
+    if (score >= 40) return 'buy'
+    if (score <= -40) return 'sell'
+    return 'neutral'
+  }
+
+  const buyCnt = Number(sig.event_buy_count ?? sig.buy_count ?? 0) || 0
+  const sellCnt = Number(sig.event_sell_count ?? sig.sell_count ?? 0) || 0
+  const diff = buyCnt - sellCnt
+  const total = buyCnt + sellCnt
+  const ratio = total > 0 ? diff / total : 0
+
+  if (diff >= 2 && ratio >= 0.3) return 'buy'
+  if (diff <= -2 && ratio <= -0.3) return 'sell'
+
+  if (sig.action) {
+    const act = sig.action.toLowerCase()
+    if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 'buy'
+    if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 'sell'
+  }
+  return 'neutral'
+}
+
+/** 技术指标建议的展示文字 */
+export function formatTechDirection(dir: TechDirection): string {
+  if (dir === 'buy') return '买入'
+  if (dir === 'sell') return '卖出'
+  return '观望'
+}

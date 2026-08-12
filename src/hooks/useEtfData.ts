@@ -207,6 +207,18 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     },
     defaultIndicator: 'margin_balance'
   },
+  {
+    id: 'hk_connect_capital',
+    label: '南北向资金',
+    color: '#e11d48',
+    // 北向/南向资金净买额，来自 china_indicators 表
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('NORTHBOUND') || u.includes('SOUTHBOUND')
+    },
+    defaultIndicator: 'northbound_net',
+    memberOrder: ['northbound_net', 'southbound_net']
+  },
   // === 全球商品指标 ===
   {
     id: 'precious_metals',

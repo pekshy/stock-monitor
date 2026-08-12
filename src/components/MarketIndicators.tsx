@@ -48,6 +48,12 @@ const formatValue = (value: number | null, indicatorId: string): string => {
   if (u === 'VIX' || u === 'VIXCLS') {
     return value.toFixed(2)
   }
+  if (u.includes('NORTHBOUND') || u.includes('SOUTHBOUND')) {
+    const sign = value >= 0 ? '+' : ''
+    if (Math.abs(value) >= 100000000) return sign + (value / 100000000).toFixed(2) + '亿'
+    if (Math.abs(value) >= 10000) return sign + (value / 10000).toFixed(2) + '万'
+    return sign + value.toFixed(2)
+  }
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 
@@ -108,7 +114,9 @@ const getIndicatorLabel = (id: string): string => {
     'TRADE.BALANCE': '贸易',
     'SOCIAL.FINANCING': '社融',
     'VIX': 'VIX',
-    'VIXCLS': 'VIX'
+    'VIXCLS': 'VIX',
+    'northbound_net': '北向资金',
+    'southbound_net': '南向资金'
   }
   return map[id] || id
 }
@@ -491,7 +499,7 @@ export const MarketIndicators: React.FC<MarketIndicatorsProps> = ({
   const globalCategories = useMemo(
     () => {
       // 从 chinaIndicatorSeries 构建的分类（中国宏观指标表中的数据）
-      const chinaRuleIds = ['cn_macro', 'margin_balance']
+      const chinaRuleIds = ['cn_macro', 'margin_balance', 'hk_connect_capital']
       const chinaRules = GLOBAL_CATEGORIES.filter(c => chinaRuleIds.includes(c.id))
       const chinaCats = buildIndicatorCategories(chinaIndicatorSeries, chinaRules)
 

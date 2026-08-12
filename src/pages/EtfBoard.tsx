@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Target, ChevronDown, ChevronUp, Search, TrendingUp, Star } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { usePersistentState } from '../hooks/usePersistentState'
-import { formatPercent, getChangeColor } from '../utils/formatters'
+import { formatPercent, getChangeColor, resolveTechDirection, type TechDirection } from '../utils/formatters'
 
 const EtfListOnly: React.FC = memo(() => {
   const navigate = useNavigate()
@@ -16,11 +16,18 @@ const EtfListOnly: React.FC = memo(() => {
     toggleFocus
   } = useEtfContext()
 
-  const getActionPriority = (action: string | null | undefined): number => {
-    if (!action) return 3
-    const act = action.toLowerCase()
-    if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 1
-    if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 2
+  const getActionPriority = (action: string | null | undefined, sig?: any): number => {
+    const dir: TechDirection = sig
+      ? resolveTechDirection({ ...sig, action })
+      : (() => {
+          if (!action) return 'neutral'
+          const act = action.toLowerCase()
+          if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 'sell'
+          if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 'buy'
+          return 'neutral'
+        })()
+    if (dir === 'sell') return 1
+    if (dir === 'buy') return 2
     return 3
   }
 
@@ -37,14 +44,14 @@ const EtfListOnly: React.FC = memo(() => {
 
   const { sellEtfs, buyEtfs, watchEtfs } = useMemo(() => {
     const sorted = [...etfs].sort((a, b) => {
-      const priorityA = getActionPriority(a.latest_signal?.action)
-      const priorityB = getActionPriority(b.latest_signal?.action)
+      const priorityA = getActionPriority(a.latest_signal?.action, a.latest_signal)
+      const priorityB = getActionPriority(b.latest_signal?.action, b.latest_signal)
       return priorityA - priorityB
     })
     return {
-      sellEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) === 1),
-      buyEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) === 2),
-      watchEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action) === 3)
+      sellEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 1),
+      buyEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 2),
+      watchEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 3)
     }
   }, [etfs])
 
@@ -108,15 +115,10 @@ const EtfListOnly: React.FC = memo(() => {
     })
   }
 
-  const getActionColor = (action: string | null | undefined) => {
-    if (!action) return 'bg-gray-100 text-gray-600'
-    const act = action.toLowerCase()
-    if (act.includes('买入') || act.includes('买') || act.includes('buy') || act.includes('bull')) {
-      return 'bg-red-100 text-red-600'
-    }
-    if (act.includes('卖出') || act.includes('卖') || act.includes('sell') || act.includes('bear')) {
-      return 'bg-green-100 text-green-600'
-    }
+  const getActionColor = (sig: any): string => {
+    const dir: TechDirection = resolveTechDirection(sig)
+    if (dir === 'buy') return 'bg-red-100 text-red-600'
+    if (dir === 'sell') return 'bg-green-100 text-green-600'
     return 'bg-blue-100 text-blue-600'
   }
 

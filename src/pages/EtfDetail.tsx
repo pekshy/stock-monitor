@@ -17,10 +17,11 @@ import {
   Scatter
 } from 'recharts'
 import { EtfDailyData, EtfIndicators, EtfClawSignal, TradeRecord, EtfMomentumSignal, EtfNote } from '../types'
-import { formatPercent, formatDate, getChangeColor } from '../utils/formatters'
-import { ButterworthFit } from '../types'
+import { formatPercent, formatDate, getChangeColor, resolveTechDirection, formatTechDirection, type TechDirection } from '../utils/formatters'
+import { ButterworthFit, EtfWithData } from '../types'
 import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
 import { useTradeRecords } from '../hooks/useTradeRecords'
+import { usePersistentState } from '../hooks/usePersistentState'
 import { NoteItem } from '../components/NoteItem'
 import { NoteModal, type TradeAction, type NoteModalInitialValues } from '../components/NoteModal'
 import { TradeRecordItem } from '../components/TradeRecordItem'
@@ -75,6 +76,9 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         signalSellSignals: signal?.sell_signals,
         signalBuyCount: signal?.buy_count,
         signalSellCount: signal?.sell_count,
+        signalScore: signal?.signal_score,
+        eventBuyCount: signal?.event_buy_count,
+        eventSellCount: signal?.event_sell_count,
         signalK: signal?.k,
         signalD: signal?.d,
         signalJ: signal?.j,
@@ -128,21 +132,19 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
     const signal = signalMap.get(payload.trade_date)
     const trades = tradeRecordMap.get(payload.trade_date) || []
 
-    // 策略信号标记（三角）
+    // 策略信号标记（三角）—— 使用新的双维度决策逻辑
     let signalMark = null
     if (signal) {
-      const action = signal.action?.toLowerCase() || ''
-      const isBuy = action.includes('买') || action.includes('加仓')
-      const isSell = action.includes('卖') || action.includes('减仓')
+      const dir: TechDirection = resolveTechDirection(signal)
       const markerX = x + width / 2
-      if (isBuy) {
+      if (dir === 'buy') {
         signalMark = (
           <path
             d={`M${markerX},${lowY + 8} L${markerX - 5},${lowY + 16} L${markerX + 5},${lowY + 16} Z`}
             fill="#ef4444"
           />
         )
-      } else if (isSell) {
+      } else if (dir === 'sell') {
         signalMark = (
           <path
             d={`M${markerX},${highY - 8} L${markerX - 5},${highY - 16} L${markerX + 5},${highY - 16} Z`}
@@ -269,14 +271,48 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                       </>
                     )}
                   </div>
-                  {data.signalAction && (
+                  {(data.signalAction || data.signalScore != null) && (
                     <div className="mt-3 pt-2 border-t border-gray-200">
                       <div className="text-sm font-medium text-red-500">交易信号</div>
-                      <div className="text-sm mt-1">{data.signalAction}</div>
+                      {data.signalAction && (
+                        <div className="text-sm mt-1">{data.signalAction}</div>
+                      )}
+                      {/* 新字段：信号评分 + 事件买卖计数 */}
+                      {(data.signalScore != null || data.eventBuyCount != null || data.eventSellCount != null) && (
+                        <div className="mt-2 space-y-1">
+                          {data.signalScore != null && (
+                            <div className="text-xs">
+                              <span className="text-gray-500">信号评分: </span>
+                              <span className={`font-semibold ${
+                                Number(data.signalScore) >= 40 ? 'text-red-600' :
+                                Number(data.signalScore) <= -40 ? 'text-green-600' :
+                                'text-gray-700'
+                              }`}>
+                                {Number(data.signalScore) >= 0 ? '+' : ''}{Number(data.signalScore).toFixed(0)}
+                              </span>
+                              <span className="text-gray-400 ml-1">
+                                ({formatTechDirection(resolveTechDirection({ signal_score: data.signalScore }))})
+                              </span>
+                            </div>
+                          )}
+                          {data.eventBuyCount != null && (
+                            <div className="text-xs">
+                              <span className="text-gray-500">买入信号数: </span>
+                              <span className="font-medium text-green-600">{data.eventBuyCount}</span>
+                            </div>
+                          )}
+                          {data.eventSellCount != null && (
+                            <div className="text-xs">
+                              <span className="text-gray-500">卖出信号数: </span>
+                              <span className="font-medium text-red-600">{data.eventSellCount}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                       {data.signalBuySignals && (
                         <div className="mt-2">
                           <div className="text-xs font-medium text-green-600">
-                            买入信号({data.signalBuyCount || 0}):
+                            买入信号({data.eventBuyCount ?? data.signalBuyCount ?? 0}):
                           </div>
                           <div className="text-xs text-gray-700 mt-0.5">{data.signalBuySignals}</div>
                         </div>
@@ -284,7 +320,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                       {data.signalSellSignals && (
                         <div className="mt-2">
                           <div className="text-xs font-medium text-red-600">
-                            卖出信号({data.signalSellCount || 0}):
+                            卖出信号({data.eventSellCount ?? data.signalSellCount ?? 0}):
                           </div>
                           <div className="text-xs text-gray-700 mt-0.5">{data.signalSellSignals}</div>
                         </div>
@@ -547,21 +583,74 @@ const EtfDetail: React.FC = () => {
     return momentumSignals.find(s => s.trade_date === latestDate && s.symbol === code) || null
   }, [momentumSignals, code])
 
-  const getActionPriority = (action: string | null | undefined): number => {
-    if (!action) return 3
-    const act = action.toLowerCase()
-    if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 1
-    if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 2
+  // 读取与关注ETF列表页相同的持久化筛选条件（sessionStorage），保证上翻下翻顺序一致
+  const [searchText] = usePersistentState('etf_filter_searchText', '')
+  const [focusFilter] = usePersistentState<'all' | 'focused'>('etf_filter_focusFilter', 'all')
+  const [signalFilter] = usePersistentState<'all' | 'sell' | 'buy' | 'watch'>('etf_filter_signalFilter', 'all')
+  const [categoryFilter] = usePersistentState<string>('etf_filter_categoryFilter', 'all')
+
+  const getActionPriority = (action: string | null | undefined, sig?: any): number => {
+    const dir: TechDirection = sig
+      ? resolveTechDirection({ ...sig, action })
+      : (() => {
+          if (!action) return 'neutral'
+          const act = action.toLowerCase()
+          if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 'sell'
+          if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 'buy'
+          return 'neutral'
+        })()
+    if (dir === 'sell') return 1
+    if (dir === 'buy') return 2
     return 3
   }
 
+  // 完全复刻 EtfBoard 中的筛选+排序逻辑：先按 action 优先级分组排序，再按四类筛选条件过滤
   const sortedEtfs = useMemo(() => {
-    return [...etfs].sort((a, b) => {
-      const priorityA = getActionPriority(a.latest_signal?.action)
-      const priorityB = getActionPriority(b.latest_signal?.action)
+    const sorted = [...etfs].sort((a, b) => {
+      const priorityA = getActionPriority(a.latest_signal?.action, a.latest_signal)
+      const priorityB = getActionPriority(b.latest_signal?.action, b.latest_signal)
       return priorityA - priorityB
     })
-  }, [etfs])
+    const sellEtfs = sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 1)
+    const buyEtfs = sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 2)
+    const watchEtfs = sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 3)
+
+    const applyFilters = (list: EtfWithData[], signalType: 'sell' | 'buy' | 'watch') => {
+      if (signalFilter !== 'all' && signalFilter !== signalType) return [] as EtfWithData[]
+      let result = list
+      if (focusFilter === 'focused') {
+        result = result.filter(e => e.is_focused)
+      }
+      if (categoryFilter !== 'all') {
+        result = result.filter(e => e.strategy_type === categoryFilter)
+      }
+      if (searchText.trim()) {
+        const kw = searchText.toLowerCase()
+        result = result.filter(e =>
+          (e.name && e.name.toLowerCase().includes(kw)) ||
+          (e.symbol && e.symbol.toLowerCase().includes(kw))
+        )
+      }
+      return result
+    }
+
+    const filteredSell = applyFilters(sellEtfs, 'sell')
+    const filteredBuy = applyFilters(buyEtfs, 'buy')
+    const filteredWatch = applyFilters(watchEtfs, 'watch')
+
+    // 过滤后的顺序与关注ETF列表页表格渲染顺序保持一致：卖出 → 买入 → 观望
+    const merged = [...filteredSell, ...filteredBuy, ...filteredWatch]
+
+    // 兜底：如果当前 code ETF 不在筛选结果中（例如跳进来后用户改了条件），把它所在的原始分组也追加上，避免前后翻页找不到
+    if (code && merged.findIndex(e => e.symbol === code) === -1) {
+      const idxInAll = sorted.findIndex(e => e.symbol === code)
+      if (idxInAll !== -1) {
+        const extraSorted = [...sorted].slice(idxInAll)
+        return [...merged, ...extraSorted.filter(e => !merged.find(m => m.symbol === e.symbol))]
+      }
+    }
+    return merged
+  }, [etfs, searchText, focusFilter, signalFilter, categoryFilter, code])
 
   const etfSymbols = sortedEtfs.map(e => e.symbol)
   const currentIndex = etfSymbols.indexOf(code || '')

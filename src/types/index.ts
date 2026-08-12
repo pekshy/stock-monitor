@@ -135,6 +135,9 @@ export interface EtfClawSignal {
   sell_signals: string | null
   action: string | null
   action_type: string | null
+  signal_score: number | null
+  event_buy_count: number | null
+  event_sell_count: number | null
   created_at: string
 }
 
