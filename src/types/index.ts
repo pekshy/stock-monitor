@@ -138,6 +138,12 @@ export interface EtfClawSignal {
   signal_score: number | null
   event_buy_count: number | null
   event_sell_count: number | null
+  event_buy_signals: string | null        // 仅事件类买入信号名，数量 = event_buy_count
+  event_sell_signals: string | null       // 仅事件类卖出信号名，数量 = event_sell_count
+  state_buy_count: number | null          // 仅状态类买入信号计数
+  state_sell_count: number | null         // 仅状态类卖出信号计数
+  state_buy_signals: string | null        // 仅状态类买入信号名，数量 = state_buy_count
+  state_sell_signals: string | null       // 仅状态类卖出信号名，数量 = state_sell_count
   created_at: string
 }
 

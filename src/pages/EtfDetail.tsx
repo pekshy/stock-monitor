@@ -81,6 +81,12 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         signalScore: signal?.signal_score,
         eventBuyCount: signal?.event_buy_count,
         eventSellCount: signal?.event_sell_count,
+        eventBuySignals: signal?.event_buy_signals,
+        eventSellSignals: signal?.event_sell_signals,
+        stateBuyCount: signal?.state_buy_count,
+        stateSellCount: signal?.state_sell_count,
+        stateBuySignals: signal?.state_buy_signals,
+        stateSellSignals: signal?.state_sell_signals,
         signalK: signal?.k,
         signalD: signal?.d,
         signalJ: signal?.j,
@@ -247,10 +253,17 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
               const signalScore = sig?.signal_score ?? data.signalScore
               const eventBuyCount = sig?.event_buy_count ?? data.eventBuyCount
               const eventSellCount = sig?.event_sell_count ?? data.eventSellCount
+              const eventBuySignals = sig?.event_buy_signals ?? data.eventBuySignals
+              const eventSellSignals = sig?.event_sell_signals ?? data.eventSellSignals
+              const stateBuyCount = sig?.state_buy_count ?? data.stateBuyCount
+              const stateSellCount = sig?.state_sell_count ?? data.stateSellCount
+              const stateBuySignals = sig?.state_buy_signals ?? data.stateBuySignals
+              const stateSellSignals = sig?.state_sell_signals ?? data.stateSellSignals
               const signalBuyCount = sig?.buy_count ?? data.signalBuyCount
               const signalSellCount = sig?.sell_count ?? data.signalSellCount
-              const signalBuySignals = sig?.buy_signals ?? data.signalBuySignals
-              const signalSellSignals = sig?.sell_signals ?? data.signalSellSignals
+              // buy_signals/sell_signals 是旧字段（事件+状态混合），仅作兼容兜底
+              const legacyBuySignals = sig?.buy_signals ?? data.signalBuySignals
+              const legacySellSignals = sig?.sell_signals ?? data.signalSellSignals
               const signalK = sig?.k ?? data.signalK
               const signalD = sig?.d ?? data.signalD
               const signalJ = sig?.j ?? data.signalJ
@@ -290,7 +303,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                       </>
                     )}
                   </div>
-                  {(signalActionType || signalAction || signalScore != null || eventBuyCount != null || eventSellCount != null || signalBuySignals || signalSellSignals) && (
+                  {(signalActionType || signalAction || signalScore != null || eventBuyCount != null || eventSellCount != null || stateBuyCount != null || stateSellCount != null || eventBuySignals || eventSellSignals || stateBuySignals || stateSellSignals || legacyBuySignals || legacySellSignals) && (
                     <div className="mt-3 pt-2 border-t border-gray-200 space-y-2.5">
                       {(() => {
                         // 决策优先使用从 signalMap 取到的原始信号对象（与 CustomBar 三角标记同源），回退用展开字段
@@ -309,12 +322,16 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                           dir === 'sell' ? 'bg-green-50 border-green-200 text-green-700' :
                           'bg-blue-50 border-blue-200 text-blue-700'
 
-                        // 计数差：买入-卖出；若双空则 null
-                        const buyCount = eventBuyCount != null ? Number(eventBuyCount) : (signalBuyCount != null ? Number(signalBuyCount) : null)
-                        const sellCount = eventSellCount != null ? Number(eventSellCount) : (signalSellCount != null ? Number(signalSellCount) : null)
-                        const countDiff = (buyCount != null && sellCount != null) ? buyCount - sellCount : null
-                        // signal_score 可能是数值 0（有效评分），必须用 != null 判断而不是 falsy
+                        // 事件类计数（参与决策），状态类计数（仅展示参考不参与决策）
+                        const evtBuyN = eventBuyCount != null ? Number(eventBuyCount) : null
+                        const evtSellN = eventSellCount != null ? Number(eventSellCount) : null
+                        const stBuyN = stateBuyCount != null ? Number(stateBuyCount) : null
+                        const stSellN = stateSellCount != null ? Number(stateSellCount) : null
+                        const evtDiff = (evtBuyN != null && evtSellN != null) ? evtBuyN - evtSellN : null
                         const score = (signalScore != null && signalScore !== '') ? Number(signalScore) : null
+
+                        // 是否有「新字段」：event_buy_signals / state_buy_signals 存在，说明后端已拆分
+                        const hasNewSignalFields = !!(eventBuySignals || eventSellSignals || stateBuySignals || stateSellSignals)
 
                         return (
                           <>
@@ -333,7 +350,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                               </div>
                             </div>
 
-                            {/* ② 评分强度 (signal_score) — 注意：0 也是有效评分，必须严格基于 != null 判断 */}
+                            {/* ② 评分强度 (signal_score) */}
                             {(signalScore != null && signalScore !== '') && (
                               <div className="flex items-center justify-between text-xs">
                                 <span className="text-gray-500">评分强度 (signal_score)</span>
@@ -347,53 +364,131 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                               </div>
                             )}
 
-                            {/* ③ 计数差依据（同时展示 买/卖 事件计数 + 差） */}
-                            {((buyCount != null && buyCount > 0) || (sellCount != null && sellCount > 0)) && (
+                            {/* ③ 计数差依据（事件类 为主 + 状态类 辅助） */}
+                            {((evtBuyN != null && evtBuyN > 0) || (evtSellN != null && evtSellN > 0) || (stBuyN != null && stBuyN > 0) || (stSellN != null && stSellN > 0)) && (
                               <div className="text-xs space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-gray-500">事件计数</span>
-                                  <span className="text-gray-700 font-medium">
-                                    {buyCount ?? 0} <span className="text-green-600 font-semibold">买</span>
-                                    {' / '}
-                                    <span className="text-red-600 font-semibold">卖</span> {sellCount ?? 0}
-                                    {countDiff != null && (
-                                      <span className="ml-1.5 text-gray-400">
-                                        (差 {countDiff >= 0 ? '+' : ''}{countDiff})
-                                      </span>
-                                    )}
-                                  </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-gray-500">买事件</span>
-                                  <span className="font-medium text-green-600">{eventBuyCount ?? signalBuyCount ?? 0}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-gray-500">卖事件</span>
-                                  <span className="font-medium text-red-600">{eventSellCount ?? signalSellCount ?? 0}</span>
-                                </div>
+                                {((evtBuyN != null && evtBuyN > 0) || (evtSellN != null && evtSellN > 0)) && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">事件类计数</span>
+                                    <span className="text-gray-700 font-medium">
+                                      {evtBuyN ?? 0} <span className="text-green-600 font-semibold">买</span>
+                                      {' / '}
+                                      <span className="text-red-600 font-semibold">卖</span> {evtSellN ?? 0}
+                                      {evtDiff != null && (
+                                        <span className="ml-1.5 text-gray-400">
+                                          (差 {evtDiff >= 0 ? '+' : ''}{evtDiff})
+                                        </span>
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
+                                {((stBuyN != null && stBuyN > 0) || (stSellN != null && stSellN > 0)) && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">状态类计数</span>
+                                    <span className="text-gray-700 font-medium">
+                                      {stBuyN ?? 0} <span className="text-green-600 font-semibold">买</span>
+                                      {' / '}
+                                      <span className="text-red-600 font-semibold">卖</span> {stSellN ?? 0}
+                                    </span>
+                                  </div>
+                                )}
+                                {(evtBuyN != null && evtBuyN > 0) && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">买入事件</span>
+                                    <span className="font-medium text-green-600">{evtBuyN}</span>
+                                  </div>
+                                )}
+                                {(evtSellN != null && evtSellN > 0) && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">卖出事件</span>
+                                    <span className="font-medium text-red-600">{evtSellN}</span>
+                                  </div>
+                                )}
+                                {(stBuyN != null && stBuyN > 0) && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">买入状态</span>
+                                    <span className="font-medium text-green-700">{stBuyN}</span>
+                                  </div>
+                                )}
+                                {(stSellN != null && stSellN > 0) && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">卖出状态</span>
+                                    <span className="font-medium text-red-700">{stSellN}</span>
+                                  </div>
+                                )}
                               </div>
                             )}
 
-                            {/* ④ 具体触发了哪些信号 */}
-                            {signalBuySignals && (
-                              <div className="mt-0.5">
-                                <div className="text-xs font-medium text-green-600 mb-0.5">
-                                  买入触发信号 ({eventBuyCount ?? signalBuyCount ?? 0})
-                                </div>
-                                <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
-                                  {signalBuySignals}
-                                </div>
-                              </div>
-                            )}
-                            {signalSellSignals && (
-                              <div>
-                                <div className="text-xs font-medium text-red-600 mb-0.5">
-                                  卖出触发信号 ({eventSellCount ?? signalSellCount ?? 0})
-                                </div>
-                                <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
-                                  {signalSellSignals}
-                                </div>
-                              </div>
+                            {/* ④ 触发信号明细 — 按事件/状态拆分展示 */}
+                            {hasNewSignalFields ? (
+                              <>
+                                {eventBuySignals && (
+                                  <div>
+                                    <div className="text-xs font-medium text-green-600 mb-0.5">
+                                      事件类买入 ({evtBuyN ?? 0})
+                                    </div>
+                                    <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                      {eventBuySignals}
+                                    </div>
+                                  </div>
+                                )}
+                                {stateBuySignals && (
+                                  <div>
+                                    <div className="text-xs font-medium text-green-700 mb-0.5">
+                                      状态类买入 ({stBuyN ?? 0})
+                                    </div>
+                                    <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                      {stateBuySignals}
+                                    </div>
+                                  </div>
+                                )}
+                                {eventSellSignals && (
+                                  <div>
+                                    <div className="text-xs font-medium text-red-600 mb-0.5">
+                                      事件类卖出 ({evtSellN ?? 0})
+                                    </div>
+                                    <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                      {eventSellSignals}
+                                    </div>
+                                  </div>
+                                )}
+                                {stateSellSignals && (
+                                  <div>
+                                    <div className="text-xs font-medium text-red-700 mb-0.5">
+                                      状态类卖出 ({stSellN ?? 0})
+                                    </div>
+                                    <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                      {stateSellSignals}
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              // 兼容：后端尚未拆分新字段时，回退展示旧的混合 buy_signals/sell_signals（但注明「含事件+状态」）
+                              <>
+                                {legacyBuySignals && (
+                                  <div>
+                                    <div className="text-xs font-medium text-green-600 mb-0.5">
+                                      买入信号 ({evtBuyN ?? stBuyN ?? signalBuyCount ?? '?'})
+                                      <span className="text-gray-400 ml-1 font-normal">·事件+状态混合</span>
+                                    </div>
+                                    <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                      {legacyBuySignals}
+                                    </div>
+                                  </div>
+                                )}
+                                {legacySellSignals && (
+                                  <div>
+                                    <div className="text-xs font-medium text-red-600 mb-0.5">
+                                      卖出信号 ({evtSellN ?? stSellN ?? signalSellCount ?? '?'})
+                                      <span className="text-gray-400 ml-1 font-normal">·事件+状态混合</span>
+                                    </div>
+                                    <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                      {legacySellSignals}
+                                    </div>
+                                  </div>
+                                )}
+                              </>
                             )}
 
                             {/* 技术指标参考值（折叠在最下） */}
