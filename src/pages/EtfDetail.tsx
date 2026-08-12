@@ -273,8 +273,8 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                       </>
                     )}
                   </div>
-                  {(data.signalAction || data.signalScore != null || data.eventBuyCount != null || data.eventSellCount != null) && (
-                    <div className="mt-3 pt-2 border-t border-gray-200">
+                  {(data.signalActionType || data.signalAction || data.signalScore != null || data.eventBuyCount != null || data.eventSellCount != null || data.signalBuySignals || data.signalSellSignals) && (
+                    <div className="mt-3 pt-2 border-t border-gray-200 space-y-2.5">
                       {(() => {
                         // 直接用当天完整的 EtfClawSignal 对象决策，保证与 CustomBar 的三角标记同源
                         const dir: TechDirection = resolveTechDirection(data.signal ?? {
@@ -291,76 +291,105 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                           dir === 'buy' ? 'text-red-600' :
                           dir === 'sell' ? 'text-green-600' :
                           'text-blue-600'
-                        const raw = data.signalAction
-                        const mismatch = raw && raw !== display
+                        const dirBadgeClass =
+                          dir === 'buy' ? 'bg-red-50 border-red-200 text-red-700' :
+                          dir === 'sell' ? 'bg-green-50 border-green-200 text-green-700' :
+                          'bg-blue-50 border-blue-200 text-blue-700'
+
+                        // 计数差：买入-卖出；若双空则 null
+                        const buyCount = data.eventBuyCount != null ? Number(data.eventBuyCount) : (data.signalBuyCount != null ? Number(data.signalBuyCount) : null)
+                        const sellCount = data.eventSellCount != null ? Number(data.eventSellCount) : (data.signalSellCount != null ? Number(data.signalSellCount) : null)
+                        const countDiff = (buyCount != null && sellCount != null) ? buyCount - sellCount : null
+                        const score = data.signalScore != null ? Number(data.signalScore) : null
+
                         return (
                           <>
-                            <div className={`text-sm font-semibold ${dirColorClass}`}>
-                              交易信号：{display}
-                              {mismatch && (
-                                <span className="font-normal text-gray-400 ml-1.5 text-xs" title={`数据库原始 action：${raw}`}>
-                                  （原：{raw}）
+                            {/* ① 结论（action_type） */}
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-500">结论 (action_type)</span>
+                              <div className="flex items-center gap-1.5">
+                                {data.signalActionType && (
+                                  <span className="px-1.5 py-0.5 rounded border text-[11px] font-medium text-gray-600 border-gray-200 bg-gray-50">
+                                    {data.signalActionType}
+                                  </span>
+                                )}
+                                <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold border ${dirBadgeClass}`}>
+                                  {display}
                                 </span>
-                              )}
+                              </div>
                             </div>
-                            {/* 新字段：信号评分 + 事件买卖计数 */}
-                            {(data.signalScore != null || data.eventBuyCount != null || data.eventSellCount != null) && (
-                              <div className="mt-2 space-y-1">
-                                {data.signalScore != null && (
-                                  <div className="text-xs">
-                                    <span className="text-gray-500">信号评分: </span>
-                                    <span className={`font-semibold ${
-                                      Number(data.signalScore) >= 40 ? 'text-red-600' :
-                                      Number(data.signalScore) <= -40 ? 'text-green-600' :
-                                      'text-gray-700'
-                                    }`}>
-                                      {Number(data.signalScore) >= 0 ? '+' : ''}{Number(data.signalScore).toFixed(0)}
-                                    </span>
-                                  </div>
-                                )}
-                                {data.eventBuyCount != null && (
-                                  <div className="text-xs">
-                                    <span className="text-gray-500">买入信号数: </span>
-                                    <span className="font-medium text-green-600">{data.eventBuyCount}</span>
-                                  </div>
-                                )}
-                                {data.eventSellCount != null && (
-                                  <div className="text-xs">
-                                    <span className="text-gray-500">卖出信号数: </span>
-                                    <span className="font-medium text-red-600">{data.eventSellCount}</span>
-                                  </div>
-                                )}
+
+                            {/* ② 评分强度 */}
+                            {(score != null || data.signalScore != null) && (
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">评分强度 (signal_score)</span>
+                                <span className={`font-semibold ${
+                                  score != null && score >= 40 ? 'text-red-600' :
+                                  score != null && score <= -40 ? 'text-green-600' :
+                                  'text-gray-700'
+                                }`}>
+                                  {score != null ? `${score >= 0 ? '+' : ''}${score.toFixed(0)}` : '--'}
+                                </span>
                               </div>
                             )}
-                            {data.signalBuySignals && (
-                              <div className="mt-2">
-                                <div className="text-xs font-medium text-green-600">
-                                  买入信号({data.eventBuyCount ?? data.signalBuyCount ?? 0}):
+
+                            {/* ③ 计数差依据（同时展示 买/卖 事件计数 + 差） */}
+                            {((buyCount != null && buyCount > 0) || (sellCount != null && sellCount > 0)) && (
+                              <div className="text-xs space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-500">事件计数</span>
+                                  <span className="text-gray-700 font-medium">
+                                    {buyCount ?? 0} <span className="text-green-600 font-semibold">买</span>
+                                    {' / '}
+                                    <span className="text-red-600 font-semibold">卖</span> {sellCount ?? 0}
+                                    {countDiff != null && (
+                                      <span className="ml-1.5 text-gray-400">
+                                        (差 {countDiff >= 0 ? '+' : ''}{countDiff})
+                                      </span>
+                                    )}
+                                  </span>
                                 </div>
-                                <div className="text-xs text-gray-700 mt-0.5">{data.signalBuySignals}</div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-500">买事件</span>
+                                  <span className="font-medium text-green-600">{data.eventBuyCount ?? data.signalBuyCount ?? 0}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-500">卖事件</span>
+                                  <span className="font-medium text-red-600">{data.eventSellCount ?? data.signalSellCount ?? 0}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* ④ 具体触发了哪些信号 */}
+                            {data.signalBuySignals && (
+                              <div className="mt-0.5">
+                                <div className="text-xs font-medium text-green-600 mb-0.5">
+                                  买入触发信号 ({data.eventBuyCount ?? data.signalBuyCount ?? 0})
+                                </div>
+                                <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                  {data.signalBuySignals}
+                                </div>
                               </div>
                             )}
                             {data.signalSellSignals && (
-                              <div className="mt-2">
-                                <div className="text-xs font-medium text-red-600">
-                                  卖出信号({data.eventSellCount ?? data.signalSellCount ?? 0}):
+                              <div>
+                                <div className="text-xs font-medium text-red-600 mb-0.5">
+                                  卖出触发信号 ({data.eventSellCount ?? data.signalSellCount ?? 0})
                                 </div>
-                                <div className="text-xs text-gray-700 mt-0.5">{data.signalSellSignals}</div>
+                                <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                  {data.signalSellSignals}
+                                </div>
                               </div>
                             )}
-                            {(data.signalK != null || data.signalD != null || data.signalJ != null) && (
-                              <div className="text-xs text-gray-500 mt-2">
-                                K: {data.signalK?.toFixed(1)} | D: {data.signalD?.toFixed(1)} | J: {data.signalJ?.toFixed(1)}
-                              </div>
-                            )}
-                            {data.signalRsi != null && (
-                              <div className="text-xs text-gray-500">
-                                RSI: {data.signalRsi?.toFixed(1)}
-                              </div>
-                            )}
-                            {data.signalMacd != null && (
-                              <div className="text-xs text-gray-500">
-                                MACD: {data.signalMacd?.toFixed(3)}
+
+                            {/* 技术指标参考值（折叠在最下） */}
+                            {((data.signalK != null || data.signalD != null || data.signalJ != null) || data.signalRsi != null || data.signalMacd != null) && (
+                              <div className="pt-2 mt-1 border-t border-gray-100 text-xs text-gray-500 space-y-0.5">
+                                {(data.signalK != null || data.signalD != null || data.signalJ != null) && (
+                                  <div>KDJ: K {data.signalK?.toFixed(1)} / D {data.signalD?.toFixed(1)} / J {data.signalJ?.toFixed(1)}</div>
+                                )}
+                                {data.signalRsi != null && <div>RSI: {data.signalRsi.toFixed(1)}</div>}
+                                {data.signalMacd != null && <div>MACD柱: {data.signalMacd.toFixed(3)}</div>}
                               </div>
                             )}
                           </>
