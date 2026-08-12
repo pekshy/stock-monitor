@@ -101,8 +101,6 @@ export function resolveTechDirection(
     signal_score?: number | null
     event_buy_count?: number | null
     event_sell_count?: number | null
-    buy_count?: number | null
-    sell_count?: number | null
   } | null | undefined
 ): TechDirection {
   if (!sig) return 'neutral'

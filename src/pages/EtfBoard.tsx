@@ -491,15 +491,10 @@ const EtfListOnly: React.FC = memo(() => {
                       {etf.latest_signal ? (() => {
                         const dir: TechDirection = resolveTechDirection(etf.latest_signal)
                         const display = formatTechDirection(dir)
-                        const raw = etf.latest_signal.action
-                        const mismatch = raw && raw !== display
                         return (
                           <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${getActionColor(etf.latest_signal)}`}>
                             <Target className="h-3 w-3" />
                             {display}
-                            {mismatch && (
-                              <span className="font-normal text-gray-400 ml-0.5" title={`原始信号：${raw}`}>·原</span>
-                            )}
                           </div>
                         )
                       })() : (
