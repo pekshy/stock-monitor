@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Activity } from 'lucide-react'
-import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import {
   GLOBAL_CATEGORIES,
   buildIndicatorCategories
@@ -149,9 +149,10 @@ interface MultiChartProps {
   seriesList: IndicatorSeries[]
   baseColor: string
   days?: number
+  showZeroLine?: boolean
 }
 
-const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor, days = 90 }) => {
+const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor, days = 90, showZeroLine = false }) => {
   const mergedData = useMemo(() => {
     const allDates = new Set<string>()
     seriesList.forEach(s => s.history.forEach(h => allDates.add(h.date)))
@@ -185,6 +186,9 @@ const MultiChart: React.FC<MultiChartProps> = ({ seriesList, baseColor, days = 9
             domain={['auto', 'auto']}
             width={0}
           />
+          {showZeroLine && (
+            <ReferenceLine y={0} stroke="#94a3b8" strokeDasharray="4 4" strokeWidth={1} />
+          )}
           <Tooltip
             contentStyle={{
               backgroundColor: '#fff',
@@ -474,11 +478,18 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
         )}
       </div>
 
-      <MultiChart seriesList={selectedSeries} baseColor={category.color} />
+      <MultiChart seriesList={selectedSeries} baseColor={category.color} showZeroLine={category.id === 'hk_connect_capital'} />
 
       {selectedSeries[0]?.latest_date && (
         <div className="text-xs text-gray-400 mt-1 text-right">
           更新于 {selectedSeries[0].latest_date}
+        </div>
+      )}
+
+      {category.id === 'hk_connect_capital' && (
+        <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400 leading-relaxed space-y-0.5">
+          <div><span className="text-gray-500 font-medium">北向资金</span>：境外资金通过沪深股通买入 A 股的净买额，正值表示资金流入 A 股</div>
+          <div><span className="text-gray-500 font-medium">南向资金</span>：内地资金通过港股通买入港股的净买额，正值表示资金流入港股</div>
         </div>
       )}
     </div>
