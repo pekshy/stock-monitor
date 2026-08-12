@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Target, ChevronDown, ChevronUp, Search, TrendingUp, Star } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { usePersistentState } from '../hooks/usePersistentState'
-import { formatPercent, getChangeColor, resolveTechDirection, type TechDirection } from '../utils/formatters'
+import { formatPercent, getChangeColor, resolveTechDirection, formatTechDirection, type TechDirection } from '../utils/formatters'
 
 const EtfListOnly: React.FC = memo(() => {
   const navigate = useNavigate()
@@ -488,12 +488,21 @@ const EtfListOnly: React.FC = memo(() => {
                       )}
                     </td>
                     <td className="text-center py-4 px-4">
-                      {etf.latest_signal?.action ? (
-                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${getActionColor(etf.latest_signal.action)}`}>
-                          <Target className="h-3 w-3" />
-                          {etf.latest_signal.action}
-                        </div>
-                      ) : (
+                      {etf.latest_signal ? (() => {
+                        const dir: TechDirection = resolveTechDirection(etf.latest_signal)
+                        const display = formatTechDirection(dir)
+                        const raw = etf.latest_signal.action
+                        const mismatch = raw && raw !== display
+                        return (
+                          <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${getActionColor(etf.latest_signal)}`}>
+                            <Target className="h-3 w-3" />
+                            {display}
+                            {mismatch && (
+                              <span className="font-normal text-gray-400 ml-0.5" title={`原始信号：${raw}`}>·原</span>
+                            )}
+                          </div>
+                        )
+                      })() : (
                         <span className="text-gray-400 text-sm">--</span>
                       )}
                     </td>

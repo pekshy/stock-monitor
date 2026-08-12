@@ -89,45 +89,35 @@ export function suggestExecutionPrice(
 export type TechDirection = 'buy' | 'sell' | 'neutral'
 
 /**
- * 技术指标买卖判断：双维度阈值 + 信号评分绝对值综合判断
- * 优先使用 signal_score（-100 ~ 100）：
- *   - signal_score >= 40 → 买入
- *   - signal_score <= -40 → 卖出
- *   - 其他 → 观望
- * 若 signal_score 不存在，则回退到旧逻辑：
- *   - 用 event_buy_count / buy_count / event_sell_count / sell_count 的相对阈值判断
- *   - 并用 action 字段文字作为兜底
+ * 技术指标买卖判断：直接信任后端 action_type 字段（后端已完成最终决策）。
+ * - action_type 为买入类 → buy
+ * - action_type 为卖出类 → sell
+ * - 其他或空 → 回退使用 action 文字兜底（兼容历史数据）
  */
 export function resolveTechDirection(
   sig: {
+    action_type?: string | null
+    action?: string | null
     signal_score?: number | null
     event_buy_count?: number | null
     event_sell_count?: number | null
     buy_count?: number | null
     sell_count?: number | null
-    action?: string | null
   } | null | undefined
 ): TechDirection {
   if (!sig) return 'neutral'
 
-  if (sig.signal_score != null) {
-    const score = Number(sig.signal_score)
-    if (score >= 40) return 'buy'
-    if (score <= -40) return 'sell'
-    return 'neutral'
+  // 1) 优先直接取 action_type（后端最终决策结果）
+  if (sig.action_type) {
+    const t = String(sig.action_type).toLowerCase()
+    if (t === 'buy' || t.includes('买') || t.includes('bull') || t.includes('加仓')) return 'buy'
+    if (t === 'sell' || t.includes('卖') || t.includes('bear') || t.includes('减仓')) return 'sell'
+    if (t === 'watch' || t === 'hold' || t === 'neutral' || t.includes('观') || t.includes('持有')) return 'neutral'
   }
 
-  const buyCnt = Number(sig.event_buy_count ?? sig.buy_count ?? 0) || 0
-  const sellCnt = Number(sig.event_sell_count ?? sig.sell_count ?? 0) || 0
-  const diff = buyCnt - sellCnt
-  const total = buyCnt + sellCnt
-  const ratio = total > 0 ? diff / total : 0
-
-  if (diff >= 2 && ratio >= 0.3) return 'buy'
-  if (diff <= -2 && ratio <= -0.3) return 'sell'
-
+  // 2) 兜底：用 action 文字匹配（兼容 action_type 为空的历史数据）
   if (sig.action) {
-    const act = sig.action.toLowerCase()
+    const act = String(sig.action).toLowerCase()
     if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 'buy'
     if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 'sell'
   }

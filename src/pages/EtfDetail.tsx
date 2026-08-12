@@ -71,7 +71,9 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         ma60: indicator?.ma60,
         volume: d.volume ?? 0,
         value: d.high ?? 0,
+        signal,
         signalAction: signal?.action,
+        signalActionType: signal?.action_type,
         signalBuySignals: signal?.buy_signals,
         signalSellSignals: signal?.sell_signals,
         signalBuyCount: signal?.buy_count,
@@ -271,75 +273,99 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                       </>
                     )}
                   </div>
-                  {(data.signalAction || data.signalScore != null) && (
+                  {(data.signalAction || data.signalScore != null || data.eventBuyCount != null || data.eventSellCount != null) && (
                     <div className="mt-3 pt-2 border-t border-gray-200">
-                      <div className="text-sm font-medium text-red-500">交易信号</div>
-                      {data.signalAction && (
-                        <div className="text-sm mt-1">{data.signalAction}</div>
-                      )}
-                      {/* 新字段：信号评分 + 事件买卖计数 */}
-                      {(data.signalScore != null || data.eventBuyCount != null || data.eventSellCount != null) && (
-                        <div className="mt-2 space-y-1">
-                          {data.signalScore != null && (
-                            <div className="text-xs">
-                              <span className="text-gray-500">信号评分: </span>
-                              <span className={`font-semibold ${
-                                Number(data.signalScore) >= 40 ? 'text-red-600' :
-                                Number(data.signalScore) <= -40 ? 'text-green-600' :
-                                'text-gray-700'
-                              }`}>
-                                {Number(data.signalScore) >= 0 ? '+' : ''}{Number(data.signalScore).toFixed(0)}
-                              </span>
-                              <span className="text-gray-400 ml-1">
-                                ({formatTechDirection(resolveTechDirection({ signal_score: data.signalScore }))})
-                              </span>
+                      {(() => {
+                        // 直接用当天完整的 EtfClawSignal 对象决策，保证与 CustomBar 的三角标记同源
+                        const dir: TechDirection = resolveTechDirection(data.signal ?? {
+                          action_type: data.signalActionType,
+                          action: data.signalAction,
+                          signal_score: data.signalScore,
+                          event_buy_count: data.eventBuyCount,
+                          event_sell_count: data.eventSellCount,
+                          buy_count: data.signalBuyCount,
+                          sell_count: data.signalSellCount,
+                        })
+                        const display = formatTechDirection(dir)
+                        const dirColorClass =
+                          dir === 'buy' ? 'text-red-600' :
+                          dir === 'sell' ? 'text-green-600' :
+                          'text-blue-600'
+                        const raw = data.signalAction
+                        const mismatch = raw && raw !== display
+                        return (
+                          <>
+                            <div className={`text-sm font-semibold ${dirColorClass}`}>
+                              交易信号：{display}
+                              {mismatch && (
+                                <span className="font-normal text-gray-400 ml-1.5 text-xs" title={`数据库原始 action：${raw}`}>
+                                  （原：{raw}）
+                                </span>
+                              )}
                             </div>
-                          )}
-                          {data.eventBuyCount != null && (
-                            <div className="text-xs">
-                              <span className="text-gray-500">买入信号数: </span>
-                              <span className="font-medium text-green-600">{data.eventBuyCount}</span>
-                            </div>
-                          )}
-                          {data.eventSellCount != null && (
-                            <div className="text-xs">
-                              <span className="text-gray-500">卖出信号数: </span>
-                              <span className="font-medium text-red-600">{data.eventSellCount}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      {data.signalBuySignals && (
-                        <div className="mt-2">
-                          <div className="text-xs font-medium text-green-600">
-                            买入信号({data.eventBuyCount ?? data.signalBuyCount ?? 0}):
-                          </div>
-                          <div className="text-xs text-gray-700 mt-0.5">{data.signalBuySignals}</div>
-                        </div>
-                      )}
-                      {data.signalSellSignals && (
-                        <div className="mt-2">
-                          <div className="text-xs font-medium text-red-600">
-                            卖出信号({data.eventSellCount ?? data.signalSellCount ?? 0}):
-                          </div>
-                          <div className="text-xs text-gray-700 mt-0.5">{data.signalSellSignals}</div>
-                        </div>
-                      )}
-                      {(data.signalK != null || data.signalD != null || data.signalJ != null) && (
-                        <div className="text-xs text-gray-500 mt-2">
-                          K: {data.signalK?.toFixed(1)} | D: {data.signalD?.toFixed(1)} | J: {data.signalJ?.toFixed(1)}
-                        </div>
-                      )}
-                      {data.signalRsi != null && (
-                        <div className="text-xs text-gray-500">
-                          RSI: {data.signalRsi?.toFixed(1)}
-                        </div>
-                      )}
-                      {data.signalMacd != null && (
-                        <div className="text-xs text-gray-500">
-                          MACD: {data.signalMacd?.toFixed(3)}
-                        </div>
-                      )}
+                            {/* 新字段：信号评分 + 事件买卖计数 */}
+                            {(data.signalScore != null || data.eventBuyCount != null || data.eventSellCount != null) && (
+                              <div className="mt-2 space-y-1">
+                                {data.signalScore != null && (
+                                  <div className="text-xs">
+                                    <span className="text-gray-500">信号评分: </span>
+                                    <span className={`font-semibold ${
+                                      Number(data.signalScore) >= 40 ? 'text-red-600' :
+                                      Number(data.signalScore) <= -40 ? 'text-green-600' :
+                                      'text-gray-700'
+                                    }`}>
+                                      {Number(data.signalScore) >= 0 ? '+' : ''}{Number(data.signalScore).toFixed(0)}
+                                    </span>
+                                  </div>
+                                )}
+                                {data.eventBuyCount != null && (
+                                  <div className="text-xs">
+                                    <span className="text-gray-500">买入信号数: </span>
+                                    <span className="font-medium text-green-600">{data.eventBuyCount}</span>
+                                  </div>
+                                )}
+                                {data.eventSellCount != null && (
+                                  <div className="text-xs">
+                                    <span className="text-gray-500">卖出信号数: </span>
+                                    <span className="font-medium text-red-600">{data.eventSellCount}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {data.signalBuySignals && (
+                              <div className="mt-2">
+                                <div className="text-xs font-medium text-green-600">
+                                  买入信号({data.eventBuyCount ?? data.signalBuyCount ?? 0}):
+                                </div>
+                                <div className="text-xs text-gray-700 mt-0.5">{data.signalBuySignals}</div>
+                              </div>
+                            )}
+                            {data.signalSellSignals && (
+                              <div className="mt-2">
+                                <div className="text-xs font-medium text-red-600">
+                                  卖出信号({data.eventSellCount ?? data.signalSellCount ?? 0}):
+                                </div>
+                                <div className="text-xs text-gray-700 mt-0.5">{data.signalSellSignals}</div>
+                              </div>
+                            )}
+                            {(data.signalK != null || data.signalD != null || data.signalJ != null) && (
+                              <div className="text-xs text-gray-500 mt-2">
+                                K: {data.signalK?.toFixed(1)} | D: {data.signalD?.toFixed(1)} | J: {data.signalJ?.toFixed(1)}
+                              </div>
+                            )}
+                            {data.signalRsi != null && (
+                              <div className="text-xs text-gray-500">
+                                RSI: {data.signalRsi?.toFixed(1)}
+                              </div>
+                            )}
+                            {data.signalMacd != null && (
+                              <div className="text-xs text-gray-500">
+                                MACD: {data.signalMacd?.toFixed(3)}
+                              </div>
+                            )}
+                          </>
+                        )
+                      })()}
                     </div>
                   )}
                 </div>
