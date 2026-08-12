@@ -287,10 +287,6 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                           sell_count: data.signalSellCount,
                         })
                         const display = formatTechDirection(dir)
-                        const dirColorClass =
-                          dir === 'buy' ? 'text-red-600' :
-                          dir === 'sell' ? 'text-green-600' :
-                          'text-blue-600'
                         const dirBadgeClass =
                           dir === 'buy' ? 'bg-red-50 border-red-200 text-red-700' :
                           dir === 'sell' ? 'bg-green-50 border-green-200 text-green-700' :
