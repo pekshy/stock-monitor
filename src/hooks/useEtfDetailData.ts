@@ -81,7 +81,7 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
             .order('trade_date', { ascending: false }),
           supabase
             .from('etf_claw_signals')
-            .select('symbol,trade_date,action,buy_signals,sell_signals,buy_count,sell_count,k,d,j,rsi,macd_hist')
+            .select('symbol,trade_date,name,close,action,action_type,buy_signals,sell_signals,buy_count,sell_count,signal_score,event_buy_count,event_sell_count,k,d,j,rsi,macd_hist')
             .eq('symbol', symbol)
             .gte('trade_date', sixMonthsAgo)
             .order('trade_date', { ascending: false }),

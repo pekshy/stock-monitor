@@ -239,6 +239,23 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
             content={({ payload }: any) => {
               if (!payload || !payload[0]) return null
               const data = payload[0].payload
+              // Tooltip 信号数据直接从 signalMap 取原始 EtfClawSignal 对象
+              // → 与 CustomBar 三角标记的信号源 100% 同源，不受 Recharts payload 序列化影响
+              const sig: EtfClawSignal | undefined = data.trade_date ? signalMap.get(data.trade_date) : undefined
+              const signalAction = sig?.action ?? data.signalAction
+              const signalActionType = sig?.action_type ?? data.signalActionType
+              const signalScore = sig?.signal_score ?? data.signalScore
+              const eventBuyCount = sig?.event_buy_count ?? data.eventBuyCount
+              const eventSellCount = sig?.event_sell_count ?? data.eventSellCount
+              const signalBuyCount = sig?.buy_count ?? data.signalBuyCount
+              const signalSellCount = sig?.sell_count ?? data.signalSellCount
+              const signalBuySignals = sig?.buy_signals ?? data.signalBuySignals
+              const signalSellSignals = sig?.sell_signals ?? data.signalSellSignals
+              const signalK = sig?.k ?? data.signalK
+              const signalD = sig?.d ?? data.signalD
+              const signalJ = sig?.j ?? data.signalJ
+              const signalRsi = sig?.rsi ?? data.signalRsi
+              const signalMacd = sig?.macd_hist ?? data.signalMacd
               return (
                 <div className="bg-white/60 border border-gray-300/60 rounded-lg shadow-lg p-3 min-w-[200px] max-w-[260px] backdrop-blur-sm">
                   <div className="text-gray-600 text-sm mb-2">{data.date}</div>
@@ -273,18 +290,18 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                       </>
                     )}
                   </div>
-                  {(data.signalActionType || data.signalAction || data.signalScore != null || data.eventBuyCount != null || data.eventSellCount != null || data.signalBuySignals || data.signalSellSignals) && (
+                  {(signalActionType || signalAction || signalScore != null || eventBuyCount != null || eventSellCount != null || signalBuySignals || signalSellSignals) && (
                     <div className="mt-3 pt-2 border-t border-gray-200 space-y-2.5">
                       {(() => {
-                        // 直接用当天完整的 EtfClawSignal 对象决策，保证与 CustomBar 的三角标记同源
-                        const dir: TechDirection = resolveTechDirection(data.signal ?? {
-                          action_type: data.signalActionType,
-                          action: data.signalAction,
-                          signal_score: data.signalScore,
-                          event_buy_count: data.eventBuyCount,
-                          event_sell_count: data.eventSellCount,
-                          buy_count: data.signalBuyCount,
-                          sell_count: data.signalSellCount,
+                        // 决策优先使用从 signalMap 取到的原始信号对象（与 CustomBar 三角标记同源），回退用展开字段
+                        const dir: TechDirection = resolveTechDirection(sig ?? {
+                          action_type: signalActionType,
+                          action: signalAction,
+                          signal_score: signalScore,
+                          event_buy_count: eventBuyCount,
+                          event_sell_count: eventSellCount,
+                          buy_count: signalBuyCount,
+                          sell_count: signalSellCount,
                         })
                         const display = formatTechDirection(dir)
                         const dirBadgeClass =
@@ -293,11 +310,11 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                           'bg-blue-50 border-blue-200 text-blue-700'
 
                         // 计数差：买入-卖出；若双空则 null
-                        const buyCount = data.eventBuyCount != null ? Number(data.eventBuyCount) : (data.signalBuyCount != null ? Number(data.signalBuyCount) : null)
-                        const sellCount = data.eventSellCount != null ? Number(data.eventSellCount) : (data.signalSellCount != null ? Number(data.signalSellCount) : null)
+                        const buyCount = eventBuyCount != null ? Number(eventBuyCount) : (signalBuyCount != null ? Number(signalBuyCount) : null)
+                        const sellCount = eventSellCount != null ? Number(eventSellCount) : (signalSellCount != null ? Number(signalSellCount) : null)
                         const countDiff = (buyCount != null && sellCount != null) ? buyCount - sellCount : null
                         // signal_score 可能是数值 0（有效评分），必须用 != null 判断而不是 falsy
-                        const score = (data.signalScore != null && data.signalScore !== '') ? Number(data.signalScore) : null
+                        const score = (signalScore != null && signalScore !== '') ? Number(signalScore) : null
 
                         return (
                           <>
@@ -305,9 +322,9 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-gray-500">结论 (action_type)</span>
                               <div className="flex items-center gap-1.5">
-                                {data.signalActionType && (
+                                {signalActionType && (
                                   <span className="px-1.5 py-0.5 rounded border text-[11px] font-medium text-gray-600 border-gray-200 bg-gray-50">
-                                    {data.signalActionType}
+                                    {signalActionType}
                                   </span>
                                 )}
                                 <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold border ${dirBadgeClass}`}>
@@ -317,7 +334,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                             </div>
 
                             {/* ② 评分强度 (signal_score) — 注意：0 也是有效评分，必须严格基于 != null 判断 */}
-                            {(data.signalScore != null && data.signalScore !== '') && (
+                            {(signalScore != null && signalScore !== '') && (
                               <div className="flex items-center justify-between text-xs">
                                 <span className="text-gray-500">评分强度 (signal_score)</span>
                                 <span className={`font-semibold ${
@@ -348,45 +365,45 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="text-gray-500">买事件</span>
-                                  <span className="font-medium text-green-600">{data.eventBuyCount ?? data.signalBuyCount ?? 0}</span>
+                                  <span className="font-medium text-green-600">{eventBuyCount ?? signalBuyCount ?? 0}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="text-gray-500">卖事件</span>
-                                  <span className="font-medium text-red-600">{data.eventSellCount ?? data.signalSellCount ?? 0}</span>
+                                  <span className="font-medium text-red-600">{eventSellCount ?? signalSellCount ?? 0}</span>
                                 </div>
                               </div>
                             )}
 
                             {/* ④ 具体触发了哪些信号 */}
-                            {data.signalBuySignals && (
+                            {signalBuySignals && (
                               <div className="mt-0.5">
                                 <div className="text-xs font-medium text-green-600 mb-0.5">
-                                  买入触发信号 ({data.eventBuyCount ?? data.signalBuyCount ?? 0})
+                                  买入触发信号 ({eventBuyCount ?? signalBuyCount ?? 0})
                                 </div>
                                 <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
-                                  {data.signalBuySignals}
+                                  {signalBuySignals}
                                 </div>
                               </div>
                             )}
-                            {data.signalSellSignals && (
+                            {signalSellSignals && (
                               <div>
                                 <div className="text-xs font-medium text-red-600 mb-0.5">
-                                  卖出触发信号 ({data.eventSellCount ?? data.signalSellCount ?? 0})
+                                  卖出触发信号 ({eventSellCount ?? signalSellCount ?? 0})
                                 </div>
                                 <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
-                                  {data.signalSellSignals}
+                                  {signalSellSignals}
                                 </div>
                               </div>
                             )}
 
                             {/* 技术指标参考值（折叠在最下） */}
-                            {((data.signalK != null || data.signalD != null || data.signalJ != null) || data.signalRsi != null || data.signalMacd != null) && (
+                            {((signalK != null || signalD != null || signalJ != null) || signalRsi != null || signalMacd != null) && (
                               <div className="pt-2 mt-1 border-t border-gray-100 text-xs text-gray-500 space-y-0.5">
-                                {(data.signalK != null || data.signalD != null || data.signalJ != null) && (
-                                  <div>KDJ: K {data.signalK?.toFixed(1)} / D {data.signalD?.toFixed(1)} / J {data.signalJ?.toFixed(1)}</div>
+                                {(signalK != null || signalD != null || signalJ != null) && (
+                                  <div>KDJ: K {signalK?.toFixed(1)} / D {signalD?.toFixed(1)} / J {signalJ?.toFixed(1)}</div>
                                 )}
-                                {data.signalRsi != null && <div>RSI: {data.signalRsi.toFixed(1)}</div>}
-                                {data.signalMacd != null && <div>MACD柱: {data.signalMacd.toFixed(3)}</div>}
+                                {signalRsi != null && <div>RSI: {signalRsi.toFixed(1)}</div>}
+                                {signalMacd != null && <div>MACD柱: {signalMacd.toFixed(3)}</div>}
                               </div>
                             )}
                           </>
