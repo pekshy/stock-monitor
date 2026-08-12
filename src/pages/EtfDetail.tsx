@@ -427,16 +427,19 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                               </div>
                             )}
 
-                            {/* ⑤ 兼容兜底：后端尚未拆分新字段时，回退展示旧的混合 buy_signals/sell_signals */}
+                            {/* ⑤ 兼容兜底：后端尚未拆分新字段时，明确标注为「混合数据」，数量用 buy_count/sell_count（本身就是混合计数） */}
                             {!hasNewSignalFields && (legacyBuySignals || legacySellSignals) && (
                               <div className="rounded-md border border-gray-200 bg-gray-50/60 p-2 space-y-1.5">
                                 <div className="text-xs font-semibold text-gray-500">
-                                  信号明细 <span className="font-normal text-gray-400">·事件+状态混合（旧字段）</span>
+                                  信号明细 <span className="font-normal text-gray-400">·旧字段（事件+状态混合，后端尚未拆分）</span>
+                                </div>
+                                <div className="text-xs text-gray-400 leading-relaxed">
+                                  如要查看事件/状态各自明细，请后端生成 event_buy_signals / state_buy_signals 等拆分字段
                                 </div>
                                 {legacyBuySignals && (
                                   <div>
                                     <div className="text-xs font-medium text-green-600 mb-0.5">
-                                      买入 ({evtBuyN ?? stBuyN ?? signalBuyCount ?? '?'})
+                                      买入 (共 {signalBuyCount ?? '?'} 条)
                                     </div>
                                     <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
                                       {legacyBuySignals}
@@ -446,7 +449,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
                                 {legacySellSignals && (
                                   <div>
                                     <div className="text-xs font-medium text-red-600 mb-0.5">
-                                      卖出 ({evtSellN ?? stSellN ?? signalSellCount ?? '?'})
+                                      卖出 (共 {signalSellCount ?? '?'} 条)
                                     </div>
                                     <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
                                       {legacySellSignals}
