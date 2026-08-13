@@ -764,7 +764,14 @@ const EtfDetail: React.FC = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-3">
         <button
-          onClick={() => navigate('/etf')}
+          onClick={() => {
+            const lastTab: string | null = (() => {
+              try { return localStorage.getItem('home_last_tab') } catch { return null }
+            })()
+            if (lastTab === 'trade') navigate('/')
+            else if (lastTab === 'stock') navigate('/stocks')
+            else navigate('/etf')
+          }}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
         >
           <ArrowLeft className="h-4 w-4" />

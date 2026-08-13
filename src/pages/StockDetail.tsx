@@ -312,7 +312,14 @@ const StockDetail: React.FC = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-3">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => {
+            const lastTab: string | null = (() => {
+              try { return localStorage.getItem('home_last_tab') } catch { return null }
+            })()
+            if (lastTab === 'etf') navigate('/etf')
+            else if (lastTab === 'stock') navigate('/stocks')
+            else navigate('/')
+          }}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
         >
           <ArrowLeft className="h-4 w-4" />

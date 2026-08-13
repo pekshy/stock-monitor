@@ -44,7 +44,14 @@ const Home: React.FC = () => {
       navigate('/')
     }
   }
-  
+
+  // 记录当前Tab，用于详情页"返回"时回到用户之前所在的Tab
+  useEffect(() => {
+    try {
+      localStorage.setItem('home_last_tab', activeTab)
+    } catch {}
+  }, [activeTab])
+
   const [selectedIndustry1, setSelectedIndustry1] = useState<string>(() => {
     return localStorage.getItem('stock_filter_industry1') || 'all'
   })
