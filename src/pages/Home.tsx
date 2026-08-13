@@ -561,9 +561,11 @@ const TradeBoardContent: React.FC = memo(() => {
       name: getStockDisplayName(n.stock_code),
       navigatePath: `/stock/${n.stock_code}`
     }))
-    return [...etfList, ...stockList].sort((a, b) => 
-      new Date(b.note.created_at).getTime() - new Date(a.note.created_at).getTime()
-    )
+    return [...etfList, ...stockList].sort((a, b) => {
+      const aTime = new Date((a.note.updated_at ?? a.note.created_at)).getTime()
+      const bTime = new Date((b.note.updated_at ?? b.note.created_at)).getTime()
+      return bTime - aTime
+    })
   }, [etfNotes, stockNotes, etfNameMap, stockNameMap])
 
   const handleNoteUpdate = async (type: 'etf' | 'stock', id: number, text: string) => {

@@ -10,11 +10,11 @@ interface UpdateNoteValues {
   executionPrice?: number | null
 }
 
-function sortByUpdatedTime<T extends { updated_at?: string; created_at: string }>(list: T[]): T[] {
+function sortByUpdatedTime<T extends { updated_at?: string | null; created_at: string }>(list: T[]): T[] {
   return [...list].sort((a, b) => {
-    const aTime = (a as any).updated_at || a.created_at
-    const bTime = (b as any).updated_at || b.created_at
-    return bTime.localeCompare(aTime)
+    const aTime = new Date((a.updated_at ?? a.created_at)).getTime()
+    const bTime = new Date((b.updated_at ?? b.created_at)).getTime()
+    return bTime - aTime
   })
 }
 
