@@ -193,8 +193,10 @@ export function isTextFile(name: string): boolean {
 /** 上传原件到 Storage，返回公开链接（存进 research_notes.file_path） */
 export async function uploadNoteFile(file: File): Promise<{ path: string | null; error?: string }> {
   try {
-    const safe = file.name.replace(/[\\/]/g, '_')
-    const path = `notes/${Date.now()}-${safe}`
+    // Supabase Storage 的 isValidKey 只收 ASCII（\w 与少量符号），中文/全角字符一律拒绝，
+    // 统一清洗成 '-'，保留扩展名；时间戳前缀保证唯一。
+    const safe = file.name.replace(/[^\w.!*'() &$@=;:+,?-]+/g, '-').replace(/-{2,}/g, '-').replace(/^-|-$/g, '')
+    const path = `notes/${Date.now()}-${safe || 'file'}`
     const { error } = await supabase.storage.from(LIB_BUCKET).upload(path, file, { upsert: true })
     if (error) return { path: null, error: error.message }
     const { data } = supabase.storage.from(LIB_BUCKET).getPublicUrl(path)
