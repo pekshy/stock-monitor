@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, StickyNote, FileText, ExternalLink } from 'lucide-react'
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode } from '../research/format'
@@ -8,6 +8,7 @@ import NotesPanel from '../components/NotesPanel'
 const ResearchCompanyDetail: React.FC = () => {
   const { name } = useParams<{ name: string }>()
   const decoded = decodeURIComponent(name ?? '')
+  const navigate = useNavigate()
   const { companies, loading, cloudOk } = useCloudCompanies()
   const { notes, refresh } = useIntel()
   const company = useMemo(
@@ -29,7 +30,7 @@ const ResearchCompanyDetail: React.FC = () => {
     return (
       <div className="py-20 text-center">
         <p className="text-sm text-gray-500 mb-4">未找到企业「{decoded}」</p>
-        <Link to="/research/companies" className="text-sm text-blue-600 hover:underline">返回企业名单</Link>
+        <button onClick={() => navigate(-1)} className="text-sm text-blue-600 hover:underline">返回</button>
       </div>
     )
   }
@@ -40,9 +41,13 @@ const ResearchCompanyDetail: React.FC = () => {
     <div>
       {/* 头部 */}
       <div className="flex items-center gap-3 mb-4">
-        <Link to="/research/companies" className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="返回企业名单">
+        <button
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/research'))}
+          className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50"
+          title="返回"
+        >
           <ArrowLeft className="h-4 w-4" />
-        </Link>
+        </button>
         <h2 className="text-lg font-bold text-gray-800">{company.name}</h2>
         {listed && company.code && <span className="text-xs text-gray-400 font-mono">{company.code}</span>}
         <span className={`text-xs px-2 py-0.5 rounded-full ${listed ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>

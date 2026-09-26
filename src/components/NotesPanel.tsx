@@ -30,8 +30,9 @@ const kindBadge = (kind: string): string => {
 }
 
 /**
- * 研究笔记面板：搜索 + 新增（极简表单：正文 + 可选原件，其余自动带值）
- * + 卡片编辑（完整表单，含删除）——口径与原工作台页录入一致，写 Supabase。
+ * 研究笔记面板：搜索 + 新增（极简表单：正文 + 可选原件，其余自动带值；
+ * 可选 companyOptions：新增态点选关联企业）+ 卡片编辑（完整表单，含删除）
+ * ——口径与原工作台页录入一致，写 Supabase。
  */
 const NotesPanel: React.FC<{
   notes: CloudNote[]
@@ -39,7 +40,11 @@ const NotesPanel: React.FC<{
   onChanged: () => void
   readOnly?: boolean
   loading?: boolean
-}> = ({ notes, scope, onChanged, readOnly, loading }) => {
+  /** 新增态可点选的关联企业（通常是当前产业链范围的企业池） */
+  companyOptions?: string[]
+  /** 卡片上展示的产业链节点标签（如 半导体 · 设备） */
+  nodeLabelOf?: (n: CloudNote) => string | null
+}> = ({ notes, scope, onChanged, readOnly, loading, companyOptions, nodeLabelOf }) => {
   const [mode, setMode] = useState<'none' | 'new' | 'edit'>('none')
   const [editId, setEditId] = useState<number | null>(null)
   const [v, setV] = useState<NoteFormValues>(emptyVals)
@@ -48,7 +53,17 @@ const NotesPanel: React.FC<{
   const [err, setErr] = useState('')
   const [msg, setMsg] = useState('')
   const [q, setQ] = useState('')
+  const [coQ, setCoQ] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+
+  /** 新增态关联企业候选：按关键词模糊匹配（大小写不敏感），排除已选，最多 8 条 */
+  const coMatches = useMemo(() => {
+    const kw = coQ.trim().toLowerCase()
+    if (!kw || !companyOptions?.length) return []
+    return companyOptions
+      .filter(name => !v.companies.includes(name) && name.toLowerCase().includes(kw))
+      .slice(0, 8)
+  }, [coQ, companyOptions, v.companies])
 
   const shown = useMemo(() => {
     const kw = q.trim()
@@ -60,7 +75,7 @@ const NotesPanel: React.FC<{
 
   const openNew = () => {
     setV({ ...emptyVals(), companies: [...scope.companies] })
-    setFile(null); setErr(''); setMsg('')
+    setFile(null); setErr(''); setMsg(''); setCoQ('')
     setEditId(null); setMode('new')
   }
 
@@ -75,7 +90,7 @@ const NotesPanel: React.FC<{
     setEditId(n.id); setMode('edit')
   }
 
-  const cancel = () => { setMode('none'); setEditId(null); setFile(null); setErr('') }
+  const cancel = () => { setMode('none'); setEditId(null); setFile(null); setErr(''); setCoQ('') }
 
   const doRemove = (n: CloudNote) => {
     if (!window.confirm(`确认删除这条研究笔记？\n\n【${n.kind}】${n.title || '(无标题)'}\n\n只删数据库记录，已上传的原件不动。`)) return
@@ -229,6 +244,56 @@ const NotesPanel: React.FC<{
             </span>
           </div>
 
+          {/* 新增态：关联企业用模糊搜索添加（不选则按产业链节点归属） */}
+          {mode === 'new' && !!companyOptions?.length && (
+            <div className="mt-2">
+              <label className="block text-xs text-gray-500 mb-1">
+                关联企业（输入名称模糊搜索，可关联多家）
+              </label>
+              {v.companies.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-1.5">
+                  {v.companies.map(name => (
+                    <span key={name}
+                          className="text-xs px-2 py-0.5 rounded-full bg-blue-600 text-white flex items-center gap-1">
+                      {name}
+                      <button
+                        type="button"
+                        onClick={() => setV(v => ({ ...v, companies: v.companies.filter(c => c !== name) }))}
+                        className="hover:text-blue-200" title="移除">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="relative">
+                <input
+                  value={coQ}
+                  onChange={e => setCoQ(e.target.value)}
+                  placeholder="输入企业名称搜索，如「华创」"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400"
+                />
+                {coMatches.length > 0 && (
+                  <div className="absolute z-10 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                    {coMatches.map(name => (
+                      <button
+                        key={name}
+                        type="button"
+                        onClick={() => {
+                          setV(v => ({ ...v, companies: [...v.companies, name] }))
+                          setCoQ('')
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-blue-50"
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {mode === 'edit' && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
               <div>
@@ -306,11 +371,18 @@ const NotesPanel: React.FC<{
               : '没有匹配的笔记'}
           </div>
         )}
-        {!loading && shown.map(n => (
+        {!loading && shown.map(n => {
+          const nodeLabel = nodeLabelOf?.(n) ?? null
+          return (
           <div key={n.id} className="px-5 py-3 group">
             <div className="flex items-baseline gap-3">
               <span className="text-[13px] text-gray-400 shrink-0">{fmtDate(n.occurred_at)}</span>
               <span className={`text-xs px-1.5 py-0.5 rounded shrink-0 ${kindBadge(n.kind)}`}>{n.kind}</span>
+              {nodeLabel && (
+                <span className="text-[11px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 shrink-0 truncate max-w-[16rem]" title={nodeLabel}>
+                  {nodeLabel}
+                </span>
+              )}
               <span className="text-sm text-gray-800 font-medium">{n.title || '(无标题)'}</span>
               {n.file_path && (
                 <a href={n.file_path} target="_blank" rel="noreferrer"
@@ -341,7 +413,8 @@ const NotesPanel: React.FC<{
               </div>
             )}
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

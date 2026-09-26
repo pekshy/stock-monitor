@@ -1,6 +1,6 @@
 /*
  * 行业研究模块 · 内置兜底数据（由 scripts/gen_research_data_ts.js 自动生成，勿手改）
- * 生成时间：2026-09-26T00:33:50.075Z
+ * 生成时间：2026-09-26T01:31:08.108Z
  * 来源：demo/index.html 内嵌数据（产业链树 SUBS + 企业库 COMPANIES）
  *
  * 用途：Supabase 不可达 / 加载失败时的离线兜底；云端 companies 为准，
@@ -33,11 +33,12 @@ export interface ResearchCompany {
 }
 
 // 产业链目录树：行业 -> 环节 -> 细分（细分含 name/desc/companies）
-export const TREE: Record<string, { name: string; desc?: string; companies?: string[] }[]> = {
+export const TREE: Record<string, { name: string; desc?: string; detail?: string; companies?: string[] }[]> = {
   "eda": [
     {
       "name": "全流程 EDA",
       "desc": "原理图/仿真/版图到数字全流程，国产工具链补齐中。",
+      "detail": "指覆盖原理图设计、仿真、逻辑综合、版图到签核的完整工具链，是芯片设计公司的核心生产力工具。全流程能力意味着工具间数据格式与优化闭环打通，门槛高于单点工具。国产厂商以模拟电路全流程为突破口，数字全流程尚在补齐，先进制程支持是主要差距。",
       "companies": [
         "华大九天",
         "概伦电子",
@@ -50,6 +51,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "IP 与设计服务",
       "desc": "IP 授权 + 一站式设计服务，芯原全球前列。",
+      "detail": "IP 授权商把处理器核、接口、物理 IP 等成熟电路模块授权给设计公司复用，设计服务商则承接芯片定制开发。该模式考验 IP 库厚度与多工艺节点适配能力，收入来自授权费与量产业务分成。国内芯原股份自主 IP 规模全球前列，Chiplet 互联 IP 是新增长点。",
       "companies": [
         "芯原股份",
         "灿芯股份",
@@ -62,6 +64,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "光刻设备",
       "desc": "产业链最核心瓶颈，上海微电子 28nm DUV 攻关中。",
+      "detail": "光刻把电路图形经掩膜版曝光转移到硅片上，分辨率直接决定制程节点，是设备中技术壁垒最高、价值量最大的机台。全球由 ASML 垄断，EUV 与高端 DUV 对华禁运使国产替代成为刚性需求。上海微电子 28nm DUV 攻关中，光源、双工件台、物镜等核心部件同步国产化。",
       "companies": [
         "上海微电子",
         "芯碁微装",
@@ -73,6 +76,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "刻蚀设备",
       "desc": "国产化最成功的环节，CCP/ICP 已进入 5nm 产线。",
+      "detail": "刻蚀用等离子体去除未被光刻胶保护的薄膜，分电容耦合（CCP）与电感耦合（ICP）两条路线，与光刻、薄膜沉积并称制造三大主机。该环节国产化最成功：中微公司介质刻蚀进入 5nm 产线，北方华创硅刻蚀覆盖成熟制程，更高深宽比结构是持续迭代方向。",
       "companies": [
         "中微公司",
         "北方华创"
@@ -81,6 +85,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "薄膜沉积 / 热处理",
       "desc": "PECVD/ALD/RTA 多线并进，平台化与细分专业化并存。",
+      "detail": "薄膜沉积在硅片上逐层生长导电、半导体与绝缘薄膜（PVD/CVD/PECVD/ALD），热处理（RTA/炉管）用于激活掺杂与改善薄膜质量，共同决定器件电学性能。ALD 随制程微缩用量提升，是增速最快的机型之一。国产拓荆科技、北方华创等多线并进，平台化与细分专业化并存。",
       "companies": [
         "拓荆科技",
         "北方华创",
@@ -93,6 +98,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "离子注入",
       "desc": "成熟制程实现突破，先进制程验证中。",
+      "detail": "离子注入把掺杂离子精确打入硅片指定深度形成 PN 结与阱区，决定器件电学特性，是晶圆制造不可替代的关键工序。低能大束流与高能注入机门槛高，全球由应用材料、Axcelis 主导。国产万业企业（凯世通）在成熟制程实现突破，先进制程机台处于验证阶段。",
       "companies": [
         "万业企业"
       ]
@@ -100,6 +106,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "清洗 / 洗净",
       "desc": "清洗设备与设备洗净服务双路线。",
+      "detail": "清洗贯穿晶圆制造全过程，单片晶圆经历数十次清洗，用于去除颗粒、金属沾污与有机残留，直接影响良率。赛道包括单片/槽式清洗设备（盛美上海、至纯科技）与零部件洗净服务双路线。清洗技术路线多元（SAPS、TEBO、兆声波），差异化空间大，国产份额提升较快。",
       "companies": [
         "盛美上海",
         "至纯科技",
@@ -109,6 +116,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "涂胶显影",
       "desc": "光刻工序配套，前道国产化推进中。",
+      "detail": "涂胶显影是光刻工序的配套设备：曝光前把光刻胶均匀旋涂在晶圆上，曝光后显影定型，与光刻机联机精度要求极高。全球由日本 TEL 垄断，是国产化率最低的主机环节之一。芯源微在前道实现突破，Offline 与 I-line 机台批量装机，KrF 及以上验证推进中。",
       "companies": [
         "芯源微"
       ]
@@ -116,6 +124,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "CMP 设备",
       "desc": "12 英寸抛光机量产，耗材一体布局。",
+      "detail": "化学机械抛光以化学腐蚀与机械研磨结合实现晶圆表面全局平坦化，是多层布线的前提，抛光压力控制精度以帕为单位。华海清科是国内唯一量产 12 英寸 CMP 设备的厂商，并延伸抛光垫、抛光液耗材，形成设备+耗材一体格局。先进制程与 3D 堆叠使 CMP 步数持续增加。",
       "companies": [
         "华海清科"
       ]
@@ -123,6 +132,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "量检测设备",
       "desc": "缺陷检测与尺寸量测，国产化率最低的设备环节之一。",
+      "detail": "量检测贯穿制造全流程，包括明暗场缺陷检测、图形复查与关键尺寸量测（OCD/CD-SEM），被称为良率的眼睛，占设备支出约一成。全球由 KLA 主导，国产化率最低。中科飞测、精测电子在部分细分实现零的突破，先进制程高端机台仍在追赶。",
       "companies": [
         "中科飞测",
         "精测电子",
@@ -132,6 +142,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "测试设备",
       "desc": "测试机/分选机/探针台，受益设计公司放量与存储扩产。",
+      "detail": "测试设备包括测试机（电性能激励与采集）、探针台（晶圆级 CP 测试）与分选机（成品 FT 测试），是芯片出厂前质量与成本平衡的关键。需求跟随设计公司放量与存储扩产，ATE 市场寡头垄断。华峰测控、长川科技在模拟与数模混合测试持续渗透，高端 SoC 测试机是升级方向。",
       "companies": [
         "长川科技",
         "华峰测控",
@@ -145,6 +156,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "封装 / 组装设备",
       "desc": "固晶机、塑封设备与直写光刻，先进封装增量。",
+      "detail": "封装设备覆盖固晶贴片、引线键合、塑封、切筋成型等后道工序，先进封装兴起带来 TSV、混合键合等增量需求。国产新益昌固晶机全球领先，直写光刻等新设备切入先进封装产线。单机价值量低于前道，但随先进封装产能扩张增速可观。",
       "companies": [
         "新益昌",
         "耐科装备",
@@ -155,6 +167,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "零部件与厂务",
       "desc": "腔体件/陶瓷/石英/洁净管阀，设备国产化的配套底座。",
+      "detail": "设备上游零部件包括腔体、射电源、静电卡盘、陶瓷石英件、真空管阀等，占设备成本约七成，是设备国产化的底座。零部件认证周期长、精度要求高，长期被美日企业垄断。富创精密、新莱应材等逐步进入国产设备供应链，并向国际大厂供货。",
       "companies": [
         "富创精密",
         "先锋精科",
@@ -171,6 +184,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "硅片 / 衬底",
       "desc": "12 英寸正片比例提升中，新产能持续释放。",
+      "detail": "硅片是晶圆制造的基底，占晶圆制造材料成本约三成，12 英寸为主流、8 英寸及以下服务成熟与功率场景。拉晶、切片、抛光、外延多道工序决定平整度与缺陷密度，认证壁垒高。沪硅产业、TCL 中环等 12 英寸产能持续释放，正片比例提升中。",
       "companies": [
         "沪硅产业",
         "立昂微",
@@ -183,6 +197,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "外延片",
       "desc": "功率/模拟衬底外延，车规放量。",
+      "detail": "外延是在衬底上生长单晶薄膜，为器件提供更优的电学基底，功率器件与模拟、CIS 大量使用。SiC 外延是车规主驱逆变器产业链的关键一环，门槛在缺陷控制与厚度均匀性。瀚天天成、东莞天域等随新能源汽车放量快速成长。",
       "companies": [
         "上海合晶"
       ]
@@ -190,6 +205,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "光刻胶与配套",
       "desc": "ArF 高端胶验证推进，国产突破关键点。",
+      "detail": "光刻胶由树脂、感光剂与溶剂组成，按制程分 g/i 线、KrF、ArF 与 EUV，是材料中国产化率最低、突破最紧迫的品类，配套显影液、剥离液同样关键。北京科华、彤程新材 KrF 胶批量供货，ArF 胶处于客户验证阶段，上游树脂与光酸单体同步国产化。",
       "companies": [
         "南大光电",
         "彤程新材",
@@ -200,6 +216,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "掩膜版",
       "desc": "光刻工艺图形底版，高端产品仍依赖进口。",
+      "detail": "掩膜版是光刻的图形底版，把设计版图复制到石英基板上，精度直接决定电路成型质量，先进制程掩膜版单价可达数百万美元。高端产品依赖日本 TOPPAN 等进口，清溢光电、路维光电在平板显示与成熟制程已具规模，先进节点仍待突破。",
       "companies": [
         "清溢光电",
         "路维光电",
@@ -209,6 +226,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "CMP 抛光材料",
       "desc": "抛光液/抛光垫双环节国产替代。",
+      "detail": "CMP 耗材包括抛光液、抛光垫与清洗液，随制程进步与多层结构复杂化用量持续提升，占 CMP 工艺成本主体。安集科技抛光液全球份额稳步提升，鼎龙股份抛光垫打破垄断。耗材客户粘性强、复购稳定，是典型的随产能放量的耗材生意。",
       "companies": [
         "安集科技",
         "鼎龙股份"
@@ -217,6 +235,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "电子特气",
       "desc": "品类多、验证周期长，大宗气体现场制气兴起。",
+      "detail": "电子特气用于外延、刻蚀、掺杂、清洗等工序，纯度要求 5N-6N，品类超过百种，是仅次于硅片的材料支出。认证周期长（1-2 年）、单品市场小但粘性极强。华特气体、金宏气体、南大光电等多品类突破，现场制气模式随晶圆厂扩建兴起。",
       "companies": [
         "华特气体",
         "金宏气体",
@@ -227,6 +246,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "溅射靶材 / 高纯金属",
       "desc": "超高纯金属靶材与提纯，江丰电子全球前五。",
+      "detail": "溅射靶材用于 PVD 工艺沉积金属薄膜，需要 4N5-6N 超高纯金属提纯与晶粒取向控制技术。江丰电子靶材全球前五，进入台积电等一线产线，是材料国产化标杆。高纯金属提纯能力是护城河，产品随先进制程金属层数增加而放量。",
       "companies": [
         "江丰电子",
         "有研新材",
@@ -238,6 +258,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "前驱体",
       "desc": "先进制程与存储扩产带动需求高增。",
+      "detail": "前驱体是 ALD/CVD 工艺的气态源材料，先进制程高深宽比结构必须使用高活性金属前驱体，存储堆叠层数增加带动需求高增。技术壁垒在分子设计与超高纯合成，全球由海外厂商主导。国内雅克科技通过并购切入，已成为 SK 海力士等核心供应商。",
       "companies": [
         "雅克科技",
         "南大光电"
@@ -246,6 +267,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "湿电子化学品",
       "desc": "镀铜/清洗/电镀液，晶圆厂耗材。",
+      "detail": "湿电子化学品包括清洗液、蚀刻液、电镀液等，纯度要求 G4-G5 级，贯穿光刻、刻蚀、电镀等工序，是典型高频耗材。区域性供货与快速响应是竞争关键，晶圆厂就近配套。江化微、格林达等在主流晶圆厂持续放量，超纯试剂与回收再利用是新方向。",
       "companies": [
         "上海新阳",
         "艾森股份"
@@ -254,6 +276,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "封装材料",
       "desc": "塑封料/引线框架/键合材料/封装填料/硅基无源器件。",
+      "detail": "封装材料包括塑封料（EMC）、引线框架、键合丝、底部填料、封装填料等，传统封测成本的一半来自材料。先进封装带来 ABF、玻璃通孔材料等新品类。华海诚科、康强电子等在传统品类站稳，高端塑封料与载板配套材料仍在追赶。",
       "companies": [
         "华海诚科",
         "康强电子",
@@ -266,6 +289,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "IC 载板",
       "desc": "FC-BGA/FC-CSP 载板国产主力，属封装材料。",
+      "detail": "IC 载板是芯片与 PCB 之间的桥接基板，线宽线距要求精细，技术难度在封装材料中最高，分 FC-BGA（算力芯片）与 FC-CSP（移动端）。全球由日本、韩国与中国台湾厂商主导，兴森科技、深南电路是国产主力，AI 芯片放量使 FC-BGA 载板成为紧缺环节。",
       "companies": [
         "兴森科技",
         "珠海越亚"
@@ -274,6 +298,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "石英 / 陶瓷部件",
       "desc": "晶圆厂耗材与设备部件，半导体级认证壁垒高。",
+      "detail": "石英件（炉管、环）与陶瓷件（静电卡盘、喷淋头）是晶圆制造与设备的关键耗材部件，半导体级纯度与公差认证壁垒高，长期被贺利氏、信越等垄断。菲利华、石英股份通过设备商与晶圆厂认证，正从耗材切入高价值部件，替代空间大。",
       "companies": [
         "石英股份",
         "菲利华",
@@ -283,6 +308,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "SiC 衬底",
       "desc": "导电型衬底全球前列，车规与光伏双驱动。",
+      "detail": "SiC（碳化硅）衬底是第三代半导体的核心材料，耐高压高温，用于新能源车主驱逆变器、光伏储能与充电桩。PVT 法长晶良率与缺陷控制是壁垒，8 英寸良率爬坡是当前主线。天岳先进导电型衬底出货全球前列，价格下行推动上车加速。",
       "companies": [
         "天岳先进"
       ]
@@ -292,6 +318,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "GPU / AI 芯片",
       "desc": "算力需求核心受益，国产 GPU 上市潮。",
+      "detail": "GPU 以大规模并行架构承担 AI 训练与推理的核心算力，是智算中心价值量最高的芯片，性能关键在算力、显存带宽与互连。全球 NVIDIA 一家独大，出口管制使国产 GPU 成为刚需。寒武纪、海光信息、摩尔线程等形成多条技术路线，生态与先进制程供给是两大制约。",
       "companies": [
         "寒武纪",
         "摩尔线程",
@@ -314,6 +341,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "DPU / 基础设施加速",
       "desc": "继 CPU/GPU 之后的第三颗主力芯片，智算集群刚需化。",
+      "detail": "DPU 把网络、存储、安全等基础设施任务从 CPU 卸载，是智算集群提升有效算力的关键芯片，被称为继 CPU、GPU 之后的第三颗主力芯片。技术门槛在高速网络接口、可编程性与软件栈。中科驭数等推出专用 DPU，随智算集群规模化刚需化。",
       "companies": [
         "中科驭数",
         "云豹智能"
@@ -322,6 +350,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "NPU / AI 推理加速",
       "desc": "自研架构 AI 芯片与稀疏计算，推理侧降本主力。",
+      "detail": "NPU 面向推理场景做架构级优化（稀疏计算、低精度量化），以更高能效承担端侧与边缘 AI 计算，是手机、PC、汽车芯片的标配模块。独立 NPU 芯片在边缘服务器与智算推理侧降本。国产端侧算力芯片随 AI 手机/PC 换机潮快速导入。",
       "companies": [
         "昆仑芯",
         "平头哥",
@@ -332,6 +361,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "CPU / 处理器",
       "desc": "x86 与自主指令集双路线，信创驱动。",
+      "detail": "CPU 是通用计算的基石，服务器与 PC 市场由 x86 主导，ARM 与自主指令集（LoongArch、RISC-V）是国产化的两条路线。海光（x86 兼容）在服务器信创放量，龙芯走完全自主路线，鲲鹏基于 ARM。信创采购与服务器国产化是核心驱动。",
       "companies": [
         "海光信息",
         "龙芯中科",
@@ -348,6 +378,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "FPGA / 特种芯片",
       "desc": "通信与工业为主力场景，特种领域高壁垒。",
+      "detail": "FPGA 以可编程逻辑阵列实现灵活硬件加速，用于通信基站、工业控制与原型验证，与特种（军工航天）芯片同属高壁垒品类。全球由 AMD（Xilinx）与 Intel（Altera）双寡头垄断。紫光同创、安路科技在中低容量突破，复旦微电在特种 FPGA 地位稳固。",
       "companies": [
         "紫光国微",
         "复旦微电",
@@ -359,6 +390,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "存储芯片",
       "desc": "利基存储价格回暖，利基 NOR/EEPROM 龙头。",
+      "detail": "存储芯片（DRAM/NAND/NOR/EEPROM）占半导体市场约四分之一，是强周期品类，价格由全球供给与 AI、消费需求共同决定。国际三巨头主导主流存储，国产聚焦利基市场：兆易创新 NOR 全球前三，普冉、东芯在中小容量站稳，长鑫与长江存储代表国产主力产能。",
       "companies": [
         "兆易创新",
         "北京君正",
@@ -371,6 +403,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "存储模组与主控",
       "desc": "模组厂 IDM 化，主控芯片国产化。",
+      "detail": "模组厂采购晶圆颗粒加工成 SSD、嵌入式存储等产品，主控芯片管理闪存映射与纠错，是模组的大脑。当前模组厂向上 IDM 化（自建封测）、向下自研主控，价值量提升。江波龙、佰维存储规模领先，联芸科技等主控国产化率提升。",
       "companies": [
         "江波龙",
         "佰维存储",
@@ -382,6 +415,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "模拟芯片",
       "desc": "对标 TI 路径，信号链与电源管理品类扩张。",
+      "detail": "模拟芯片处理连续信号（电源管理、信号链等），产品生命周期长、不依赖先进制程，强调料号广度与工程师经验积累。圣邦股份持续扩张料号对标 TI 平台化路径，纳芯微深耕车规模拟，艾为电子聚焦音频功放。消费复苏与新能源是主要景气来源。",
       "companies": [
         "圣邦股份",
         "思瑞浦",
@@ -410,6 +444,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "MCU / 控制芯片",
       "desc": "家电/工业控制为基础，向车规升级。",
+      "detail": "MCU 集成 CPU、存储与外设，广泛用于家电、工业与汽车控制，中国是最大消费市场。竞争关键在开发生态、可靠性与料号广度。中颖电子深耕家电主控，兆易创新 GD32 向工业与车规升级，车规 MCU 国产替代刚起步。",
       "companies": [
         "中颖电子",
         "芯海科技",
@@ -423,6 +458,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "射频前端",
       "desc": "模组化升级，份额向头部集中。",
+      "detail": "射频前端（PA/LNA/滤波器/开关）处理手机无线信号收发，5G 多频段带动单机价值量提升，滤波器是最难国产化的分立品类。卓胜微射频开关与 LNA 全球领先并向模组延伸，唯捷创芯主攻 PA 模组。行业向高集成模组演进，份额向头部集中。",
       "companies": [
         "卓胜微",
         "唯捷创芯",
@@ -434,6 +470,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "无线连接 / 音频",
       "desc": "TWS/蓝牙/WiFi/PoC/UWB 连接与定位芯片百花齐放。",
+      "detail": "覆盖蓝牙、WiFi、UWB 等连接芯片与音频编解码、功放芯片，下游是 TWS、智能穿戴、智能家居与物联网终端，市场碎片化、迭代快。恒玄科技在智能音频与穿戴主控占头部位置，乐鑫科技、博通集成各据细分。AI 端侧设备兴起带来新需求。",
       "companies": [
         "恒玄科技",
         "乐鑫科技",
@@ -450,6 +487,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "SoC / 视觉处理",
       "desc": "手机/安防/物联网 SoC 与显示驱动。",
+      "detail": "SoC 把 CPU、GPU/NPU、ISP 等集成到单芯片，是智能设备的主控，门槛在多核集成、功耗与软件生态。晶晨股份在机顶盒/电视 SoC 全球领先，星宸科技聚焦安防视觉 SoC，瑞芯微覆盖工业与消费 IoT。安防与 IoT 智能化持续拉动升级。",
       "companies": [
         "海思",
         "紫光展锐",
@@ -469,6 +507,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "CIS / MEMS 传感",
       "desc": "CIS 全球前三，MEMS 惯性/声学多点突破。",
+      "detail": "CIS 把光信号转为电信号，是手机、安防、汽车摄像头的核心，韦尔股份（豪威）全球前三；MEMS 以微机械结构实现惯性、声学、压力感知，歌尔微、敏芯股份多点突破。两条赛道以消费电子为基本盘，汽车智能化打开第二增长曲线。",
       "companies": [
         "韦尔股份",
         "思特威",
@@ -481,6 +520,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "车载智能芯片",
       "desc": "智驾 SoC 国产替代主战场。",
+      "detail": "智驾 SoC 承担自动驾驶感知与决策计算，是汽车智能化的价值中枢，格局从 Mobile Eye 主导向 NVIDIA Orin/Thor 与国产芯片并立演进。地平线征程系列出货领先并开放生态，华为 MDC 绑定问界等车型，黑芝麻、芯驰切入中低阶域控。国产替代主战场。",
       "companies": [
         "地平线",
         "黑芝麻智能",
@@ -493,6 +533,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "功率半导体",
       "desc": "新能源驱动，SiC 加速渗透，IDM 与 Fabless 并进。",
+      "detail": "功率器件（MOSFET/IGBT/SiC）承担电能变换与控制，新能源车、光伏储能与工业驱动是三大需求引擎，SiC 渗透率随 800V 平台加速提升。IDM（士兰微、时代电气）与 Fabless（斯达、新洁能）并进。12 英寸功率产线陆续投产，车规验证与高端 SiC MOS 是竞争焦点。",
       "companies": [
         "斯达半导",
         "时代电气",
@@ -516,6 +557,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "接口 / 网络交换",
       "desc": "内存接口全球领先，以太网交换国产突破。",
+      "detail": "内存接口芯片插在 DDR 通道上保障信号完整性，澜起科技全球两强之一，DDR5 渗透与服务器回暖直接受益。PCIe Retimer、以太网交换芯片（盛科通信）随智算集群网络升级放量。客户集中、认证壁垒高，格局清晰。",
       "companies": [
         "澜起科技",
         "汇顶科技",
@@ -526,6 +568,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "光通信芯片",
       "desc": "激光器/探测器/硅光，光模块与 CPO 核心上游，AI 拉动量价齐升。",
+      "detail": "光芯片包括激光器（EML/DFB/VCSEL）、探测器与硅光芯片，是光模块的核心上游，占光模块成本五成以上。AI 集群对 800G/1.6T 的需求使高端光芯片紧缺，国产速率落后海外 1-2 代，源杰科技、仕佳光子在中高速率突破，硅光与 CPO 是长期方向。",
       "companies": [
         "源杰科技",
         "长光华芯",
@@ -536,6 +579,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "光电混合计算",
       "desc": "光子矩阵计算加速 AI 推理/训练，计算卡率先进入智算中心。",
+      "detail": "以光子矩阵替代电计算完成矩阵乘法，利用光路并行与低延迟加速 AI 计算，功耗可降低一个数量级，属于颠覆式技术路线。当前光计算卡率先在智算中心试点，产业化处于早期。国内曦智科技等已完成原型验证，商用规模取决于生态与精度突破。",
       "companies": [
         "曦智科技",
         "光本位科技",
@@ -545,6 +589,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "光量子计算",
       "desc": "量子叠加态路线，全栈整机与光子芯片中试线代表。",
+      "detail": "光量子计算利用光子叠加纠缠态做量子并行计算，中国在光量子路线上处于全球第一梯队。产业形态包括全栈整机、光子芯片中试线与云接入服务，应用尚在探索期（组合优化、量子化学）。距离通用容错量子计算仍有较长路径，战略卡位价值大于短期商业价值。",
       "companies": [
         "图灵量子",
         "奇算光启"
@@ -555,6 +600,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "先进制程代工",
       "desc": "N+2 工艺攻坚，国产 AI 芯片产能依赖。",
+      "detail": "先进制程（14nm 及以下）是算力芯片与高端 SoC 的产能基础，大陆被限制获取 EUV 设备，中芯国际以 DUV 多重曝光推进 N+1/N+2 工艺。国产 AI 芯片产能高度依赖本土先进产能，扩产与良率爬坡是关键变量。该环节自主可控战略价值最高。",
       "companies": [
         "中芯国际"
       ]
@@ -562,6 +608,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "特色工艺代工",
       "desc": "功率、BCD、模拟平台需求旺盛，区域产能扩张。",
+      "detail": "特色工艺指不追求最先进制程、以功率、BCD、模拟、射频、嵌入式存储等平台见长的代工能力，产品生命周期长、客户粘性强。华虹半导体是全球特色工艺龙头，合肥晶合等区域产能持续扩张。下游功率与模拟需求旺盛，产能利用率是观察指标。",
       "companies": [
         "华虹公司",
         "晶合集成",
@@ -577,6 +624,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "化合物半导体制造",
       "desc": "SiC/GaN/砷化镓 IDM 与代工，新能源驱动。",
+      "detail": "化合物半导体（SiC、GaN、砷化镓）在高压高频场景性能优于硅基，制造以 6/8 英寸为主，IDM（士兰微、三安光电）与专业代工并行。SiC 产能随新能源汽车放量扩张，GaN 用于快充与数据中心电源。全链条国产化程度在半导体中相对较高。",
       "companies": [
         "三安光电"
       ]
@@ -584,6 +632,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "存储制造",
       "desc": "3D NAND 与 DRAM 扩产，周期触底回升。",
+      "detail": "存储制造是资本开支最密集的赛道，长江存储（3D NAND）与长鑫存储（DRAM）是国产两大主力，通过扩产缩小与海外产能差距。存储行业强周期，当前处于 AI 需求带动的景气回升期。国产设备材料在存储产线的导入速度，是观察自主化进度的重要窗口。",
       "companies": [
         "长江存储",
         "长鑫科技",
@@ -593,6 +642,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "功率 IDM",
       "desc": "设计-制造一体，车规功率器件放量。",
+      "detail": "功率 IDM 集设计、制造、封测于一体，对产能与成本控制要求高，车规产品验证周期 2-3 年后粘性极强。华润微、士兰微、时代电气为代表，12 英寸功率产线陆续投产。新能源汽车主驱与光伏逆变放量驱动业绩，SiC 产线布局决定长期竞争力。",
       "companies": [
         "士兰微",
         "积塔半导体"
@@ -603,6 +653,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "传统封装测试",
       "desc": "成熟产能充足，周期属性强，向汽车/算力升级。",
+      "detail": "传统封测提供引线键合、倒装等成熟封装与成品测试服务，产能充足、竞争充分，行业跟随半导体周期波动。长电科技、通富微电、华天科技规模居全球前十。增长来自结构升级——汽车电子与算力芯片封测占比提升，并向高端封装平台延伸。",
       "companies": [
         "长电科技",
         "通富微电",
@@ -615,6 +666,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "显示驱动封测",
       "desc": "面板产业链配套，产能集中度高。",
+      "detail": "显示驱动芯片封测（COG/COF）配套面板产业，大陆面板产能全球第一带动封测需求内移，颀中科技、汇成股份等专业封测厂产能集中度高。COF 封装门槛在精细线路卷带承载，随高分辨率屏渗透价值量提升。行业与面板周期强相关。",
       "companies": [
         "颀中科技",
         "汇成股份"
@@ -623,6 +675,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "2.5D/3D 先进封装",
       "desc": "AI 芯片驱动，XDFOI 等平台放量，晶圆中道加工配套。",
+      "detail": "先进封装通过硅中介层、TSV、混合键合实现多芯片高密度互连，是突破先进制程瓶颈、延续摩尔定律的关键路径，AI 芯片（HBM+GPU 集成）是最大需求方。通富微电绑定 AMD，长电 XDFOI 平台、甬矽电子布局晶圆中道。资本开支大，与晶圆厂工艺边界逐渐融合。",
       "companies": [
         "长电科技",
         "通富微电",
@@ -634,6 +687,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "第三方测试",
       "desc": "晶圆级/成品测试独立服务商，受益设计公司外包。",
+      "detail": "独立第三方测试面向设计公司与晶圆厂提供晶圆级 CP 测试与成品 FT 测试，相比封测一体更专业灵活，受益于设计公司外包率提升与存储扩产。伟测科技、利扬芯片规模领先，高端 SoC 与车规测试产能是竞争重点，测试设备与探针卡耗材同步受益。",
       "companies": [
         "伟测科技",
         "利扬芯片",
@@ -643,6 +697,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "存储封测",
       "desc": "DRAM/NAND 封测配套，存储国产化核心环节。",
+      "detail": "存储封测面向 DRAM/NAND 颗粒与模组提供封装测试，工艺要求特殊（超薄塑封、高良率），是存储国产化链条的必要配套。深科技（沛顿）是长鑫、长江存储的核心封测伙伴。随国产存储产能扩张同步成长，周期属性与存储价格共振。",
       "companies": [
         "深科技",
         "太极实业"
@@ -653,6 +708,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "数据中心 / 智算",
       "desc": "AI 算力基建，拉动力最强。",
+      "detail": "数据中心与智算中心是 AI 时代最重要的算力基础设施，单机柜功率与 GPU 密度快速提升，带动服务器、交换机、光模块、液冷、电源全链条需求。运营商与互联网厂商智算投资加码，东数西算与国产算力适配是两大主线。是当前拉动力最强的终端场景。",
       "companies": [
         "工业富联",
         "浪潮信息",
@@ -663,6 +719,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "智能汽车",
       "desc": "域控集中化，单车半导体价值量提升。",
+      "detail": "汽车电动化、智能化推动单车半导体价值量从数百美元提升至上千美元，域控集中化（智驾、座舱）重塑芯片需求结构。功率器件、智驾 SoC、传感器、车载以太网是增量主线，车规认证与长供货周期构成壁垒。比亚迪、新势力与华为系牵引本土供应链上车。",
       "companies": [
         "德赛西威"
       ]
@@ -670,6 +727,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "AI 手机 / PC",
       "desc": "端侧 NPU 驱动换机周期。",
+      "detail": "AI 手机与 AI PC 通过端侧 NPU 运行本地大模型与 AI 应用，带动换机周期与单机算力规格升级，更大内存、SoC 与散热均有增量。SoC、整机与操作系统厂商协同推进，端云协同是主流架构。换机弹性取决于杀手级 AI 应用的出现节奏。",
       "companies": [
         "联想集团",
         "立讯精密"
@@ -678,38 +736,9 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "工业控制",
       "desc": "工规芯片国产替代稳步推进。",
+      "detail": "工控场景涵盖 PLC、变频器、伺服、HMI 等自动化设备，对芯片可靠性、供货寿命要求高（工规认证），是国产芯片从消费向工业升级的练兵场。汇川技术是国产工控龙头，芯片侧模拟、MCU、FPGA 逐步导入。制造业资本开支周期决定景气度。",
       "companies": [
         "中控技术"
-      ]
-    }
-  ],
-  "ai-chip": [
-    {
-      "name": "GPU",
-      "desc": "训练侧主导，生态壁垒最高。",
-      "companies": [
-        "景嘉微-AI视图"
-      ]
-    },
-    {
-      "name": "推理 ASIC",
-      "desc": "低成本推理分流 GPU，互联网大厂自研。",
-      "companies": []
-    },
-    {
-      "name": "国产 AI 加速卡",
-      "desc": "批量交付大客户，份额快速提升。",
-      "companies": [
-        "寒武纪-AI视图",
-        "海光信息-AI视图"
-      ]
-    },
-    {
-      "name": "国产 CPU / DCU",
-      "desc": "信创与算力双轮驱动，生态兼容是关键。",
-      "companies": [
-        "海光信息-AI视图",
-        "龙芯中科"
       ]
     }
   ],
@@ -717,6 +746,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "PCB 制造",
       "desc": "AI 服务器/交换机高多层板与高阶 HDI 量价齐升。",
+      "detail": "PCB 制造按层数与工艺分层：AI 服务器与交换机拉动高多层板（20 层以上）与高阶 HDI 需求，单价与毛利率显著高于消费类。沪电股份、深南电路在数通高端板地位领先，胜宏科技切入 AI 加速卡板。产能向东南亚扩张对冲贸易风险，高端产能供不应求。",
       "companies": [
         "沪电股份",
         "胜宏科技",
@@ -731,6 +761,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "覆铜板",
       "desc": "高速材料（M6/M8 级）国产替代主力。",
+      "detail": "覆铜板决定 PCB 的电性能上限，AI 场景要求低损耗材料（M6/M8 级），高端产品长期被松下等日企垄断。生益科技是全球第二大覆铜板厂，高速板材放量，华正新材等跟进。上游低介电玻纤布与铜箔同步国产化，材料等级随 AI 服务器代际升级。",
       "companies": [
         "生益科技"
       ]
@@ -740,6 +771,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "光模块 / 光器件",
       "desc": "800G/1.6T 光模块放量，全球头部份额向中国厂商集中。",
+      "detail": "光模块完成光-电信号转换，是智算集群网络的核心部件，速率从 800G 向 1.6T 演进，AI 集群组网带动用量数倍增长。中际旭创、新易盛、天孚通信占据全球头部份额，上游光芯片与无源器件国产化率持续提升。硅光与 CPO 技术迭代快，份额向垂直整合能力强的头部集中。",
       "companies": [
         "中际旭创",
         "新易盛",
@@ -754,6 +786,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "语言大模型",
       "desc": "能力逼近第一梯队，价格战激烈。",
+      "detail": "语言大模型是当前 AI 能力的核心载体，能力从对话、写作延伸到代码、数学与复杂推理，训练范式转向强化学习与推理时计算。DeepSeek、通义、豆包等进入第一梯队，API 价格战与开源策略并行。竞争焦点从预训练转向推理成本、Agent 能力与垂直场景效果。",
       "companies": [
         "DeepSeek",
         "月之暗面",
@@ -767,6 +800,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "多模态大模型",
       "desc": "图像/视频/语音统一建模，并向物理基础模型延伸。",
+      "detail": "多模态模型把文本、图像、视频、语音统一建模，视频生成与实时语音交互是当前热点，并向理解物理世界的世界模型延伸。快手可灵、生数科技等在视频生成赛道全球领先。多模态打开内容生产、营销、机器人等更大应用空间，算力需求更高。",
       "companies": [
         "智谱",
         "MiniMax",
@@ -778,6 +812,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "开源模型",
       "desc": "开源生态引领，全球影响力扩大。",
+      "detail": "开源路线通过开放权重模型构建生态影响力，DeepSeek、Qwen 系列全球下载与衍生模型数量领先，显著降低企业与开发者使用门槛。开源同时承担技术话语权竞争与商业引流职能，衍生生态（微调、蒸馏、私有化部署）形成长尾需求。闭源与开源能力差距持续收窄。",
       "companies": [
         "DeepSeek",
         "智谱"
@@ -786,6 +821,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "Agent 框架",
       "desc": "长程任务与工具调用，落地关键。",
+      "detail": "Agent 让大模型从回答问题进化到自主完成任务——任务规划、工具调用、多轮反思与长程记忆，是 AI 从内容生成走向执行的关键形态。难点在长程任务稳定性、多 Agent 协作与安全可控。与办公、编程场景结合最先跑通商业闭环。",
       "companies": [
         "智谱",
         "月之暗面"
@@ -796,6 +832,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "模型 API 服务",
       "desc": "按 token 计费，推理成本快速下降。",
+      "detail": "模型 API 服务把大模型能力以按 token 计费的方式开放给开发者，是模型公司最直接的商业模式。推理成本随模型优化与硬件迭代快速下降，价格战把行业推向薄利多销。竞争要素在模型效果、稳定性、延迟与生态绑定，云厂商一体化优势明显。",
       "companies": [
         "硅基流动",
         "潞晨科技"
@@ -804,6 +841,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "微调工具链",
       "desc": "企业私有化部署配套能力。",
+      "detail": "微调工具链帮助企业用自有数据定制模型——SFT/LoRA/DPO 训练、数据标注清洗、模型评测与部署，是私有化落地的配套能力。需求来自数据敏感行业（金融、政务、制造）与效果要求高的垂直场景，与推理框架、模型管理一起构成企业 AI 基础设施。",
       "companies": [
         "无问芯穹",
         "第四范式"
@@ -812,6 +850,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "向量数据库",
       "desc": "RAG 检索增强的基础设施。",
+      "detail": "向量数据库为 RAG（检索增强生成）提供高维向量存储与相似度检索，让大模型引用企业私有知识与实时数据回答问题，缓解幻觉问题。竞争者包括专用数据库（Milvus、Zilliz）与云厂商内置方案。随 Agent 长记忆需求兴起，正演变为 AI 数据基础设施的一环。",
       "companies": [
         "星环科技"
       ]
@@ -821,11 +860,13 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "AI 编程",
       "desc": "渗透率提升最快，ARR 高增长。",
+      "detail": "AI 编程把代码生成、补全、重构与审查嵌入开发工作流，是当前渗透率与付费率最高的 AI 应用品类，头部产品 ARR 增速极高。效果衡量在代码采纳率与任务完成度，Agent 化（自主完成需求-编码-测试）是演进方向，对软件生产力是数量级提升。",
       "companies": []
     },
     {
       "name": "AI 办公",
       "desc": "付费转化启动期。",
+      "detail": "AI 办公把写作、总结、PPT 生成、会议纪要等能力嵌入办公套件，WPS AI、钉钉 AI 等依托存量用户转化付费。使用频次高但单点价值低，捆绑收费与协同数据壁垒是关键。付费转化处于启动期，企业级采购与个人订阅并行。",
       "companies": [
         "金山办公",
         "拓尔思"
@@ -834,11 +875,13 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "AI 营销",
       "desc": "内容生成降本效果明显。",
+      "detail": "AI 营销覆盖内容生成（文案、图片、短视频）、素材批量生产、投放优化与数字人直播，直接以降本增效量化价值，中小商家付费意愿强。营销公司加速 AI 化转型，工具类产品快速起量。行业难点在效果归因与平台规则适配。",
       "companies": []
     },
     {
       "name": "多模态内容生成",
       "desc": "视频生成商业化探索。",
+      "detail": "覆盖文生图、文生视频、数字人、音乐生成等，重塑游戏、影视、广告、电商素材的生产管线。视频生成的可控性、时长与成本是商业化关键，国内可灵、即梦等在全球处于第一梯队。版权与内容合规是长期约束，当前定位是创作者工具而非替代者。",
       "companies": [
         "万兴科技",
         "生数科技",
@@ -848,6 +891,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "计算机视觉 / 行业智能",
       "desc": "视觉算法积累深厚，向多模态与 Agent 演进。",
+      "detail": "以视觉算法起家的 AI 公司把感知能力沉淀为行业智能化方案——安防、工业质检、交通、物流等，正向多模态与 Agent 能力演进。赛道已有成熟商业模型与现金流，增长来自行业纵深与出海。大模型时代的场景卡位与数据回流是新的竞争变量。",
       "companies": [
         "商汤-W",
         "虹软科技",
@@ -860,6 +904,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "谐波减速器",
       "desc": "人形机器人旋转关节核心，国产龙头已定点。",
+      "detail": "谐波减速器靠柔轮可控变形啮合实现大减速比，结构紧凑、回差小，是机器人旋转关节与腕部的主流方案，人形单机用量可达十余个。绿的谐波是全球谐波龙头，精度与寿命对标哈默纳科，人形客户定点持续落地。扩产速度与降价节奏决定渗透率。",
       "companies": [
         "绿的谐波",
         "中大力德"
@@ -868,6 +913,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "RV 减速器",
       "desc": "工业机器人重载关节，份额领先。",
+      "detail": "RV 减速器采用摆线针轮结构，承载与刚度远高于谐波，用于工业机器人重载关节（大臂、基座），单台价值量高。日本纳博特斯克长期垄断，双环传动（环动科技）份额领先并分拆上市。人形机器人腿部若采用 RV/行星方案将打开新空间。",
       "companies": [
         "双环传动",
         "秦川机床",
@@ -877,6 +923,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "行星滚柱丝杠",
       "desc": "线性关节核心部件，磨削工艺是瓶颈。",
+      "detail": "行星滚柱丝杠以螺纹滚柱代替滚珠，承载与寿命远超同尺寸滚珠丝杠，是人形机器人线性关节（腿部直立行走）的核心部件，单机用量可达十余根。磨削精度与批量一致性是工艺瓶颈，五洲新春、贝斯特等从机床与汽车零件切入。国产化早期，降本与量产良率是关键。",
       "companies": [
         "贝斯特",
         "五洲新春",
@@ -889,6 +936,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "伺服系统",
       "desc": "国产份额过半，格局向头部集中。",
+      "detail": "伺服系统由驱动器、电机与编码器闭环构成，决定运动的速度与位置精度，广泛用于工业自动化与机器人关节。国产份额已过半（汇川技术第一），外资在半导体设备、高端机床等高端场景仍占优。人形机器人对轻量化、高响应的新要求带动新一轮竞争。",
       "companies": [
         "汇川技术",
         "信捷电气",
@@ -900,6 +948,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "运动控制器",
       "desc": "算法壁垒高，与本体厂深度绑定。",
+      "detail": "运动控制器下达运动指令并协调多轴联动，插补、前瞻、动力学补偿等算法壁垒高，与本体工艺深度绑定，是机器人的「小脑」。汇川、固高、雷赛在通用市场放量，本体大厂多自研。人形机器人运控（模型预测控制、强化学习）成为新的能力分水岭。",
       "companies": [
         "固高科技",
         "步科股份"
@@ -908,6 +957,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "一体化关节模组",
       "desc": "本体厂商标配需求，功率密度是关键。",
+      "detail": "一体化关节把电机、减速器、编码器、驱动器集成为标准模组，简化本体设计与装配，是人形机器人与协作机器人的标配形态。功率密度（扭矩/重量）与散热是核心指标。三花智控、鸣志电器等从部件切入模组，竞争在集成能力与批量成本。",
       "companies": [
         "汇川技术"
       ]
@@ -915,6 +965,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "电机与执行器",
       "desc": "空心杯电机/无框力矩电机，人形机器人增量环节。",
+      "detail": "人形机器人带动空心杯电机（灵巧手）、无框力矩电机（关节）等新品类需求，要求高功率密度与快速响应。鸣志电器空心杯电机全球领先，步科股份、伟创电气切入无框力矩电机。执行器集成传动与传感，向标准化组件演进，单机价值量高。",
       "companies": [
         "鸣志电器",
         "步科股份"
@@ -925,6 +976,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "3D 视觉",
       "desc": "机器人感知层核心增量。",
+      "detail": "3D 视觉（结构光、ToF、双目、激光雷达）为机器人提供空间感知，用于导航避障、物体识别与抓取定位，是感知层的核心增量。奥比中光是全球 3D 视觉传感器龙头，大疆等场景验证充分。人形机器人与具身智能数据采集（遥操作）带来新需求。",
       "companies": [
         "奥比中光"
       ]
@@ -932,6 +984,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "六维力传感器",
       "desc": "精细操作必备，单机价值量高。",
+      "detail": "六维力传感器同时测量三个方向的力与力矩，让机器人在装配、打磨等精细操作中实现柔顺控制，是人形机器人手腕、脚踝的必备传感，单机价值量高。坤维科技、宇立仪器等小批量交付，应变片与硅基两条技术路线并行。人形量产将快速摊薄成本。",
       "companies": [
         "柯力传感",
         "安培龙",
@@ -941,6 +994,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "电子皮肤",
       "desc": "柔性触觉传感与多维触觉感知，小批量交付阶段。",
+      "detail": "电子皮肤以柔性触觉传感阵列覆盖机械手表面，实现接触、压力、滑移等多维感知，是灵巧手精细操作的关键，正从实验室走向小批量交付。汉威科技（能斯达）等布局柔性传感器。与人形灵巧手放量强相关，柔性基底材料与阵列工艺是壁垒。",
       "companies": [
         "汉威科技",
         "帕西尼感知",
@@ -951,6 +1005,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "MEMS 惯性传感",
       "desc": "IMU/加速度计，机器人姿态控制必备。",
+      "detail": "MEMS 惯性传感器（IMU、加速度计、陀螺仪）测量姿态与运动状态，是机器人平衡控制、导航定位的必备器件。消费级已充分国产化，高性能车规与机器人级仍有差距，芯动联科是高性能 MEMS 稀缺标的。人形机器人对高精度小体积 IMU 需求确定。",
       "companies": [
         "芯动联科-机器人视图",
         "敏芯股份-机器人视图"
@@ -961,6 +1016,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "六轴工业机器人",
       "desc": "国产份额过半，周期底部回升。",
+      "detail": "六轴机器人是通用性最强的工业机器人形态，覆盖焊接、搬运、喷涂、装配等主流工艺，国产份额已过半（埃斯顿、汇川等），高端汽车产线仍以四大家族为主。行业处于周期底部回升，制造业资本开支与出口是边际变量，向重载、高速、智能化升级。",
       "companies": [
         "埃斯顿",
         "埃夫特",
@@ -971,6 +1027,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "协作机器人",
       "desc": "成本快速下降，长尾市场打开。",
+      "detail": "协作机器人与人共处作业，拖拽示教与安全停机降低使用门槛，单价从数十万降至数万元，打开中小企业与商业场景长尾市场。遨博、节卡、越疆规模领先，负载 3-20kg 为主。与人形机器人技术同源，部分厂商互相切入。",
       "companies": [
         "节卡机器人",
         "遨博智能",
@@ -980,6 +1037,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "SCARA",
       "desc": "3C 需求主导，国产化率高。",
+      "detail": "SCARA 擅长平面快速拾放，3C 电子装配是最大下游，国产化率超七成，爱普生、雅马哈与汇川、众为兴等竞争。行业跟随 3C 资本开支波动，新能源与半导体后道带来新需求。技术壁垒低于六轴、价格竞争激烈，规模与成本是胜负手。",
       "companies": [
         "汇川技术",
         "新时达"
@@ -990,6 +1048,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "本体制造",
       "desc": "千台级量产启动，降本是主线。",
+      "detail": "人形机器人本体厂（优必选、宇树、智元、傅利叶等）完成整机设计、集成与迭代，正从小批量样机走向千台级量产，订单来自车厂实训、科研教育、展演与商业服务。降本（零部件国产化+规模效应）与场景跑通（真实生产力任务）是主线，融资密集、格局未定。",
       "companies": [
         "宇树科技",
         "智元机器人",
@@ -1002,6 +1061,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "具身大脑（VLA）",
       "desc": "端到端模型新范式，决定能力上限。",
+      "detail": "具身大脑以视觉-语言-动作（VLA）端到端模型把感知直接映射为动作，替代传统分层规划，被视为机器人智能的新范式，能力上限由模型与数据决定。智元 GO-1、Figure Helix 等快速迭代，真机数据（遥操作采集）成为稀缺资源，与本体厂软硬一体是大趋势。",
       "companies": [
         "银河通用",
         "智元机器人",
@@ -1014,6 +1074,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "灵巧手",
       "desc": "自由度与成本平衡，供应链成熟度低。",
+      "detail": "灵巧手复现人手的自由度与操作能力（当前 6-20+ 自由度），难点在驱动（微型电机/腱绳）、传动与触觉感知的集成，成本与可靠性平衡困难。兆威机电、因时机器人等推出产品，供应链成熟度低、单手价格数万至数十万元。灵巧操作能力是人形商业化的最后一环。",
       "companies": [
         "因时机器人",
         "镜识科技"
@@ -1024,6 +1085,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "汽车产线集成",
       "desc": "落地确定性最高的场景。",
+      "detail": "汽车产线集成把机器人嵌入焊装、涂装、总装工艺，项目金额大、验证周期长，落地确定性最高，是机器人企业验证量产能力的首选场景。埃斯顿、埃夫特等借助国产车扩产窗口切入。人形机器人在车厂实训（搬运、质检）是该环节最新变量。",
       "companies": [
         "瑞松科技",
         "华昌达"
@@ -1032,6 +1094,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "仓储物流集成",
       "desc": "RaaS 租赁模式兴起。",
+      "detail": "仓储物流集成提供 AGV/AMR、分拣系统与 WMS 软件一体化的智能仓方案，海康机器人、极智嘉全球领先，RaaS 租赁模式降低使用门槛、提升粘性。电商、快递与制造业仓配自动化需求稳定，出海（海外仓）是增长引擎。",
       "companies": [
         "兰剑智能",
         "海康机器人",
@@ -1042,6 +1105,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
     {
       "name": "通用智能装备",
       "desc": "3C/锂电/光伏专机与柔性产线。",
+      "detail": "通用智能装备面向 3C、锂电、光伏等行业提供专机与柔性产线，非标定制属性强、项目制，竞争在行业工艺理解与交付速度。先导智能（锂电）、大族激光（激光加工）等行业龙头规模领先。行业资本开支周期明显，人形机器人产线有望成为新赛道。",
       "companies": [
         "拓斯达",
         "博实股份"
@@ -1051,9 +1115,10 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
 }
 
 // 行业与环节研究内容（name/segs[]：环节含 heat/summary/market/tech/breakthroughs 等）
-export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment[] }> = {
+export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs: ResearchSegment[] }> = {
  "semiconductor": {
   "name": "半导体",
+  "detail": "半导体产业链从上游的设备、材料与 EDA/IP，到中游的芯片设计、晶圆制造与封装测试，再到下游的应用终端，是典型的长链条垂直分工体系。中国是全球最大的半导体消费市场，但在先进制程、高端设备与材料上仍存在明显对外依赖，自主可控与国产替代是贯穿全链条的主线。观察该行业的关键变量包括晶圆厂资本开支、制程节点进展、设备与材料的验证导入进度，以及 AI、汽车、消费等下游需求景气度。",
   "segs": [
    {
     "id": "eda",
@@ -1062,6 +1127,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 10,
     "trend": "国产化率快速提升",
     "summary": "EDA 是芯片设计的核心工业软件，长期被三巨头垄断，国产替代处于加速期。",
+    "detail": "EDA 是芯片设计必备的工业软件，覆盖电路设计、仿真验证、布局布线到签核的全流程；IP 核则是可复用的电路模块（接口、处理器核等），授权给芯片设计公司集成。该环节位于芯片设计上游，与制造环节通过 PDK 工艺库衔接，是产业链技术壁垒最高的环节之一。全球市场长期由 Synopsys、Cadence、Siemens EDA 三巨头主导，国产厂商在模拟全流程与点工具上逐步突破，先进制程与先进封装工具链是追赶重点。",
     "market": [
      {
       "y": "2022",
@@ -1122,6 +1188,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 38,
     "trend": "先进制程扩产周期",
     "summary": "刻蚀、薄膜沉积、清洗等环节国产设备商突破明显，先进制程扩产带动需求。",
+    "detail": "半导体设备为晶圆制造与封装测试提供专用装备，涵盖光刻、刻蚀、薄膜沉积、离子注入、清洗、量测检测、CMP 等数十类机型，是先进制程迭代的先决条件。设备厂下游直接对接晶圆厂与封测厂，订单跟随资本开支周期波动。该环节零部件供应链长、验证周期久，国产厂商已在刻蚀、清洗、薄膜沉积等领域实现批量装机，光刻机仍是最大短板。",
     "market": [
      {
       "y": "2022",
@@ -1182,6 +1249,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 39,
     "trend": "硅片价格企稳",
     "summary": "大硅片、抛光液、前驱体等核心材料国产化率仍低，是供应链安全的关键短板环节。",
+    "detail": "半导体材料是制造与封测环节的消耗性投入品，主要包括硅片等衬底、光刻胶及配套试剂、电子特气、CMP 抛光材料、靶材、封装基板等，直接决定良率与工艺水平。材料客户粘性强、认证周期长（通常 1-2 年），一旦进入供应链收入稳定，并随晶圆产能扩张持续增长。国产厂商在硅片、靶材、特气等领域已具规模，高端光刻胶仍在验证爬坡。",
     "market": [
      {
       "y": "2022",
@@ -1235,6 +1303,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 147,
     "trend": "AI 芯片驱动增长",
     "summary": "AI 算力需求带动 GPU/ASIC 设计公司高增长，国产 AI 芯片进入密集流片期；光芯片（激光器/硅光）与光计算作为新兴设计方向并入本环节。",
+    "detail": "芯片设计是依据系统需求完成电路定义、RTL 编码、验证、物理实现并交付 GDSII 的环节，产品覆盖 CPU/GPU 等处理器、SoC、存储、模拟、射频、功率器件等品类。设计公司（Fabless）处于产业链利润高地，向上依赖 EDA 工具与 IP，向下将设计文件交给晶圆厂代工。国内设计公司数量众多，在手机 SoC、安防芯片、AI 加速器等品类已出现头部企业，高端通用芯片与先进制程仍依赖外部代工。",
     "market": [
      {
       "y": "2022",
@@ -1309,6 +1378,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 16,
     "trend": "产能利用率回升",
     "summary": "中芯国际、华虹产能利用率维持高位，成熟制程价格企稳，先进制程攻坚持续推进。",
+    "detail": "晶圆制造是将设计版图通过光刻、刻蚀、薄膜、掺杂等数百道工序在硅片上实现电路的环节，分为先进逻辑、成熟制程与存储等方向，资本开支与研发投入均为全产业链之最。制造环节上游采购设备与材料，下游以代工模式服务设计公司，产能与技术节点直接决定整机性能边界。国内中芯国际等已量产 14nm 及以上成熟制程并推进先进节点，功率、模拟、射频等特色工艺平台是差异化重点。",
     "market": [
      {
       "y": "2022",
@@ -1367,6 +1437,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 17,
     "trend": "先进封装扩产",
     "summary": "AI 芯片对 2.5D/3D 先进封装需求爆发，CoWoS 类产能成为产业链瓶颈之一。",
+    "detail": "封测是晶圆制造之后的后道环节：封装完成芯片切割、贴装、引线/倒装与塑封，为芯片提供机械保护与电气连接；测试对芯片做电性能筛选与分级。传统封测资本密集、毛利偏低，行业正朝 Chiplet、2.5D/3D 先进封装演进，与设计、制造的边界逐渐模糊。国内长电科技、通富微电、华天科技规模居全球前列，先进封装产能是竞争焦点。",
     "market": [
      {
       "y": "2022",
@@ -1420,6 +1491,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 8,
     "trend": "AI 终端渗透率提升",
     "summary": "数据中心 / 智能汽车 / AI 手机与 PC / 工业，是半导体需求的最终拉动力。",
+    "detail": "应用终端是芯片的最终需求出口——智能手机、PC、服务器、汽车电子、IoT 设备等整机环节，决定各类芯片的用量与规格演进方向。终端厂通过定义整机方案牵引上游芯片、器件与材料的迭代，也是国产芯片导入验证的主战场。国内手机、家电、汽车品牌份额领先，持续带动本土供应链加速成长。",
     "market": [
      {
       "y": "2022",
@@ -1469,6 +1541,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 9,
     "trend": "AI 服务器板量价齐升",
     "summary": "AI 服务器与交换机驱动高多层板、高阶 HDI 与高速覆铜板需求，算力资本开支直接受益。",
+    "detail": "PCB（印制电路板）为电子元器件提供电气互连与机械支撑，是几乎所有电子整机的基座；覆铜板是 PCB 的核心基材，由铜箔、树脂、玻纤布压合而成，其介电性能决定高频高速板的上限。PCB 按技术层次分为单双层、多层、HDI、柔性板与封装基板，下游覆盖通信、服务器、汽车、消费电子。中国产量占全球过半，高多层、HDI、IC 载板与高频高速覆铜板是国产升级方向。",
     "tech": [
      {
       "name": "高多层板 / HDI 升级",
@@ -1492,55 +1565,8 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
  },
  "ai": {
   "name": "AI",
+  "detail": "AI 产业链以基础大模型为核心，向上依赖算力硬件（芯片、服务器、网络、存储）与能源供给，向下通过 MaaS 工具链和行业应用把模型能力转化为生产力。当前产业处于从训练主导转向推理放量的阶段，算力基建先行、应用商业化跟进，开源生态显著降低了进入门槛。观察该行业的关键变量包括头部模型能力迭代、推理成本下降速度、云厂商资本开支与应用侧付费渗透率。",
   "segs": [
-   {
-    "id": "ai-chip",
-    "name": "算力芯片",
-    "heat": "高景气",
-    "coCount": 4,
-    "trend": "推理需求爆发",
-    "summary": "训练与推理算力需求持续超预期，国产算力芯片份额快速提升。",
-    "market": [
-     {
-      "y": "2023",
-      "v": 60
-     },
-     {
-      "y": "2024",
-      "v": 95
-     },
-     {
-      "y": "2025E",
-      "v": 150
-     },
-     {
-      "y": "2026E",
-      "v": 230
-     },
-     {
-      "y": "2027E",
-      "v": 340
-     }
-    ],
-    "tech": [
-     {
-      "name": "推理专用 ASIC 兴起",
-      "desc": "低成本推理芯片分流 GPU 需求。"
-     }
-    ],
-    "breakthroughs": [
-     {
-      "date": "2026-01",
-      "title": "国产推理芯片规模化部署",
-      "desc": "互联网大厂批量采购。",
-      "level": "重大"
-     }
-    ],
-    "companies": [
-     "寒武纪-AI视图",
-     "海光信息"
-    ]
-   },
    {
     "id": "hw",
     "name": "算力硬件",
@@ -1548,6 +1574,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 6,
     "trend": "AI 服务器与光互连放量",
     "summary": "AI 集群建设直接拉动高速光模块与光互连需求，是算力资本开支的一线受益环节。",
+    "detail": "算力硬件指 AI 训练与推理所需的服务器整机及核心部件，包括 AI 加速卡（GPU/NPU）、CPU、高速互连、交换机与光模块、存储与液冷散热等。该环节上游承接芯片设计与制造，下游服务云厂商与 AI 应用方，是大模型浪潮中确定性最强的资本开支方向。国产链在整机、板卡、光模块、电源等环节份额领先，先进 AI 芯片供给与高端 HBM 是主要瓶颈。",
     "market": [
      {
       "y": "2023",
@@ -1595,6 +1622,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 10,
     "trend": "多模态 + Agent",
     "summary": "头部大模型公司进入商业化深水区，多模态与 Agent 成为竞争主线。",
+    "detail": "基础大模型指通过海量数据预训练得到的通用模型（语言、多模态等），具备理解、生成与推理能力，是 AI 应用的技术底座。该环节以算法研究与工程训练为核心，投入集中在算力、数据与人才，商业模式包括 API 调用、模型授权与开源生态。国内已形成多强格局，通用与行业模型并进，开源路线显著降低了下游应用的开发门槛。",
     "market": [
      {
       "y": "2023",
@@ -1650,6 +1678,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 5,
     "trend": "企业级落地",
     "summary": "模型服务、微调工具链、向量数据库构成 AI 应用基础设施。",
+    "detail": "MaaS 与工具链环节提供模型即服务（推理 API、微调、蒸馏）以及围绕大模型的开发工具——向量数据库、Agent 框架、RAG 组件、评测与可观测工具等，帮助企业和开发者把模型能力快速变成应用。该环节处于模型与应用之间，价值取决于上层应用的繁荣程度。国内云厂商与创业公司并行，一体化平台与垂直场景工具是主要打法。",
     "market": [
      {
       "y": "2023",
@@ -1688,6 +1717,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 9,
     "trend": "付费转化启动",
     "summary": "办公、代码、营销、多模态内容生成等场景率先实现规模化收入。",
+    "detail": "行业应用是大模型价值兑现的出口，把 AI 能力嵌入具体场景——办公助手、代码生成、营销客服、金融风控、教育、医疗等，按订阅或按量收费。该环节贴近客户与数据，竞争关键在场景理解、工作流整合与效果闭环，而非模型本身。国内 ToC 与 ToB 应用同步放量，付费渗透率与复购是观察主线。",
     "market": [
      {
       "y": "2023",
@@ -1723,6 +1753,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
  },
  "robotics": {
   "name": "机器人",
+  "detail": "机器人产业链上游为减速器、伺服、传感器等核心零部件，中游是工业、协作与人形机器人本体，下游通过系统集成在汽车、3C、新能源、物流等行业落地。中国是全球最大的工业机器人市场，本土厂商份额持续提升，同时人形机器人正从样机走向小批量量产，带动一批增量零部件环节。观察该行业的关键变量包括本体厂量产进度、核心零部件国产化率与下游场景的经济性验证。",
   "segs": [
    {
     "id": "reducer",
@@ -1731,6 +1762,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 9,
     "trend": "人形机器人放量前夜",
     "summary": "谐波减速器与行星滚柱丝杠是人形机器人价值量最高的零部件之一。",
+    "detail": "减速器与丝杠是机器人的核心传动部件：减速器（谐波、RV）把电机的高转速降为关节所需的低转速大扭矩；丝杠（滚珠/行星滚柱）将旋转运动转为直线运动，决定负载与精度。两者在人形机器人物料成本中占比很高，精度、寿命与批量一致性是核心壁垒。国产厂商在谐波减速器已具全球竞争力，行星滚柱丝杠随人形机器人放量处于国产化早期。",
     "market": [
      {
       "y": "2023",
@@ -1780,6 +1812,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 8,
     "trend": "格局稳定",
     "summary": "伺服系统国产份额持续提升，运动控制算法是核心竞争力。",
+    "detail": "伺服系统（驱动器+电机+编码器）与控制器构成机器人与自动化设备的运动控制核心，决定动作的速度、精度与稳定性。控制器相当于机器人的「小脑」，算法与系统集成能力是差异化所在；伺服则比拼响应速度与可靠性。外资在高端市场仍占主导，国产厂商在通用自动化领域份额持续提升，机器人本体放量将直接拉动该环节。",
     "market": [
      {
       "y": "2023",
@@ -1821,6 +1854,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 10,
     "trend": "视觉 + 触觉双线突破",
     "summary": "3D 视觉、六维力/力矩传感器是具身智能感知层的核心增量。",
+    "detail": "传感器是机器人与智能设备的感知入口，包括视觉（摄像头、3D 视觉、激光雷达）、力/力矩、触觉、IMU、接近觉等品类，为运动控制与智能决策提供原始数据。该环节技术路线多、方案碎片化，单机价值量随智能化程度提升而扩大。国产厂商在视觉与激光雷达领域全球领先，力/触觉传感器随人形机器人需求处于快速成长期。",
     "market": [
      {
       "y": "2023",
@@ -1862,6 +1896,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 8,
     "trend": "周期底部回升",
     "summary": "制造业景气度回升带动工业机器人产量回暖，国产份额过半。",
+    "detail": "工业机器人本体是面向制造业的自动化执行单元，按形态分为六轴、SCARA、协作、Delta 等，下游覆盖汽车、3C、新能源、金属加工等行业。本体的竞争力在机械设计、标定与长期稳定性，规模效应明显；上游即减速器、伺服、控制器三大核心部件。国产厂商在中低端市场已占多数份额，正往汽车产线等高端场景渗透。",
     "market": [
      {
       "y": "2023",
@@ -1903,6 +1938,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 13,
     "trend": "量产元年",
     "summary": "头部厂商进入千台级量产，工业场景率先落地，通用能力仍在爬坡。",
+    "detail": "人形机器人是具备双足行走与灵巧操作能力的通用机器人，目标场景从工厂搬运、巡检延伸到家庭服务，被视为下一个大型智能硬件平台。整机集成难度最高——需要传动、传感、控制、电池与 AI 模型的系统级协同，当前正从样机走向小批量量产。国内本体厂商迭代速度快、供应链配套完整，量产降本与场景落地是竞争主线。",
     "market": [
      {
       "y": "2024",
@@ -1963,6 +1999,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment
     "coCount": 8,
     "trend": "场景验证期",
     "summary": "汽车、3C、仓储物流是机器人落地确定性最高的场景。",
+    "detail": "系统集成面向终端客户把机器人与产线工艺结合——方案设计、设备选型、安装调试与运维，是机器人落地的最后一公里。集成商轻资产、项目制，竞争在行业 know-how 与交付能力，毛利率不高但贴近客户，可复制性与回款是关键。国产集成商在锂电、光伏、新能源车等行业已形成规模，机器人应用广度决定该环节的成长空间。",
     "market": [
      {
       "y": "2023",
@@ -2453,29 +2490,6 @@ export const COMPANIES: ResearchCompany[] = [
    520.9
   ],
   "latestTech": "密距连接器受益 CPO 架构布线需求",
-  "tech": [],
-  "funding": []
- },
- {
-  "name": "寒武纪-AI视图",
-  "code": "688256.SH",
-  "industry": "ai",
-  "seg": "ai-chip",
-  "listed": true,
-  "desc": "（同一公司在 AI 行业图谱中的入口）国产 AI 算力核心标的。",
-  "cap": 3120,
-  "pe": "亏损收窄",
-  "rev": 16.8,
-  "revGrowth": 120,
-  "gross": 55,
-  "rd": 65,
-  "spark": [
-   7.3,
-   7.5,
-   7.6,
-   16.8
-  ],
-  "latestTech": "新一代推理卡批量交付",
   "tech": [],
   "funding": []
  },
@@ -8985,80 +8999,6 @@ export const COMPANIES: ResearchCompany[] = [
   ]
  },
  {
-  "name": "海光信息-AI视图",
-  "code": "688041.SH",
-  "industry": "ai",
-  "seg": "ai-chip",
-  "listed": true,
-  "desc": "国产 x86 CPU 与 DCU 加速卡龙头，生态兼容性好。",
-  "cap": 3200,
-  "pe": 85,
-  "rev": 95,
-  "revGrowth": 50,
-  "gross": 60,
-  "rd": 30,
-  "spark": [
-   60,
-   72,
-   84,
-   95
-  ],
-  "latestTech": "深算 DCU 在智算中心批量部署",
-  "tech": [
-   {
-    "date": "2026-01",
-    "title": "新一代 DCU 性能大幅提升"
-   }
-  ],
-  "funding": []
- },
- {
-  "name": "景嘉微-AI视图",
-  "code": "300474.SZ",
-  "industry": "ai",
-  "seg": "ai-chip",
-  "listed": true,
-  "desc": "国产 GPU 先行者，图形渲染+高可靠领域双主业。",
-  "cap": 320,
-  "pe": 150,
-  "rev": 9,
-  "revGrowth": 30,
-  "gross": 55,
-  "rd": 30,
-  "spark": [
-   7,
-   7.5,
-   8,
-   9
-  ],
-  "latestTech": "新一代高性能 GPU 研发推进",
-  "tech": [],
-  "funding": []
- },
- {
-  "name": "龙芯中科-AI视图",
-  "code": "688047.SH",
-  "industry": "ai",
-  "seg": "ai-chip",
-  "listed": true,
-  "desc": "自主指令集 CPU（LoongArch），政务信创主力。",
-  "cap": 280,
-  "pe": "亏损",
-  "rev": 5.2,
-  "revGrowth": 20,
-  "gross": 30,
-  "rd": 60,
-  "spark": [
-   4.5,
-   4.8,
-   5,
-   5.2
-  ],
-  "latestTech": "3C6000 服务器 CPU 发布",
-  "tech": [],
-  "funding": []
- },
- {
   "name": "DeepSeek",
   "code": "—",
   "industry": "ai",
@@ -10840,6 +10780,8 @@ export interface ResearchSegment {
   heat?: string
   trend?: string
   summary?: string
+  /** 环节详细介绍：是干什么的、上下游位置、核心产品、国内格局 */
+  detail?: string
   coCount?: number
   market?: { y: string; v: number }[]
   tech?: { name: string; desc?: string }[]
