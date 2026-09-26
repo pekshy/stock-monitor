@@ -1,0 +1,36 @@
+name: research-sync
+
+# 行业研究数据同步：GitHub 服务器上抓取研报/事件/公告，直写 Supabase research_ 表。
+# 需要在仓库 Secrets 配置：SUPABASE_URL、SUPABASE_SERVICE_KEY（service_role，sb_secret_ 开头）
+# 触发方式：仅手动（Actions 页面 → research-sync → Run workflow）
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Sync intel (reports + events)
+        run: python scripts/research-sync/update_intel_to_db.py --event-days 2 --reports 7
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
+      - name: Sync announcements
+        run: python scripts/research-sync/update_announcements_to_db.py --days 10 --sleep 0.6
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
+      - name: Prune expired cloud rows
+        run: python scripts/research-sync/prune_cloud.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}

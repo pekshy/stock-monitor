@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback, memo } from 'react'
-import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus } from 'lucide-react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus, BookOpen } from 'lucide-react'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useEtfContext } from '../context/EtfContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
@@ -245,6 +245,13 @@ const Home: React.FC = () => {
           )}
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            to="/research"
+            className="text-sm text-blue-500 hover:text-blue-700 flex items-center gap-1 transition-colors"
+          >
+            行业研究
+            <BookOpen className="h-3.5 w-3.5" />
+          </Link>
           <a
             href="https://moonimprint.com/portfolio"
             target="_blank"

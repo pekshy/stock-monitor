@@ -27,3 +27,7 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# research-sync 本地测试产物（云端同步不需要本地库）
+data/
+__pycache__/

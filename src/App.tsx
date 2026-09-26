@@ -1,4 +1,4 @@
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { StockProvider, useStockContext } from './context/StockContext'
 import { EtfProvider } from './context/EtfContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -8,10 +8,16 @@ import Home from './pages/Home'
 import IndustryDetail from './pages/IndustryDetail'
 import StockDetail from './pages/StockDetail'
 import EtfDetail from './pages/EtfDetail'
+import ResearchHome from './pages/ResearchHome'
+import ResearchCompanies from './pages/ResearchCompanies'
+import ResearchCompanyDetail from './pages/ResearchCompanyDetail'
 
 function AppContent() {
   const { latestDate } = useStockContext()
   const { isAuthenticated, ready } = useAuth()
+  const location = useLocation()
+  // 行业研究模块公开访问，无需暗号；其余页面（个人投资信息）需登录
+  const isPublicResearch = location.pathname.startsWith('/research')
 
   if (!ready) {
     return (
@@ -21,7 +27,7 @@ function AppContent() {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isPublicResearch && !isAuthenticated) {
     return <LoginGate />
   }
 
@@ -36,6 +42,10 @@ function AppContent() {
           <Route path="/stock/:stockCode" element={<StockDetail />} />
           <Route path="/etf" element={<Home />} />
           <Route path="/etf/:code" element={<EtfDetail />} />
+          {/* 行业研究模块（独立新增，不影响既有路由） */}
+          <Route path="/research" element={<ResearchHome />} />
+          <Route path="/research/companies" element={<ResearchCompanies />} />
+          <Route path="/research/company/:name" element={<ResearchCompanyDetail />} />
         </Routes>
       </main>
     </div>

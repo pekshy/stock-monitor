@@ -1,0 +1,1742 @@
+{
+ "anchors": [
+  {
+   "name": "中芯国际",
+   "code": "688981.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "北方华创",
+   "code": "002371.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "中微公司",
+   "code": "688012.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "寒武纪",
+   "code": "688256.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "韦尔股份",
+   "code": "603501.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "长电科技",
+   "code": "600584.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "华大九天",
+   "code": "301269.SZ",
+   "industry": "semiconductor",
+   "seg": "eda"
+  },
+  {
+   "name": "摩尔线程",
+   "code": "688795.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "沐曦",
+   "code": "688802.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "中际旭创",
+   "code": "300308.SZ",
+   "industry": "ai",
+   "seg": "hw"
+  },
+  {
+   "name": "新易盛",
+   "code": "300502.SZ",
+   "industry": "ai",
+   "seg": "hw"
+  },
+  {
+   "name": "天孚通信",
+   "code": "300394.SZ",
+   "industry": "ai",
+   "seg": "hw"
+  },
+  {
+   "name": "光迅科技",
+   "code": "002281.SZ",
+   "industry": "ai",
+   "seg": "hw"
+  },
+  {
+   "name": "德科立",
+   "code": "688205.SH",
+   "industry": "ai",
+   "seg": "hw"
+  },
+  {
+   "name": "太辰光",
+   "code": "300570.SZ",
+   "industry": "ai",
+   "seg": "hw"
+  },
+  {
+   "name": "寒武纪-AI视图",
+   "code": "688256.SH",
+   "industry": "ai",
+   "seg": "ai-chip"
+  },
+  {
+   "name": "绿的谐波",
+   "code": "688017.SH",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "name": "汇川技术",
+   "code": "300124.SZ",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "name": "埃斯顿",
+   "code": "002747.SZ",
+   "industry": "robotics",
+   "seg": "industrial"
+  },
+  {
+   "name": "概伦电子",
+   "code": "688206.SH",
+   "industry": "semiconductor",
+   "seg": "eda"
+  },
+  {
+   "name": "广立微",
+   "code": "301095.SZ",
+   "industry": "semiconductor",
+   "seg": "eda"
+  },
+  {
+   "name": "芯原股份",
+   "code": "688521.SH",
+   "industry": "semiconductor",
+   "seg": "eda"
+  },
+  {
+   "name": "拓荆科技",
+   "code": "688072.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "盛美上海",
+   "code": "688082.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "华海清科",
+   "code": "688120.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "芯源微",
+   "code": "688037.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "中科飞测",
+   "code": "688361.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "长川科技",
+   "code": "300604.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "华峰测控",
+   "code": "688200.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "精测电子",
+   "code": "300567.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "芯碁微装",
+   "code": "688730.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "京仪装备",
+   "code": "688652.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "至纯科技",
+   "code": "603690.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "万业企业",
+   "code": "600646.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "沪硅产业",
+   "code": "688126.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "安集科技",
+   "code": "688019.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "南大光电",
+   "code": "300346.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "雅克科技",
+   "code": "002409.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "华特气体",
+   "code": "688268.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "江丰电子",
+   "code": "300666.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "有研新材",
+   "code": "600206.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "鼎龙股份",
+   "code": "300054.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "彤程新材",
+   "code": "603650.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "龙图光罩",
+   "code": "688721.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "清溢光电",
+   "code": "688138.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "路维光电",
+   "code": "688401.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "立昂微",
+   "code": "605358.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "金宏气体",
+   "code": "688106.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "神工股份",
+   "code": "688233.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "卓胜微",
+   "code": "300782.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "兆易创新",
+   "code": "603986.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "澜起科技",
+   "code": "688008.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "圣邦股份",
+   "code": "300661.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "纳芯微",
+   "code": "688052.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "思特威",
+   "code": "688213.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "恒玄科技",
+   "code": "688608.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "瑞芯微",
+   "code": "603893.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "晶晨股份",
+   "code": "688099.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "北京君正",
+   "code": "300223.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "紫光国微",
+   "code": "002049.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "复旦微电",
+   "code": "688385.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "乐鑫科技",
+   "code": "688018.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "汇顶科技",
+   "code": "603160.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "安路科技",
+   "code": "688107.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "斯达半导",
+   "code": "603290.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "时代电气",
+   "code": "688187.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "扬杰科技",
+   "code": "300373.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "地平线",
+   "code": "9660.HK",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "黑芝麻智能",
+   "code": "2533.HK",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "燧原科技",
+   "code": "688801.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "壁仞科技",
+   "code": "6082.HK",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "华虹公司",
+   "code": "688347.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "华润微",
+   "code": "688396.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "晶合集成",
+   "code": "688249.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "燕东微",
+   "code": "688172.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "士兰微",
+   "code": "600460.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "通富微电",
+   "code": "002156.SZ",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "华天科技",
+   "code": "002185.SZ",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "晶方科技",
+   "code": "603005.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "甬矽电子",
+   "code": "688362.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "颀中科技",
+   "code": "688352.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "汇成股份",
+   "code": "688403.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "工业富联",
+   "code": "601138.SH",
+   "industry": "semiconductor",
+   "seg": "terminal"
+  },
+  {
+   "name": "立讯精密",
+   "code": "002475.SZ",
+   "industry": "semiconductor",
+   "seg": "terminal"
+  },
+  {
+   "name": "浪潮信息",
+   "code": "000977.SZ",
+   "industry": "semiconductor",
+   "seg": "terminal"
+  },
+  {
+   "name": "中科曙光",
+   "code": "603019.SH",
+   "industry": "semiconductor",
+   "seg": "terminal"
+  },
+  {
+   "name": "德赛西威",
+   "code": "002920.SZ",
+   "industry": "semiconductor",
+   "seg": "terminal"
+  },
+  {
+   "name": "联想集团",
+   "code": "0992.HK",
+   "industry": "semiconductor",
+   "seg": "terminal"
+  },
+  {
+   "name": "仕佳光子",
+   "code": "688313.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "中控技术",
+   "code": "688777.SH",
+   "industry": "semiconductor",
+   "seg": "terminal"
+  },
+  {
+   "name": "灿芯股份",
+   "code": "688691.SH",
+   "industry": "semiconductor",
+   "seg": "eda"
+  },
+  {
+   "name": "屹唐股份",
+   "code": "688729.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "微导纳米",
+   "code": "688147.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "晶升股份",
+   "code": "688478.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "矽电股份",
+   "code": "301629.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "联动科技",
+   "code": "301369.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "耐科装备",
+   "code": "688419.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "金海通",
+   "code": "603061.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "富创精密",
+   "code": "688409.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "先锋精科",
+   "code": "688605.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "华亚智能",
+   "code": "003043.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "珂玛科技",
+   "code": "301611.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "凯德石英",
+   "code": "920179.BJ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "富乐德",
+   "code": "301297.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "正帆科技",
+   "code": "688596.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "新莱应材",
+   "code": "300260.SZ",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "精智达",
+   "code": "688627.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "新益昌",
+   "code": "688383.SH",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "name": "上海合晶",
+   "code": "688584.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "西安奕材",
+   "code": "688783.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "有研硅",
+   "code": "688432.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "中晶科技",
+   "code": "003026.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "阿石创",
+   "code": "300706.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "欧莱新材",
+   "code": "688530.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "恒坤新材",
+   "code": "688727.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "中船特气",
+   "code": "688146.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "广钢气体",
+   "code": "688548.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "超纯应材",
+   "code": "301717.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "艾森股份",
+   "code": "688720.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "华海诚科",
+   "code": "688535.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "德邦科技",
+   "code": "688035.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "康强电子",
+   "code": "002119.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "新恒汇",
+   "code": "301678.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "联瑞新材",
+   "code": "688300.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "兴森科技",
+   "code": "002436.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "深南电路",
+   "code": "002916.SZ",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "沪电股份",
+   "code": "002463.SZ",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "胜宏科技",
+   "code": "300476.SZ",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "生益科技",
+   "code": "600183.SH",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "生益电子",
+   "code": "688183.SH",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "景旺电子",
+   "code": "603228.SH",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "崇达技术",
+   "code": "002815.SZ",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "鹏鼎控股",
+   "code": "002938.SZ",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "东山精密",
+   "code": "002384.SZ",
+   "industry": "semiconductor",
+   "seg": "pcb"
+  },
+  {
+   "name": "石英股份",
+   "code": "603688.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "菲利华",
+   "code": "300395.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "上海新阳",
+   "code": "300236.SZ",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "天岳先进",
+   "code": "688234.SH",
+   "industry": "semiconductor",
+   "seg": "material"
+  },
+  {
+   "name": "上海贝岭",
+   "code": "600171.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "力芯微",
+   "code": "688601.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "思瑞浦",
+   "code": "688536.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "艾为电子",
+   "code": "688798.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "帝奥微",
+   "code": "688381.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "晶丰明源",
+   "code": "688368.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "必易微",
+   "code": "688045.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "杰华特",
+   "code": "688141.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "芯朋微",
+   "code": "688508.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "希荻微",
+   "code": "688173.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "英集芯",
+   "code": "688209.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "南芯科技",
+   "code": "688484.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "灿瑞科技",
+   "code": "688061.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "美芯晟",
+   "code": "688458.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "明微电子",
+   "code": "688699.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "富满微",
+   "code": "300671.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "芯导科技",
+   "code": "688230.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "赛微微电",
+   "code": "688325.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "晶华微",
+   "code": "688130.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "钜泉科技",
+   "code": "688391.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "峰岹科技",
+   "code": "688279.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "中微半导",
+   "code": "688380.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "中颖电子",
+   "code": "300327.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "芯海科技",
+   "code": "688595.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "国民技术",
+   "code": "300077.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "国芯科技",
+   "code": "688262.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "创耀科技",
+   "code": "688259.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "力合微",
+   "code": "688589.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "中科蓝讯",
+   "code": "688332.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "博通集成",
+   "code": "603068.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "泰凌微",
+   "code": "688591.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "炬芯科技",
+   "code": "688049.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "杰理科技",
+   "code": "920138.BJ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "龙迅股份",
+   "code": "688486.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "天德钰",
+   "code": "688252.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "新相微",
+   "code": "688593.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "聚辰股份",
+   "code": "688123.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "星宸科技",
+   "code": "301536.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "富瀚微",
+   "code": "300613.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "安凯微",
+   "code": "688620.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "全志科技",
+   "code": "300458.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "国科微",
+   "code": "300672.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "江波龙",
+   "code": "301308.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "佰维存储",
+   "code": "688525.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "东芯股份",
+   "code": "688110.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "普冉股份",
+   "code": "688766.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "恒烁股份",
+   "code": "688416.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "德明利",
+   "code": "001309.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "联芸科技",
+   "code": "688449.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "龙芯中科",
+   "code": "688047.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "景嘉微",
+   "code": "300474.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "盛科通信",
+   "code": "688702.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "康希通信",
+   "code": "688653.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "唯捷创芯",
+   "code": "688153.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "慧智微",
+   "code": "688512.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "昂瑞微",
+   "code": "688790.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "裕太微",
+   "code": "688515.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "翱捷科技",
+   "code": "688220.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "臻镭科技",
+   "code": "688270.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "电科芯片",
+   "code": "600877.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "航宇微",
+   "code": "300053.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "海光信息",
+   "code": "688041.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "长光华芯",
+   "code": "688048.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "源杰科技",
+   "code": "688498.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "敏芯股份",
+   "code": "688286.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "芯动联科",
+   "code": "688582.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "和林微纳",
+   "code": "688661.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "格科微",
+   "code": "688728.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "宏微科技",
+   "code": "688711.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "东微半导",
+   "code": "688261.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "捷捷微电",
+   "code": "300623.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "台基股份",
+   "code": "300046.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "华微电子",
+   "code": "600360.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "银河微电",
+   "code": "688689.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "锴威特",
+   "code": "688693.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "新洁能",
+   "code": "605111.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "派瑞股份",
+   "code": "300831.SZ",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "闻泰科技",
+   "code": "600745.SH",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "芯联集成",
+   "code": "688469.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "粤芯半导体",
+   "code": "301660.SZ",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "长鑫科技",
+   "code": "688825.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "三安光电",
+   "code": "600703.SH",
+   "industry": "semiconductor",
+   "seg": "fab"
+  },
+  {
+   "name": "气派科技",
+   "code": "688216.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "蓝箭电子",
+   "code": "301348.SZ",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "华岭股份",
+   "code": "920139.BJ",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "伟测科技",
+   "code": "688372.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "利扬芯片",
+   "code": "688135.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "深科技",
+   "code": "000021.SZ",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "太极实业",
+   "code": "600667.SH",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "name": "紫光股份",
+   "code": "000938.SZ",
+   "industry": "semiconductor",
+   "seg": "terminal"
+  },
+  {
+   "name": "天数智芯",
+   "code": "9903.HK",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "基本半导体",
+   "code": "9971.HK",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "name": "海光信息-AI视图",
+   "code": "688041.SH",
+   "industry": "ai",
+   "seg": "ai-chip"
+  },
+  {
+   "name": "景嘉微-AI视图",
+   "code": "300474.SZ",
+   "industry": "ai",
+   "seg": "ai-chip"
+  },
+  {
+   "name": "龙芯中科-AI视图",
+   "code": "688047.SH",
+   "industry": "ai",
+   "seg": "ai-chip"
+  },
+  {
+   "name": "百度",
+   "code": "9888.HK",
+   "industry": "ai",
+   "seg": "llm"
+  },
+  {
+   "name": "科大讯飞",
+   "code": "002230.SZ",
+   "industry": "ai",
+   "seg": "llm"
+  },
+  {
+   "name": "星环科技",
+   "code": "688031.SH",
+   "industry": "ai",
+   "seg": "maas"
+  },
+  {
+   "name": "第四范式",
+   "code": "6682.HK",
+   "industry": "ai",
+   "seg": "maas"
+  },
+  {
+   "name": "金山办公",
+   "code": "688111.SH",
+   "industry": "ai",
+   "seg": "ai-app"
+  },
+  {
+   "name": "虹软科技",
+   "code": "688088.SH",
+   "industry": "ai",
+   "seg": "ai-app"
+  },
+  {
+   "name": "拓尔思",
+   "code": "300229.SZ",
+   "industry": "ai",
+   "seg": "ai-app"
+  },
+  {
+   "name": "云从科技",
+   "code": "688327.SH",
+   "industry": "ai",
+   "seg": "ai-app"
+  },
+  {
+   "name": "格灵深瞳",
+   "code": "688207.SH",
+   "industry": "ai",
+   "seg": "ai-app"
+  },
+  {
+   "name": "万兴科技",
+   "code": "300624.SZ",
+   "industry": "ai",
+   "seg": "ai-app"
+  },
+  {
+   "name": "商汤-W",
+   "code": "0020.HK",
+   "industry": "ai",
+   "seg": "ai-app"
+  },
+  {
+   "name": "双环传动",
+   "code": "002472.SZ",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "name": "贝斯特",
+   "code": "300580.SZ",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "name": "中大力德",
+   "code": "002896.SZ",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "name": "秦川机床",
+   "code": "000837.SZ",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "name": "五洲新春",
+   "code": "603667.SH",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "name": "北特科技",
+   "code": "603009.SH",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "name": "恒立液压",
+   "code": "601100.SH",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "name": "信捷电气",
+   "code": "603416.SH",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "name": "雷赛智能",
+   "code": "002979.SZ",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "name": "禾川科技",
+   "code": "688320.SH",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "name": "固高科技",
+   "code": "688298.SH",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "name": "鸣志电器",
+   "code": "603728.SH",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "name": "步科股份",
+   "code": "688160.SH",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "name": "伟创电气",
+   "code": "688698.SH",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "name": "奥比中光",
+   "code": "688322.SH",
+   "industry": "robotics",
+   "seg": "sensor"
+  },
+  {
+   "name": "柯力传感",
+   "code": "603662.SH",
+   "industry": "robotics",
+   "seg": "sensor"
+  },
+  {
+   "name": "汉威科技",
+   "code": "300007.SZ",
+   "industry": "robotics",
+   "seg": "sensor"
+  },
+  {
+   "name": "芯动联科-机器人视图",
+   "code": "688582.SH",
+   "industry": "robotics",
+   "seg": "sensor"
+  },
+  {
+   "name": "敏芯股份-机器人视图",
+   "code": "688286.SH",
+   "industry": "robotics",
+   "seg": "sensor"
+  },
+  {
+   "name": "安培龙",
+   "code": "301413.SZ",
+   "industry": "robotics",
+   "seg": "sensor"
+  },
+  {
+   "name": "东华测试",
+   "code": "300354.SZ",
+   "industry": "robotics",
+   "seg": "sensor"
+  },
+  {
+   "name": "新时达",
+   "code": "002527.SZ",
+   "industry": "robotics",
+   "seg": "industrial"
+  },
+  {
+   "name": "埃夫特",
+   "code": "688165.SH",
+   "industry": "robotics",
+   "seg": "industrial"
+  },
+  {
+   "name": "机器人",
+   "code": "300024.SZ",
+   "industry": "robotics",
+   "seg": "industrial"
+  },
+  {
+   "name": "凯尔达",
+   "code": "688255.SH",
+   "industry": "robotics",
+   "seg": "industrial"
+  },
+  {
+   "name": "优必选",
+   "code": "9880.HK",
+   "industry": "robotics",
+   "seg": "humanoid"
+  },
+  {
+   "name": "瑞松科技",
+   "code": "688090.SH",
+   "industry": "robotics",
+   "seg": "integrator"
+  },
+  {
+   "name": "拓斯达",
+   "code": "300607.SZ",
+   "industry": "robotics",
+   "seg": "integrator"
+  },
+  {
+   "name": "博实股份",
+   "code": "002698.SZ",
+   "industry": "robotics",
+   "seg": "integrator"
+  },
+  {
+   "name": "华昌达",
+   "code": "300278.SZ",
+   "industry": "robotics",
+   "seg": "integrator"
+  },
+  {
+   "name": "兰剑智能",
+   "code": "688557.SH",
+   "industry": "robotics",
+   "seg": "integrator"
+  },
+  {
+   "name": "极智嘉",
+   "code": "2595.HK",
+   "industry": "robotics",
+   "seg": "integrator"
+  }
+ ],
+ "tracked": [
+  {
+   "code": "002371",
+   "name": "北方华创",
+   "demo_name": "北方华创",
+   "org_id": "9900006137",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "code": "002747",
+   "name": "埃斯顿",
+   "demo_name": "埃斯顿",
+   "org_id": "9900022936",
+   "industry": "robotics",
+   "seg": "industrial"
+  },
+  {
+   "code": "300124",
+   "name": "汇川技术",
+   "demo_name": "汇川技术",
+   "org_id": "9900012527",
+   "industry": "robotics",
+   "seg": "servo"
+  },
+  {
+   "code": "301269",
+   "name": "华大九天",
+   "demo_name": "华大九天",
+   "org_id": "9900048778",
+   "industry": "semiconductor",
+   "seg": "eda"
+  },
+  {
+   "code": "600584",
+   "name": "长电科技",
+   "demo_name": "长电科技",
+   "org_id": "gssh0600584",
+   "industry": "semiconductor",
+   "seg": "osat"
+  },
+  {
+   "code": "603501",
+   "name": "豪威集团",
+   "demo_name": "韦尔股份",
+   "org_id": "9900030772",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "code": "688012",
+   "name": "中微公司",
+   "demo_name": "中微公司",
+   "org_id": "9900038991",
+   "industry": "semiconductor",
+   "seg": "equipment"
+  },
+  {
+   "code": "688017",
+   "name": "绿的谐波",
+   "demo_name": "绿的谐波",
+   "org_id": "9900041602",
+   "industry": "robotics",
+   "seg": "reducer"
+  },
+  {
+   "code": "688256",
+   "name": "寒武纪",
+   "demo_name": "寒武纪",
+   "org_id": "nssc1000595",
+   "industry": "semiconductor",
+   "seg": "design"
+  },
+  {
+   "code": "688981",
+   "name": "中芯国际",
+   "demo_name": "中芯国际",
+   "org_id": "gshk0000981",
+   "industry": "semiconductor",
+   "seg": "fab"
+  }
+ ]
+}
