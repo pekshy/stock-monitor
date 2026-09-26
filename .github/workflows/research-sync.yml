@@ -5,6 +5,11 @@ name: research-sync
 # 触发方式：仅手动（Actions 页面 → research-sync → Run workflow）
 on:
   workflow_dispatch:
+    inputs:
+      with_announcements:
+        description: '同时抓取个股公告（10 家重点追踪，默认跳过）'
+        type: boolean
+        default: false
 
 jobs:
   sync:
@@ -35,6 +40,7 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
       - name: Sync announcements
+        if: ${{ inputs.with_announcements }}
         run: python scripts/research-sync/update_announcements_to_db.py --days 10 --sleep 0.6
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
