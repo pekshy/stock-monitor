@@ -180,8 +180,6 @@ export function useCompanyAnnouncements(code?: string | null) {
 
 // ---------- 研究笔记 · 页面增改删（直连 Supabase） ----------
 
-/** 原件 Storage 桶（research_notes_rw.sql 里创建） */
-const LIB_BUCKET = 'research-library'
 /** 正文留空时可直接当正文读入的文本扩展名（口径同 db.TEXT_EXTS） */
 const TEXT_EXTS = ['md', 'txt', 'csv', 'json', 'html', 'log']
 
@@ -190,17 +188,43 @@ export function isTextFile(name: string): boolean {
   return TEXT_EXTS.includes(ext)
 }
 
-/** 上传原件到 Storage，返回公开链接（存进 research_notes.file_path） */
+/** 上传原件到 GitHub 公开文件库（VITE_GH_REPO，如 pekshy/research-files），返回公开链接。
+ *  链接用 jsDelivr CDN（国内可达）；新文件名为时间戳前缀，天然避开 CDN 缓存问题。
+ *  token 用细粒度 PAT：只授权该仓库 Contents: Read and write（勿用全权限 token 放前端）。 */
 export async function uploadNoteFile(file: File): Promise<{ path: string | null; error?: string }> {
+  const repo = (import.meta.env.VITE_GH_REPO as string | undefined)?.trim()
+  const token = (import.meta.env.VITE_GH_TOKEN as string | undefined)?.trim()
+  if (!repo || !token) {
+    return { path: null, error: '未配置 VITE_GH_REPO / VITE_GH_TOKEN（GitHub 文件库）' }
+  }
   try {
-    // Supabase Storage 的 isValidKey 只收 ASCII（\w 与少量符号），中文/全角字符一律拒绝，
-    // 统一清洗成 '-'，保留扩展名；时间戳前缀保证唯一。
+    if (file.size > 100 * 1024 * 1024) {
+      return { path: null, error: 'GitHub 单文件上限 100MB' }
+    }
+    // GitHub Contents API 对路径同样有 ASCII 校验口径，统一清洗成 '-'，保留扩展名
     const safe = file.name.replace(/[^\w.!*'() &$@=;:+,?-]+/g, '-').replace(/-{2,}/g, '-').replace(/^-|-$/g, '')
     const path = `notes/${Date.now()}-${safe || 'file'}`
-    const { error } = await supabase.storage.from(LIB_BUCKET).upload(path, file, { upsert: true })
-    if (error) return { path: null, error: error.message }
-    const { data } = supabase.storage.from(LIB_BUCKET).getPublicUrl(path)
-    return { path: data.publicUrl }
+    // FileReader 读成 dataURL 再剥前缀，比 btoa 分块稳（大文件也不炸栈）
+    const b64: string = await new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '')
+      reader.onerror = () => reject(new Error('读取文件失败'))
+      reader.readAsDataURL(file)
+    })
+    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: `research file: ${path}`, content: b64, branch: 'main' }),
+    })
+    if (!resp.ok) {
+      const body = await resp.text().catch(() => '')
+      return { path: null, error: `GitHub 上传失败 HTTP ${resp.status}: ${body.slice(0, 200)}` }
+    }
+    return { path: `https://cdn.jsdelivr.net/gh/${repo}@main/${path}` }
   } catch (e) {
     return { path: null, error: String((e as Error)?.message || e) }
   }
