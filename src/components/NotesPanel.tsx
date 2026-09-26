@@ -272,23 +272,12 @@ const NotesPanel: React.FC<{
           <div className="flex items-center gap-2 mb-2">
             <b className="text-sm text-gray-800">{mode === 'new' ? '新增研究笔记' : '编辑研究笔记'}</b>
             <span className="text-xs text-gray-400">
-              {mode === 'new' ? '写正文或传原件都行，标题与归属自动记，不用手填' : '可调整标题、日期、类型与归属'}
+              {mode === 'new' ? '写正文或传原件都行，归属自动记，不用手填' : '可调整日期、类型与归属'}
             </span>
             <button onClick={cancel} className="ml-auto p-1 text-gray-400 hover:text-gray-600" title="取消">
               <X className="h-4 w-4" />
             </button>
           </div>
-
-          {mode === 'edit' && (
-            <>
-              <label className="block text-xs text-gray-500 mb-1">标题</label>
-              <input
-                value={v.title}
-                onChange={e => setV({ ...v, title: e.target.value })}
-                className="w-full mb-2 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100"
-              />
-            </>
-          )}
 
           <label className="block text-xs text-gray-500 mb-1">
             正文{mode === 'new' ? '（写正文或传原件，二者至少一项）' : ''}
@@ -419,7 +408,7 @@ const NotesPanel: React.FC<{
               {scope.companies.length > 0 && (
                 <><span>·</span><span>归属 <b>关联「{scope.companies.join('、')}」</b></span></>
               )}
-              <span>· 标题按正文首行（或原件文件名）自动生成，保存后可「编辑」改掉</span>
+              <span>· 标题按正文首行（或原件文件名）自动生成，仅用于搜索</span>
             </div>
           )}
 
