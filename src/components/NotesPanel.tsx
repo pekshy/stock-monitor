@@ -383,7 +383,6 @@ const NotesPanel: React.FC<{
                   {nodeLabel}
                 </span>
               )}
-              <span className="text-sm text-gray-800 font-medium">{n.title || '(无标题)'}</span>
               {n.file_path && (
                 <a href={n.file_path} target="_blank" rel="noreferrer"
                    className="flex items-center gap-1 text-xs text-blue-600 hover:underline shrink-0" title="查看原件">
@@ -401,7 +400,11 @@ const NotesPanel: React.FC<{
                 </button>
               </span>
             </div>
-            {n.body && <p className="mt-1 text-[13px] text-gray-600 leading-relaxed pl-[76px] whitespace-pre-wrap">{n.body}</p>}
+            {(n.body || n.title) && (
+              <p className="mt-1 text-[13px] text-gray-700 leading-relaxed pl-[76px] whitespace-pre-wrap">
+                {n.body || n.title}
+              </p>
+            )}
             {(parseList(n.companies).length > 0 || parseList(n.tags).length > 0) && (
               <div className="mt-1 flex flex-wrap gap-1 pl-[76px]">
                 {parseList(n.companies).map(c => (
