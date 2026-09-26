@@ -29,11 +29,88 @@ const kindBadge = (kind: string): string => {
   }
 }
 
-/**
- * 研究笔记面板：搜索 + 新增（极简表单：正文 + 可选原件，其余自动带值；
- * 可选 companyOptions：新增态点选关联企业）+ 卡片编辑（完整表单，含删除）
- * ——口径与原工作台页录入一致，写 Supabase。
- */
+/** 单条笔记卡片：正文默认最多 2 行，超长可展开/收起 */
+const NoteCard: React.FC<{
+  note: CloudNote
+  nodeLabel: string | null
+  readOnly?: boolean
+  busy?: boolean
+  onEdit: () => void
+  onRemove: () => void
+}> = ({ note: n, nodeLabel, readOnly, busy, onEdit, onRemove }) => {
+  const [expanded, setExpanded] = useState(false)
+  const [clamped, setClamped] = useState(false)
+  const bodyRef = useRef<HTMLParagraphElement>(null)
+
+  // 挂载/内容变化时测量是否溢出 2 行（scrollHeight 高于单行高 ×2 即算超长）
+  React.useEffect(() => {
+    const el = bodyRef.current
+    if (!el) return
+    setClamped(el.scrollHeight > el.clientHeight + 2)
+  }, [n.body, n.title])
+
+  const text = n.body || n.title || ''
+
+  return (
+    <div className="px-5 py-3 group">
+      <div className="flex items-baseline gap-3">
+        <span className="text-[13px] text-gray-400 shrink-0">{fmtDate(n.occurred_at)}</span>
+        <span className={`text-xs px-1.5 py-0.5 rounded shrink-0 ${kindBadge(n.kind)}`}>{n.kind}</span>
+        {nodeLabel && (
+          <span className="text-[11px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 shrink-0 truncate max-w-[16rem]" title={nodeLabel}>
+            {nodeLabel}
+          </span>
+        )}
+        {n.file_path && (
+          <a href={n.file_path} target="_blank" rel="noreferrer"
+             className="flex items-center gap-1 text-xs text-blue-600 hover:underline shrink-0" title="查看原件">
+            <Paperclip className="h-3 w-3" /> 原件
+          </a>
+        )}
+        <span className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <button onClick={onEdit} disabled={readOnly || busy}
+                  className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30" title="编辑">
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button onClick={onRemove} disabled={readOnly || busy}
+                  className="p-1 text-gray-400 hover:text-red-600 disabled:opacity-30" title="删除">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </span>
+      </div>
+      {text && (
+        <>
+          <p
+            ref={bodyRef}
+            className={`mt-1 text-[13px] text-gray-700 leading-relaxed pl-[76px] whitespace-pre-wrap ${expanded ? '' : 'line-clamp-2'}`}
+          >
+            {text}
+          </p>
+          {clamped && (
+            <button
+              onClick={() => setExpanded(e => !e)}
+              className="mt-0.5 ml-[76px] text-xs text-blue-600 hover:underline"
+            >
+              {expanded ? '收起' : '展开全部'}
+            </button>
+          )}
+        </>
+      )}
+      {(parseList(n.companies).length > 0 || parseList(n.tags).length > 0) && (
+        <div className="mt-1 flex flex-wrap gap-1 pl-[76px]">
+          {parseList(n.companies).map(c => (
+            <span key={c} className="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{c}</span>
+          ))}
+          {parseList(n.tags).map(t => (
+            <span key={t} className="text-[11px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">#{t}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 const NotesPanel: React.FC<{
   notes: CloudNote[]
   scope: NotesScope
@@ -371,53 +448,17 @@ const NotesPanel: React.FC<{
               : '没有匹配的笔记'}
           </div>
         )}
-        {!loading && shown.map(n => {
-          const nodeLabel = nodeLabelOf?.(n) ?? null
-          return (
-          <div key={n.id} className="px-5 py-3 group">
-            <div className="flex items-baseline gap-3">
-              <span className="text-[13px] text-gray-400 shrink-0">{fmtDate(n.occurred_at)}</span>
-              <span className={`text-xs px-1.5 py-0.5 rounded shrink-0 ${kindBadge(n.kind)}`}>{n.kind}</span>
-              {nodeLabel && (
-                <span className="text-[11px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 shrink-0 truncate max-w-[16rem]" title={nodeLabel}>
-                  {nodeLabel}
-                </span>
-              )}
-              {n.file_path && (
-                <a href={n.file_path} target="_blank" rel="noreferrer"
-                   className="flex items-center gap-1 text-xs text-blue-600 hover:underline shrink-0" title="查看原件">
-                  <Paperclip className="h-3 w-3" /> 原件
-                </a>
-              )}
-              <span className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                <button onClick={() => openEdit(n)} disabled={readOnly || busy}
-                        className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30" title="编辑">
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={() => doRemove(n)} disabled={readOnly || busy}
-                        className="p-1 text-gray-400 hover:text-red-600 disabled:opacity-30" title="删除">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </span>
-            </div>
-            {(n.body || n.title) && (
-              <p className="mt-1 text-[13px] text-gray-700 leading-relaxed pl-[76px] whitespace-pre-wrap">
-                {n.body || n.title}
-              </p>
-            )}
-            {(parseList(n.companies).length > 0 || parseList(n.tags).length > 0) && (
-              <div className="mt-1 flex flex-wrap gap-1 pl-[76px]">
-                {parseList(n.companies).map(c => (
-                  <span key={c} className="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{c}</span>
-                ))}
-                {parseList(n.tags).map(t => (
-                  <span key={t} className="text-[11px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">#{t}</span>
-                ))}
-              </div>
-            )}
-          </div>
-          )
-        })}
+        {!loading && shown.map(n => (
+          <NoteCard
+            key={n.id}
+            note={n}
+            nodeLabel={nodeLabelOf?.(n) ?? null}
+            readOnly={readOnly}
+            busy={busy}
+            onEdit={() => openEdit(n)}
+            onRemove={() => doRemove(n)}
+          />
+        ))}
       </div>
     </div>
   )
