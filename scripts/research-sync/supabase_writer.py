@@ -55,8 +55,21 @@ class CloudWriter:
                 {"http": self.proxy, "https": self.proxy}))
         else:
             opener = urllib.request.build_opener()
-        with opener.open(req, timeout=TIMEOUT) as resp:
-            resp.read()
+        try:
+            with opener.open(req, timeout=TIMEOUT) as resp:
+                resp.read()
+        except urllib.error.HTTPError as e:
+            body = ""
+            try:
+                body = e.read().decode("utf-8", "replace")[:300]
+            except Exception:  # noqa: BLE001
+                pass
+            hint = ""
+            if e.code == 401:
+                hint = ("（密钥无效：请确认 SUPABASE_SERVICE_KEY 用的是 sb_secret_ 开头的 "
+                        "service_role 密钥，且不带引号/换行；sb_publishable_ 开头的公开密钥无写权限）")
+            raise RuntimeError(
+                f"Supabase 写入 {table} 失败 HTTP {e.code}{hint}: {body}") from e
         return len(rows)
 
     def flush(self) -> int:
