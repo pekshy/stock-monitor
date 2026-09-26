@@ -102,19 +102,19 @@ def main():
     conn.close()
     print("\n已写库（%s）：事件累计 %d 条，研报累计 %d 篇" % (now, n_evt, n_rep))
 
-    # —— 云端同步（可选）：设置 SUPABASE_URL / SUPABASE_SERVICE_KEY 后自动启用 ——
-    try:
-        import supabase_writer as sw
-        cw = sw.from_env()
-        if cw:
-            for e in events:
-                cw.upsert_event(e, now=now)
-            for r in reports:
-                cw.upsert_report(r, now=now)
-            n = cw.flush()
-            print("云端同步：research_events / research_reports 共 %d 行" % n)
-    except Exception as e:  # noqa: BLE001
-        print("[云端同步失败，本地库不受影响] %s" % e, file=sys.stderr)
+    # —— 云端同步：本包供 CI 使用，缺配置或写入失败都视为任务失败 ——
+    import supabase_writer as sw
+    cw = sw.from_env()
+    if cw is None:
+        print("[错误] 未配置 SUPABASE_URL / SUPABASE_SERVICE_KEY，无法写入 Supabase，"
+              "本地 SQLite 只在 runner 上存活一次。", file=sys.stderr)
+        sys.exit(1)
+    for e in events:
+        cw.upsert_event(e, now=now)
+    for r in reports:
+        cw.upsert_report(r, now=now)
+    n = cw.flush()
+    print("云端同步：research_events / research_reports 共 %d 行" % n)
 
 
 if __name__ == "__main__":

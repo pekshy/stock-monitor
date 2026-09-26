@@ -17,6 +17,17 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Check required secrets
+        env:
+          HAS_URL: ${{ secrets.SUPABASE_URL != '' }}
+          HAS_KEY: ${{ secrets.SUPABASE_SERVICE_KEY != '' }}
+        run: |
+          if [ "$HAS_URL" != "true" ] || [ "$HAS_KEY" != "true" ]; then
+            echo "::error::仓库 Secrets 未配置 SUPABASE_URL / SUPABASE_SERVICE_KEY，数据将无法写入 Supabase。"
+            echo "请到仓库 Settings → Secrets and variables → Actions 添加这两个 Secret 后重新运行本工作流。"
+            exit 1
+          fi
+
       - name: Sync intel (reports + events)
         run: python scripts/research-sync/update_intel_to_db.py --event-days 2 --reports 7
         env:

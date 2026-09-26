@@ -73,12 +73,13 @@ def main():
 
     print("公告抓取（近 %d 天）：%d 家公司" % (args.days, len(targets)))
 
-    # —— 云端同步（可选）：设置 SUPABASE_URL / SUPABASE_SERVICE_KEY 后自动启用 ——
-    try:
-        import supabase_writer as sw
-        cw = sw.from_env()
-    except Exception:  # noqa: BLE001
-        cw = None
+    # —— 云端同步：本包供 CI 使用，缺配置或写入失败都视为任务失败 ——
+    import supabase_writer as sw
+    cw = sw.from_env()
+    if cw is None:
+        print("[错误] 未配置 SUPABASE_URL / SUPABASE_SERVICE_KEY，无法写入 Supabase，"
+              "本地 SQLite 只在 runner 上存活一次。", file=sys.stderr)
+        sys.exit(1)
 
     for t in targets:
         code = t["code"]
@@ -146,12 +147,8 @@ def main():
         for nm, err in failures:
             print("    %s — %s" % (nm, err))
 
-    if cw:
-        try:
-            n = cw.flush()
-            print("云端同步：research_announcements 共 %d 行" % n)
-        except Exception as e:  # noqa: BLE001
-            print("[云端同步失败，本地库不受影响] %s" % e, file=sys.stderr)
+    n = cw.flush()
+    print("云端同步：research_announcements 共 %d 行" % n)
 
 
 if __name__ == "__main__":
