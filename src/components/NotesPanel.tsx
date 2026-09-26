@@ -133,6 +133,13 @@ const NotesPanel: React.FC<{
   const [coQ, setCoQ] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
+  // 成功提示用短暂弹窗：2.5 秒后自动消失
+  React.useEffect(() => {
+    if (!msg) return
+    const t = setTimeout(() => setMsg(''), 2500)
+    return () => clearTimeout(t)
+  }, [msg])
+
   /** 新增态关联企业候选：按关键词模糊匹配（大小写不敏感），排除已选，最多 8 条 */
   const coMatches = useMemo(() => {
     const kw = coQ.trim().toLowerCase()
@@ -215,7 +222,7 @@ const NotesPanel: React.FC<{
       if (isNew && !r.created && r.note) {
         setMsg('内容与已有资料相同，未重复录入')
       } else {
-        setMsg(isNew ? '已保存，写入云端' : '已保存修改')
+        setMsg('已保存成功')
       }
       cancel()
       onChanged()
@@ -259,10 +266,17 @@ const NotesPanel: React.FC<{
         </div>
       </div>
 
-      {/* 消息 / 错误提示条 */}
-      {(msg || err) && (
-        <div className={`mx-5 mt-2 px-3 py-2 rounded-lg text-[13px] ${err ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-          {err || msg}
+      {/* 错误提示条（需用户处理，保持显示） */}
+      {err && (
+        <div className="mx-5 mt-2 px-3 py-2 rounded-lg text-[13px] bg-red-50 text-red-700">
+          {err}
+        </div>
+      )}
+
+      {/* 成功提示：短暂弹窗，自动消失 */}
+      {msg && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg bg-gray-900/90 text-white text-sm shadow-lg">
+          {msg}
         </div>
       )}
 
