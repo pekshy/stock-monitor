@@ -34,7 +34,7 @@ jobs:
           fi
 
       - name: Sync intel (reports + events)
-        run: python scripts/research-sync/update_intel_to_db.py --event-days 2 --reports 7
+        run: python scripts/research-sync/update_intel_to_db.py --event-days 2 --reports 2
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
