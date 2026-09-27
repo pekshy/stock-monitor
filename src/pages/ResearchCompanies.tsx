@@ -2,7 +2,13 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, ArrowLeft, CloudOff } from 'lucide-react'
 import { useCloudCompanies, type CompanyRecord } from '../research/api'
-import { fmtDate, fmtCap, fmtRev, fundDateNum, toNum } from '../research/format'
+import { fundDateNum, toNum } from '../research/format'
+
+/** 市值 / 估值：纯数字（亿元），表头已标单位 */
+const fmtCapNum = (v?: number | string | null): string => {
+  if (v == null || v === '') return '—'
+  return Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 1 })
+}
 
 type CoFilter = 'all' | 'listed' | 'unlisted'
 
@@ -74,18 +80,17 @@ export const CompanyTable: React.FC<{ pool: CompanyRecord[]; loading?: boolean; 
             <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
               <th className="px-5 py-2.5 font-medium">公司</th>
               <th className="px-3 py-2.5 font-medium">轮次</th>
-              <th className="px-3 py-2.5 font-medium text-right">市值 · 估值</th>
-              <th className="px-3 py-2.5 font-medium text-right">营收 · 最近融资</th>
-              <th className="px-5 py-2.5 font-medium">最新动态</th>
+              <th className="px-3 py-2.5 font-medium text-right">市值 / 估值（亿元）</th>
+              <th className="px-5 py-2.5 font-medium">核心竞争力</th>
             </tr>
           </thead>
           <tbody>
             {loading && (
-              <tr><td colSpan={5} className="px-5 py-10 text-center text-gray-400">加载中...</td></tr>
+              <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-400">加载中...</td></tr>
             )}
             {!loading && pageRows.map(c => <CompanyRow key={c.name} c={c} />)}
             {!loading && pageRows.length === 0 && (
-              <tr><td colSpan={5} className="px-5 py-10 text-center text-gray-400">无匹配企业</td></tr>
+              <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-400">无匹配企业</td></tr>
             )}
           </tbody>
         </table>
@@ -138,16 +143,8 @@ const ResearchCompanies: React.FC = () => {
   )
 }
 
-/** 营收同比徽标：A 股惯例红涨绿跌 */
-const GrowthBadge: React.FC<{ v?: number | string | null }> = ({ v }) => {
-  const n = toNum(v)
-  if (n == null) return null
-  return <span className={n >= 0 ? 'text-red-600' : 'text-green-600'}> {n >= 0 ? '+' : ''}{n.toFixed(1)}%</span>
-}
-
 const CompanyRow: React.FC<{ c: CompanyRecord }> = ({ c }) => {
   const listed = !!c.listed
-  const latest = c.latest || (c.tech && c.tech.length > 0 ? c.tech[0].title : c.latestTech) || ''
   return (
     <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
       <td className="px-5 py-3">
@@ -166,15 +163,10 @@ const CompanyRow: React.FC<{ c: CompanyRecord }> = ({ c }) => {
         </span>
       </td>
       <td className="px-3 py-3 text-right text-gray-700 tabular-nums">
-        {listed ? fmtCap(c.cap) : fmtCap(c.valuation)}
+        {fmtCapNum(listed ? c.cap : c.valuation)}
       </td>
-      <td className="px-3 py-3 text-right text-gray-700 tabular-nums">
-        {listed
-          ? <span>{fmtRev(c.rev)}<GrowthBadge v={c.revGrowth} /></span>
-          : fmtDate(c.lastFunding)}
-      </td>
-      <td className="px-5 py-3 text-[13px] text-gray-500 max-w-xs truncate" title={latest}>
-        {latest || <span className="text-gray-300">—</span>}
+      <td className="px-5 py-3 text-[13px] text-gray-600 max-w-md truncate" title={c.desc || ''}>
+        {c.desc || <span className="text-gray-300">—</span>}
       </td>
     </tr>
   )
