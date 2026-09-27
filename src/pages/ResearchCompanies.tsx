@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, ArrowLeft, CloudOff } from 'lucide-react'
-import { useCloudCompanies, type CompanyRecord } from '../research/api'
+import { Search, ArrowLeft, CloudOff, Pencil, Check, X, Loader2 } from 'lucide-react'
+import { useCloudCompanies, updateCompanyDesc, type CompanyRecord } from '../research/api'
+import { useAuth } from '../context/AuthContext'
 import { fundDateNum, toNum } from '../research/format'
 
 /** 市值 / 估值：纯数字（亿元），表头已标单位 */
@@ -24,8 +25,10 @@ export function coSort(list: CompanyRecord[]): CompanyRecord[] {
 }
 
 /** 可复用的企业名单表：搜索 + 全部/上市/未上市 + 分页（口径与原工作台一致） */
-export const CompanyTable: React.FC<{ pool: CompanyRecord[]; loading?: boolean; pageSize?: number }> =
-({ pool, loading, pageSize = 20 }) => {
+export const CompanyTable: React.FC<{
+  pool: CompanyRecord[]; loading?: boolean; pageSize?: number
+  canEdit?: boolean; onDescSaved?: () => void
+}> = ({ pool, loading, pageSize = 20, canEdit, onDescSaved }) => {
   const [filter, setFilter] = useState<CoFilter>('all')
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
@@ -88,7 +91,9 @@ export const CompanyTable: React.FC<{ pool: CompanyRecord[]; loading?: boolean; 
             {loading && (
               <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-400">加载中...</td></tr>
             )}
-            {!loading && pageRows.map(c => <CompanyRow key={c.name} c={c} />)}
+            {!loading && pageRows.map(c => (
+              <CompanyRow key={c.name} c={c} canEdit={canEdit} onDescSaved={onDescSaved} />
+            ))}
             {!loading && pageRows.length === 0 && (
               <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-400">无匹配企业</td></tr>
             )}
@@ -118,7 +123,8 @@ export const CompanyTable: React.FC<{ pool: CompanyRecord[]; loading?: boolean; 
 }
 
 const ResearchCompanies: React.FC = () => {
-  const { companies, cloudOk, loading } = useCloudCompanies()
+  const { companies, cloudOk, loading, refresh } = useCloudCompanies()
+  const { isAuthenticated } = useAuth()
 
   useEffect(() => { document.title = '企业名单 · 行业研究' }, [])
 
@@ -131,20 +137,45 @@ const ResearchCompanies: React.FC = () => {
           </Link>
           <h2 className="text-lg font-bold text-gray-800">企业名单</h2>
         </div>
-        {!cloudOk && !loading && (
-          <span className="flex items-center gap-1 text-xs text-amber-600" title="Supabase 未连通，展示内置兜底数据">
-            <CloudOff className="h-3.5 w-3.5" /> 离线兜底
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {isAuthenticated && cloudOk && (
+            <span className="text-xs text-gray-400">悬停核心竞争力可编辑</span>
+          )}
+          {!cloudOk && !loading && (
+            <span className="flex items-center gap-1 text-xs text-amber-600" title="Supabase 未连通，展示内置兜底数据">
+              <CloudOff className="h-3.5 w-3.5" /> 离线兜底
+            </span>
+          )}
+        </div>
       </div>
 
-      <CompanyTable pool={companies} loading={loading} />
+      <CompanyTable pool={companies} loading={loading} canEdit={isAuthenticated && cloudOk} onDescSaved={refresh} />
     </div>
   )
 }
 
-const CompanyRow: React.FC<{ c: CompanyRecord }> = ({ c }) => {
+const CompanyRow: React.FC<{
+  c: CompanyRecord; canEdit?: boolean; onDescSaved?: () => void
+}> = ({ c, canEdit, onDescSaved }) => {
   const listed = !!c.listed
+  const [editing, setEditing] = useState(false)
+  const [val, setVal] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+
+  const startEdit = () => { setVal(c.desc || ''); setErr(''); setEditing(true) }
+
+  const save = async () => {
+    setBusy(true); setErr('')
+    // cloudRound 是云端行派生字段，不属于 data JSON，剥离后整包回写
+    const { cloudRound: _drop, ...pure } = c as CompanyRecord & { cloudRound?: string | null }
+    const r = await updateCompanyDesc(c.name, val, pure)
+    setBusy(false)
+    if (r.error) { setErr('保存失败：' + r.error); return }
+    setEditing(false)
+    onDescSaved?.()
+  }
+
   return (
     <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
       <td className="px-5 py-3">
@@ -165,8 +196,43 @@ const CompanyRow: React.FC<{ c: CompanyRecord }> = ({ c }) => {
       <td className="px-3 py-3 text-right text-gray-700 tabular-nums">
         {fmtCapNum(listed ? c.cap : c.valuation)}
       </td>
-      <td className="px-5 py-3 text-[13px] text-gray-600 max-w-md truncate" title={c.desc || ''}>
-        {c.desc || <span className="text-gray-300">—</span>}
+      <td className="px-5 py-3 text-[13px] text-gray-600 max-w-md group/desc">
+        {editing ? (
+          <div>
+            <textarea
+              value={val}
+              onChange={e => setVal(e.target.value)}
+              rows={3}
+              autoFocus
+              className="w-full px-2 py-1.5 text-[13px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 resize-y"
+            />
+            {err && <div className="mt-1 text-xs text-red-600">{err}</div>}
+            <div className="mt-1 flex items-center gap-2">
+              <button onClick={save} disabled={busy}
+                      className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
+                {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                {busy ? '保存中…' : '保存'}
+              </button>
+              <button onClick={() => setEditing(false)}
+                      className="flex items-center gap-1 text-xs px-2 py-1 text-gray-500 hover:text-gray-700">
+                <X className="h-3 w-3" /> 取消
+              </button>
+            </div>
+          </div>
+        ) : (
+          <span className="flex items-start gap-1">
+            <span className="truncate flex-1" title={c.desc || ''}>
+              {c.desc || <span className="text-gray-300">—</span>}
+            </span>
+            {canEdit && (
+              <button onClick={startEdit}
+                      className="p-0.5 text-gray-300 hover:text-blue-600 opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0"
+                      title="编辑核心竞争力">
+                <Pencil className="h-3 w-3" />
+              </button>
+            )}
+          </span>
+        )}
       </td>
     </tr>
   )
