@@ -6,6 +6,7 @@ import { useIntel, useCloudCompanies, parseList, type CloudNote } from '../resea
 import { fmtDate } from '../research/format'
 import { CompanyTable } from './ResearchCompanies'
 import NotesPanel from '../components/NotesPanel'
+import { useAuth } from '../context/AuthContext'
 
 type TabType = 'reports' | 'events'
 type MainTab = 'intel' | 'notes' | 'companies'
@@ -27,7 +28,8 @@ function softMatch(itemIndustry: string | null, itemSeg: string | null, itemSub:
 
 const ResearchHome: React.FC = () => {
   const { reports, events, notes, cloudOk, loading, refresh } = useIntel()
-  const { companies: cloudCompanies, loading: coLoading } = useCloudCompanies()
+  const { companies: cloudCompanies, loading: coLoading, refresh: coRefresh } = useCloudCompanies()
+  const { isAuthenticated } = useAuth()
 
   // 选中状态放 URL 参数：ind / seg / sub / mt(顶层tab: intel|notes|companies) / tab(情报子tab)
   // 从企业详情返回时由浏览器历史原样恢复（含企业名单 tab 与范围）
@@ -276,7 +278,12 @@ const ResearchHome: React.FC = () => {
         </div>
 
         {mainTab === 'companies' && (
-          <CompanyTable pool={scopePool} loading={coLoading} />
+          <CompanyTable
+            pool={scopePool}
+            loading={coLoading}
+            canEdit={isAuthenticated && cloudOk}
+            onDescSaved={coRefresh}
+          />
         )}
 
         {mainTab === 'notes' && (
