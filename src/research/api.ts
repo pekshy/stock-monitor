@@ -120,9 +120,13 @@ export function useCloudCompanies() {
   const [companies, setCompanies] = useState<CompanyRecord[]>(COMPANIES)
   const [cloudOk, setCloudOk] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [tick, setTick] = useState(0)
+
+  const refresh = useCallback(() => setTick(t => t + 1), [])
 
   useEffect(() => {
     let alive = true
+    setLoading(true)
     ;(async () => {
       const rows = await fetchTable<CloudCompanyRow>('research_companies', 'name')
       if (!alive) return
@@ -133,9 +137,24 @@ export function useCloudCompanies() {
       setLoading(false)
     })()
     return () => { alive = false }
-  }, [])
+  }, [tick])
 
-  return { companies, cloudOk, loading }
+  return { companies, cloudOk, loading, refresh }
+}
+
+/** 修改企业「核心竞争力」（desc 存在 research_companies.data JSON 里，整包回写） */
+export async function updateCompanyDesc(
+  name: string, desc: string, data: ResearchCompany,
+): Promise<{ error?: string }> {
+  try {
+    const { error } = await supabase.from('research_companies')
+      .update({ data: { ...data, desc: desc.trim() || null } })
+      .eq('name', name)
+    if (error) return { error: error.message }
+    return {}
+  } catch (e) {
+    return { error: String((e as Error)?.message || e) }
+  }
 }
 
 // ---------- 公司公告（企业详情页） ----------
