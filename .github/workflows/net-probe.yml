@@ -11,13 +11,23 @@ jobs:
     steps:
       - name: Probe eastmoney ulist batch
         run: |
+          echo "--- redirect target ---"
+          curl -s -o /dev/null -D - --max-time 15 -H "User-Agent: Mozilla/5.0" \
+            "https://push2.eastmoney.com/api/qt/ulist.np/get?secids=1.688981&fltt=2&invt=2&np=1&fields=f12,f14" | head -20
+          echo "--- follow redirects ---"
           for i in 1 2 3; do
-            code=$(curl -s -o /tmp/em.json -w "%{http_code}" --max-time 15 \
+            code=$(curl -sL -o /tmp/em.json -w "%{http_code}" --max-time 20 \
               -H "User-Agent: Mozilla/5.0" \
               "https://push2.eastmoney.com/api/qt/ulist.np/get?secids=1.688981,0.002371,1.688012&fltt=2&invt=2&np=1&fields=f2,f9,f12,f14,f20,f23")
-            echo "try$i push2.eastmoney.com ulist -> HTTP $code"
+            echo "try$i ulist (follow) -> HTTP $code"
             [ "$code" = "200" ] && { head -c 400 /tmp/em.json; echo; break; }
             sleep 5
+          done
+          echo "--- numbered subdomains ---"
+          for h in 90.push2.eastmoney.com 17.push2.eastmoney.com 1.push2.eastmoney.com; do
+            code=$(curl -sL -o /tmp/em2.json -w "%{http_code}" --max-time 15 -H "User-Agent: Mozilla/5.0" \
+              "https://$h/api/qt/ulist.np/get?secids=1.688981&fltt=2&invt=2&np=1&fields=f12,f14")
+            echo "$h -> HTTP $code"
           done
 
       - name: Probe eastmoney datacenter (stock_value_em backend)
