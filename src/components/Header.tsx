@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ latestDate }) => {
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
             <TrendingUp className="h-6 w-6" />
-            <h1 className="text-lg font-bold">投资监测系统</h1>
+            <h1 className="text-lg font-bold">涛哥投研工作室</h1>
           </Link>
           <div className="flex items-center gap-3">
             {displayDate && (
