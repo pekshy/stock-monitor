@@ -81,7 +81,7 @@ const ResearchHome: React.FC = () => {
   }
   const pickSub = (name: string) => patchParams({ sub: name, mt: 'companies' })
 
-  useEffect(() => { document.title = '行业研究 · 投资监测系统' }, [])
+  useEffect(() => { document.title = '行业研究 · 涛哥投研工作室' }, [])
 
   const segInfo = useMemo(() => {
     if (!industry) return null
