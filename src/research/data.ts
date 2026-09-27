@@ -1,6 +1,6 @@
 /*
  * 行业研究模块 · 内置兜底数据（由 scripts/gen_research_data_ts.js 自动生成，勿手改）
- * 生成时间：2026-09-27T13:58:02.049Z
+ * 生成时间：2026-09-27T14:05:34.159Z
  * 来源：demo/index.html 内嵌数据（产业链树 SUBS + 企业库 COMPANIES）
  *
  * 用途：Supabase 不可达 / 加载失败时的离线兜底；云端 companies 为准，
@@ -33,7 +33,7 @@ export interface ResearchCompany {
 }
 
 // 产业链目录树：行业 -> 环节 -> 细分（细分含 name/desc/companies）
-export const TREE: Record<string, { name: string; desc?: string; companies?: string[] }[]> = {
+export const TREE: Record<string, { name: string; desc?: string; detail?: string; companies?: string[] }[]> = {
   "eda": [
     {
       "name": "全流程 EDA",
@@ -1127,7 +1127,7 @@ export const TREE: Record<string, { name: string; desc?: string; companies?: str
 }
 
 // 行业与环节研究内容（name/segs[]：环节含 heat/summary/market/tech/breakthroughs 等）
-export const INDUSTRY_DATA: Record<string, { name: string; segs: ResearchSegment[] }> = {
+export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs: ResearchSegment[] }> = {
  "semiconductor": {
   "name": "半导体",
   "detail": "半导体产业链从上游的设备、材料与 EDA/IP，到中游的芯片设计、晶圆制造与封装测试，再到下游的应用终端，是典型的长链条垂直分工体系。中国是全球最大的半导体消费市场，但在先进制程、高端设备与材料上仍存在明显对外依赖，自主可控与国产替代是贯穿全链条的主线。观察该行业的关键变量包括晶圆厂资本开支、制程节点进展、设备与材料的验证导入进度，以及 AI、汽车、消费等下游需求景气度。",
@@ -10886,6 +10886,7 @@ export interface ResearchSegment {
   heat?: string
   trend?: string
   summary?: string
+  detail?: string
   coCount?: number
   market?: { y: string; v: number }[]
   tech?: { name: string; desc?: string }[]
