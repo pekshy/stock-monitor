@@ -1,0 +1,38 @@
+name: net-probe
+
+# 一次性网络探测：验证 GitHub runner 能否访问东财/腾讯行情接口（用完可删）
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe eastmoney ulist batch
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /tmp/em.json -w "%{http_code}" --max-time 15 \
+              -H "User-Agent: Mozilla/5.0" \
+              "https://push2.eastmoney.com/api/qt/ulist.np/get?secids=1.688981,0.002371,1.688012&fltt=2&invt=2&np=1&fields=f2,f9,f12,f14,f20,f23")
+            echo "try$i push2.eastmoney.com ulist -> HTTP $code"
+            [ "$code" = "200" ] && { head -c 400 /tmp/em.json; echo; break; }
+            sleep 5
+          done
+
+      - name: Probe eastmoney datacenter (stock_value_em backend)
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /tmp/dc.json -w "%{http_code}" --max-time 20 \
+              -H "User-Agent: Mozilla/5.0" \
+              "https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_VALUEANALYSIS_DET&columns=ALL&filter=(SECURITY_CODE%3D%22688981%22)&pageNumber=1&pageSize=3&sortTypes=-1&sortColumns=TRADE_DATE&source=HSF10&client=PC")
+            echo "try$i datacenter.eastmoney.com -> HTTP $code"
+            [ "$code" = "200" ] && { head -c 400 /tmp/dc.json; echo; break; }
+            sleep 5
+          done
+
+      - name: Probe tencent qt
+        run: |
+          code=$(curl -s -o /tmp/tx.txt -w "%{http_code}" --max-time 15 \
+            "https://qt.gtimg.cn/q=sh688981,sz002371")
+          echo "qt.gtimg.cn -> HTTP $code, bytes=$(wc -c < /tmp/tx.txt)"
