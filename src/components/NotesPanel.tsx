@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react'
-import { Plus, Pencil, Trash2, Paperclip, Search, X, CloudOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, Paperclip, Search, X, CloudOff, Lock } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 import { fmtDate } from '../research/format'
 import { NOTE_KINDS, autoTitle, todayISO, validateNote, type NoteFormValues } from '../research/notes'
 import {
@@ -122,6 +123,10 @@ const NotesPanel: React.FC<{
   /** 卡片上展示的产业链节点标签（如 半导体 · 设备） */
   nodeLabelOf?: (n: CloudNote) => string | null
 }> = ({ notes, scope, onChanged, readOnly, loading, companyOptions, nodeLabelOf }) => {
+  const { isAuthenticated } = useAuth()
+  // 未登录一律只读；登录后才受云端连通性影响
+  const locked = !isAuthenticated || !!readOnly
+  const lockHint = !isAuthenticated ? '只读（登录后可编辑）' : '只读（未连云端）'
   const [mode, setMode] = useState<'none' | 'new' | 'edit'>('none')
   const [editId, setEditId] = useState<number | null>(null)
   const [v, setV] = useState<NoteFormValues>(emptyVals)
@@ -250,16 +255,16 @@ const NotesPanel: React.FC<{
         </div>
         <span className="text-xs text-gray-400">{shown.length} 条</span>
         <div className="ml-auto flex items-center gap-2">
-          {readOnly && (
-            <span className="flex items-center gap-1 text-xs text-amber-600" title="未连上云端，不能写">
-              <CloudOff className="h-3.5 w-3.5" /> 只读（未连云端）
+          {locked && (
+            <span className="flex items-center gap-1 text-xs text-amber-600" title={lockHint}>
+              {isAuthenticated ? <CloudOff className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />} {lockHint}
             </span>
           )}
           <button
             onClick={openNew}
-            disabled={readOnly || mode === 'new'}
+            disabled={locked || mode === 'new'}
             className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
-            title={readOnly ? '需要连上 Supabase 才能新增' : '写一条研究笔记，可顺带上传原件'}
+            title={!isAuthenticated ? '登录后才能新增' : (locked ? '需要连上 Supabase 才能新增' : '写一条研究笔记，可顺带上传原件')}
           >
             <Plus className="h-3.5 w-3.5" /> 新增笔记
           </button>
@@ -456,7 +461,7 @@ const NotesPanel: React.FC<{
             key={n.id}
             note={n}
             nodeLabel={nodeLabelOf?.(n) ?? null}
-            readOnly={readOnly}
+            readOnly={locked}
             busy={busy}
             onEdit={() => openEdit(n)}
             onRemove={() => doRemove(n)}
