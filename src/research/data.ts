@@ -132,11 +132,15 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     {
       "name": "量检测设备",
       "desc": "缺陷检测与尺寸量测，国产化率最低的设备环节之一。",
-      "detail": "量检测贯穿制造全流程，包括明暗场缺陷检测、图形复查与关键尺寸量测（OCD/CD-SEM），被称为良率的眼睛，占设备支出约一成。全球由 KLA 主导，国产化率最低。中科飞测、精测电子在部分细分实现零的突破，先进制程高端机台仍在追赶。",
+      "detail": "量检测贯穿制造全流程，包括明暗场缺陷检测、图形复查与关键尺寸量测（OCD/CD-SEM），被称为良率的眼睛，占设备支出约一成。全球由 KLA 主导，国产化率最低。中科飞测、精测电子、东方晶源在部分细分实现零的突破，先进制程高端机台仍在追赶。",
       "companies": [
         "中科飞测",
         "精测电子",
-        "睿励科学仪器"
+        "睿励科学仪器",
+        "东方晶源",
+        "赛美特",
+        "科益虹源",
+        "奥宝科技"
       ]
     },
     {
@@ -305,6 +309,22 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "凯盛科技",
         "莱宝高科",
         "五方光电"
+      ]
+    },
+    {
+      "name": "电子布 / 电子纱",
+      "desc": "覆铜板增强材料，AI 驱动低介电 / 低膨胀特种布供不应求。",
+      "detail": "电子布是覆铜板的增强材料（与铜箔、树脂压合成 CCL），由电子级玻璃纤维纱织造而成，介电常数与热膨胀系数直接决定高频高速 PCB 的信号损耗与尺寸稳定性。AI 服务器 PCB 层数约为传统服务器的数倍，带动 Low-Dk 低介电布、Low-CTE 低膨胀布与石英布需求爆发，2026 年特种布需求增幅有望翻倍，高端低介电布报价较年初翻倍。供给端高端织布机主要依赖日本丰田自动织机，交付周期长、扩产需 12-18 个月，行业库存仅一周左右，价格自 2025 年 9 月进入上行周期并向普通品种蔓延。中国巨石在薄布/超薄布规模领先，宏和科技专精细布与特种布，光远新材低介电纱产能国内第一，日东纺 T-glass 仍是高端标杆，中材科技与国际复材同步扩产。",
+      "companies": [
+        "中国巨石",
+        "宏和科技",
+        "国际复材",
+        "中材科技",
+        "光远新材",
+        "菲利华",
+        "日东纺",
+        "台玻",
+        "富乔工业"
       ]
     },
     {
@@ -775,7 +795,11 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       "desc": "高速材料（M6/M8 级）国产替代主力。",
       "detail": "覆铜板决定 PCB 的电性能上限，AI 场景要求低损耗材料（M6/M8 级），高端产品长期被松下等日企垄断。生益科技是全球第二大覆铜板厂，高速板材放量，华正新材等跟进。上游低介电玻纤布与铜箔同步国产化，材料等级随 AI 服务器代际升级。",
       "companies": [
-        "生益科技"
+        "生益科技",
+        "南亚新材",
+        "金安国纪",
+        "华正新材",
+        "建滔积层板"
       ]
     }
   ],
@@ -1258,7 +1282,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "material",
     "name": "半导体材料",
     "heat": "平稳",
-    "coCount": 39,
+    "coCount": 47,
     "trend": "硅片价格企稳",
     "summary": "大硅片、抛光液、前驱体等核心材料国产化率仍低，是供应链安全的关键短板环节。",
     "detail": "半导体材料是制造与封测环节的消耗性投入品，主要包括硅片等衬底、光刻胶及配套试剂、电子特气、CMP 抛光材料、靶材、封装基板等，直接决定良率与工艺水平。材料客户粘性强、认证周期长（通常 1-2 年），一旦进入供应链收入稳定，并随晶圆产能扩张持续增长。国产厂商在硅片、靶材、特气等领域已具规模，高端光刻胶仍在验证爬坡。",
@@ -1550,7 +1574,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "pcb",
     "name": "PCB / 覆铜板",
     "heat": "高景气",
-    "coCount": 9,
+    "coCount": 13,
     "trend": "AI 服务器板量价齐升",
     "summary": "AI 服务器与交换机驱动高多层板、高阶 HDI 与高速覆铜板需求，算力资本开支直接受益。",
     "detail": "PCB（印制电路板）为电子元器件提供电气互连与机械支撑，是几乎所有电子整机的基座；覆铜板是 PCB 的核心基材，由铜箔、树脂、玻纤布压合而成，其介电性能决定高频高速板的上限。PCB 按技术层次分为单双层、多层、HDI、柔性板与封装基板，下游覆盖通信、服务器、汽车、消费电子。中国产量占全球过半，高多层、HDI、IC 载板与高频高速覆铜板是国产升级方向。",
@@ -8252,6 +8276,345 @@ export const COMPANIES: ResearchCompany[] = [
   "latestFunding": "2024-07 · C 轮",
   "execChanges": [],
   "latestTech": "",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "东方晶源",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "equipment",
+  "listed": false,
+  "desc": "电子束量检测设备 + 制造类 EDA 双主业，CD-SEM / EBI / DR-SEM / HV-SEM 四大前道设备系列。",
+  "valuation": 100,
+  "round": "IPO 已问询",
+  "lastFunding": "2024-04",
+  "latestFunding": "2024-04 · 数亿元（IPO 申报前最后一轮，估值约 100 亿）",
+  "execChanges": [],
+  "latestTech": "EBI 电子束缺陷检测设备获国内头部存储晶圆厂订单",
+  "tech": [
+   {"date": "2026-06", "kind": "订单", "title": "斩获头部存储晶圆厂计算光刻与 AI 刻蚀（vPWQ）订单"},
+   {"date": "2026-06", "kind": "IPO", "title": "科创板 IPO 获受理并进入问询，拟募 25 亿元"}
+  ],
+  "funding": [
+   {"date": "2024-04", "round": "Pre-IPO", "amount": "数亿元", "inv": "赛领资本 / 深创投"},
+   {"date": "2022-10", "round": "C 轮", "amount": "近 10 亿元", "inv": "亦庄国投 / 深创投 / 松禾资本等"}
+  ]
+ },
+ {
+  "name": "赛美特",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "equipment",
+  "listed": false,
+  "desc": "国产半导体 CIM 软件龙头，MES / EAP / YMS / SPC / FDC 全栈，已在 7 家 12 吋晶圆厂量产验证。",
+  "valuation": 65,
+  "round": "C+ 轮",
+  "lastFunding": "2024-06",
+  "latestFunding": "2024-06 · C+ 轮数亿元（C 轮投后估值超 60 亿，筹备港股 IPO）",
+  "execChanges": [],
+  "latestTech": "12 吋晶圆厂全自动 CIM（Auto3）上线，YMS 良率分析国产替代",
+  "tech": [
+   {"date": "2026-03", "kind": "产品动态", "title": "2025 年报：营收创新高，稳居国产半导体 CIM 第一"}
+  ],
+  "funding": [
+   {"date": "2024-06", "round": "C+ 轮", "amount": "数亿元", "inv": "策源资本 / 允泰资本 / 申万宏源等"},
+   {"date": "2023-07", "round": "C 轮", "amount": "超 5 亿元", "inv": "经纬创投 / G60 科创基金 / 立昂微等"}
+  ]
+ },
+ {
+  "name": "科益虹源",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "equipment",
+  "listed": false,
+  "desc": "国产光刻用准分子激光光源龙头，40kW 级 ArF 193nm 光源，国家 02 专项产业化载体，上海微电子光源供应商。",
+  "valuation": 120,
+  "round": "C 轮",
+  "lastFunding": "2021-06",
+  "latestFunding": "2021-06 · C 轮（哈勃投资入股；后续轮次与估值待核实）",
+  "execChanges": [],
+  "latestTech": "40kW ArF 光刻光源批量交付，LPP-EUV 光源预研启动",
+  "tech": [
+   {"date": "2020", "kind": "技术突破", "title": "交付国内首台 40kW ArF 光刻光源，覆盖 28nm 节点"}
+  ],
+  "funding": [
+   {"date": "2021-06", "round": "C 轮", "amount": "未披露", "inv": "哈勃投资（华为）/ 亦庄国投"}
+  ]
+ },
+ {
+  "name": "奥宝科技",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "equipment",
+  "listed": false,
+  "market": "外资",
+  "desc": "以色列 AOI 光学检测设备厂商，PCB / FPD / 半导体封装检测全球领先，量检测环节国际对标龙头。",
+  "valuation": null,
+  "round": "KLA 全资子公司",
+  "lastFunding": null,
+  "latestFunding": "2019 年被 KLA 以约 34 亿美元收购（原 Nasdaq: ORBK 退市）",
+  "execChanges": [],
+  "latestTech": "Ultra Fusion 系列 AOI 覆盖 IC 载板 15μm 线宽检测；FPD 业务 2024 年底关停",
+  "tech": [
+   {"date": "2024-12", "kind": "战略调整", "title": "KLA 关停奥宝 FPD 平板显示检测业务"}
+  ],
+  "funding": []
+ },
+ {
+  "name": "中国巨石",
+  "code": "600176.SH",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": true,
+  "desc": "全球玻纤龙头，电子纱/电子布一体化，电子布产能约 13.5 亿米；拟投 44.31 亿元再建 5 万吨电子纱 / 3.2 亿米电子布。",
+  "cap": 1723.75,
+  "pe": 38.04,
+  "gross": null,
+  "latestTech": "2026-09 电子布提价：厚布 +15%、薄布 +20%；低介电玻纤研发与客户认证推进中",
+  "tech": [
+   {
+    "date": "2026-09",
+    "kind": "涨价",
+    "title": "上调 9 月电子布价格，厚布 15%、薄布 20%"
+   },
+   {
+    "date": "2026-06",
+    "kind": "产能",
+    "title": "淮安年产 10 万吨电子级玻纤 / 3.9 亿米电子布产线分期点火，已达满产"
+   },
+   {
+    "date": "2026-06",
+    "kind": "经营",
+    "title": "2026H1 电子布销量 5.44 亿米，同比增长超 12%"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "宏和科技",
+  "code": "603256.SH",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": true,
+  "desc": "电子级玻纤布专精厂商，极薄布/超薄布 + 低介电、低热膨胀特种布，电子纱与电子布一体化经营。",
+  "cap": 1374.97,
+  "pe": 278.32,
+  "gross": null,
+  "latestTech": "特种电子布产能饱和，2026H1 收入占比继续提升，特种布毛利率 61.31%",
+  "tech": [
+   {
+    "date": "2026-08",
+    "kind": "战略调整",
+    "title": "终止四川苍溪 7200 万米厚布项目，资金转向黄石高端电子布"
+   },
+   {
+    "date": "2025-12",
+    "kind": "产品动态",
+    "title": "特种电子布（低介电/低膨胀）批量生产并交付"
+   },
+   {
+    "date": "2025-12",
+    "kind": "业绩",
+    "title": "2025 年营收同比 +40.31%，净利同比 +785.55%"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "国际复材",
+  "code": "301526.SZ",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": true,
+  "desc": "重庆国际复合材料，玻纤纱/布平台型企业，电子级玻纤与高端电子布项目推进。",
+  "cap": 1101.47,
+  "pe": 161.78,
+  "gross": null,
+  "latestTech": "高端电子布与低介电产品项目推进中",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "中材科技",
+  "code": "002080.SZ",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": true,
+  "desc": "泰山玻纤为核心的玻纤及复合材料平台，电子纱/电子布业务稳步增长。",
+  "cap": 959.89,
+  "pe": 47.36,
+  "gross": null,
+  "latestTech": "规划年产 3500 万米特种玻纤布 + 年产 3500 万米低介电纤维布",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "光远新材",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": false,
+  "desc": "电子级玻纤专精企业（河南林州），电子纱/电子布 + 低介电纱/低介电布，低介电纱产能国内第一、低介电布产销量居世界前列。",
+  "valuation": null,
+  "round": "IPO 已问询",
+  "lastFunding": "2025",
+  "latestFunding": "2025 · 上汽尚颀资本 / 上汽金控联合投资；2026-06 创业板 IPO 受理，拟募 36 亿元",
+  "execChanges": [],
+  "latestTech": "2026Q1 低介电布毛利率 65.58%，E 玻纤电子纱产量国内第三",
+  "tech": [
+   {
+    "date": "2026-07",
+    "kind": "IPO",
+    "title": "IPO 状态变更为已问询，被抽中现场检查"
+   },
+   {
+    "date": "2026-06",
+    "kind": "IPO",
+    "title": "创业板 IPO 获受理，拟募 36 亿元投向低介电纱/布产线"
+   },
+   {
+    "date": "2025-12",
+    "kind": "业绩",
+    "title": "2025 年营收 22.68 亿元，扣非净利 5.10 亿元"
+   }
+  ],
+  "funding": [
+   {
+    "date": "2025",
+    "round": "战略投资",
+    "amount": "未披露",
+    "inv": "上汽尚颀资本 / 上汽金控"
+   },
+   {
+    "date": "2019",
+    "round": "A 轮",
+    "amount": "未披露",
+    "inv": "深创投等（2020 年启动上市辅导）"
+   }
+  ]
+ },
+ {
+  "name": "日东纺",
+  "code": "3110.T",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": true,
+  "market": "外资（日本）",
+  "desc": "全球电子布龙头，T-glass（低热膨胀）与低介电玻纤布用于先进封装载板与 AI 服务器高频高速板。",
+  "cap": null,
+  "pe": null,
+  "gross": null,
+  "latestTech": "T-glass 低膨胀布配套先进封装，高端产能持续紧张",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "台玻",
+  "code": "1802.TW",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": true,
+  "market": "中国台湾",
+  "desc": "台湾玻璃工业，电子纱与电子布主力供应之一，配套台系覆铜板与 PCB 产业链。",
+  "cap": null,
+  "pe": null,
+  "gross": null,
+  "latestTech": "电子布产能随 AI 板材需求同步扩张",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "富乔工业",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": true,
+  "market": "中国台湾",
+  "desc": "中国台湾电子纱/电子布厂商，低介电（Low-Dk）电子布供应 AI 服务器板材。",
+  "cap": null,
+  "pe": null,
+  "gross": null,
+  "latestTech": "2026-07-01 对 AI 服务器用低介电电子布提价 15%",
+  "tech": [
+   {
+    "date": "2026-07",
+    "kind": "涨价",
+    "title": "面向 AI 服务器的低介电常数电子布提价 15%"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "南亚新材",
+  "code": "688519.SH",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "desc": "覆铜板头部厂商，高频高速板材切入 AI 服务器与交换机供应链，近三年营收复合增速 32.39%。",
+  "cap": 646.53,
+  "pe": 70.11,
+  "gross": null,
+  "latestTech": "高速板材在 AI 服务器客户验证与导入",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "金安国纪",
+  "code": "002636.SZ",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "desc": "覆铜板与铝基覆铜板、半固化片，电子布涨价周期下价格弹性最大的 CCL 标的之一。",
+  "cap": 587.42,
+  "pe": 58.97,
+  "rev": 44.8,
+  "revGrowth": 10.67,
+  "gross": 13.07,
+  "latestTech": "2026H1 营收 33.99 亿元（+65.74%），归母净利 7.66 亿元（+986.66%）",
+  "tech": [
+   {
+    "date": "2026-08",
+    "kind": "业绩",
+    "title": "2026H1 归母净利 7.66 亿元，同比 +986.66%"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "华正新材",
+  "code": "603186.SH",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "desc": "高频覆铜板已在终端广泛应用，高速产品处于大客户验证阶段，同时布局铝塑膜与复合材料。",
+  "cap": 398.23,
+  "pe": null,
+  "rev": 43.69,
+  "revGrowth": 13.05,
+  "gross": 13.07,
+  "latestTech": "高速覆铜板大客户验证推进",
+  "tech": [
+   {
+    "date": "2025-12",
+    "kind": "业绩",
+    "title": "2025 年营收 43.69 亿元（+13.05%），净利 2.77 亿元（+384.01%）"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "建滔积层板",
+  "code": "01888.HK",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "market": "中国香港",
+  "desc": "全球覆铜板龙头，垂直一体化布局（玻纤纱—电子布—铜箔—CCL），电子布产能同步扩张，是本轮涨价周期主要新增供给之一。",
+  "cap": 1646.63,
+  "pe": 37.46,
+  "gross": null,
+  "latestTech": "电子布与覆铜板同步提价，新增产能 1.5-2 年释放",
   "tech": [],
   "funding": []
  },
