@@ -15,6 +15,19 @@ const REPORT_TAB: Record<TabType, string> = {
   reports: '研究报告', events: '重大事件',
 }
 
+// 细分环节国产化率标记：高=绿 / 中=琥珀 / 低=红（低=卡脖子风险警示）
+type LocalRate = '高' | '中' | '低'
+const LOCAL_BADGE: Record<LocalRate, string> = {
+  '高': 'bg-green-50 text-green-600',
+  '中': 'bg-amber-50 text-amber-600',
+  '低': 'bg-red-50 text-red-500',
+}
+const LOCAL_PILL: Record<LocalRate, string> = {
+  '高': 'bg-green-50 text-green-700',
+  '中': 'bg-amber-50 text-amber-700',
+  '低': 'bg-red-50 text-red-700',
+}
+
 /** 软筛选：环节/细分层级下，未标注 seg/sub 的条目仍可见 */
 function softMatch(itemIndustry: string | null, itemSeg: string | null, itemSub: string | null,
                    industry: string | null, seg: string | null, sub: string | null): boolean {
@@ -203,11 +216,17 @@ const ResearchHome: React.FC = () => {
                                 <button
                                   key={sb.name}
                                   onClick={() => pickSub(sb.name)}
-                                  className={`w-full text-left pl-12 pr-4 py-1 text-xs hover:bg-gray-100 truncate ${sub === sb.name ? 'text-blue-700 font-medium' : 'text-gray-500'}`}
+                                  className={`w-full text-left pl-12 pr-4 py-1 text-xs hover:bg-gray-100 flex items-center gap-1.5 ${sub === sb.name ? 'text-blue-700 font-medium' : 'text-gray-500'}`}
                                   title={sb.desc || sb.name}
                                 >
-                                  {sb.name}
-                                  {sb.companies?.length ? <span className="text-gray-300 ml-1.5">{sb.companies.length}</span> : null}
+                                  <span className="truncate">{sb.name}</span>
+                                  {sb.local && (
+                                    <span
+                                      className={`shrink-0 text-[10px] leading-none px-1 py-0.5 rounded ${LOCAL_BADGE[sb.local]}`}
+                                      title={`国产化率：${sb.local}`}
+                                    >{sb.local}</span>
+                                  )}
+                                  {sb.companies?.length ? <span className="shrink-0 text-gray-300 ml-auto">{sb.companies.length}</span> : null}
                                 </button>
                               ))}
                             </div>
@@ -242,6 +261,12 @@ const ResearchHome: React.FC = () => {
                 <>
                   <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
                   <span className="font-semibold text-gray-800">{subInfo.name}</span>
+                  {subInfo.local && (
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${LOCAL_PILL[subInfo.local]}`}
+                      title={`国产化率：${subInfo.local}`}
+                    >国产化率 {subInfo.local}</span>
+                  )}
                 </>
               )}
             </div>
