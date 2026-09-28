@@ -4488,31 +4488,24 @@ export const COMPANIES: ResearchCompany[] = [
  },
  {
   "name": "盛合晶微",
-  "code": "—",
+  "code": "688820.SH",
   "industry": "semiconductor",
   "seg": "osat",
-  "listed": false,
-  "desc": "中段凸块与 2.5D/3D 晶圆级先进封装平台。",
-  "valuation": 300,
-  "round": "Pre-IPO",
-  "lastFunding": "2025-12",
-  "latestFunding": "2025-12 · Pre-IPO",
+  "listed": true,
+  "desc": "全球领先晶圆级先进封测企业，大陆唯一 2.5D 硅基封装大规模量产，2025 年营收 65.2 亿元居全球 OSAT 前十，2026 年 4 月科创板上市。",
+  "cap": 2255.2,
+  "pe": 212,
+  "rev": 65.21,
+  "gross": 30.97,
   "execChanges": [],
-  "latestTech": "2.5D 桥接封装产能扩建",
+  "latestTech": "江阴多层细线宽集成封测一期（98 亿）与临港东盛合芯 3DIC 一期（100 亿）相继开工",
   "tech": [
-   {
-    "date": "最新",
-    "kind": "产品动态",
-    "title": "2.5D 桥接封装产能扩建"
-   }
+   {"date": "2026-04", "kind": "资本动态", "title": "科创板上市（688820），发行价 19.68 元募资 50.28 亿元，首日市值 1428 亿元"},
+   {"date": "最新", "kind": "产品动态", "title": "2.5D 桥接封装产能扩建"}
   ],
   "funding": [
-   {
-    "date": "2025-12",
-    "round": "Pre-IPO",
-    "amount": "数十亿元",
-    "inv": "国家大基金 / 产业资本"
-   }
+   {"date": "2025-12", "round": "Pre-IPO（D 轮）", "amount": "7 亿美元", "inv": "新芯基金 / 上海国际集团等"},
+   {"date": "2026-04", "round": "IPO", "amount": "募资 50.28 亿元", "inv": "科创板发行（19.68 元/股）"}
   ]
  },
  {
