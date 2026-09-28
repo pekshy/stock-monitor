@@ -81,11 +81,11 @@ const ResearchHome: React.FC = () => {
 
   // 切换层级时清下级选择
   const pickIndustry = (id: string | null) => {
-    if (id && industry === id) { setExpandedInd(e => (e === id ? null : id)); return }
-    patchParams(id ? { ind: id, seg: null, sub: null } : { ind: null, seg: null, sub: null })
-    setExpandedInd(id)
-    if (!id) setExpandedSeg(null)
-    else setExpandedSeg(null)
+    // 点击行业：右侧始终切换到该行业范围（清 seg/sub）；再次点击同一行业仅切换环节列表展开/收起
+    if (!id) { patchParams({ ind: null, seg: null, sub: null }); setExpandedInd(null); setExpandedSeg(null); return }
+    patchParams({ ind: id, seg: null, sub: null })
+    setExpandedInd(e => (industry === id ? (e === id ? null : id) : id))
+    setExpandedSeg(null)
   }
   const pickSeg = (id: string | null) => {
     // 点击环节：右侧始终切换到该环节范围（清 sub）；再次点击同一环节仅切换子列表展开/收起
