@@ -8352,7 +8352,6 @@ export const COMPANIES: ResearchCompany[] = [
   "desc": "以色列 AOI 光学检测设备厂商，PCB / FPD / 半导体封装检测全球领先，量检测环节国际对标龙头。",
   "valuation": null,
   "round": "KLA 全资子公司",
-  "lastFunding": null,
   "latestFunding": "2019 年被 KLA 以约 34 亿美元收购（原 Nasdaq: ORBK 退市）",
   "execChanges": [],
   "latestTech": "Ultra Fusion 系列 AOI 覆盖 IC 载板 15μm 线宽检测；FPD 业务 2024 年底关停",
