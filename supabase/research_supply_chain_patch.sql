@@ -192,3 +192,12 @@ insert into research_companies (name, code, industry, seg, listed, round, cap, v
     seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
     valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
     data = excluded.data, updated_at = now();
+
+-- 新凯来（SiCarrier）：深圳国资委全资设备平台商，投前估值约 650 亿元（2025-09），计划 2027 年 IPO
+insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data)
+values ('新凯来', '—', 'semiconductor', 'equipment', false, 'Pre-IPO', null, 650, null, '2025-09',
+ '{"name":"新凯来","code":"—","industry":"semiconductor","seg":"equipment","listed":false,"desc":"深圳国资委全资控股的半导体设备平台商（脱胎于华为 2012 实验室），六大类设备覆盖刻蚀、薄膜沉积与量检测，在手订单超百亿元。","valuation":650,"round":"Pre-IPO","lastFunding":"2025-09","latestFunding":"2025-09 · 第二轮融资接近尾声（投前约 650 亿元，上轮投后约 500 亿元）","execChanges":[],"latestTech":"六大类设备 2025 年起量产交付，覆盖刻蚀、薄膜沉积与量检测","tech":[{"date":"2025-03","kind":"产品动态","title":"SEMICON China 首发六大类设备，多产品线以名山命名并进入产线"}],"funding":[{"date":"2025-09","round":"新一轮融资（接近尾声）","amount":"投前估值约 650 亿元"}]}'::jsonb)
+on conflict (name) do update set code = excluded.code, industry = excluded.industry,
+  seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
+  valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
+  data = excluded.data, updated_at = now();
