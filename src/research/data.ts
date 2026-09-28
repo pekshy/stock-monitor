@@ -73,7 +73,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "芯碁微装",
         "华卓精科",
         "科益虹源",
-        "国望光学"
+        "国望光学",
+        "天仁微纳"
       ]
     },
     {
@@ -97,7 +98,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "微导纳米",
         "屹唐股份",
         "京仪装备",
-        "晶升股份"
+        "晶升股份",
+        "费勉仪器"
       ]
     },
     {
@@ -126,7 +128,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       "desc": "光刻工序配套，前道国产化推进中。",
       "detail": "涂胶显影是光刻工序的配套设备：曝光前把光刻胶均匀旋涂在晶圆上，曝光后显影定型，与光刻机联机精度要求极高。全球由日本 TEL 垄断，是国产化率最低的主机环节之一。芯源微在前道实现突破，Offline 与 I-line 机台批量装机，KrF 及以上验证推进中。",
       "companies": [
-        "芯源微"
+        "芯源微",
+        "全芯微电子"
       ]
     },
     {
@@ -135,7 +138,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       "desc": "12 英寸抛光机量产，耗材一体布局。",
       "detail": "化学机械抛光以化学腐蚀与机械研磨结合实现晶圆表面全局平坦化，是多层布线的前提，抛光压力控制精度以帕为单位。华海清科是国内唯一量产 12 英寸 CMP 设备的厂商，并延伸抛光垫、抛光液耗材，形成设备+耗材一体格局。先进制程与 3D 堆叠使 CMP 步数持续增加。",
       "companies": [
-        "华海清科"
+        "华海清科",
+        "特思迪"
       ]
     },
     {
@@ -165,7 +169,9 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "金海通",
         "联动科技",
         "矽电股份",
-        "精智达"
+        "精智达",
+        "强一股份",
+        "杰冯测试"
       ]
     },
     {
@@ -177,7 +183,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "新益昌",
         "耐科装备",
         "芯碁微装",
-        "华封科技"
+        "华封科技",
+        "中科晶禾"
       ]
     },
     {
@@ -193,7 +200,10 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "凯德石英",
         "新莱应材",
         "正帆科技",
-        "中科仪"
+        "中科仪",
+        "中科艾尔",
+        "山口精工",
+        "先普科技"
       ]
     }
   ],
@@ -209,7 +219,10 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "有研硅",
         "中晶科技",
         "西安奕材",
-        "中欣晶圆"
+        "中欣晶圆",
+        "鑫耀半导体",
+        "晶正电子",
+        "烯晶半导体"
       ]
     },
     {
@@ -218,7 +231,9 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       "desc": "功率/模拟衬底外延，车规放量。",
       "detail": "外延是在衬底上生长单晶薄膜，为器件提供更优的电学基底，功率器件与模拟、CIS 大量使用。SiC 外延是车规主驱逆变器产业链的关键一环，门槛在缺陷控制与厚度均匀性。瀚天天成、东莞天域等随新能源汽车放量快速成长。",
       "companies": [
-        "上海合晶"
+        "上海合晶",
+        "瀚天天成",
+        "天域半导体"
       ]
     },
     {
@@ -230,7 +245,10 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "南大光电",
         "彤程新材",
         "恒坤新材",
-        "上海新阳"
+        "上海新阳",
+        "博康信息",
+        "阜阳欣奕华",
+        "玟昕科技"
       ]
     },
     {
@@ -310,7 +328,16 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "新恒汇",
         "联瑞新材",
         "德邦科技",
-        "朗矽科技"
+        "朗矽科技",
+        "本诺电子",
+        "锦艺新材",
+        "德创高新材料",
+        "中江科易",
+        "清连科技",
+        "赛墨科技",
+        "一盛新材料",
+        "富烯科技",
+        "心电科技"
       ]
     },
     {
@@ -362,7 +389,9 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       "companies": [
         "石英股份",
         "菲利华",
-        "凯德石英"
+        "凯德石英",
+        "德智新材",
+        "灿勤科技"
       ]
     },
     {
@@ -371,7 +400,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       "desc": "导电型衬底全球前列，车规与光伏双驱动。",
       "detail": "SiC（碳化硅）衬底是第三代半导体的核心材料，耐高压高温，用于新能源车主驱逆变器、光伏储能与充电桩。PVT 法长晶良率与缺陷控制是壁垒，8 英寸良率爬坡是当前主线。天岳先进导电型衬底出货全球前列，价格下行推动上车加速。",
       "companies": [
-        "天岳先进"
+        "天岳先进",
+        "天科合达"
       ]
     }
   ],
@@ -804,7 +834,9 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "工业富联",
         "浪潮信息",
         "中科曙光",
-        "紫光股份"
+        "紫光股份",
+        "华丰科技",
+        "庆虹电子"
       ]
     },
     {
@@ -886,7 +918,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "hw": [
     {
       "name": "光模块 / 光器件",
-      "local": "高",
       "desc": "800G/1.6T 光模块放量，全球头部份额向中国厂商集中。",
       "detail": "光模块完成光-电信号转换，是智算集群网络的核心部件，速率从 800G 向 1.6T 演进，AI 集群组网带动用量数倍增长。中际旭创、新易盛、天孚通信占据全球头部份额，上游光芯片与无源器件国产化率持续提升。硅光与 CPO 技术迭代快，份额向垂直整合能力强的头部集中。",
       "companies": [
@@ -902,7 +933,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "llm": [
     {
       "name": "语言大模型",
-      "local": "高",
       "desc": "能力逼近第一梯队，价格战激烈。",
       "detail": "语言大模型是当前 AI 能力的核心载体，能力从对话、写作延伸到代码、数学与复杂推理，训练范式转向强化学习与推理时计算。DeepSeek、通义、豆包等进入第一梯队，API 价格战与开源策略并行。竞争焦点从预训练转向推理成本、Agent 能力与垂直场景效果。",
       "companies": [
@@ -917,7 +947,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "多模态大模型",
-      "local": "高",
       "desc": "图像/视频/语音统一建模，并向物理基础模型延伸。",
       "detail": "多模态模型把文本、图像、视频、语音统一建模，视频生成与实时语音交互是当前热点，并向理解物理世界的世界模型延伸。快手可灵、生数科技等在视频生成赛道全球领先。多模态打开内容生产、营销、机器人等更大应用空间，算力需求更高。",
       "companies": [
@@ -930,7 +959,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "开源模型",
-      "local": "高",
       "desc": "开源生态引领，全球影响力扩大。",
       "detail": "开源路线通过开放权重模型构建生态影响力，DeepSeek、Qwen 系列全球下载与衍生模型数量领先，显著降低企业与开发者使用门槛。开源同时承担技术话语权竞争与商业引流职能，衍生生态（微调、蒸馏、私有化部署）形成长尾需求。闭源与开源能力差距持续收窄。",
       "companies": [
@@ -940,7 +968,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "Agent 框架",
-      "local": "高",
       "desc": "长程任务与工具调用，落地关键。",
       "detail": "Agent 让大模型从回答问题进化到自主完成任务——任务规划、工具调用、多轮反思与长程记忆，是 AI 从内容生成走向执行的关键形态。难点在长程任务稳定性、多 Agent 协作与安全可控。与办公、编程场景结合最先跑通商业闭环。",
       "companies": [
@@ -952,7 +979,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "maas": [
     {
       "name": "模型 API 服务",
-      "local": "高",
       "desc": "按 token 计费，推理成本快速下降。",
       "detail": "模型 API 服务把大模型能力以按 token 计费的方式开放给开发者，是模型公司最直接的商业模式。推理成本随模型优化与硬件迭代快速下降，价格战把行业推向薄利多销。竞争要素在模型效果、稳定性、延迟与生态绑定，云厂商一体化优势明显。",
       "companies": [
@@ -962,7 +988,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "微调工具链",
-      "local": "高",
       "desc": "企业私有化部署配套能力。",
       "detail": "微调工具链帮助企业用自有数据定制模型——SFT/LoRA/DPO 训练、数据标注清洗、模型评测与部署，是私有化落地的配套能力。需求来自数据敏感行业（金融、政务、制造）与效果要求高的垂直场景，与推理框架、模型管理一起构成企业 AI 基础设施。",
       "companies": [
@@ -972,7 +997,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "向量数据库",
-      "local": "高",
       "desc": "RAG 检索增强的基础设施。",
       "detail": "向量数据库为 RAG（检索增强生成）提供高维向量存储与相似度检索，让大模型引用企业私有知识与实时数据回答问题，缓解幻觉问题。竞争者包括专用数据库（Milvus、Zilliz）与云厂商内置方案。随 Agent 长记忆需求兴起，正演变为 AI 数据基础设施的一环。",
       "companies": [
@@ -983,14 +1007,12 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "ai-app": [
     {
       "name": "AI 编程",
-      "local": "高",
       "desc": "渗透率提升最快，ARR 高增长。",
       "detail": "AI 编程把代码生成、补全、重构与审查嵌入开发工作流，是当前渗透率与付费率最高的 AI 应用品类，头部产品 ARR 增速极高。效果衡量在代码采纳率与任务完成度，Agent 化（自主完成需求-编码-测试）是演进方向，对软件生产力是数量级提升。",
       "companies": []
     },
     {
       "name": "AI 办公",
-      "local": "高",
       "desc": "付费转化启动期。",
       "detail": "AI 办公把写作、总结、PPT 生成、会议纪要等能力嵌入办公套件，WPS AI、钉钉 AI 等依托存量用户转化付费。使用频次高但单点价值低，捆绑收费与协同数据壁垒是关键。付费转化处于启动期，企业级采购与个人订阅并行。",
       "companies": [
@@ -1000,14 +1022,12 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "AI 营销",
-      "local": "高",
       "desc": "内容生成降本效果明显。",
       "detail": "AI 营销覆盖内容生成（文案、图片、短视频）、素材批量生产、投放优化与数字人直播，直接以降本增效量化价值，中小商家付费意愿强。营销公司加速 AI 化转型，工具类产品快速起量。行业难点在效果归因与平台规则适配。",
       "companies": []
     },
     {
       "name": "多模态内容生成",
-      "local": "高",
       "desc": "视频生成商业化探索。",
       "detail": "覆盖文生图、文生视频、数字人、音乐生成等，重塑游戏、影视、广告、电商素材的生产管线。视频生成的可控性、时长与成本是商业化关键，国内可灵、即梦等在全球处于第一梯队。版权与内容合规是长期约束，当前定位是创作者工具而非替代者。",
       "companies": [
@@ -1018,7 +1038,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "计算机视觉 / 行业智能",
-      "local": "高",
       "desc": "视觉算法积累深厚，向多模态与 Agent 演进。",
       "detail": "以视觉算法起家的 AI 公司把感知能力沉淀为行业智能化方案——安防、工业质检、交通、物流等，正向多模态与 Agent 能力演进。赛道已有成熟商业模型与现金流，增长来自行业纵深与出海。大模型时代的场景卡位与数据回流是新的竞争变量。",
       "companies": [
@@ -1032,7 +1051,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "reducer": [
     {
       "name": "谐波减速器",
-      "local": "高",
       "desc": "人形机器人旋转关节核心，国产龙头已定点。",
       "detail": "谐波减速器靠柔轮可控变形啮合实现大减速比，结构紧凑、回差小，是机器人旋转关节与腕部的主流方案，人形单机用量可达十余个。绿的谐波是全球谐波龙头，精度与寿命对标哈默纳科，人形客户定点持续落地。扩产速度与降价节奏决定渗透率。",
       "companies": [
@@ -1042,7 +1060,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "RV 减速器",
-      "local": "中",
       "desc": "工业机器人重载关节，份额领先。",
       "detail": "RV 减速器采用摆线针轮结构，承载与刚度远高于谐波，用于工业机器人重载关节（大臂、基座），单台价值量高。日本纳博特斯克长期垄断，双环传动（环动科技）份额领先并分拆上市。人形机器人腿部若采用 RV/行星方案将打开新空间。",
       "companies": [
@@ -1053,7 +1070,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "行星滚柱丝杠",
-      "local": "低",
       "desc": "线性关节核心部件，磨削工艺是瓶颈。",
       "detail": "行星滚柱丝杠以螺纹滚柱代替滚珠，承载与寿命远超同尺寸滚珠丝杠，是人形机器人线性关节（腿部直立行走）的核心部件，单机用量可达十余根。磨削精度与批量一致性是工艺瓶颈，五洲新春、贝斯特等从机床与汽车零件切入。国产化早期，降本与量产良率是关键。",
       "companies": [
@@ -1067,7 +1083,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "servo": [
     {
       "name": "伺服系统",
-      "local": "高",
       "desc": "国产份额过半，格局向头部集中。",
       "detail": "伺服系统由驱动器、电机与编码器闭环构成，决定运动的速度与位置精度，广泛用于工业自动化与机器人关节。国产份额已过半（汇川技术第一），外资在半导体设备、高端机床等高端场景仍占优。人形机器人对轻量化、高响应的新要求带动新一轮竞争。",
       "companies": [
@@ -1080,7 +1095,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "运动控制器",
-      "local": "中",
       "desc": "算法壁垒高，与本体厂深度绑定。",
       "detail": "运动控制器下达运动指令并协调多轴联动，插补、前瞻、动力学补偿等算法壁垒高，与本体工艺深度绑定，是机器人的「小脑」。汇川、固高、雷赛在通用市场放量，本体大厂多自研。人形机器人运控（模型预测控制、强化学习）成为新的能力分水岭。",
       "companies": [
@@ -1090,7 +1104,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "一体化关节模组",
-      "local": "高",
       "desc": "本体厂商标配需求，功率密度是关键。",
       "detail": "一体化关节把电机、减速器、编码器、驱动器集成为标准模组，简化本体设计与装配，是人形机器人与协作机器人的标配形态。功率密度（扭矩/重量）与散热是核心指标。三花智控、鸣志电器等从部件切入模组，竞争在集成能力与批量成本。",
       "companies": [
@@ -1099,7 +1112,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "电机与执行器",
-      "local": "高",
       "desc": "空心杯电机/无框力矩电机，人形机器人增量环节。",
       "detail": "人形机器人带动空心杯电机（灵巧手）、无框力矩电机（关节）等新品类需求，要求高功率密度与快速响应。鸣志电器空心杯电机全球领先，步科股份、伟创电气切入无框力矩电机。执行器集成传动与传感，向标准化组件演进，单机价值量高。",
       "companies": [
@@ -1111,7 +1123,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "sensor": [
     {
       "name": "3D 视觉",
-      "local": "高",
       "desc": "机器人感知层核心增量。",
       "detail": "3D 视觉（结构光、ToF、双目、激光雷达）为机器人提供空间感知，用于导航避障、物体识别与抓取定位，是感知层的核心增量。奥比中光是全球 3D 视觉传感器龙头，大疆等场景验证充分。人形机器人与具身智能数据采集（遥操作）带来新需求。",
       "companies": [
@@ -1120,7 +1131,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "六维力传感器",
-      "local": "高",
       "desc": "精细操作必备，单机价值量高。",
       "detail": "六维力传感器同时测量三个方向的力与力矩，让机器人在装配、打磨等精细操作中实现柔顺控制，是人形机器人手腕、脚踝的必备传感，单机价值量高。坤维科技、宇立仪器等小批量交付，应变片与硅基两条技术路线并行。人形量产将快速摊薄成本。",
       "companies": [
@@ -1131,7 +1141,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "电子皮肤",
-      "local": "高",
       "desc": "柔性触觉传感与多维触觉感知，小批量交付阶段。",
       "detail": "电子皮肤以柔性触觉传感阵列覆盖机械手表面，实现接触、压力、滑移等多维感知，是灵巧手精细操作的关键，正从实验室走向小批量交付。汉威科技（能斯达）等布局柔性传感器。与人形灵巧手放量强相关，柔性基底材料与阵列工艺是壁垒。",
       "companies": [
@@ -1143,7 +1152,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "MEMS 惯性传感",
-      "local": "中",
       "desc": "IMU/加速度计，机器人姿态控制必备。",
       "detail": "MEMS 惯性传感器（IMU、加速度计、陀螺仪）测量姿态与运动状态，是机器人平衡控制、导航定位的必备器件。消费级已充分国产化，高性能车规与机器人级仍有差距，芯动联科是高性能 MEMS 稀缺标的。人形机器人对高精度小体积 IMU 需求确定。",
       "companies": [
@@ -1155,7 +1163,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "industrial": [
     {
       "name": "六轴工业机器人",
-      "local": "高",
       "desc": "国产份额过半，周期底部回升。",
       "detail": "六轴机器人是通用性最强的工业机器人形态，覆盖焊接、搬运、喷涂、装配等主流工艺，国产份额已过半（埃斯顿、汇川等），高端汽车产线仍以四大家族为主。行业处于周期底部回升，制造业资本开支与出口是边际变量，向重载、高速、智能化升级。",
       "companies": [
@@ -1167,7 +1174,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "协作机器人",
-      "local": "高",
       "desc": "成本快速下降，长尾市场打开。",
       "detail": "协作机器人与人共处作业，拖拽示教与安全停机降低使用门槛，单价从数十万降至数万元，打开中小企业与商业场景长尾市场。遨博、节卡、越疆规模领先，负载 3-20kg 为主。与人形机器人技术同源，部分厂商互相切入。",
       "companies": [
@@ -1178,7 +1184,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "SCARA",
-      "local": "高",
       "desc": "3C 需求主导，国产化率高。",
       "detail": "SCARA 擅长平面快速拾放，3C 电子装配是最大下游，国产化率超七成，爱普生、雅马哈与汇川、众为兴等竞争。行业跟随 3C 资本开支波动，新能源与半导体后道带来新需求。技术壁垒低于六轴、价格竞争激烈，规模与成本是胜负手。",
       "companies": [
@@ -1190,7 +1195,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "humanoid": [
     {
       "name": "本体制造",
-      "local": "高",
       "desc": "千台级量产启动，降本是主线。",
       "detail": "人形机器人本体厂（优必选、宇树、智元、傅利叶等）完成整机设计、集成与迭代，正从小批量样机走向千台级量产，订单来自车厂实训、科研教育、展演与商业服务。降本（零部件国产化+规模效应）与场景跑通（真实生产力任务）是主线，融资密集、格局未定。",
       "companies": [
@@ -1204,7 +1208,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "具身大脑（VLA）",
-      "local": "高",
       "desc": "端到端模型新范式，决定能力上限。",
       "detail": "具身大脑以视觉-语言-动作（VLA）端到端模型把感知直接映射为动作，替代传统分层规划，被视为机器人智能的新范式，能力上限由模型与数据决定。智元 GO-1、Figure Helix 等快速迭代，真机数据（遥操作采集）成为稀缺资源，与本体厂软硬一体是大趋势。",
       "companies": [
@@ -1218,7 +1221,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "灵巧手",
-      "local": "中",
       "desc": "自由度与成本平衡，供应链成熟度低。",
       "detail": "灵巧手复现人手的自由度与操作能力（当前 6-20+ 自由度），难点在驱动（微型电机/腱绳）、传动与触觉感知的集成，成本与可靠性平衡困难。兆威机电、因时机器人等推出产品，供应链成熟度低、单手价格数万至数十万元。灵巧操作能力是人形商业化的最后一环。",
       "companies": [
@@ -1230,7 +1232,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
   "integrator": [
     {
       "name": "汽车产线集成",
-      "local": "高",
       "desc": "落地确定性最高的场景。",
       "detail": "汽车产线集成把机器人嵌入焊装、涂装、总装工艺，项目金额大、验证周期长，落地确定性最高，是机器人企业验证量产能力的首选场景。埃斯顿、埃夫特等借助国产车扩产窗口切入。人形机器人在车厂实训（搬运、质检）是该环节最新变量。",
       "companies": [
@@ -1240,7 +1241,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "仓储物流集成",
-      "local": "高",
       "desc": "RaaS 租赁模式兴起。",
       "detail": "仓储物流集成提供 AGV/AMR、分拣系统与 WMS 软件一体化的智能仓方案，海康机器人、极智嘉全球领先，RaaS 租赁模式降低使用门槛、提升粘性。电商、快递与制造业仓配自动化需求稳定，出海（海外仓）是增长引擎。",
       "companies": [
@@ -1252,7 +1252,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
     },
     {
       "name": "通用智能装备",
-      "local": "高",
       "desc": "3C/锂电/光伏专机与柔性产线。",
       "detail": "通用智能装备面向 3C、锂电、光伏等行业提供专机与柔性产线，非标定制属性强、项目制，竞争在行业工艺理解与交付速度。先导智能（锂电）、大族激光（激光加工）等行业龙头规模领先。行业资本开支周期明显，人形机器人产线有望成为新赛道。",
       "companies": [
@@ -1334,7 +1333,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "equipment",
     "name": "半导体设备",
     "heat": "高景气",
-    "coCount": 38,
+    "coCount": 48,
     "trend": "先进制程扩产周期",
     "summary": "刻蚀、薄膜沉积、清洗等环节国产设备商突破明显，先进制程扩产带动需求。",
     "detail": "半导体设备为晶圆制造与封装测试提供专用装备，涵盖光刻、刻蚀、薄膜沉积、离子注入、清洗、量测检测、CMP 等数十类机型，是先进制程迭代的先决条件。设备厂下游直接对接晶圆厂与封测厂，订单跟随资本开支周期波动。该环节零部件供应链长、验证周期久，国产厂商已在刻蚀、清洗、薄膜沉积等领域实现批量装机，光刻机仍是最大短板。",
@@ -1395,7 +1394,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "material",
     "name": "半导体材料",
     "heat": "平稳",
-    "coCount": 48,
+    "coCount": 68,
     "trend": "硅片价格企稳",
     "summary": "大硅片、抛光液、前驱体等核心材料国产化率仍低，是供应链安全的关键短板环节。",
     "detail": "半导体材料是制造与封测环节的消耗性投入品，主要包括硅片等衬底、光刻胶及配套试剂、电子特气、CMP 抛光材料、靶材、封装基板等，直接决定良率与工艺水平。材料客户粘性强、认证周期长（通常 1-2 年），一旦进入供应链收入稳定，并随晶圆产能扩张持续增长。国产厂商在硅片、靶材、特气等领域已具规模，高端光刻胶仍在验证爬坡。",
@@ -1637,7 +1636,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "terminal",
     "name": "应用终端",
     "heat": "平稳",
-    "coCount": 8,
+    "coCount": 10,
     "trend": "AI 终端渗透率提升",
     "summary": "数据中心 / 智能汽车 / AI 手机与 PC / 工业，是半导体需求的最终拉动力。",
     "detail": "应用终端是芯片的最终需求出口——智能手机、PC、服务器、汽车电子、IoT 设备等整机环节，决定各类芯片的用量与规格演进方向。终端厂通过定义整机方案牵引上游芯片、器件与材料的迭代，也是国产芯片导入验证的主战场。国内手机、家电、汽车品牌份额领先，持续带动本土供应链加速成长。",
@@ -8345,22 +8344,6 @@ export const COMPANIES: ResearchCompany[] = [
   "funding": []
  },
  {
-  "name": "科益虹源",
-  "code": "—",
-  "industry": "semiconductor",
-  "seg": "equipment",
-  "listed": false,
-  "desc": "ArF 准分子激光光源，国产光刻三大件之一",
-  "valuation": 40,
-  "round": "C 轮",
-  "lastFunding": "2024-03",
-  "latestFunding": "2024-03 · C 轮",
-  "execChanges": [],
-  "latestTech": "",
-  "tech": [],
-  "funding": []
- },
- {
   "name": "国望光学",
   "code": "—",
   "industry": "semiconductor",
@@ -8910,7 +8893,7 @@ export const COMPANIES: ResearchCompany[] = [
   "tech": [],
   "funding": []
  },
- {
+ {  "name": "天仁微纳",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "国内纳米压印光刻设备龙头，微纳光学晶圆级加工市占率超九成，中芯聚源与华为哈勃投资。",  "round": "C 轮",  "lastFunding": "2022-09",  "latestFunding": "2022-09 · C 轮",  "execChanges": [],  "latestTech": "微纳光学晶圆级纳米压印设备市占率超 90%，国内唯一 DOE 量产设备商",  "tech": [],  "funding": [   {"date": "2022-09", "round": "C 轮", "amount": "数亿元", "inv": "前海母基金 / 深创投 / 山东财金等"}  ] }, {  "name": "费勉仪器",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "复旦系高端仪器平台商，真空/低温/薄膜/等离子四大技术底座，晶圆级 MBE 薄膜设备批量交付头部晶圆厂。",  "round": "C++ 轮",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · C++ 轮",  "execChanges": [],  "latestTech": "晶圆级 MBE 设备批量交付国内头部半导体企业",  "tech": [],  "funding": [   {"date": "2026-05", "round": "C++ 轮", "amount": "数亿元", "inv": "复容投资 / 元禾控股 / 深创投等"}  ] }, {  "name": "特思迪",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "国内唯一规模化量产化合物半导体减薄磨抛 CMP 装备企业，SiC 衬底磨抛设备市占率第一，供货天科合达、比亚迪。",  "round": "B+ 轮",  "lastFunding": "2024",  "latestFunding": "2024 · B+ 轮",  "execChanges": [],  "latestTech": "SiC 衬底磨抛设备市占率国内第一，覆盖减薄/研磨/抛光/CMP 全工序",  "tech": [],  "funding": [   {"date": "2022", "round": "战略投资", "inv": "华为哈勃"},   {"date": "2023", "round": "B 轮"},   {"date": "2024", "round": "B+ 轮"}  ] }, {  "name": "全芯微电子",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "半导体匀胶显影与去胶剥离设备商，覆盖化合物半导体、LED、MEMS 与先进封装，哈勃与华登投资。",  "round": "战略融资",  "lastFunding": "2025-01",  "latestFunding": "2025-01 · 战略融资",  "execChanges": [],  "latestTech": "匀胶显影机覆盖化合物半导体、LED、MEMS 与先进封装",  "tech": [],  "funding": [   {"date": "2020-11", "round": "战略投资", "inv": "华为哈勃 / 华登国际"},   {"date": "2025-01", "round": "战略融资", "inv": "宁波通商基金"}  ] }, {  "name": "强一股份",  "code": "688809.SH",  "industry": "semiconductor",  "seg": "equipment",  "listed": true,  "desc": "国内 MEMS 探针卡龙头，自主 MEMS 探针技术打破境外垄断，2025 年 12 月科创板上市。",  "cap": 613.0,  "rev": 6.41,  "execChanges": [],  "latestTech": "MEMS 探针卡收入占比约 96%，2026H1 毛利率约 64%",  "tech": [],  "funding": [] }, {  "name": "杰冯测试",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "马来西亚 JF Technology 与华为哈勃合资的集成电路测试接触方案商，主营测试探针与测试插座。",  "round": "战略融资",  "lastFunding": "2021-10",  "latestFunding": "2021-10 · 战略融资（哈勃增资持股 45%）",  "execChanges": [],  "latestTech": "测试探针与测试插座深度绑定华为供应链",  "tech": [],  "funding": [   {"date": "2021-10", "round": "战略融资（增资）", "inv": "华为哈勃（持股 45%）"}  ] }, {  "name": "中科晶禾",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "晶圆异质集成键合装备商，2026 年 7 月并入青禾晶元集团成为全资子公司，此前获哈勃战略投资。",  "round": "战略融资",  "lastFunding": "2023-04",  "latestFunding": "2026-07 并入青禾晶元集团",  "execChanges": [],  "latestTech": "常温晶圆键合设备入选首批国家颠覆性技术创新专项",  "tech": [],  "funding": [   {"date": "2022-09", "round": "战略投资", "inv": "华为哈勃"},   {"date": "2023-04", "round": "战略融资", "inv": "海河产业基金"}  ] }, {  "name": "中科艾尔",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "半导体超高纯管阀件国产化代表企业，EP 管与气路零配件打破国外垄断，中科院微电子所合资背景。",  "round": "B 轮",  "lastFunding": "2026-01",  "latestFunding": "2026-01 · B 轮",  "execChanges": [],  "latestTech": "EP 管路/减压阀/阀门进入中芯国际合格供应商体系",  "tech": [],  "funding": [   {"date": "2026-01", "round": "B 轮", "inv": "青松资本"}  ] }, {  "name": "山口精工",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "中国特微型精密轴承制造商，为半导体设备晶圆传输机械臂供超精密真空轴承，哈勃 2021 年入股。",  "round": "C 轮",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · C 轮",  "execChanges": [],  "latestTech": "晶圆传输机械臂超精密真空轴承供货应用材料",  "tech": [],  "funding": [   {"date": "2021", "round": "战略投资", "inv": "华为哈勃"},   {"date": "2026-05", "round": "C 轮", "amount": "数亿元", "inv": "比亚迪 / 东方嘉富等"}  ] }, {  "name": "先普科技",  "code": "874935.NQ",  "industry": "semiconductor",  "seg": "equipment",  "listed": true,  "desc": "国内首家 9N 级气体纯化器制造商，POU 纯化器/过滤器配套晶圆厂外延与 CVD 工艺，哈勃与中芯聚源投资。",  "execChanges": [],  "latestTech": "9N 级气体纯化器配套外延与 CVD 工艺，北交所 IPO 辅导中",  "tech": [],  "funding": [] }, {  "name": "瀚天天成",  "code": "02726.HK",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "全球最大 SiC 外延晶片供应商（2024 年份额 31.6%），率先量产 8 英寸并全球首发 12 英寸，华为哈勃持股。",  "cap": 330.0,  "execChanges": [],  "latestTech": "2025 年 12 月全球首发 12 英寸 SiC 外延晶片",  "tech": [],  "funding": [] }, {  "name": "天域半导体",  "code": "02658.HK",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "国内首家专业 SiC 外延片企业，4/6/8 英寸全体系，2024 年中国收入份额 30.6% 居首、全球第三。",  "cap": 173.0,  "execChanges": [],  "latestTech": "8 英寸 SiC 外延放量，年产能 80 万片",  "tech": [],  "funding": [] }, {  "name": "天科合达",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内导电型 SiC 衬底双龙头之一，8 英寸量产，股东含宁德时代、大基金、华为哈勃，科创板 IPO 已受理。",  "valuation": 175.0,  "round": "IPO 已受理",  "lastFunding": "2023",  "latestFunding": "2026-07 · 科创板 IPO 已受理（拟募 27.8 亿元）",  "execChanges": [],  "latestTech": "8 英寸导电型衬底量产，2024 年全球导电型份额约 17.3%",  "tech": [],  "funding": [   {"date": "2023", "round": "Pre-IPO"}  ] }, {  "name": "鑫耀半导体",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内稀缺 GaAs/InP 化合物衬底制造商，云南锗业控股，哈勃与深创投入股。",  "valuation": 19.0,  "round": "战略融资",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · 增资（投后约 18.9 亿元）",  "execChanges": [],  "latestTech": "GaAs/InP 衬底扩产，黄冈高品质砷化镓晶片基地建设中",  "tech": [],  "funding": [   {"date": "2024-12", "round": "增资", "inv": "深创投新材料基金"},   {"date": "2026-05", "round": "增资", "amount": "0.56 亿元", "inv": "于跃（获 2.97% 股权）"}  ] }, {  "name": "晶正电子",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "全球首家铌酸锂单晶薄膜（LNOI）商业化企业，3-6 英寸薄膜晶圆全球市占率第一，卡位光通信与光电计算。",  "round": "战略融资",  "lastFunding": "2026-04",  "latestFunding": "2026-04 · 战略融资",  "execChanges": [],  "latestTech": "全球首款 170GHz 薄膜铌酸锂调制器发布（2026-03）",  "tech": [],  "funding": [   {"date": "2026-04", "round": "战略融资", "amount": "5000 万元", "inv": "南京中银 AIC 基金"}  ] }, {  "name": "烯晶半导体",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内首家半导体碳纳米管研发量产企业，建成全球首条 8 英寸碳纳米管晶圆中试线，哈勃与元禾投资。",  "round": "Pre-A++ 轮",  "lastFunding": "2026-02",  "latestFunding": "2026-02 · Pre-A++ 轮",  "execChanges": [],  "latestTech": "全球首条 8 英寸碳纳米管晶圆中试线（2025 年建成）",  "tech": [],  "funding": [   {"date": "2024-09", "round": "天使轮", "inv": "华为哈勃 / 元禾控股"},   {"date": "2026-02", "round": "Pre-A+ / Pre-A++", "inv": "首都科发集团 / 光谷产业投资等"}  ] }, {  "name": "博康信息",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内唯一光刻胶单体—成品胶全产业链厂商，ArF/KrF 胶覆盖 80 余家晶圆厂，大基金二期重仓。",  "valuation": 70.0,  "round": "Pre-IPO",  "lastFunding": "2023-11",  "latestFunding": "2023-11 · Pre-IPO（投后 70 亿元）",  "execChanges": [],  "latestTech": "ArF 湿法胶推进至 14nm，覆盖 80 余家晶圆厂",  "tech": [],  "funding": [   {"date": "2021", "round": "战略投资", "amount": "3 亿元", "inv": "华为哈勃"},   {"date": "2023-11", "round": "Pre-IPO", "amount": "超 6 亿元"}  ] }, {  "name": "阜阳欣奕华",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "显示光刻胶龙头，彩色光阻与 TFT 光刻胶国内市占率超 15%，客户京东方、TCL 华星，半导体胶进入验证出货。",  "round": "IPO 辅导",  "lastFunding": "2023-06",  "latestFunding": "2024-08 · A 股 IPO 辅导备案",  "execChanges": [],  "latestTech": "半导体 g/i 线及 KrF 光刻胶进入验证出货",  "tech": [],  "funding": [   {"date": "2023-06", "round": "D 轮", "amount": "超 5 亿元", "inv": "盛景嘉成等"}  ] }, {  "name": "玟昕科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "光热固化功能材料平台商，感光 OC、PSPI、Underfill 用于显示与先进封装，量产多款填补国产空白的光刻胶。",  "round": "B+ 轮",  "lastFunding": "2025-05",  "latestFunding": "2025-05 · B+ 轮",  "execChanges": [],  "latestTech": "感光 OC/PSPI/Underfill 多款产品填补国产空白",  "tech": [],  "funding": [   {"date": "2025-05", "round": "B+ 轮", "amount": "近亿元", "inv": "方广资本领投"}  ] }, {  "name": "德智新材",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内头部 SiC 涂层石墨基座与 SiC 刻蚀环供应商，CVD 工艺率先实现半导体级 Solid SiC 组件国产量产。",  "round": "C 轮",  "lastFunding": "2023",  "latestFunding": "2023 · C 轮（超 6 亿元）",  "execChanges": [],  "latestTech": "Solid SiC 刻蚀组件率先实现国产量产",  "tech": [],  "funding": [   {"date": "2023", "round": "C 轮", "amount": "超 6 亿元", "inv": "国风投 / 中信证券投资 / 中车资本 / 哈勃等"}  ] }, {  "name": "灿勤科技",  "code": "688182.SH",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "微波介质陶瓷元器件龙头，介质滤波器占收入约 83%，拓展 HTCC 陶瓷封装管壳与基板。",  "cap": 116.0,  "execChanges": [],  "latestTech": "HTCC 陶瓷封装管壳与基板拓展，2026H1 营收 +108.6%",  "tech": [],  "funding": [] }, {  "name": "本诺电子",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "电子级胶粘剂厂商，芯片粘贴胶、组装胶与密封胶用于半导体封装与电子组装，国家级专精特新小巨人。",  "round": "C 轮",  "lastFunding": "2023-12",  "latestFunding": "2023-12 · C 轮",  "execChanges": [],  "latestTech": "ExBond 芯片粘贴胶服务华为、京东方等 200 余家客户",  "tech": [],  "funding": [   {"date": "2021-02", "round": "战略投资", "inv": "华为哈勃"},   {"date": "2023-12", "round": "C 轮", "amount": "0.5 亿元", "inv": "农银投资"}  ] }, {  "name": "锦艺新材",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "高等级覆铜板用球形硅微粉全球市占率超 40%，客户覆盖全球前十大 CCL 厂，终端英伟达、AMD，哈勃持股 4.44%。",  "round": "IPO 已问询",  "lastFunding": "2026-07",  "latestFunding": "2026-07 · 创业板 IPO 已问询（拟募 22.19 亿元）",  "execChanges": [],  "latestTech": "球形硅微粉全球市占率超 40% 居第一",  "tech": [],  "funding": [] }, {  "name": "德创高新材料",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "ACF 异方性导电膜国产研发商，用于集成电路封装互连，哈勃 2023 年 A 轮入股。",  "round": "B 轮",  "lastFunding": "2025-12",  "latestFunding": "2025-12 · B 轮",  "execChanges": [],  "latestTech": "ACF 异方性导电膜国产化研发",  "tech": [],  "funding": [   {"date": "2023", "round": "A 轮", "inv": "华为哈勃 / 芯动能"},   {"date": "2025-12", "round": "B 轮", "inv": "浙创投"}  ] }, {  "name": "中江科易",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "氧化铝/氮化铝覆铜陶瓷基板商（DBC/DPC/AMB），用于功率模块封装，哈勃持股 15%。",  "round": "A 轮",  "lastFunding": "2025-02",  "latestFunding": "2025-02 · A 轮（近亿元）",  "execChanges": [],  "latestTech": "DBC/AMB 覆铜陶瓷基板供货安森美、宏微科技",  "tech": [],  "funding": [   {"date": "2023-08", "round": "天使轮", "inv": "华为哈勃（持股 15%）"},   {"date": "2025-02", "round": "A 轮", "amount": "近亿元", "inv": "南京市创投等"}  ] }, {  "name": "清连科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "高可靠芯片封装材料商，烧结银/铜膏与焊片服务功率半导体封装国产化，哈勃、元禾、光速光合投资。",  "round": "A+ 轮",  "lastFunding": "2024-12",  "latestFunding": "2024-12 · A+ 轮",  "execChanges": [],  "latestTech": "烧结银膏产能 10 吨/年（2025 年建成）",  "tech": [],  "funding": [   {"date": "2024-12", "round": "A+ 轮", "amount": "数千万元", "inv": "冯源资本领投"}  ] }, {  "name": "赛墨科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "高导热金属基复合材料商（金刚石铜/铝），用于大功率芯片封装散热，中科院宁波材料所孵化、江铜集团投资。",  "round": "B+ 轮",  "execChanges": [],  "latestTech": "金刚石铜微通道散热模组批量应用于曙光 MW 级液冷整机柜",  "tech": [],  "funding": [] }, {  "name": "一盛新材料",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "哈工大团队孵化的金刚石/铜、SiC/铝高导热复合材料商，供货电科与航天院所，向光模块与算力散热拓展。",  "execChanges": [],  "latestTech": "金刚石/铜与 SiC/铝复合材料供货中国电科与航天院所",  "tech": [],  "funding": [] }, {  "name": "富烯科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内最大石墨烯导热膜供应商（2021 年国内份额 85%），服务华为、荣耀，科创板 IPO 曾于 2023 年终止。",  "execChanges": [],  "latestTech": "E 系列石墨烯导热膜导热系数超 1800W/mK",  "tech": [],  "funding": [] }, {  "name": "心电科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "电磁功能材料商，超薄高磁导率吸波/屏蔽薄膜用于 3C 电子 EMC，武汉理工团队孵化，哈勃 2025 年入股。",  "round": "天使轮",  "lastFunding": "2025-11",  "latestFunding": "2025-11 · 哈勃战略入股（1.85%）",  "execChanges": [],  "latestTech": "超薄高磁导率吸波薄膜用于 3C 电子 EMC",  "tech": [],  "funding": [   {"date": "2025-11", "round": "战略入股", "inv": "华为哈勃（1.85%）"}  ] }, {  "name": "华丰科技",  "code": "688629.SH",  "industry": "semiconductor",  "seg": "terminal",  "listed": true,  "desc": "国内光电连接器骨干企业，全自研 224G 高速背板连接器进入华为、中兴、浪潮服务器供应链。",  "cap": 547.0,  "execChanges": [],  "latestTech": "224G 高速背板连接器可批量交付，布局 6.4T NPO 光模块",  "tech": [],  "funding": [] }, {  "name": "庆虹电子",  "code": "—",  "industry": "semiconductor",  "seg": "terminal",  "listed": false,  "desc": "华为参股的高速连接器与高速线缆厂商，产品覆盖背板、存储与汽车连接器，服务数据中心与汽车电子。",  "round": "战略融资",  "lastFunding": "2020",  "latestFunding": "2020 · 战略融资（华为参股）",  "execChanges": [],  "latestTech": "背板/存储/汽车连接器绑定华为供应链",  "tech": [],  "funding": [] }, {
   "name": "华封科技",
   "code": "—",
   "industry": "semiconductor",

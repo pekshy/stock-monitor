@@ -88,9 +88,10 @@ const ResearchHome: React.FC = () => {
     else setExpandedSeg(null)
   }
   const pickSeg = (id: string | null) => {
-    if (id && seg === id) { setExpandedSeg(e => (e === id ? null : id)); return }
-    patchParams(id ? { seg: id, sub: null } : { seg: null, sub: null })
-    setExpandedSeg(id)
+    // 点击环节：右侧始终切换到该环节范围（清 sub）；再次点击同一环节仅切换子列表展开/收起
+    if (!id) { patchParams({ seg: null, sub: null }); setExpandedSeg(null); return }
+    patchParams({ seg: id, sub: null })
+    setExpandedSeg(e => (seg === id ? (e === id ? null : id) : id))
   }
   const pickSub = (name: string) => patchParams({ sub: name, mt: 'companies' })
 
@@ -200,7 +201,7 @@ const ResearchHome: React.FC = () => {
                       return (
                         <div key={s.id}>
                           <button
-                            onClick={() => pickSeg(seg === s.id ? null : s.id)}
+                            onClick={() => pickSeg(s.id)}
                             className={`w-full text-left pl-8 pr-4 py-1.5 text-[13px] hover:bg-gray-100 flex items-center justify-between ${seg === s.id ? 'text-blue-700 font-medium' : 'text-gray-600'}`}
                           >
                             <span className="truncate">{s.name}</span>
