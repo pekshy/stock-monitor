@@ -792,6 +792,21 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       ]
     },
     {
+      "name": "感光干膜",
+      "desc": "PCB 图形转移核心耗材，AI HDI / IC 载板驱动高端干膜国产替代。",
+      "detail": "感光干膜是 PCB 图形转移的核心耗材：液态光刻胶均匀涂布于 PET 载膜制成卷材，贴膜曝光显影后形成抗蚀图形，由 PE 保护膜、感光层与 PET 载膜三层复合而成，厚度均匀、解析度高、易于自动化。AI 服务器带动高端 HDI 内层线路由湿膜转向干膜，IC 载板对阻焊干膜与高解析线路干膜要求更高，2026 年高端干膜需求随算力板放量持续爬升。全球长期由力森诺科、旭化成、杜邦垄断，高端干膜国产化率低。福斯特以涂布平台切入并规划 5 亿平米产能，客户覆盖鹏鼎、沪电、深南；容大感光干膜销量快速增长并向 IC 载板阻焊干膜突破；强力新材供应上游光引发剂与树脂；广信材料以 LDI 线路油墨承接部分干膜工艺。",
+      "companies": [
+        "福斯特",
+        "容大感光",
+        "广信材料",
+        "强力新材",
+        "力森诺科",
+        "旭化成",
+        "杜邦",
+        "长兴材料"
+      ]
+    },
+    {
       "name": "覆铜板",
       "desc": "高速材料（M6/M8 级）国产替代主力。",
       "detail": "覆铜板决定 PCB 的电性能上限，AI 场景要求低损耗材料（M6/M8 级），高端产品长期被松下等日企垄断。生益科技是全球第二大覆铜板厂，高速板材放量，华正新材等跟进。上游低介电玻纤布与铜箔同步国产化，材料等级随 AI 服务器代际升级。",
@@ -1575,7 +1590,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "pcb",
     "name": "PCB / 覆铜板",
     "heat": "高景气",
-    "coCount": 13,
+    "coCount": 21,
     "trend": "AI 服务器板量价齐升",
     "summary": "AI 服务器与交换机驱动高多层板、高阶 HDI 与高速覆铜板需求，算力资本开支直接受益。",
     "detail": "PCB（印制电路板）为电子元器件提供电气互连与机械支撑，是几乎所有电子整机的基座；覆铜板是 PCB 的核心基材，由铜箔、树脂、玻纤布压合而成，其介电性能决定高频高速板的上限。PCB 按技术层次分为单双层、多层、HDI、柔性板与封装基板，下游覆盖通信、服务器、汽车、消费电子。中国产量占全球过半，高多层、HDI、IC 载板与高频高速覆铜板是国产升级方向。",
@@ -8646,6 +8661,156 @@ export const COMPANIES: ResearchCompany[] = [
     "title": "完成 9-2-9（20 层）大尺寸玻璃基载板样品开发与送样，通过 TCB 1000 cycles 等信赖性测试"
    }
   ],
+  "funding": []
+ },
+ {
+  "name": "福斯特",
+  "code": "603806.SH",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "desc": "光伏胶膜全球龙头，以精密涂布平台切入感光干膜，公告认定的国产干膜龙头，江门基地建成后规划年产能 5 亿平米。",
+  "cap": 375.14,
+  "pe": 33.61,
+  "gross": null,
+  "latestTech": "AI 服务器 HDI / 高多层板专用干膜已供应鹏鼎控股、沪电股份、深南电路、胜宏科技等头部 PCB 厂",
+  "tech": [
+   {
+    "date": "2026-08",
+    "kind": "产能",
+    "title": "江门基地建成后感光干膜年总产能达 5 亿平米"
+   },
+   {
+    "date": "2025-12",
+    "kind": "业绩",
+    "title": "2025 年感光干膜收入占比 4.4%、利润贡献 9.6%，列为第二成长曲线"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "容大感光",
+  "code": "300576.SZ",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "desc": "国内 PCB 光刻胶龙头（PCB 光刻胶占营收 99.8%），感光干膜已建 1.2 亿平米产线，珠海基地新增 2.4 亿平米产能 2025H2 试产。",
+  "cap": 118.2,
+  "pe": null,
+  "gross": null,
+  "latestTech": "高阶 HDI 感光线路干膜在胜宏科技、鹏鼎控股样品测试通过，待转入小批量/批量测试；IC 载板阻焊干膜国产替代推进",
+  "tech": [
+   {
+    "date": "2026-08",
+    "kind": "业绩",
+    "title": "2026H1 营收 5.72 亿元 +13.02%，感光干膜销量同比 +32%"
+   },
+   {
+    "date": "2026-06",
+    "kind": "产能",
+    "title": "珠海基地 2.4 亿平米感光干膜产能进入试生产"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "广信材料",
+  "code": "300537.SZ",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "desc": "PCB 光刻胶及配套材料占营收约 63%，覆盖阻焊油墨、湿膜/LDI 专用线路油墨与干膜光刻胶，华南基地规划 1.6 万吨 PCB 光刻胶产能。",
+  "cap": 45.01,
+  "pe": 300.24,
+  "gross": null,
+  "latestTech": "LDI 专用线路油墨放量，干膜光刻胶与高精度液态感光材料双路线布局",
+  "tech": [
+   {
+    "date": "2026-08",
+    "kind": "业绩",
+    "title": "2026H1 营收 2.63 亿元 +12.79%，归母净利 1484.76 万元 +9.65%"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "强力新材",
+  "code": "300429.SZ",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "desc": "光刻胶专用化学品龙头，感光干膜上游核心供应商：PCB 光刻胶光引发剂占营收 16.15%、PCB 光刻胶树脂占 11.44%。",
+  "cap": 60.71,
+  "pe": null,
+  "gross": null,
+  "latestTech": "光引发剂 + 树脂合计近三成营收，直接受益干膜国产放量",
+  "tech": [
+   {
+    "date": "2026-08",
+    "kind": "业绩",
+    "title": "2026H1 营收 5.36 亿元 +17.11%，归母净亏损 6231 万元"
+   }
+  ],
+  "funding": []
+ },
+ {
+  "name": "力森诺科",
+  "code": "4004.T",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "market": "外资（日本）",
+  "desc": "全球感光干膜重要供应商（原日立化成），高端 HDI 用感光干膜优势显著。",
+  "cap": null,
+  "pe": null,
+  "gross": null,
+  "latestTech": "高端 HDI 干膜与 IC 载板材料持续迭代",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "旭化成",
+  "code": "3407.T",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "market": "外资（日本）",
+  "desc": "感光干膜 ADV 系列，在中国市场占有较高份额，全球干膜三巨头之一。",
+  "cap": null,
+  "pe": null,
+  "gross": null,
+  "latestTech": "ADV 系列覆盖主流 HDI 产线",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "杜邦",
+  "code": "DD",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "market": "外资（美国）",
+  "desc": "Riston 系列干膜光刻胶发明者，全球感光干膜三巨头之一。",
+  "cap": null,
+  "pe": null,
+  "gross": null,
+  "latestTech": "Riston 高端干膜配套 IC 载板与先进封装",
+  "tech": [],
+  "funding": []
+ },
+ {
+  "name": "长兴材料",
+  "code": "1717.TW",
+  "industry": "semiconductor",
+  "seg": "pcb",
+  "listed": true,
+  "market": "中国台湾",
+  "desc": "中国台湾合成高分子与电子化学材料大厂，HDI 板用感光干膜 HT / UDF 系列。",
+  "cap": null,
+  "pe": null,
+  "gross": null,
+  "latestTech": "HT / UDF 系列配套高多层板与 HDI",
+  "tech": [],
   "funding": []
  },
  {
