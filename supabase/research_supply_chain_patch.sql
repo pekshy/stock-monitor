@@ -1,4 +1,4 @@
--- 供应链补录 32 家（equipment 10 / material 20 / terminal 2）
+-- 供应链补录 34 家（equipment 11 / material 20 / terminal 2 / design 1：含新凯来与森国科）
 -- 依据：WebSearch 核实（2026-09），幂等 upsert
 
 insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data) values ('天仁微纳', '—', 'semiconductor', 'equipment', false, 'C 轮', null, null, null, '2022-09', '{"name":"天仁微纳","code":"—","industry":"semiconductor","seg":"equipment","listed":false,"desc":"国内纳米压印光刻设备龙头，微纳光学晶圆级加工市占率超九成，中芯聚源与华为哈勃投资。","execChanges":[],"latestTech":"微纳光学晶圆级纳米压印设备市占率超 90%，国内唯一 DOE 量产设备商","tech":[],"funding":[{"date":"2022-09","round":"C 轮","amount":"数亿元","inv":"前海母基金 / 深创投 / 山东财金等"}],"round":"C 轮","lastFunding":"2022-09","latestFunding":"2022-09 · C 轮"}')
@@ -197,6 +197,15 @@ insert into research_companies (name, code, industry, seg, listed, round, cap, v
 insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data)
 values ('新凯来', '—', 'semiconductor', 'equipment', false, 'Pre-IPO', null, 650, null, '2025-09',
  '{"name":"新凯来","code":"—","industry":"semiconductor","seg":"equipment","listed":false,"desc":"深圳国资委全资控股的半导体设备平台商（脱胎于华为 2012 实验室），六大类设备覆盖刻蚀、薄膜沉积与量检测，在手订单超百亿元。","valuation":650,"round":"Pre-IPO","lastFunding":"2025-09","latestFunding":"2025-09 · 第二轮融资接近尾声（投前约 650 亿元，上轮投后约 500 亿元）","execChanges":[],"latestTech":"六大类设备 2025 年起量产交付，覆盖刻蚀、薄膜沉积与量检测","tech":[{"date":"2025-03","kind":"产品动态","title":"SEMICON China 首发六大类设备，多产品线以名山命名并进入产线"}],"funding":[{"date":"2025-09","round":"新一轮融资（接近尾声）","amount":"投前估值约 650 亿元"}]}'::jsonb)
+on conflict (name) do update set code = excluded.code, industry = excluded.industry,
+  seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
+  valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
+  data = excluded.data, updated_at = now();
+
+-- 森国科：SiC 功率器件 Fabless（深圳），C 轮亿元级（中金资本领投），两度入选中国 SiC Fabless 十强
+insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data)
+values ('森国科', '—', 'semiconductor', 'design', false, 'C 轮', null, 15, null, '2021-12',
+ '{"name":"森国科","code":"—","industry":"semiconductor","seg":"design","listed":false,"desc":"SiC 功率器件 Fabless（深圳，2013 年成立），650V–2200V 二极管/MOSFET 系列化，X-FAB 6 英寸车规级代工，两度入选中国 SiC Fabless 十强，并延伸 IGBT/超结 MOSFET/驱动芯片/MCU 产品矩阵。","valuation":15,"round":"C 轮","lastFunding":"2021-12","latestFunding":"2021-12 · C 轮（亿元级，中金资本领投）","execChanges":[],"latestTech":"第五代 TMPS SiC 二极管量产（良率 97%+），100+ 客户覆盖光伏/充电桩/服务器电源","tech":[{"date":"2025-12","kind":"荣誉","title":"荣膺 2025 年度中国碳化硅器件 Fabless 十强"},{"date":"2025-01","kind":"产品动态","title":"推出 2200V SiC 二极管等高压新品"}],"funding":[{"date":"2021-12","round":"C 轮","amount":"亿元级（中金资本领投，中科海创、凌霄泵业跟投）"}]}'::jsonb)
 on conflict (name) do update set code = excluded.code, industry = excluded.industry,
   seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
   valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,

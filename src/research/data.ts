@@ -660,7 +660,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "基本半导体",
         "泰科天润",
         "瞻芯电子",
-        "谱析光晶"
+        "谱析光晶",
+        "森国科"
       ]
     },
     {
@@ -1451,7 +1452,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "design",
     "name": "芯片设计",
     "heat": "高景气",
-    "coCount": 147,
+    "coCount": 148,
     "trend": "AI 芯片驱动增长",
     "summary": "AI 算力需求带动 GPU/ASIC 设计公司高增长，国产 AI 芯片进入密集流片期；光芯片（激光器/硅光）与光计算作为新兴设计方向并入本环节。",
     "detail": "芯片设计是依据系统需求完成电路定义、RTL 编码、验证、物理实现并交付 GDSII 的环节，产品覆盖 CPU/GPU 等处理器、SoC、存储、模拟、射频、功率器件等品类。设计公司（Fabless）处于产业链利润高地，向上依赖 EDA 工具与 IP，向下将设计文件交给晶圆厂代工。国内设计公司数量众多，在手机 SoC、安防芯片、AI 加速器等品类已出现头部企业，高端通用芯片与先进制程仍依赖外部代工。",
@@ -8322,6 +8323,27 @@ export const COMPANIES: ResearchCompany[] = [
   "latestTech": "",
   "tech": [],
   "funding": []
+ },
+ {
+  "name": "森国科",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "design",
+  "listed": false,
+  "desc": "SiC 功率器件 Fabless（深圳，2013 年成立），650V–2200V 二极管/MOSFET 系列化，X-FAB 6 英寸车规级代工，两度入选中国 SiC Fabless 十强，并延伸 IGBT/超结 MOSFET/驱动芯片/MCU 产品矩阵。",
+  "valuation": 15,
+  "round": "C 轮",
+  "lastFunding": "2021-12",
+  "latestFunding": "2021-12 · C 轮（亿元级，中金资本领投）",
+  "execChanges": [],
+  "latestTech": "第五代 TMPS SiC 二极管量产（良率 97%+），100+ 客户覆盖光伏/充电桩/服务器电源",
+  "tech": [
+   {"date": "2025-12", "kind": "荣誉", "title": "荣膺 2025 年度中国碳化硅器件 Fabless 十强"},
+   {"date": "2025-01", "kind": "产品动态", "title": "推出 2200V SiC 二极管等高压新品"}
+  ],
+  "funding": [
+   {"date": "2021-12", "round": "C 轮", "amount": "亿元级（中金资本领投，中科海创、凌霄泵业跟投）"}
+  ]
  },
  {
   "name": "华卓精科",
