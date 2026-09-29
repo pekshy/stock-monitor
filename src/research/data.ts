@@ -344,6 +344,15 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       ]
     },
     {
+      "name": "热管理材料",
+      "local": "中",
+      "desc": "AI 芯片功率密度飙升，导热界面材料成关键增量。",
+      "detail": "热界面材料（TIM）填充芯片与散热器之间的微观空隙，降低界面热阻，是高功率芯片散热的第一环。AI 芯片 TDP 升至千瓦级，TIM1（芯片级）与石墨烯/碳基垫片成为关键增量，全球高端市场由信越、汉高、莱尔德等主导。鸿富诚以垂直取向石墨烯导热垫片（130 W/m·K，热阻低于 0.06 ℃·cm²/W）进入全球头部 AI 芯片供应链，是国内极少数实现 TIM1 小批量供货的企业，2025 年营收同比翻倍至 7.07 亿元。",
+      "companies": [
+        "鸿富诚"
+      ]
+    },
+    {
       "name": "IC 载板",
       "local": "低",
       "desc": "FC-BGA/FC-CSP 载板国产主力，属封装材料。",
@@ -1406,7 +1415,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "material",
     "name": "半导体材料",
     "heat": "平稳",
-    "coCount": 68,
+    "coCount": 69,
     "trend": "硅片价格企稳",
     "summary": "大硅片、抛光液、前驱体等核心材料国产化率仍低，是供应链安全的关键短板环节。",
     "detail": "半导体材料是制造与封测环节的消耗性投入品，主要包括硅片等衬底、光刻胶及配套试剂、电子特气、CMP 抛光材料、靶材、封装基板等，直接决定良率与工艺水平。材料客户粘性强、认证周期长（通常 1-2 年），一旦进入供应链收入稳定，并随晶圆产能扩张持续增长。国产厂商在硅片、靶材、特气等领域已具规模，高端光刻胶仍在验证爬坡。",
@@ -1453,7 +1462,8 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "companies": [
      "沪硅产业",
      "安集科技",
-     "南大光电"
+     "南大光电",
+     "鸿富诚"
     ]
    },
    {
@@ -3303,6 +3313,37 @@ export const COMPANIES: ResearchCompany[] = [
   ],
   "latestTech": "先进制程抛光液份额提升",
   "tech": [],
+  "funding": []
+ },
+ {
+  "name": "鸿富诚",
+  "code": "301716.SZ",
+  "industry": "semiconductor",
+  "seg": "material",
+  "listed": true,
+  "desc": "AI 热管理材料小巨人，石墨烯导热垫片进入全球头部 AI 芯片供应链，国内极少数实现 TIM1 小批量供货。",
+  "cap": 450,
+  "pe": 167,
+  "rev": 7.07,
+  "revGrowth": 114.3,
+  "gross": 65.56,
+  "rd": 4.6,
+  "spark": [
+   2.6,
+   3.3,
+   7.07
+  ],
+  "latestTech": "创业板上市，TIM1 小批量供货全球头部 AI 芯片企业",
+  "tech": [
+   {
+    "date": "2026-09",
+    "title": "创业板上市（301716.SZ），发行价 76.86 元，开盘涨 680% 报 600 元，市值约 450 亿"
+   },
+   {
+    "date": "2025-12",
+    "title": "金属碳基复合材料放量，年收入从 41 万跃升至 1.92 亿"
+   }
+  ],
   "funding": []
  },
  {

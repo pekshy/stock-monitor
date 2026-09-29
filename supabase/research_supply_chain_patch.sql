@@ -210,3 +210,12 @@ on conflict (name) do update set code = excluded.code, industry = excluded.indus
   seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
   valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
   data = excluded.data, updated_at = now();
+
+-- 鸿富诚：AI 热管理材料（深圳），2026-09-29 创业板上市（301716.SZ），石墨烯导热垫片供货全球头部 AI 芯片企业
+insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data)
+values ('鸿富诚', '301716.SZ', 'semiconductor', 'material', true, '已上市', 450, null, 7.07, null,
+ '{"name":"鸿富诚","code":"301716.SZ","industry":"semiconductor","seg":"material","listed":true,"round":"已上市","desc":"AI 热管理材料小巨人，石墨烯导热垫片进入全球头部 AI 芯片供应链，国内极少数实现 TIM1 小批量供货。","cap":450,"pe":167,"rev":7.07,"revGrowth":114.3,"gross":65.56,"rd":4.6,"spark":[2.6,3.3,7.07],"latestTech":"创业板上市，TIM1 小批量供货全球头部 AI 芯片企业","tech":[{"date":"2026-09","title":"创业板上市（301716.SZ），发行价 76.86 元，开盘涨 680% 报 600 元，市值约 450 亿"},{"date":"2025-12","title":"金属碳基复合材料放量，年收入从 41 万跃升至 1.92 亿"},{"date":"2025-06","title":"石墨烯导热垫片（130 W/m·K）批量供货，切入 TIM1"}],"funding":[]}'::jsonb)
+on conflict (name) do update set code = excluded.code, industry = excluded.industry,
+  seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
+  valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
+  data = excluded.data, updated_at = now();
