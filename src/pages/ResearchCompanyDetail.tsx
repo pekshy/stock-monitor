@@ -85,7 +85,7 @@ const ResearchCompanyDetail: React.FC = () => {
                 <span className="text-gray-400 shrink-0">{fmtDate(f.date)}</span>
                 <span className="font-medium text-gray-800">{f.round}</span>
                 {f.amount && <span className="text-gray-600">{f.amount}</span>}
-                {f.investors && <span className="text-gray-400">{f.investors}</span>}
+                {(f.investors || f.inv) && <span className="text-gray-400">{f.investors || f.inv}</span>}
               </div>
             ))}
           </div>
