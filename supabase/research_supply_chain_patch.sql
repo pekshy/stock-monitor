@@ -251,3 +251,12 @@ on conflict (name) do update set code = excluded.code, industry = excluded.indus
 update research_companies set industry = 'ai', seg = 'hw', rev = 967.48,
   data = jsonb_set(jsonb_set(data, '{industry}', '"ai"'), '{seg}', '"hw"')
 where name = '紫光股份';
+
+-- 曦诺未来（Xynova）：灵巧手全栈自研（杭州，2024-12 成立），全球首款「腱绳+直驱」混驱量产灵巧手，A+ 轮后估值约 72 亿元
+insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data)
+values ('曦诺未来', '—', 'robotics', 'humanoid', false, 'A+ 轮', null, 72, null, '2026-07',
+ '{"name":"曦诺未来","code":"—","industry":"robotics","seg":"humanoid","listed":false,"desc":"灵巧手全栈自研方案商（杭州，2024 年底成立），全球首款「腱绳+直驱」混驱量产灵巧手，成立一年半融资近 15 亿跻身独角兽。","round":"A+ 轮","valuation":72,"lastFunding":"2026-07","latestFunding":"2026-07 · A+ 轮（5 亿元，美团领投，蔚来资本/招商局资本跟投）","execChanges":[],"latestTech":"Flex 2 全球首款「腱绳+电机直驱」混驱仿生灵巧手：23 自由度（19 主动+4 被动），手掌 400g，驱动力后置小臂，毫秒级响应、0.05N 力控精度","tech":[{"date":"2026-08","kind":"产品动态","title":"世界机器人大会首发直驱 22 自由度灵巧手 Prima 1，面向科研训练"},{"date":"2026-05","kind":"产品动态","title":"发布全球首款「腱绳+直驱」混驱仿生灵巧手 Flex 2"},{"date":"2025-08","kind":"产品动态","title":"推出全球首款全自研量产高自由度腱绳驱动灵巧手 Flex 1（25 自由度，手掌 380g，负载 30kg+）"}],"funding":[{"date":"2026-07","round":"A+ 轮","amount":"5 亿元","inv":"美团领投，蔚来资本/招商局资本/某互联网大厂跟投，小米战投加注"},{"date":"2026-05","round":"A 轮","amount":"数亿元","inv":"理想战投、中信建投资本/中信建投投资联合领投"},{"date":"2026-03","round":"Pre-A 轮","amount":"数亿元","inv":"京东领投，小米战投/财通资本/毅达资本/浙大友创/三七互娱跟投"},{"date":"2025-12","round":"天使轮","amount":"超亿元","inv":"宁德时代溥泉资本领投，小米战投/正轩资本/东方嘉富/电科基金跟投"}]}'::jsonb)
+on conflict (name) do update set code = excluded.code, industry = excluded.industry,
+  seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
+  valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
+  data = excluded.data, updated_at = now();
