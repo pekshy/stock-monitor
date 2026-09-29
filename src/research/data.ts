@@ -1016,6 +1016,14 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
       "companies": []
     },
     {
+      "name": "通用 Agent",
+      "desc": "自主执行多步任务，Manus 现象级出圈。",
+      "detail": "通用 Agent 把模型能力封装为自主执行体，跨浏览器、表单、数据提取与工作流协同完成多步任务，从对话式助手进化为数字员工。商业化按订阅与任务量计费，壁垒在任务成功率、Token 成本控制与生态集成。Manus 现象级出圈成为赛道标杆（Meta 收购被叫停后腾讯牵头回购，ARR 一年从 1 亿升至 4-5 亿美元），字节、百度等大厂产品同场竞技，任务成功率与成本是竞争主线。",
+      "companies": [
+        "蝴蝶效应（Manus）"
+      ]
+    },
+    {
       "name": "AI 办公",
       "desc": "付费转化启动期。",
       "detail": "AI 办公把写作、总结、PPT 生成、会议纪要等能力嵌入办公套件，WPS AI、钉钉 AI 等依托存量用户转化付费。使用频次高但单点价值低，捆绑收费与协同数据壁垒是关键。付费转化处于启动期，企业级采购与个人订阅并行。",
@@ -1866,7 +1874,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "ai-app",
     "name": "行业应用",
     "heat": "高景气",
-    "coCount": 9,
+    "coCount": 10,
     "trend": "付费转化启动",
     "summary": "办公、代码、营销、多模态内容生成等场景率先实现规模化收入。",
     "detail": "行业应用是大模型价值兑现的出口，把 AI 能力嵌入具体场景——办公助手、代码生成、营销客服、金融风控、教育、医疗等，按订阅或按量收费。该环节贴近客户与数据，竞争关键在场景理解、工作流整合与效果闭环，而非模型本身。国内 ToC 与 ToB 应用同步放量，付费渗透率与复购是观察主线。",
@@ -1899,7 +1907,9 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
      }
     ],
     "breakthroughs": [],
-    "companies": []
+    "companies": [
+     "蝴蝶效应（Manus）"
+    ]
    }
   ]
  },
