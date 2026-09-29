@@ -260,3 +260,25 @@ on conflict (name) do update set code = excluded.code, industry = excluded.indus
   seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
   valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
   data = excluded.data, updated_at = now();
+
+-- ============================================================
+-- AI 金融子赛道（ai-app 下新增，2026-09 增补，共 6 家）
+-- TREE ai-app 新增「AI 金融」；INDUSTRY_DATA ai/ai-app coCount 10 -> 16
+-- ============================================================
+INSERT INTO research_companies (name, code, industry, seg, listed, round, cap, rev, data) VALUES
+('同花顺', '300033.SZ', 'ai', 'ai-app', true, '已上市', 1860, 60.29,
+ '{"name":"同花顺","code":"300033.SZ","industry":"ai","seg":"ai-app","listed":true,"round":"已上市","cap":1860,"pe":53.13,"rev":60.29,"revGrowth":44.0,"gross":91.54,"rd":18.99,"spark":[35.6,41.86,60.29],"latestTech":"「问财」HithinkGPT 推出阶梯付费模式，C 端 AI 商业化从 0 到 1"}'::jsonb),
+('东方财富', '300059.SZ', 'ai', 'ai-app', true, '已上市', 2850, 160.68,
+ '{"name":"东方财富","code":"300059.SZ","industry":"ai","seg":"ai-app","listed":true,"round":"已上市","cap":2850,"pe":23.6,"rev":160.68,"revGrowth":38.46,"spark":[110.81,116.04,160.68],"latestTech":"「妙想」大模型全面接入东方财富 APP，妙想投研助理上线"}'::jsonb),
+('恒生电子', '600570.SH', 'ai', 'ai-app', true, '已上市', 431, 57.83,
+ '{"name":"恒生电子","code":"600570.SH","industry":"ai","seg":"ai-app","listed":true,"round":"已上市","cap":431,"pe":39.11,"rev":57.83,"revGrowth":-12.13,"gross":71.06,"rd":42.0,"spark":[72.81,65.81,57.83],"latestTech":"LightGPT 完成多轮升级并与华为昇腾全面适配，「光子」智能助手开放公测"}'::jsonb),
+('金证股份', '600446.SH', 'ai', 'ai-app', true, '已上市', 120, 24.19,
+ '{"name":"金证股份","code":"600446.SH","industry":"ai","seg":"ai-app","listed":true,"round":"已上市","cap":120,"pe":null,"rev":24.19,"revGrowth":-48.46,"gross":39.26,"rd":20.68,"spark":[62.21,46.93,24.19],"latestTech":"KOCA-AI 大模型应用平台支持 AI Agent 快速开发，FS2.5 嵌入 AI 模块"}'::jsonb),
+('指南针', '300803.SZ', 'ai', 'ai-app', true, '已上市', 430, 21.46,
+ '{"name":"指南针","code":"300803.SZ","industry":"ai","seg":"ai-app","listed":true,"round":"已上市","cap":430,"pe":188,"rev":21.46,"revGrowth":40.39,"spark":[11.13,15.29,21.46],"latestTech":"收购先锋基金 90.02% 股权，公募基金牌照纳入版图，构建财富管理闭环"}'::jsonb),
+('九方智投控股', '09636.HK', 'ai', 'ai-app', true, '已上市', 100, 34.3,
+ '{"name":"九方智投控股","code":"09636.HK","industry":"ai","seg":"ai-app","listed":true,"round":"已上市","cap":100,"pe":10.8,"rev":34.3,"revGrowth":48.7,"spark":[18.9,23.06,34.3],"latestTech":"AI 终端产品「九方智投 AI 股票机」贡献收入 2.4 亿元，成为全新增长点"}'::jsonb)
+ON CONFLICT (name) DO UPDATE SET
+  code = EXCLUDED.code, industry = EXCLUDED.industry, seg = EXCLUDED.seg,
+  listed = EXCLUDED.listed, round = EXCLUDED.round, cap = EXCLUDED.cap,
+  rev = EXCLUDED.rev, data = research_companies.data || EXCLUDED.data;
