@@ -228,3 +228,12 @@ on conflict (name) do update set code = excluded.code, industry = excluded.indus
   seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
   valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
   data = excluded.data, updated_at = now();
+
+-- 成都华微：宇航级抗辐照 FPGA 骨干企业（成都，科创板 688709，中国振华系），FPGA+高速ADC+星载TSN
+insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data)
+values ('成都华微', '688709.SH', 'semiconductor', 'design', true, '已上市', 258, null, 7.6, null,
+ '{"name":"成都华微","code":"688709.SH","industry":"semiconductor","seg":"design","listed":true,"round":"已上市","desc":"宇航级抗辐照 FPGA 骨干企业，五百万门至七千万门产品谱系，配套高速 ADC 与星载 TSN，深度绑定航天科技/科工集团。","cap":258,"pe":167.5,"rev":7.6,"revGrowth":25.85,"gross":69.95,"rd":20,"spark":[6,6.4,7.6],"latestTech":"抗辐照 FPGA 五百万门至七千万门谱系，向亿门级迈进；4 通道 12 位 40GSPS 射频直采 ADC 填补国内空白","tech":[{"date":"2026-06","kind":"产品动态","title":"抗辐照 FPGA + 高速 ADC + 星载 TSN 三线布局，产品小批量试用于低轨卫星系统验证"},{"date":"2026-01","kind":"产品动态","title":"8 位 64G 超高速 ADC 抗辐照能力达 75MeV，4 通道 40GSPS 射频直采 ADC 获意向订单"}],"funding":[]}'::jsonb)
+on conflict (name) do update set code = excluded.code, industry = excluded.industry,
+  seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
+  valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
+  data = excluded.data, updated_at = now();
