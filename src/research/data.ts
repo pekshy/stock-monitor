@@ -493,7 +493,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "成都华微",
         "电科芯片",
         "臻镭科技",
-        "安路科技"
+        "安路科技",
+        "紫光同创"
       ]
     },
     {
@@ -849,7 +850,6 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "工业富联",
         "浪潮信息",
         "中科曙光",
-        "紫光股份",
         "华丰科技",
         "庆虹电子"
       ]
@@ -1472,7 +1472,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "design",
     "name": "芯片设计",
     "heat": "高景气",
-    "coCount": 150,
+    "coCount": 151,
     "trend": "AI 芯片驱动增长",
     "summary": "AI 算力需求带动 GPU/ASIC 设计公司高增长，国产 AI 芯片进入密集流片期；光芯片（激光器/硅光）与光计算作为新兴设计方向并入本环节。",
     "detail": "芯片设计是依据系统需求完成电路定义、RTL 编码、验证、物理实现并交付 GDSII 的环节，产品覆盖 CPU/GPU 等处理器、SoC、存储、模拟、射频、功率器件等品类。设计公司（Fabless）处于产业链利润高地，向上依赖 EDA 工具与 IP，向下将设计文件交给晶圆厂代工。国内设计公司数量众多，在手机 SoC、安防芯片、AI 加速器等品类已出现头部企业，高端通用芯片与先进制程仍依赖外部代工。",
@@ -1743,7 +1743,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "hw",
     "name": "算力硬件",
     "heat": "高景气",
-    "coCount": 6,
+    "coCount": 7,
     "trend": "AI 服务器与光互连放量",
     "summary": "AI 集群建设直接拉动高速光模块与光互连需求，是算力资本开支的一线受益环节。",
     "detail": "算力硬件指 AI 训练与推理所需的服务器整机及核心部件，包括 AI 加速卡（GPU/NPU）、CPU、高速互连、交换机与光模块、存储与液冷散热等。该环节上游承接芯片设计与制造，下游服务云厂商与 AI 应用方，是大模型浪潮中确定性最强的资本开支方向。国产链在整机、板卡、光模块、电源等环节份额领先，先进 AI 芯片供给与高端 HBM 是主要瓶颈。",
@@ -1784,7 +1784,8 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
      }
     ],
     "companies": [
-     "中际旭创"
+     "中际旭创",
+     "紫光股份"
     ]
    },
    {
@@ -7936,14 +7937,14 @@ export const COMPANIES: ResearchCompany[] = [
  {
   "name": "紫光股份",
   "code": "000938.SZ",
-  "industry": "semiconductor",
-  "seg": "terminal",
+  "industry": "ai",
+  "seg": "hw",
   "listed": true,
-  "desc": "ICT 基础设施（服务器/交换机），新华三母公司",
+  "desc": "ICT 基础设施龙头，新华三母公司（服务器/交换机/智算整机/紫光云），国内 ICT 份额仅次于华为。",
   "cap": 971,
   "pe": 22.4,
-  "rev": 635.2,
-  "revGrowth": 33.9,
+  "rev": 967.48,
+  "revGrowth": 22.43,
   "gross": null,
   "rd": null,
   "spark": [
@@ -7952,8 +7953,19 @@ export const COMPANIES: ResearchCompany[] = [
    932.2,
    971
   ],
-  "latestTech": "",
-  "tech": [],
+  "latestTech": "新华三 AI 算力网络主力供应商，自研 GPU/CPU 补齐云端算力芯片",
+  "tech": [
+   {
+    "date": "2026-06",
+    "kind": "公司动态",
+    "title": "董事长于英涛辞职，新紫光集团联席总裁李涛接任，王竑弢任新华三总裁兼 CEO"
+   },
+   {
+    "date": "2025-09",
+    "kind": "经营数据",
+    "title": "新华三国际业务收入 34.78 亿元，同比增长 83.99%"
+   }
+  ],
   "funding": []
  },
  {
@@ -7962,15 +7974,75 @@ export const COMPANIES: ResearchCompany[] = [
   "industry": "semiconductor",
   "seg": "design",
   "listed": false,
-  "desc": "手机 SoC（紫光系），全球公开市场第四大手机芯片设计商",
+  "desc": "全球公开市场仅 3 家 5G 芯片企业之一（新紫光旗舰），手机 SoC/5G 基带/AIoT，传音与荣耀核心供应商，科创板 IPO 辅导中。",
   "valuation": 600,
   "round": "Pre-IPO",
-  "lastFunding": "2025-06",
-  "latestFunding": "2025-06 · Pre-IPO",
+  "lastFunding": "2024-12",
+  "latestFunding": "2024-12 · 近 60 亿元股权融资，2025-03 完成股改",
   "execChanges": [],
-  "latestTech": "",
+  "latestTech": "唐古拉 T770/T760（6nm）量产，5G 基带自研",
+  "tech": [],
+  "funding": [
+   {
+    "date": "2024-12",
+    "round": "股权融资",
+    "amount": "近 60 亿元"
+   }
+  ]
+ },
+ {
+  "name": "紫光同芯",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "design",
+  "listed": false,
+  "desc": "紫光国微子公司，安全芯片龙头：二代身份证芯片出自该团队，eSIM/金融 IC 卡/汽车安全芯片，累计出货超 200 亿颗。",
+  "valuation": 120,
+  "round": "战略融资",
+  "lastFunding": "2025-01",
+  "latestFunding": "",
+  "execChanges": [],
+  "latestTech": "eSIM 车载方向放量，向 Tier1（德赛西威等）直接供货车规安全芯片",
   "tech": [],
   "funding": []
+ },
+ {
+  "name": "紫光同创",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "design",
+  "listed": false,
+  "desc": "国产通用 FPGA 龙头（深圳），Titan-3 亿门级高端 FPGA 国内首创，五大产品家族近百量产型号，科创板 IPO 辅导完成。",
+  "valuation": 135,
+  "round": "Pre-IPO",
+  "lastFunding": "2026-01",
+  "latestFunding": "2026-01 · 新一轮（北京京国管基金新进 5% 以上股东）；累计融资超 40 亿元",
+  "execChanges": [],
+  "latestTech": "Titan-3 系列亿门级高端 FPGA 首发（FinFET 工艺），国内第一款自主产权亿门级高端 FPGA；PG2L50M 通过 AEC-Q100 Grade2 车规认证",
+  "tech": [
+   {
+    "date": "2026-07",
+    "kind": "产品动态",
+    "title": "PG2L50M 通过 AEC-Q100 Grade2 车规认证；高端 FPGA 亮相慕尼黑上海电子展"
+   },
+   {
+    "date": "2025-07",
+    "kind": "产品动态",
+    "title": "Titan-3 系列亿门级高端 FPGA 首发，采用 FinFET 工艺填补国内空白"
+   }
+  ],
+  "funding": [
+   {
+    "date": "2026-01",
+    "round": "新一轮（Pre-IPO 前）",
+    "amount": "北京京国管股权投资基金新进为持股 5% 以上股东"
+   },
+   {
+    "date": "2018-01",
+    "round": "累计外部融资",
+    "amount": "超 40 亿元（深创投、高瓴创投、金沙江联合资本、中金、陕西文投、诺瓦星云等）"
+   }
+  ]
  },
  {
   "name": "积塔半导体",

@@ -237,3 +237,17 @@ on conflict (name) do update set code = excluded.code, industry = excluded.indus
   seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
   valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
   data = excluded.data, updated_at = now();
+
+-- 紫光同创：国产通用 FPGA 龙头（深圳），Titan-3 亿门级国内首创，科创板 IPO 辅导完成
+insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data)
+values ('紫光同创', '—', 'semiconductor', 'design', false, 'Pre-IPO', null, 135, null, '2026-01',
+ '{"name":"紫光同创","code":"—","industry":"semiconductor","seg":"design","listed":false,"desc":"国产通用 FPGA 龙头（深圳），Titan-3 亿门级高端 FPGA 国内首创，五大产品家族近百量产型号，科创板 IPO 辅导完成。","valuation":135,"round":"Pre-IPO","lastFunding":"2026-01","latestFunding":"2026-01 · 新一轮（北京京国管基金新进 5% 以上股东）；累计融资超 40 亿元","execChanges":[],"latestTech":"Titan-3 系列亿门级高端 FPGA 首发（FinFET 工艺），国内第一款自主产权亿门级高端 FPGA；PG2L50M 通过 AEC-Q100 Grade2 车规认证","tech":[{"date":"2026-07","kind":"产品动态","title":"PG2L50M 通过 AEC-Q100 Grade2 车规认证；高端 FPGA 亮相慕尼黑上海电子展"},{"date":"2025-07","kind":"产品动态","title":"Titan-3 系列亿门级高端 FPGA 首发，采用 FinFET 工艺填补国内空白"}],"funding":[{"date":"2026-01","round":"新一轮（Pre-IPO 前）","amount":"北京京国管股权投资基金新进为持股 5% 以上股东"},{"date":"2018-01","round":"累计外部融资","amount":"超 40 亿元（深创投、高瓴创投、金沙江联合资本、中金、陕西文投、诺瓦星云等）"}]}'::jsonb)
+on conflict (name) do update set code = excluded.code, industry = excluded.industry,
+  seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
+  valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,
+  data = excluded.data, updated_at = now();
+
+-- 紫光股份：从 semiconductor.terminal 迁移至 ai.hw（ICT 基础设施/算力硬件）
+update research_companies set industry = 'ai', seg = 'hw', rev = 967.48,
+  data = jsonb_set(jsonb_set(data, '{industry}', '"ai"'), '{seg}', '"hw"')
+where name = '紫光股份';
