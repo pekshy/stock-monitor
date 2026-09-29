@@ -7924,15 +7924,21 @@ export const COMPANIES: ResearchCompany[] = [
   "industry": "semiconductor",
   "seg": "eda",
   "listed": false,
-  "desc": "EDA 电磁仿真与射频系统集成方案商",
-  "valuation": 50,
-  "round": "D 轮",
-  "lastFunding": "2025-03",
-  "latestFunding": "2025-03 · D 轮",
+  "desc": "系统级 EDA 龙头（STCO），多物理场仿真覆盖芯片-封装-PCB-整机全栈，全球首发 3DIC Chiplet 封装仿真平台，2023 年国家科技进步奖一等奖，首家获工博会 CIIF 大奖的国产 EDA。",
+  "valuation": 80,
+  "round": "Pre-IPO",
+  "lastFunding": "2022-10",
+  "latestFunding": "2022-10 · C 轮（2025-02 辅导备案，华大九天收购终止后冲刺 IPO）",
   "execChanges": [],
-  "latestTech": "",
-  "tech": [],
-  "funding": []
+  "latestTech": "EDA2026 发布：多智能体 AI 平台与 STCO 系统级仿真，推进 AI for EDA",
+  "tech": [
+   {"date": "2026-07", "kind": "产品动态", "title": "发布 EDA2026，以系统级智能仿真定义设计新范式"},
+   {"date": "2025-12", "kind": "资本动态", "title": "完成 IPO 辅导（中信证券保荐），进入冲刺上市阶段"}
+  ],
+  "funding": [
+   {"date": "2022-10", "round": "C 轮", "amount": "超亿元", "inv": "安洁私募基金 / 海望资本等"},
+   {"date": "2021", "round": "B 轮", "amount": "超亿元", "inv": "浦东科创 / 中芯聚源等"}
+  ]
  },
  {
   "name": "天数智芯",
