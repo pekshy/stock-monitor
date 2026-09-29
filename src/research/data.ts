@@ -549,7 +549,8 @@ export const TREE: Record<string, { name: string; desc?: string; detail?: string
         "赛微微电",
         "晶华微",
         "钜泉科技",
-        "芯导科技"
+        "芯导科技",
+        "炎黄国芯"
       ]
     },
     {
@@ -1470,7 +1471,7 @@ export const INDUSTRY_DATA: Record<string, { name: string; detail?: string; segs
     "id": "design",
     "name": "芯片设计",
     "heat": "高景气",
-    "coCount": 148,
+    "coCount": 149,
     "trend": "AI 芯片驱动增长",
     "summary": "AI 算力需求带动 GPU/ASIC 设计公司高增长，国产 AI 芯片进入密集流片期；光芯片（激光器/硅光）与光计算作为新兴设计方向并入本环节。",
     "detail": "芯片设计是依据系统需求完成电路定义、RTL 编码、验证、物理实现并交付 GDSII 的环节，产品覆盖 CPU/GPU 等处理器、SoC、存储、模拟、射频、功率器件等品类。设计公司（Fabless）处于产业链利润高地，向上依赖 EDA 工具与 IP，向下将设计文件交给晶圆厂代工。国内设计公司数量众多，在手机 SoC、安防芯片、AI 加速器等品类已出现头部企业，高端通用芯片与先进制程仍依赖外部代工。",
@@ -8400,6 +8401,31 @@ export const COMPANIES: ResearchCompany[] = [
   ],
   "funding": [
    {"date": "2021-12", "round": "C 轮", "amount": "亿元级（中金资本领投，中科海创、凌霄泵业跟投）"}
+  ]
+ },
+ {
+  "name": "炎黄国芯",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "design",
+  "listed": false,
+  "desc": "宇航级高可靠电源管理芯片，抗辐照 LDO 打破国外禁运（单价从数万元降至 4000 元），国产宇航模拟芯片标杆。",
+  "round": "B+ 轮",
+  "lastFunding": "2025-05",
+  "latestFunding": "2025-05 · B+ 轮（超亿元，池州投资控股集团、梅花创投）",
+  "execChanges": [],
+  "latestTech": "0.8μV RMS 超低噪声 LDO 突破：集成 100V 高压输入与全集成防反接保护，性能对标国际一线",
+  "tech": [
+   {"date": "2025-12", "kind": "产品动态", "title": "实现国内最低噪声水平 0.8μV RMS，集成 100V 高压输入与全集成防反接保护"},
+   {"date": "2024-07", "kind": "荣誉", "title": "牵头入选北京市科委 2024 年度车规级芯片科技攻关「揭榜挂帅」项目"},
+   {"date": "2019-06", "kind": "产品动态", "title": "首款高端抗辐照电源管理芯片量产，价格从数万元降至 4000 元"}
+  ],
+  "funding": [
+   {"date": "2025-05", "round": "B+ 轮", "amount": "超亿元（池州投资控股集团、梅花创投），用于池州落地封测产能"},
+   {"date": "2024-07", "round": "B 轮", "amount": "近亿元（九智资本、杭州临平区产业招商基金），民品总部落户临平"},
+   {"date": "2023-04", "round": "A++ 轮", "amount": "未披露（九智资本）"},
+   {"date": "2022-12", "round": "A+ 轮", "amount": "数千万（梅花创投）"},
+   {"date": "2022-06", "round": "A 轮", "amount": "未披露（善达投资、悦达善达母基金）"}
   ]
  },
  {
