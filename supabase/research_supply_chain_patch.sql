@@ -518,3 +518,13 @@ ON CONFLICT (name) DO UPDATE SET
 -- 4) 环节计数同步（TREE 声明已同步修改）
 UPDATE research_segments SET co_count = 4 WHERE id = 'ai-agent';
 UPDATE research_segments SET co_count = 11 WHERE id = 'llm';
+
+-- ============================================================
+-- 云英谷科技纳入研究池（半导体 / design · SoC / 视觉处理）
+-- 定位：中国内地 AMOLED DDIC 出货量第一、Micro-OLED 硅基显示背板全球第二。
+-- ============================================================
+INSERT INTO research_companies (name, code, industry, seg, listed, round, data) VALUES
+('云英谷科技','3310.HK','semiconductor','design',true,'已上市',
+ '{"cap":150,"pe":null,"rev":11.06,"revGrowth":24.1,"gross":12.9,"rd":2.66,"seg":"design","code":"3310.HK","name":"云英谷科技","industry":"semiconductor","listed":true,"tech":[],"funding":[],"spark":[5.51,7.2,8.91,11.06],"latestTech":"VTDR6135 亮相 ICDT 2026 并获年度最佳显示组件产品银奖；Micro-OLED 硅基微显示芯片做到 5644 PPI 超高像素密度","desc":"中国内地 AMOLED 显示驱动芯片（DDIC）出货量第一，Micro-OLED 硅基微显示背板全球第二（份额 40.7%），2026-05-27 港交所上市。"}'::jsonb)
+ON CONFLICT (name) DO UPDATE SET
+  seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
