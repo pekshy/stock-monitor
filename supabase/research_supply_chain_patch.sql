@@ -528,3 +528,16 @@ INSERT INTO research_companies (name, code, industry, seg, listed, round, data) 
  '{"cap":150,"pe":null,"rev":11.06,"revGrowth":24.1,"gross":12.9,"rd":2.66,"seg":"design","code":"3310.HK","name":"云英谷科技","industry":"semiconductor","listed":true,"tech":[],"funding":[],"spark":[5.51,7.2,8.91,11.06],"latestTech":"VTDR6135 亮相 ICDT 2026 并获年度最佳显示组件产品银奖；Micro-OLED 硅基微显示芯片做到 5644 PPI 超高像素密度","desc":"中国内地 AMOLED 显示驱动芯片（DDIC）出货量第一，Micro-OLED 硅基微显示背板全球第二（份额 40.7%），2026-05-27 港交所上市。"}'::jsonb)
 ON CONFLICT (name) DO UPDATE SET
   seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
+
+-- ============================================================
+-- 三启万物（VAST）纳入 AI 研究池（AI / llm · 多模态大模型）
+-- 定位：全球 AI 3D 模型生成量第一，Tripo 系列 + 世界模型 Project Eden，
+--       估值 10 亿美元，年内累计融资约 50 亿元（刷新 3D 原生智能赛道纪录）。
+-- ============================================================
+INSERT INTO research_companies (name, code, industry, seg, listed, round, data) VALUES
+('三启万物（VAST）','—','ai','llm',false,'B+ 轮',
+ '{"valuation":71,"seg":"llm","code":"—","name":"三启万物（VAST）","industry":"ai","listed":false,"round":"B+ 轮","lastFunding":"2026年9月","spark":[],"tech":[],"funding":[],"latestFunding":"2026年9月 · B 轮及 B+ 轮合计约 30 亿元；年内累计融资约 50 亿元，刷新 3D 原生智能领域融资额纪录","latestTech":"Tripo P2.0（2026-08）为全球首个支持原生四边面拓扑网格的 3D 原生基座模型；Project Eden 为全球首个允许对世界状态进行自主维护与确定性控制的世界模型","desc":"全球 AI 3D 模型生成量第一，Tripo 系列 3D 原生基座模型 + 世界模型 Project Eden，估值 10 亿美元，传赴港 IPO。"}'::jsonb)
+ON CONFLICT (name) DO UPDATE SET
+  seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
+
+-- 环境计数已同步：llm co_count = 12
