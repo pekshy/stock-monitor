@@ -394,3 +394,17 @@ UPDATE research_companies SET seg = 'ai-vision', data = jsonb_set(data, '{seg}',
 UPDATE research_companies SET seg = 'ai-vision', data = jsonb_set(data, '{seg}', '"ai-vision"') WHERE name = '虹软科技';
 UPDATE research_companies SET seg = 'ai-vision', data = jsonb_set(data, '{seg}', '"ai-vision"') WHERE name = '云从科技';
 UPDATE research_companies SET seg = 'ai-vision', data = jsonb_set(data, '{seg}', '"ai-vision"') WHERE name = '格灵深瞳';
+
+-- ============================================================
+-- 2026-XX 清理：AI 产业链去掉「AI 芯片」环节
+-- 原因：芯片设计与制造统一归入半导体产业链（design 环节），AI 板块不重复体现。
+-- 影响：删除 8 条 <公司>-AI视图 镜像行；AI 板块 78 → 70 家。
+-- ============================================================
+DELETE FROM research_companies WHERE name IN (
+  '寒武纪-AI视图', '海光信息-AI视图', '景嘉微-AI视图', '龙芯中科-AI视图',
+  '沐曦股份-AI视图', '摩尔线程-AI视图', '燧原科技-AI视图', '壁仞科技-AI视图'
+);
+
+-- 注：以下两条 UPDATE 仅用于「先改名后删除」的替代路径，正常执行上面 DELETE 后即为空操作。
+-- UPDATE research_companies SET name = '海光信息' WHERE name = '海光信息-AI视图';
+-- UPDATE research_companies SET name = '景嘉微' WHERE name = '景嘉微-AI视图';
