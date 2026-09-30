@@ -448,3 +448,31 @@ INSERT INTO research_companies (name, code, industry, seg, listed, round, cap, r
 ON CONFLICT (name) DO UPDATE SET
   seg = EXCLUDED.seg, industry = EXCLUDED.industry, cap = EXCLUDED.cap, rev = EXCLUDED.rev,
   data = research_companies.data || EXCLUDED.data;
+
+-- ============================================================
+-- 炎黄国芯：补全资料（原有记录仅有 funding，缺 desc/detail/tech 等）
+-- 位置：semiconductor / design（电源管理芯片 → 模拟芯片细分）
+-- ============================================================
+UPDATE research_companies SET
+  code='—', industry='semiconductor', seg='design', listed=false,
+  round='B+ 轮', last_funding='2025-05',
+  data='{
+    "name":"炎黄国芯","code":"—","industry":"semiconductor","seg":"design","listed":false,
+    "desc":"宇航级高可靠电源管理芯片，抗辐照 LDO 打破国外禁运（单价从数万元降至 4000 元），国产宇航模拟芯片标杆。",
+    "latestTech":"0.8μV RMS 超低噪声 LDO 突破：集成 100V 高压输入与全集成防反接保护，性能对标国际一线",
+    "pe":null,"cap":null,"rev":null,"revGrowth":null,"gross":null,"rd":null,"spark":[],"execChanges":[],
+    "latestFunding":"2025-05 · B+ 轮（超亿元，池州投资控股集团、梅花创投）",
+    "tech":[
+      {"date":"2025-12","kind":"产品动态","title":"实现国内最低噪声水平 0.8μV RMS，集成 100V 高压输入与全集成防反接保护"},
+      {"date":"2024-07","kind":"荣誉","title":"牵头入选北京市科委 2024 年度车规级芯片科技攻关「揭榜挂帅」项目"},
+      {"date":"2019-06","kind":"产品动态","title":"首款高端抗辐照电源管理芯片量产，价格从数万元降至 4000 元"}
+    ],
+    "funding":[
+      {"date":"2025-05","round":"B+ 轮","amount":"超亿元","inv":"池州投资控股集团、梅花创投（用于池州落地封测产能）"},
+      {"date":"2024-07","round":"B 轮","amount":"近亿元","inv":"九智资本、杭州临平区产业招商基金（民品总部落户临平）"},
+      {"date":"2023-04","round":"A++ 轮","amount":"未披露","inv":"九智资本"},
+      {"date":"2022-12","round":"A+ 轮","amount":"数千万","inv":"梅花创投"},
+      {"date":"2022-06","round":"A 轮","amount":"未披露","inv":"善达投资、悦达善达母基金"}
+    ]
+  }'::jsonb
+WHERE name = '炎黄国芯';
