@@ -496,3 +496,25 @@ INSERT INTO research_companies (name, code, industry, seg, listed, round, data) 
  '{"pe":null,"rd":null,"cap":null,"rev":null,"seg":"ai-coding","code":"300608.SZ","name":"思特奇","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":null,"latestTech":"全流程 AI 智能编程平台，依托自研九思大模型，覆盖研发全流程并适配企业私有化部署","desc":"自研全流程 AI 智能编程平台，依托九思大模型，已在运营商、证券行业落地，支持私有化部署。"}'::jsonb)
 ON CONFLICT (name) DO UPDATE SET
   seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
+
+-- ============================================================
+-- AI 板块补入 3 家龙头：腾讯控股、阿里巴巴-W、蝴蝶效应（Manus）
+-- 背景：用户反馈「AI 没有阿里和腾讯」；Manus 因 Meta 收购被叫停后
+--       腾讯牵头回购，重新成为 A 股/港股 AI 产业链核心标的。
+-- ============================================================
+-- 1) 腾讯控股 → AI 应用 / 通用 Agent（CodeBuddy + WorkBuddy，Hy3 词元全球前三）
+-- 2) 阿里巴巴-W → 基础大模型（通义千问，阿里云 AI 收入连续 11 季三位数增长）
+-- 3) 蝴蝶效应（Manus）→ AI 应用 / 通用 Agent（ARR 1 亿→4-5 亿美元）
+INSERT INTO research_companies (name, code, industry, seg, listed, round, data) VALUES
+('腾讯控股','0700.HK','ai','ai-agent',true,'已上市',
+ '{"cap":42000,"rev":8024.86,"revGrowth":10.07,"gross":57.25,"rd":498.2,"pe":null,"seg":"ai-agent","code":"0700.HK","name":"腾讯控股","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"latestTech":"Hy3（混元 3）正式版 2026 年 7 月发布，OpenRouter 词元消耗量稳居全球前三；CodeBuddy 与 WorkBuddy 实现突破性用户增长","desc":"CodeBuddy 与 WorkBuddy 为国内领先的 AI 编程/办公智能体，Hy3 词元消耗稳居全球前三，微信 14.39 亿月活是最强的 AI 分发渠道。"}'::jsonb),
+('阿里巴巴-W','9988.HK','ai','llm',true,'已上市',
+ '{"cap":22000,"rev":10236.7,"revGrowth":3,"gross":41,"pe":null,"rd":null,"seg":"llm","code":"9988.HK","name":"阿里巴巴-W","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"latestTech":"Qwen3.6-Plus（2026-03）编程与智能体编程业界标杆，原生上下文最高 100 万 tokens","desc":"通义千问为国内开源大模型生态基石，阿里云 AI 相关收入连续 11 个季度三位数增长、占外部收入 30%。"}'::jsonb),
+('蝴蝶效应（Manus）','—','ai','ai-agent',false,'回购后新一轮（进行中）',
+ '{"valuation":280,"seg":"ai-agent","code":"—","name":"蝴蝶效应（Manus）","industry":"ai","listed":false,"tech":[],"funding":[],"spark":[],"lastFunding":"2026-08","latestFunding":"2026-08 · 腾讯牵头回购 20 亿美元；新一轮拟融 5 亿美元、投后估值目标 40 亿美元","latestTech":"通用 Agent 自主执行能力（浏览器操作、表单填写、数据提取、研究报告生成）","desc":"全球首款通用智能体产品，ARR 从 1 亿美元增至 4-5 亿美元，腾讯牵头以 20 亿美元从 Meta 回购。"}'::jsonb)
+ON CONFLICT (name) DO UPDATE SET
+  seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
+
+-- 4) 环节计数同步（TREE 声明已同步修改）
+UPDATE research_segments SET co_count = 4 WHERE id = 'ai-agent';
+UPDATE research_segments SET co_count = 11 WHERE id = 'llm';
