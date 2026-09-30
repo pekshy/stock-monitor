@@ -1,8 +1,9 @@
 import React, { useMemo, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, StickyNote, FileText, ExternalLink } from 'lucide-react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight } from 'lucide-react'
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode } from '../research/format'
+import { findCompanyLocations, chainLocationUrl } from '../research/chain'
 import NotesPanel from '../components/NotesPanel'
 
 const ResearchCompanyDetail: React.FC = () => {
@@ -15,6 +16,9 @@ const ResearchCompanyDetail: React.FC = () => {
     () => companies.find(c => c.name === decoded) ?? null,
     [companies, decoded])
   const { anns, loading: annLoading } = useCompanyAnnouncements(company?.code)
+
+  /** 企业在产业链中的位置（可能多处，如拓尔思同时属 AI 办公 / AI 教育 / AI 法律·政务） */
+  const locations = useMemo(() => findCompanyLocations(decoded), [decoded])
 
   useEffect(() => { document.title = `${decoded} · 行业研究` }, [decoded])
 
@@ -54,6 +58,36 @@ const ResearchCompanyDetail: React.FC = () => {
           {listed ? '已上市' : (company.round || '未上市')}
         </span>
       </div>
+
+      {/* 产业链归属：行业 → 环节 → 细分（点击可跳回图谱对应范围） */}
+      {locations.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-3.5 mb-4">
+          <div className="flex items-center gap-2 mb-2.5">
+            <Layers className="h-3.5 w-3.5 text-blue-600" />
+            <span className="text-xs font-bold text-gray-700">产业链归属</span>
+            {locations.length > 1 && (
+              <span className="text-[11px] text-gray-400">共 {locations.length} 处</span>
+            )}
+          </div>
+          <div className="space-y-2">
+            {locations.map(loc => (
+              <Link
+                key={`${loc.industry}|${loc.seg}|${loc.sub}`}
+                to={chainLocationUrl(loc)}
+                className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] rounded-lg -mx-2 px-2 py-1 hover:bg-blue-50/60 group"
+                title="在产业链图谱中查看该细分"
+              >
+                <span className="text-gray-500">{loc.industryName}</span>
+                <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
+                <span className="text-gray-500">{loc.segName}</span>
+                <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
+                <span className="font-medium text-blue-700 group-hover:underline">{loc.sub}</span>
+                <ExternalLink className="h-3 w-3 text-gray-300 shrink-0 opacity-0 group-hover:opacity-100" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 核心指标卡 */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4 mb-4">
