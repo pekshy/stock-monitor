@@ -423,3 +423,28 @@ INSERT INTO research_companies (name, code, industry, seg, listed, round, cap, r
 ON CONFLICT (name) DO UPDATE SET
   seg = EXCLUDED.seg, industry = EXCLUDED.industry, cap = EXCLUDED.cap, rev = EXCLUDED.rev,
   data = research_companies.data || EXCLUDED.data;
+
+-- ============================================================
+-- AI 应用细分调整：「多模态内容生成」→「AI 视频」；去掉「计算机视觉 / 行业智能」
+-- ============================================================
+-- 1) 视觉公司重新归位（seg + data.seg 同步）
+UPDATE research_companies SET seg='ai-content',    data=jsonb_set(data,'{seg}','"ai-content"')    WHERE name IN ('商汤-W','虹软科技');
+UPDATE research_companies SET seg='ai-industrial', data=jsonb_set(data,'{seg}','"ai-industrial"') WHERE name IN ('云从科技','格灵深瞳');
+
+-- 2) 新增 AI 视频方向标的（AI 短剧出海 / IP 转化 / 内容版权三条主线）
+INSERT INTO research_companies (name, code, industry, seg, listed, round, cap, rev, data) VALUES
+('昆仑万维','300418.SZ','ai','ai-content',true,'已上市',519.5,53.59,
+ '{"pe":null,"rd":null,"cap":519.5,"rev":53.59,"seg":"ai-content","code":"300418.SZ","name":"昆仑万维","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":43.55,"latestTech":"SkyReels-V4 视频生成模型 + 天工短剧工作台 SkyProduction","desc":"AI 短剧出海龙头，AI 短剧平台 H1 收入 15.35 亿元（+163.28%），ARR 超 7 亿美元。"}'::jsonb),
+('中文在线','300364.SZ','ai','ai-content',true,'已上市',null,5.78,
+ '{"pe":null,"rd":null,"cap":null,"rev":5.78,"seg":"ai-content","code":"300364.SZ","name":"中文在线","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":3.85,"latestTech":"自研「逍遥」AI 剧本生成工具，与快手可灵、字节即梦双重合作","desc":"网文 IP + AI 短剧出海，短剧及 IP 衍生品收入 4.11 亿元（+108.72%），跃居第一大收入来源。"}'::jsonb),
+('掌阅科技','603533.SH','ai','ai-content',true,'已上市',null,17.84,
+ '{"pe":null,"rd":null,"cap":null,"rev":17.84,"seg":"ai-content","code":"603533.SH","name":"掌阅科技","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":16.89,"latestTech":"泡漫平台打通 AI 短剧全流程生产，接入字节 Seedance 做 AI 漫剧","desc":"70 万册网文 IP 库，短剧等衍生业务收入 11.85 亿元（+41.45%），占比 66.41%。"}'::jsonb),
+('捷成股份','300182.SZ','ai','ai-content',true,'已上市',null,10.02,
+ '{"pe":null,"rd":null,"cap":null,"rev":10.02,"seg":"ai-content","code":"300182.SZ","name":"捷成股份","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":null,"latestTech":"自研「剧现」剧本智能体、「灵犀」动漫智能体、ChatPV 短视频智能体","desc":"20 万小时影视版权库，已完成 2 万小时内容结构化拆解，自研 ChatPV / 灵犀 AI 智能体。"}'::jsonb),
+('芒果超媒','300413.SZ','ai','ai-content',true,'已上市',null,61.94,
+ '{"pe":null,"rd":null,"cap":null,"rev":61.94,"seg":"ai-content","code":"300413.SZ","name":"芒果超媒","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":3.86,"latestTech":"芒果灵创垂类 AIGC 影视平台，内置广电级内容审核","desc":"国内首部全 AI 上星长剧《后西游记》出品方，芒果灵创 AIGC 平台已支撑数千项目。"}'::jsonb),
+('华策影视','300133.SZ','ai','ai-content',true,'已上市',null,6.85,
+ '{"pe":null,"rd":null,"cap":null,"rev":6.85,"seg":"ai-content","code":"300133.SZ","name":"华策影视","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":-13.22,"latestTech":"自研「有风」「国色」两大影视垂类 AI 模型，5 万小时影视原始素材库","desc":"头部剧集公司，自研「有风」「国色」影视垂类 AI 模型，算力业务收入 1.60 亿元（+184.03%）。"}'::jsonb)
+ON CONFLICT (name) DO UPDATE SET
+  seg = EXCLUDED.seg, industry = EXCLUDED.industry, cap = EXCLUDED.cap, rev = EXCLUDED.rev,
+  data = research_companies.data || EXCLUDED.data;
