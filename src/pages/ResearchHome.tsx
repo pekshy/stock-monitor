@@ -110,18 +110,31 @@ const ResearchHome: React.FC = () => {
     return (TREE[seg] ?? []).find(s => s.name === sub) ?? null
   }, [seg, sub])
 
+  /** 当前环节允许的 seg 取值：环节自身 + 其下细分 id。
+      像「AI 应用」这样的环节，公司记录直接挂在细分 key 上（ai-coding / ai-edu ...），
+      所以环节层级要同时接受这些细分 key，否则筛出来是空的。 */
+  const segKeys = useMemo(() => {
+    if (!seg || !industry) return null
+    const s = INDUSTRY_DATA[industry]?.segs.find(x => x.id === seg)
+    if (!s?.subs?.length) return null
+    return new Set<string>([seg, ...s.subs.map(t => t.id)])
+  }, [industry, seg])
+
   /** 范围企业池（口径同原工作台 currentCompanies）：
-      行业过滤 → 环节按 c.seg → 细分按 SUBS 名单精确匹配公司名 */
+      行业过滤 → 环节按 c.seg（含该环节下的细分 id）→ 细分按 TREE 名单精确匹配公司名。
+      选了细分时以 TREE 名单为准：同一家公司可能被列在多个细分下（如金山办公既在
+      AI 编程又在 AI 办公），而 c.seg 只能取一个值，此时再用 seg 卡会误杀。 */
   const scopePool = useMemo(() => {
     let list = cloudCompanies
     if (industry) list = list.filter(c => c.industry === industry)
-    if (seg) list = list.filter(c => c.seg === seg)
     if (seg && sub) {
       const names = subInfo?.companies ?? []
       list = list.filter(c => names.includes(c.name))
+    } else if (seg) {
+      list = list.filter(c => (segKeys ? !!c.seg && segKeys.has(c.seg) : c.seg === seg))
     }
     return list
-  }, [cloudCompanies, industry, seg, sub, subInfo])
+  }, [cloudCompanies, industry, seg, sub, subInfo, segKeys])
 
   const filteredReports = useMemo(() =>
     reports.filter(r => softMatch(r.industry, r.seg, r.sub, industry, seg, sub)),

@@ -408,3 +408,18 @@ DELETE FROM research_companies WHERE name IN (
 -- 注：以下两条 UPDATE 仅用于「先改名后删除」的替代路径，正常执行上面 DELETE 后即为空操作。
 -- UPDATE research_companies SET name = '海光信息' WHERE name = '海光信息-AI视图';
 -- UPDATE research_companies SET name = '景嘉微' WHERE name = '景嘉微-AI视图';
+
+-- ============================================================
+-- 补齐 AI 应用环节缺失的公司（TREE 声明但云端不存在）
+-- 用友网络 / 金蝶国际 —— AI 办公；中控技术-AI视图 —— AI 工业/制造
+-- ============================================================
+INSERT INTO research_companies (name, code, industry, seg, listed, round, cap, rev, data) VALUES
+('用友网络','600588.SH','ai','ai-office',true,'已上市',512.0,98.0,
+ '{"pe":null,"rd":23,"cap":512.0,"rev":98.0,"seg":"ai-office","code":"600588.SH","name":"用友网络","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":-6.8,"latestTech":"YonGPT 企业服务大模型与智能体平台","desc":"企业管理软件（ERP/财务/HR）龙头，BIP 平台接入大模型推出 YonGPT 与智能体。"}'::jsonb),
+('金蝶国际','0268.HK','ai','ai-office',true,'已上市',420.0,62.0,
+ '{"pe":null,"rd":null,"cap":420.0,"rev":62.0,"seg":"ai-office","code":"0268.HK","name":"金蝶国际","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":11.5,"latestTech":"AI 原生产品线（苍穹 AI / 星瀚 AI）","desc":"云 ERP 厂商，苍穹/星瀚平台推出 AI 原生产品，AI 收入已单独披露。"}'::jsonb),
+('中控技术-AI视图','688777.SH','ai','ai-industrial',true,'已上市',696.2,36.3,
+ '{"pe":224.5,"rd":12,"cap":696.2,"rev":36.3,"seg":"ai-industrial","code":"688777.SH","name":"中控技术-AI视图","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":-5.1,"latestTech":"工业 AI 与智能工厂方案落地","desc":"（同一公司在 AI 行业图谱中的入口）流程工业自动化龙头，工业 AI 收入已单独披露。"}'::jsonb)
+ON CONFLICT (name) DO UPDATE SET
+  seg = EXCLUDED.seg, industry = EXCLUDED.industry, cap = EXCLUDED.cap, rev = EXCLUDED.rev,
+  data = research_companies.data || EXCLUDED.data;
