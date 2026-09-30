@@ -476,3 +476,23 @@ UPDATE research_companies SET
     ]
   }'::jsonb
 WHERE name = '炎黄国芯';
+
+-- ============================================================
+-- AI 编程：剔除主业不符标的，补入真正的 AI 编程主线公司
+-- 问题：原 6 家中 4 家主业并非 AI 编程（金山办公=办公、赛意/鼎捷=工业软件、
+--       亚信=安全），且 A 股本无纯正 AI 编程标的（头部在海外/未上市）。
+-- ============================================================
+-- 1) 迁出主业不符的公司
+UPDATE research_companies SET seg='ai-office',     data=jsonb_set(data,'{seg}','"ai-office"')     WHERE name='金山办公';
+UPDATE research_companies SET seg='ai-industrial', data=jsonb_set(data,'{seg}','"ai-industrial"') WHERE name IN ('赛意信息','鼎捷数智');
+
+-- 2) 补入 AI 编程主线公司（国产 IDE 底座 / 行业化 AI 编程）
+INSERT INTO research_companies (name, code, industry, seg, listed, round, data) VALUES
+('金现代','300830.SZ','ai','ai-coding',true,'已上市',
+ '{"pe":null,"rd":null,"cap":null,"rev":null,"seg":"ai-coding","code":"300830.SZ","name":"金现代","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":null,"latestTech":"轻骑兵低代码 PaaS：与 DeepSeek、通义千问深度联调，构建「AI Coding + 低代码 + Agent」融合架构","desc":"电力信息化服务商，轻骑兵低代码 PaaS 融合 DeepSeek/千问，AI Coding + 低代码 + Agent 融合架构。"}'::jsonb),
+('科大国创','300520.SZ','ai','ai-coding',true,'已上市',
+ '{"pe":null,"rd":null,"cap":null,"rev":null,"seg":"ai-coding","code":"300520.SZ","name":"科大国创","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":null,"latestTech":"「国创星码」编程 AI 助手：深度融合 DeepSeek 代码生成能力 + 公司形式化验证核心技术","desc":"自研「国创星码」编程 AI 助手，融合 DeepSeek 代码生成与形式化验证，面向军工、航天、金融等高可信场景。"}'::jsonb),
+('思特奇','300608.SZ','ai','ai-coding',true,'已上市',
+ '{"pe":null,"rd":null,"cap":null,"rev":null,"seg":"ai-coding","code":"300608.SZ","name":"思特奇","industry":"ai","listed":true,"tech":[],"funding":[],"spark":[],"gross":null,"revGrowth":null,"latestTech":"全流程 AI 智能编程平台，依托自研九思大模型，覆盖研发全流程并适配企业私有化部署","desc":"自研全流程 AI 智能编程平台，依托九思大模型，已在运营商、证券行业落地，支持私有化部署。"}'::jsonb)
+ON CONFLICT (name) DO UPDATE SET
+  seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
