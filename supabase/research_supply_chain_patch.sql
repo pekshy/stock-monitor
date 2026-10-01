@@ -541,3 +541,14 @@ ON CONFLICT (name) DO UPDATE SET
   seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
 
 -- 环境计数已同步：llm co_count = 12
+
+-- ============================================================
+-- 星辰技术纳入研究池（半导体 / osat · 2.5D/3D 先进封装）
+-- 定位：湖北江城实验室孵化的独立第三方 2.5D/3D 晶圆级先进封装代工厂，
+--       国内首条 3D 先进封装量产线（2026-09-30 通线），A 轮约 50 亿元。
+-- ============================================================
+INSERT INTO research_companies (name, code, industry, seg, listed, round, data) VALUES
+('星辰技术','—','semiconductor','osat',false,'A 轮',
+ '{"valuation":49.86,"seg":"osat","code":"—","name":"星辰技术","industry":"semiconductor","listed":false,"round":"A 轮","lastFunding":"2026年","spark":[],"tech":[],"funding":[],"latestFunding":"2026年 · A 轮（约 50 亿元，其中 45 亿元为新增股东出资）","latestTech":"2026-09-30 二期 3D 先进封装产线通线；已验证东方算芯 DF1000（全球首颗 3D 近存计算 AI 芯片），30 款芯片完成中试流片，35 台国产设备通过验证","desc":"湖北星辰技术有限公司，独立第三方 2.5D/3D 晶圆级先进封装代工厂，由湖北江城实验室孵化（2021-08 落地武汉光谷），董事长杨道虹（原长江存储副董事长）。一期+二期投资超 70 亿元，设计月产能 2 万片；二期 2026-09-30 通线，为国内首条 3D 先进封装量产线并补齐 2.5D 能力。"}'::jsonb)
+ON CONFLICT (name) DO UPDATE SET
+  seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
