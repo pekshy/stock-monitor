@@ -286,7 +286,8 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {activeTab === 'trade' && (tradeLocked ? <TradeLocked /> : <TradeBoardContent />)}
+      {/* 交易 tab：门禁在 TradeBoardContent 内部处理（未登录=锁定提示 + 市场指标公开） */}
+      {activeTab === 'trade' && <TradeBoardContent />}
       {activeTab === 'etf' && <EtfListOnly />}
       {activeTab === 'stock' && (
         <StockBoardContent
@@ -413,14 +414,14 @@ const MarketViewItem: React.FC<{
 
 // ========== 交易记录登录引导（未登录时替换交易看板） ==========
 const TradeLocked: React.FC = () => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-20 px-6 flex flex-col items-center text-center">
+  <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-16 px-6 flex flex-col items-center text-center">
     <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md mb-4">
       <Lock className="h-7 w-7 text-white" />
     </div>
     <h2 className="text-lg font-bold text-gray-900">交易记录需登录后查看</h2>
     <p className="text-sm text-gray-500 mt-2 max-w-md leading-relaxed">
       持仓、买卖点与交易提醒属于个人交易信息，不对外公开。
-      登录后即可查看完整交易记录；股票、ETF 与行业研究仍可自由浏览。
+      登录后即可查看完整交易记录；市场指标、股票、ETF 与行业研究仍可自由浏览。
     </p>
     <p className="text-xs text-gray-400 mt-4">
       可点击右上角「登录」输入暗号解锁
@@ -429,9 +430,41 @@ const TradeLocked: React.FC = () => (
 )
 
 // ========== 交易内容 ==========
+// 未登录时只渲染「市场指标」等公开区块；交易看板与笔记（含持仓/执行价/触发提醒）需登录。
 const TradeBoardContent: React.FC = memo(() => {
+  const { isAuthenticated } = useAuth()
+  const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries } = useEtfContext()
+
+  // ---- 公开部分：市场指标（宏观/中国指标/恐慌贪婪），不含任何个人交易信息 ----
+  const publicIndicators = (
+    <MarketIndicators
+      globalIndicatorSeries={globalIndicatorSeries}
+      chinaIndicatorSeries={chinaIndicatorSeries}
+      fearGreedSeries={fearGreedSeries}
+    />
+  )
+
+  if (!isAuthenticated) {
+    return (
+      <div className="space-y-6">
+        <TradeLocked />
+        {publicIndicators}
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <TradePrivateContent />
+      {publicIndicators}
+    </div>
+  )
+})
+
+// ========== 交易私有内容（统一交易看板 + 笔记），仅登录后挂载 ==========
+const TradePrivateContent: React.FC = memo(() => {
   const navigate = useNavigate()
-  const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries, etfs, priceByDateMap } = useEtfContext()
+  const { etfs, priceByDateMap } = useEtfContext()
   const { stocks } = useStockContext()
   const { notes: etfNotes, loading: etfNotesLoading, addNote: addEtfNote, updateNote: updateEtfNote, deleteNote: deleteEtfNote } = useEtfNotes()
   const { notes: stockNotes, loading: stockNotesLoading, addNote: addStockNote, updateNote: updateStockNote, deleteNote: deleteStockNote } = useStockNotes()
@@ -936,13 +969,6 @@ const TradeBoardContent: React.FC = memo(() => {
           submitting={noteModalSubmitting}
         />
       )}
-
-      {/* 市场指标 */}
-      <MarketIndicators
-        globalIndicatorSeries={globalIndicatorSeries}
-        chinaIndicatorSeries={chinaIndicatorSeries}
-        fearGreedSeries={fearGreedSeries}
-      />
     </div>
   )
 })

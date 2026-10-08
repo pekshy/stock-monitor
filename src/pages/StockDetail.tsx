@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Building2, TrendingUp, Star, MessageSquare, Plus } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Building2, TrendingUp, Star, MessageSquare, Plus, Lock } from 'lucide-react'
 import { useStockDetail } from '../hooks/useStockData'
 import { useStockContext } from '../context/StockContext'
 import { useStockNotesByCode } from '../hooks/useStockNotes'
 import { useTradeRecords } from '../hooks/useTradeRecords'
+import { useAuth } from '../context/AuthContext'
 import { NoteItem } from '../components/NoteItem'
 import { NoteModal, type TradeAction, type NoteModalInitialValues } from '../components/NoteModal'
 import { TradeRecordItem } from '../components/TradeRecordItem'
@@ -284,6 +285,7 @@ const StockDetail: React.FC = () => {
   const navigate = useNavigate()
   const { stock, quotes, valuations, loading } = useStockDetail(stockCode || '')
   const { stocks } = useStockContext()
+  const { isAuthenticated } = useAuth()
   const latestQuote = quotes[0]
   const latestValuation = valuations[0]
 
@@ -482,12 +484,33 @@ const StockDetail: React.FC = () => {
         )}
       </div>
 
-      <TradesSection stockCode={stock.stock_code} stockName={stock.stock_name} currentPrice={latestQuote?.close_price ?? undefined} quotes={quotes} />
+      {isAuthenticated ? (
+        <TradesSection stockCode={stock.stock_code} stockName={stock.stock_name} currentPrice={latestQuote?.close_price ?? undefined} quotes={quotes} />
+      ) : (
+        <TradeRecordsLocked />
+      )}
 
       <NotesSection stockCode={stock.stock_code} stockName={stock.stock_name} closes={quotes.map(q => q.close_price ?? 0)} />
     </div>
   )
 }
+
+// ========== 股票交易记录登录引导（未登录时替换 TradesSection） ==========
+const TradeRecordsLocked: React.FC = () => (
+  <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+    <h2 className="text-lg font-bold text-gray-900 mb-4">交易记录</h2>
+    <div className="py-10 flex flex-col items-center text-center">
+      <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md mb-3">
+        <Lock className="h-6 w-6 text-white" />
+      </div>
+      <p className="text-sm font-semibold text-gray-900">交易记录需登录后查看</p>
+      <p className="text-xs text-gray-500 mt-1.5 max-w-sm leading-relaxed">
+        持仓、买卖点与成本收益属于个人交易信息，不对外公开。
+      </p>
+      <p className="text-xs text-gray-400 mt-3">可点击右上角「登录」输入暗号解锁</p>
+    </div>
+  </div>
+)
 
 function TradesSection({ stockCode, stockName, currentPrice, quotes }: { stockCode: string; stockName: string; currentPrice?: number; quotes: any[] }) {
   const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()

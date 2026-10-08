@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus, Star, BarChart3 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus, Star, BarChart3, Lock } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { useEtfDetailData } from '../hooks/useEtfDetailData'
 import {
@@ -21,6 +21,7 @@ import { formatPercent, formatDate, getChangeColor, resolveTechDirection, format
 import { ButterworthFit, EtfWithData } from '../types'
 import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
 import { useTradeRecords } from '../hooks/useTradeRecords'
+import { useAuth } from '../context/AuthContext'
 import { usePersistentState } from '../hooks/usePersistentState'
 import { NoteItem } from '../components/NoteItem'
 import { NoteModal, type TradeAction, type NoteModalInitialValues } from '../components/NoteModal'
@@ -642,6 +643,7 @@ const EtfDetail: React.FC = () => {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
   const { etfs, priceByDateMap, momentumSignals, toggleFocus } = useEtfContext()
+  const { isAuthenticated } = useAuth()
 
   // 按需加载详情页数据
   const { dailyData, indicators, signals, butterworthFit, momentumHistory, loading: detailLoading } = useEtfDetailData(code)
@@ -653,11 +655,11 @@ const EtfDetail: React.FC = () => {
     return etfs.find(e => e.symbol === code) || null
   }, [etfs, code])
 
-  // 筛选当前ETF的交易记录
+  // 筛选当前ETF的交易记录（未登录不下发，避免图表上的买卖点标记泄露）
   const tradeRecords = useMemo(() => {
-    if (!code) return []
+    if (!isAuthenticated || !code) return []
     return records.filter(r => r.symbol.toUpperCase() === code.toUpperCase())
-  }, [records, code])
+  }, [records, code, isAuthenticated])
 
   // dailyData, indicators, signals, butterworthFit 现在从 useEtfDetailData 获取
 
@@ -968,12 +970,33 @@ const EtfDetail: React.FC = () => {
         )}
       </div>
 
-      <TradesSection symbol={etf.symbol} etfName={etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={dailyData} priceByDateMap={priceByDateMap} />
+      {isAuthenticated ? (
+        <TradesSection symbol={etf.symbol} etfName={etf.name} currentPrice={latestDaily?.close ?? undefined} dailyData={dailyData} priceByDateMap={priceByDateMap} />
+      ) : (
+        <TradeRecordsLocked />
+      )}
 
       <NotesSection symbol={etf.symbol} etfName={etf.name} closes={dailyData.map(d => d.close ?? 0)} />
     </div>
   )
 }
+
+// ========== ETF 交易记录登录引导（未登录时替换 TradesSection） ==========
+const TradeRecordsLocked: React.FC = () => (
+  <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+    <h2 className="text-lg font-bold text-gray-900 mb-4">交易记录</h2>
+    <div className="py-10 flex flex-col items-center text-center">
+      <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md mb-3">
+        <Lock className="h-6 w-6 text-white" />
+      </div>
+      <p className="text-sm font-semibold text-gray-900">交易记录需登录后查看</p>
+      <p className="text-xs text-gray-500 mt-1.5 max-w-sm leading-relaxed">
+        持仓、买卖点与成本收益属于个人交易信息，不对外公开。
+      </p>
+      <p className="text-xs text-gray-400 mt-3">可点击右上角「登录」输入暗号解锁</p>
+    </div>
+  </div>
+)
 
 function TradesSection({ symbol, etfName, currentPrice, dailyData, priceByDateMap }: { symbol: string; etfName: string | null; currentPrice?: number; dailyData?: EtfDailyData[]; priceByDateMap?: Map<string, Map<string, number>> }) {
   const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
