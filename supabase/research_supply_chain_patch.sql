@@ -552,3 +552,14 @@ INSERT INTO research_companies (name, code, industry, seg, listed, round, data) 
  '{"valuation":49.86,"seg":"osat","code":"—","name":"星辰技术","industry":"semiconductor","listed":false,"round":"A 轮","lastFunding":"2026年","spark":[],"tech":[],"funding":[],"latestFunding":"2026年 · A 轮（约 50 亿元，其中 45 亿元为新增股东出资）","latestTech":"2026-09-30 二期 3D 先进封装产线通线；已验证东方算芯 DF1000（全球首颗 3D 近存计算 AI 芯片），30 款芯片完成中试流片，35 台国产设备通过验证","desc":"湖北星辰技术有限公司，独立第三方 2.5D/3D 晶圆级先进封装代工厂，由湖北江城实验室孵化（2021-08 落地武汉光谷），董事长杨道虹（原长江存储副董事长）。一期+二期投资超 70 亿元，设计月产能 2 万片；二期 2026-09-30 通线，为国内首条 3D 先进封装量产线并补齐 2.5D 能力。"}'::jsonb)
 ON CONFLICT (name) DO UPDATE SET
   seg = EXCLUDED.seg, industry = EXCLUDED.industry, data = research_companies.data || EXCLUDED.data;
+
+-- ============================================================
+-- 半导体设备细分重构（依据「半导体综研」设备分类表，5 大类 317 种机型）
+-- 变更为代码级（TREE / INDUSTRY_DATA），research_segments 表不存在，无库操作：
+--   1. 节点 11 → 12：新增「衬底 / 长晶设备」（衬底材料设备大类）；
+--      「清洗 / 洗净」更名「清洗 / 湿法工艺」；节点按工艺流程排序。
+--   2. 晶升股份：薄膜沉积/热处理 → 衬底/长晶设备（单晶炉属衬底材料设备）。
+--   3. 京仪装备：薄膜沉积/热处理 → 零部件与厂务（温控设备属厂务辅助大类）。
+--   4. 科益虹源：量检测设备去重，仅保留光刻设备（光刻光源）。
+--   5. equipment coCount 49 → 52（去重后实际企业数）。
+-- ============================================================
