@@ -3,6 +3,12 @@
 
 细分按 (seg_id, sub_name) 在文档顺序上游标推进，避免重名错配；
 行业级按 industry key 锚定 name 行之后插入。
+
+⚠️ 已失效，请勿重跑（2026-10）：
+    TREE['equipment'] 已由 22 个扁平细分改为「5 个工艺阶段 → 22 个设备种类」嵌套结构
+    （见 data.ts 的 TreeStage / TreeLeaf），本脚本的扁平游标定位与旧节点名
+    （如「薄膜沉积 / 热处理」「封装 / 组装设备」「清洗 / 洗净」）均不再匹配，
+    重跑会抛 ValueError。保留仅作历史记录。
 """
 import io
 import os

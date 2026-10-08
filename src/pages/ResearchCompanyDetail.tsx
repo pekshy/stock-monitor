@@ -72,7 +72,7 @@ const ResearchCompanyDetail: React.FC = () => {
           <div className="space-y-2">
             {locations.map(loc => (
               <Link
-                key={`${loc.industry}|${loc.seg}|${loc.sub}`}
+                key={`${loc.industry}|${loc.seg}|${loc.stage ?? ''}|${loc.sub}`}
                 to={chainLocationUrl(loc)}
                 className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] rounded-lg -mx-2 px-2 py-1 hover:bg-blue-50/60 group"
                 title="在产业链图谱中查看该细分"
@@ -81,6 +81,12 @@ const ResearchCompanyDetail: React.FC = () => {
                 <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
                 <span className="text-gray-500">{loc.segName}</span>
                 <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
+                {loc.stageName && (
+                  <>
+                    <span className="text-gray-500">{loc.stageName}</span>
+                    <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
+                  </>
+                )}
                 <span className="font-medium text-blue-700 group-hover:underline">{loc.sub}</span>
                 <ExternalLink className="h-3 w-3 text-gray-300 shrink-0 opacity-0 group-hover:opacity-100" />
               </Link>

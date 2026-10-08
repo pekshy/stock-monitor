@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FileText, Zap, StickyNote, RefreshCw, CloudOff, ChevronRight } from 'lucide-react'
-import { INDUSTRY_DATA, TREE } from '../research/data'
+import { INDUSTRY_DATA, TREE, isGrouped, treeLeaves, type TreeStage, type TreeLeaf } from '../research/data'
 import { useIntel, useCloudCompanies, parseList, type CloudNote } from '../research/api'
 import { fmtDate } from '../research/format'
 import { CompanyTable } from './ResearchCompanies'
@@ -49,6 +49,7 @@ const ResearchHome: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const industry = searchParams.get('ind')
   const seg = searchParams.get('seg')
+  const stage = searchParams.get('stage')
   const sub = searchParams.get('sub')
   const mainTab: MainTab =
     searchParams.get('mt') === 'companies' ? 'companies'
@@ -78,20 +79,29 @@ const ResearchHome: React.FC = () => {
   // 再点同一行业/环节只收起子列表，选中范围保持不变
   const [expandedInd, setExpandedInd] = useState<string | null>(() => searchParams.get('ind'))
   const [expandedSeg, setExpandedSeg] = useState<string | null>(() => searchParams.get('seg'))
+  const [expandedStage, setExpandedStage] = useState<string | null>(() => searchParams.get('stage'))
 
   // 切换层级时清下级选择
   const pickIndustry = (id: string | null) => {
-    // 点击行业：右侧始终切换到该行业范围（清 seg/sub）；再次点击同一行业仅切换环节列表展开/收起
-    if (!id) { patchParams({ ind: null, seg: null, sub: null }); setExpandedInd(null); setExpandedSeg(null); return }
-    patchParams({ ind: id, seg: null, sub: null })
+    // 点击行业：右侧始终切换到该行业范围（清 seg/stage/sub）；再次点击同一行业仅切换环节列表展开/收起
+    if (!id) { patchParams({ ind: null, seg: null, stage: null, sub: null }); setExpandedInd(null); setExpandedSeg(null); setExpandedStage(null); return }
+    patchParams({ ind: id, seg: null, stage: null, sub: null })
     setExpandedInd(e => (industry === id ? (e === id ? null : id) : id))
     setExpandedSeg(null)
+    setExpandedStage(null)
   }
   const pickSeg = (id: string | null) => {
-    // 点击环节：右侧始终切换到该环节范围（清 sub）；再次点击同一环节仅切换子列表展开/收起
-    if (!id) { patchParams({ seg: null, sub: null }); setExpandedSeg(null); return }
-    patchParams({ seg: id, sub: null })
+    // 点击环节：右侧始终切换到该环节范围（清 stage/sub）；再次点击同一环节仅切换子列表展开/收起
+    if (!id) { patchParams({ seg: null, stage: null, sub: null }); setExpandedSeg(null); setExpandedStage(null); return }
+    patchParams({ seg: id, stage: null, sub: null })
     setExpandedSeg(e => (seg === id ? (e === id ? null : id) : id))
+    setExpandedStage(null)
+  }
+  const pickStage = (id: string | null) => {
+    // 点击工艺阶段（仅带中间层的环节，如半导体设备）：右侧切到该阶段范围（清 sub）；再次点击仅切换设备种类展开/收起
+    if (!id) { patchParams({ stage: null, sub: null }); setExpandedStage(null); return }
+    patchParams({ stage: id, sub: null })
+    setExpandedStage(e => (stage === id ? (e === id ? null : id) : id))
   }
   const pickSub = (name: string) => patchParams({ sub: name, mt: 'companies' })
 
@@ -104,11 +114,19 @@ const ResearchHome: React.FC = () => {
     return { industryName: ind.name, industryDetail: ind.detail ?? null, seg: ind.segs.find(s => s.id === seg) ?? null }
   }, [industry, seg])
 
-  // 当前选中细分（TREE[segId] 下挂的 {name, desc, companies}）
+  // 当前选中细分（leaf）：分组环节先展平各工艺阶段
   const subInfo = useMemo(() => {
     if (!seg || !sub) return null
-    return (TREE[seg] ?? []).find(s => s.name === sub) ?? null
+    return treeLeaves(seg).find(s => s.name === sub) ?? null
   }, [seg, sub])
+
+  // 当前选中工艺阶段（仅带中间层的环节，如半导体设备）
+  const stageInfo = useMemo(() => {
+    if (!seg || !stage) return null
+    const v = TREE[seg]
+    if (!isGrouped(v)) return null
+    return v.find(s => s.id === stage) ?? null
+  }, [seg, stage])
 
   /** 当前环节允许的 seg 取值：环节自身 + 其下细分 id。
       像「AI 应用」这样的环节，公司记录直接挂在细分 key 上（ai-coding / ai-edu ...），
@@ -121,20 +139,25 @@ const ResearchHome: React.FC = () => {
   }, [industry, seg])
 
   /** 范围企业池（口径同原工作台 currentCompanies）：
-      行业过滤 → 环节按 c.seg（含该环节下的细分 id）→ 细分按 TREE 名单精确匹配公司名。
+      行业过滤 → 环节按 c.seg（含该环节下的细分 id）→ 阶段按并集 → 细分按 TREE 名单精确匹配公司名。
       选了细分时以 TREE 名单为准：同一家公司可能被列在多个细分下（如金山办公既在
-      AI 编程又在 AI 办公），而 c.seg 只能取一个值，此时再用 seg 卡会误杀。 */
+      AI 编程又在 AI 办公），而 c.seg 只能取一个值，此时再用 seg 卡会误杀。
+      分支顺序不可调换：sub > stage > 环节，保证细分精确名单不被阶段的并集覆盖。 */
   const scopePool = useMemo(() => {
     let list = cloudCompanies
     if (industry) list = list.filter(c => c.industry === industry)
     if (seg && sub) {
       const names = subInfo?.companies ?? []
       list = list.filter(c => names.includes(c.name))
+    } else if (seg && stageInfo) {
+      // 阶段级：该阶段下全部设备种类企业并集去重（同一家公司可出现在多个设备种类里，如新凯来）
+      const names = new Set(stageInfo.leaves.flatMap(l => l.companies ?? []))
+      list = list.filter(c => names.has(c.name))
     } else if (seg) {
       list = list.filter(c => (segKeys ? !!c.seg && segKeys.has(c.seg) : c.seg === seg))
     }
     return list
-  }, [cloudCompanies, industry, seg, sub, subInfo, segKeys])
+  }, [cloudCompanies, industry, seg, stage, sub, subInfo, stageInfo, segKeys])
 
   const filteredReports = useMemo(() =>
     reports.filter(r => softMatch(r.industry, r.seg, r.sub, industry, seg, sub)),
@@ -179,12 +202,14 @@ const ResearchHome: React.FC = () => {
 
   const scopeLabel = !industry ? '全部'
     : !seg ? (INDUSTRY_DATA[industry]?.name ?? industry)
-    : !sub ? (segInfo?.seg?.name ?? seg)
-    : sub
+    : sub ? sub
+    : stageInfo ? stageInfo.name
+    : (segInfo?.seg?.name ?? seg)
 
   const scopeChainLabel = [
     industry ? INDUSTRY_DATA[industry]?.name : null,
     segInfo?.seg?.name,
+    stageInfo?.name,
     sub,
   ].filter(Boolean).join(' · ')
 
@@ -210,7 +235,10 @@ const ResearchHome: React.FC = () => {
                 {expandedInd === id && (
                   <div className="bg-gray-50/60">
                     {ind.segs.map(s => {
-                      const subs = TREE[s.id] ?? []
+                      const segVal = TREE[s.id]
+                      const grouped = isGrouped(segVal)
+                      const stages = grouped ? (segVal as TreeStage[]) : []
+                      const subs = grouped ? [] : ((segVal as TreeLeaf[]) ?? [])
                       return (
                         <div key={s.id}>
                           <button
@@ -220,11 +248,51 @@ const ResearchHome: React.FC = () => {
                             <span className="truncate">{s.name}</span>
                             <span className="shrink-0 flex items-center gap-1.5">
                               {s.heat && <span className="text-[11px] text-gray-400">{s.heat}</span>}
-                              {subs.length > 0 && <span className="text-[10px] text-gray-300">{subs.length} 细分</span>}
+                              {grouped && stages.length > 0 && <span className="text-[10px] text-gray-300">{stages.length} 工艺阶段</span>}
+                              {!grouped && subs.length > 0 && <span className="text-[10px] text-gray-300">{subs.length} 细分</span>}
                             </span>
                           </button>
-                          {/* 细分（第三级）：环节展开时展示，点击直达该细分的企业名单 */}
-                          {expandedSeg === s.id && subs.length > 0 && (
+                          {/* 第三级：带「工艺阶段」中间层的环节（如半导体设备），先列阶段再列设备种类 */}
+                          {expandedSeg === s.id && grouped && (
+                            <div className="bg-gray-50">
+                              {stages.map(st => (
+                                <div key={st.id}>
+                                  <button
+                                    onClick={() => pickStage(st.id)}
+                                    className={`w-full text-left pl-11 pr-4 py-1 text-xs hover:bg-gray-100 flex items-center gap-1.5 ${stage === st.id ? 'text-blue-700 font-semibold' : 'text-gray-600'}`}
+                                    title={st.desc || st.name}
+                                  >
+                                    <span className="truncate">{st.name}</span>
+                                    <span className="shrink-0 text-gray-300 ml-auto">{st.leaves.length}</span>
+                                  </button>
+                                  {/* 第四级：设备种类（阶段展开时展示，点击直达该设备种类的企业名单） */}
+                                  {expandedStage === st.id && st.leaves.length > 0 && (
+                                    <div className="bg-gray-100/70">
+                                      {st.leaves.map(sb => (
+                                        <button
+                                          key={sb.name}
+                                          onClick={() => pickSub(sb.name)}
+                                          className={`w-full text-left pl-16 pr-4 py-1 text-xs hover:bg-gray-200/60 flex items-center gap-1.5 ${sub === sb.name ? 'text-blue-700 font-medium' : 'text-gray-500'}`}
+                                          title={sb.desc || sb.name}
+                                        >
+                                          <span className="truncate">{sb.name}</span>
+                                          {sb.local && (
+                                            <span
+                                              className={`shrink-0 text-[10px] leading-none px-1 py-0.5 rounded ${LOCAL_BADGE[sb.local]}`}
+                                              title={`国产化率：${sb.local}`}
+                                            >{sb.local}</span>
+                                          )}
+                                          {sb.companies?.length ? <span className="shrink-0 text-gray-400 ml-auto">{sb.companies.length}</span> : null}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* 第三级：无中间层的环节，直接列细分（原行为） */}
+                          {expandedSeg === s.id && !grouped && subs.length > 0 && (
                             <div className="bg-gray-50">
                               {subs.map(sb => (
                                 <button
@@ -271,6 +339,12 @@ const ResearchHome: React.FC = () => {
                   {segInfo.seg.trend && <span className="text-xs text-gray-400">{segInfo.seg.trend}</span>}
                 </>
               )}
+              {stageInfo && (
+                <>
+                  <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
+                  <span className="font-semibold text-gray-800">{stageInfo.name}</span>
+                </>
+              )}
               {subInfo && (
                 <>
                   <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
@@ -287,9 +361,11 @@ const ResearchHome: React.FC = () => {
             <p className="text-[13px] text-gray-600 mt-2 leading-relaxed">
               {subInfo
                 ? (subInfo.detail || subInfo.desc)
-                : segInfo.seg
-                  ? (segInfo.seg.detail || segInfo.seg.summary)
-                  : segInfo.industryDetail}
+                : stageInfo
+                  ? stageInfo.desc
+                  : segInfo.seg
+                    ? (segInfo.seg.detail || segInfo.seg.summary)
+                    : segInfo.industryDetail}
             </p>
           </div>
         )}

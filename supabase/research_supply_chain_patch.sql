@@ -595,3 +595,39 @@ ON CONFLICT (name) DO UPDATE SET
 -- 工序序号（①–㉒）写入各节点 desc 前缀，侧栏可直接反映先后顺序。
 -- 企业 52 家不变，equipment coCount 保持 52。纯代码级变更，无库操作。
 -- ============================================================
+
+-- ============================================================
+-- 半导体设备环节增加「工艺阶段」中间层（3 级 → 4 级）
+-- 侧栏层级：行业 → 环节 → 工艺阶段 → 设备种类
+-- 仅 TREE['equipment'] 使用新结构，其余 17 个 TREE key 保持扁平不动。
+-- 数据结构：TreeValue = TreeLeaf[] | TreeStage[]，用 leaves 字段存在性运行时判别
+--   （isGrouped / treeLeaves 两个纯函数），对扁平 key 完全透明。
+-- 5 个工艺阶段（与半导体综研分类一致）：
+--   front-end  前道设备     14 种（外延/薄膜沉积/涂胶显影/光刻/刻蚀/去胶与灰化/
+--                                 湿法清洗/离子注入/热处理/CMP/湿法刻蚀/量检测/
+--                                 晶圆测试WAT/激光退火与打标）
+--   back-end   后道设备      3 种（封装/先进封装/测试）
+--   substrate  衬底材料设备  1 种（衬底材料设备）
+--   mask       掩模制造设备  1 种（掩模制造设备）
+--   facility   厂务辅助设备  3 种（设备零部件/厂务与洁净室设备/物流搬送设备AMHS）
+-- URL 新增 stage 参数（值为 stage.id slug）：?ind&seg&stage&sub&mt
+--   老链接 ?ind&seg&sub 行为不变；无中间层的环节不输出 stage 参数。
+-- 阶段级企业 = 该阶段下全部设备种类企业并集去重。
+-- 纯代码级变更（TREE），无 research_companies 写操作。
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- 数据修复（与上面的层级改造无关，属历史遗留问题）
+-- research_companies 有 11 行的 data.industry 缺失，而前端 useCloudCompanies
+-- 用 {...r.data} 覆盖本地数据，导致这些企业在任何行业范围内都被过滤掉。
+-- 用顶层 industry 列回填（seg 同理）：
+--   紫光展锐/森国科/特思迪/新凯来/紫光同创 (semiconductor·design/equipment)
+--   博康信息/天科合达 (semiconductor·material)
+--   商汤-W/虹软科技 (ai·ai-content)、云从科技/格灵深瞳 (ai·ai-industrial)
+-- ------------------------------------------------------------
+UPDATE research_companies SET data = data || jsonb_build_object('industry', industry)
+ WHERE data->>'industry' IS NULL;
+UPDATE research_companies SET data = data || jsonb_build_object('seg', seg)
+ WHERE data->>'seg' IS NULL AND seg IS NOT NULL;
+UPDATE research_companies SET data = data || jsonb_build_object('name', name)
+ WHERE data->>'name' IS NULL;
