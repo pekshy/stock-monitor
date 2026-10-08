@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback, memo } from 'react'
-import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus, BookOpen } from 'lucide-react'
+import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus, BookOpen, Lock } from 'lucide-react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useEtfContext } from '../context/EtfContext'
+import { useAuth } from '../context/AuthContext'
 import { useIndustrySummaries } from '../hooks/useIndustryData'
 import { useEtfNotes } from '../hooks/useEtfNotes'
 import { useStockNotes } from '../hooks/useStockNotes'
@@ -23,17 +24,26 @@ type TabType = 'trade' | 'etf' | 'stock'
 const Home: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { isAuthenticated } = useAuth()
   const { stocks, loading: stockLoading, refresh: refreshStocks } = useStockContext()
   const { latestDate: etfLatestDate, refresh: refreshEtf } = useEtfContext()
   const industrySummaries = useIndustrySummaries(stocks)
 
+  // 未登录时「交易记录」不可看。
+  // `?tab=trade` 表示用户主动点了交易 tab（此时展示锁定引导）；
+  // 不带参数落到 `/` 属于「默认首页」，未登录时改看股票，避免首屏直接撞门禁。
+  const explicitTrade = new URLSearchParams(location.search).get('tab') === 'trade'
+
   const getActiveTab = (): TabType => {
     if (location.pathname === '/stocks') return 'stock'
     if (location.pathname === '/etf') return 'etf'
+    if (!isAuthenticated && !explicitTrade) return 'stock'
     return 'trade'
   }
 
   const activeTab = getActiveTab()
+  // 交易记录仅登录可见（持仓/买卖点/交易提醒均属个人交易信息）
+  const tradeLocked = !isAuthenticated
 
   const switchTab = (tab: TabType) => {
     if (tab === 'stock') {
@@ -41,7 +51,8 @@ const Home: React.FC = () => {
     } else if (tab === 'etf') {
       navigate('/etf')
     } else {
-      navigate('/')
+      // 带 tab=trade 以便未登录时也能进入交易 tab（展示锁定引导而非被弹回股票）
+      navigate('/?tab=trade')
     }
   }
 
@@ -212,13 +223,15 @@ const Home: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => switchTab('trade')}
-            className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all ${
+            title={tradeLocked ? '交易记录需登录后查看' : undefined}
+            className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all flex items-center gap-1.5 ${
               activeTab === 'trade'
                 ? 'bg-orange-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             交易
+            {tradeLocked && <Lock className="h-3.5 w-3.5 opacity-60" />}
           </button>
           <button
             onClick={() => switchTab('etf')}
@@ -273,7 +286,7 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {activeTab === 'trade' && <TradeBoardContent />}
+      {activeTab === 'trade' && (tradeLocked ? <TradeLocked /> : <TradeBoardContent />)}
       {activeTab === 'etf' && <EtfListOnly />}
       {activeTab === 'stock' && (
         <StockBoardContent
@@ -397,6 +410,23 @@ const MarketViewItem: React.FC<{
     </div>
   )
 }
+
+// ========== 交易记录登录引导（未登录时替换交易看板） ==========
+const TradeLocked: React.FC = () => (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-20 px-6 flex flex-col items-center text-center">
+    <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md mb-4">
+      <Lock className="h-7 w-7 text-white" />
+    </div>
+    <h2 className="text-lg font-bold text-gray-900">交易记录需登录后查看</h2>
+    <p className="text-sm text-gray-500 mt-2 max-w-md leading-relaxed">
+      持仓、买卖点与交易提醒属于个人交易信息，不对外公开。
+      登录后即可查看完整交易记录；股票、ETF 与行业研究仍可自由浏览。
+    </p>
+    <p className="text-xs text-gray-400 mt-4">
+      可点击右上角「登录」输入暗号解锁
+    </p>
+  </div>
+)
 
 // ========== 交易内容 ==========
 const TradeBoardContent: React.FC = memo(() => {

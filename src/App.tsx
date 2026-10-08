@@ -16,8 +16,13 @@ function AppContent() {
   const { latestDate } = useStockContext()
   const { isAuthenticated, ready } = useAuth()
   const location = useLocation()
-  // 行业研究模块公开访问，无需暗号；其余页面（个人投资信息）需登录
-  const isPublicResearch = location.pathname.startsWith('/research')
+  // 访问策略：全部页面公开只读，唯一受限内容是「交易记录」（首页交易 tab）。
+  //   /stocks /etf /industry/:id /stock/:code  —— 行情与行业数据
+  //   /research 全模块                          —— 行业研究（图谱/情报/企业）
+  // 交易 tab 的门禁下沉到 Home 内部（TradeLocked），因此这里不再整页拦截。
+  // 这些路径保留拦截能力，仅用于将来需要重新收紧时切换：
+  const PRIVATE_ROUTES: string[] = []
+  const needsAuth = PRIVATE_ROUTES.includes(location.pathname)
 
   if (!ready) {
     return (
@@ -27,7 +32,7 @@ function AppContent() {
     )
   }
 
-  if (!isPublicResearch && !isAuthenticated) {
+  if (needsAuth && !isAuthenticated) {
     return <LoginGate />
   }
 
