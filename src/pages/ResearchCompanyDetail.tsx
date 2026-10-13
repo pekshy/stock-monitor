@@ -101,7 +101,7 @@ const ResearchCompanyDetail: React.FC = () => {
         {listed ? (
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
             <Metric label="市值" value={fmtCap(company.cap)} />
-            <Metric label="PE(TTM)" value={toNum(company.pe)?.toFixed(1) ?? '—'} />
+            <Metric label="PE(TTM)" value={peLabel(company.pe)} />
             <Metric label="营收" value={fmtRev(company.rev)} />
             <Metric label="毛利率" value={fmtPct(company.gross)} />
             <Metric label="研发占比" value={fmtPct(company.rd)} />
@@ -186,6 +186,13 @@ const ResearchCompanyDetail: React.FC = () => {
       )}
     </div>
   )
+}
+
+/** PE 展示：数值保留一位小数；非数值口径（如「亏损」）原样呈现，避免丢失语义 */
+function peLabel(v: number | string | null | undefined): string {
+  if (v == null || v === '') return '—'
+  const n = toNum(v)
+  return n == null ? String(v) : n.toFixed(1)
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
