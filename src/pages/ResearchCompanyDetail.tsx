@@ -1,7 +1,7 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight } from 'lucide-react'
-import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList } from '../research/api'
+import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users } from 'lucide-react'
+import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode } from '../research/format'
 import { findCompanyLocations, chainLocationUrl } from '../research/chain'
 import NotesPanel from '../components/NotesPanel'
@@ -144,6 +144,9 @@ const ResearchCompanyDetail: React.FC = () => {
         </Card>
       )}
 
+      {/* 管理层：任职名单（上市=董监高，未上市=核心团队）+ 人事变动历史 */}
+      <ExecutivesCard company={company} listed={listed} />
+
       {/* 研究笔记（页面可增改删，自动关联当前企业） */}
       <Card title="研究笔记" icon={<StickyNote className="h-4 w-4" />} count={coNotes.length}>
         <NotesPanel
@@ -193,6 +196,73 @@ function peLabel(v: number | string | null | undefined): string {
   if (v == null || v === '') return '—'
   const n = toNum(v)
   return n == null ? String(v) : n.toFixed(1)
+}
+
+/** 管理层：任职名单按「董事会 / 高级管理层」分组，履历默认折叠；另附人事变动历史 */
+function ExecutivesCard({ company, listed }: { company: CompanyRecord; listed: boolean }) {
+  const [open, setOpen] = useState<string | null>(null)
+  const execs = company.executives ?? []
+  const changes = company.execChanges ?? []
+  if (!execs.length && !changes.length) return null
+
+  // 未上市企业无「董监高」概念，统一按核心团队呈现
+  const groups: { key: string; label: string; rows: typeof execs }[] = listed
+    ? [
+        { key: 'board', label: '董事会', rows: execs.filter(e => e.role === 'board') },
+        { key: 'management', label: '高级管理层', rows: execs.filter(e => e.role !== 'board') },
+      ].filter(g => g.rows.length > 0)
+    : [{ key: 'team', label: '核心团队', rows: execs }]
+
+  return (
+    <Card title="管理层" icon={<Users className="h-4 w-4" />} count={execs.length || undefined}>
+      {groups.map(g => (
+        <div key={g.key} className="mb-4 last:mb-0">
+          <div className="text-[11px] font-semibold text-gray-400 mb-1.5">{g.label}</div>
+          <div className="divide-y divide-gray-50">
+            {g.rows.map(e => {
+              const id = `${g.key}|${e.name}|${e.title}`
+              const expanded = open === id
+              return (
+                <div key={id} className="py-2">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <span className="text-[13px] font-semibold text-gray-800">{e.name}</span>
+                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{e.title}</span>
+                    {e.tenure && <span className="text-[11px] text-gray-400">任期 {e.tenure}</span>}
+                    {e.shares && <span className="text-[11px] text-gray-400">持股 {e.shares}</span>}
+                    {e.bio && (
+                      <button
+                        onClick={() => setOpen(expanded ? null : id)}
+                        className="text-[11px] text-blue-600 hover:underline"
+                      >
+                        {expanded ? '收起' : '履历'}
+                      </button>
+                    )}
+                  </div>
+                  {expanded && e.bio && (
+                    <p className="text-[12px] text-gray-500 leading-relaxed mt-1.5">{e.bio}</p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+
+      {changes.length > 0 && (
+        <div className="pt-3 mt-1 border-t border-gray-100">
+          <div className="text-[11px] font-semibold text-gray-400 mb-1.5">人事变动</div>
+          <div className="space-y-1.5">
+            {changes.map((c, i) => (
+              <div key={i} className="flex items-baseline gap-3 text-[13px]">
+                <span className="text-gray-400 shrink-0">{fmtDate(c.date)}</span>
+                <span className="text-gray-800">{c.event}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Card>
+  )
 }
 
 function Metric({ label, value }: { label: string; value: string }) {

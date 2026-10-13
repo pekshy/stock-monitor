@@ -1,13 +1,12 @@
--- 粤芯半导体（301660.SZ）上市升级 · 2026-10-13 深交所创业板挂牌
--- 依据：上市首日行情（发行价 12.01 元）+ 招股书 / 上市保荐书披露，幂等 upsert
+-- 粤芯半导体（301660.SZ）高管名单回填 · 2026-10-13 上市
+-- 依据：深交所创业板上市公告书披露的董事、高级管理人员名单（任期 2026.3.31–2029.3.30）
+--       履历取自全景路演「团队介绍」页
+-- 幂等 upsert；data 为整包覆盖，故此处显式包含全部字段（含 executives）
 --
--- 数据口径说明：
---   rev=25.8 为 2025 年全年营收（17.8 是 2026H1 数据，此前误作 rev 展示）
---   gross 留空 —— 公司处于亏损扩产期，综合毛利率尚未达到有意义披露口径
---   rd=16.3 = 2025 年研发费用 4.22 亿 / 营收 25.82 亿
---   cap / spark 末位 = 2026-10-13 盘中市值（约 42 元 × 总股本 41.2 亿股）
+-- 注意：data = excluded.data 是整体替换而非合并，
+--       后续任何针对本公司的补丁都必须带上 executives，否则该字段会被抹掉。
 
-insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data) values ('粤芯半导体', '301660.SZ', 'semiconductor', 'fab', true, null, 1730.4, null, 25.8, null, '{"name":"粤芯半导体","code":"301660.SZ","industry":"semiconductor","seg":"fab","listed":true,"desc":"广东省自主培育的首家进入量产的 12 英寸晶圆制造企业（“广州第一芯”），专注模拟芯片特色工艺代工；截至 2026 年 4 月末为中国大陆唯一具备 12 英寸硅光晶圆大规模量产能力的企业。2026-10-13 登陆创业板，发行价 12.01 元/股，初始发行 5.13 亿股，募资约 61.57 亿元。","execChanges":[],"latestTech":"12 英寸硅光晶圆大规模量产（大陆唯一），硅光平台累计投片超 7000 片，覆盖 400G/800G/1.6T 光模块","tech":[],"funding":[],"cap":1730.4,"rev":25.8,"revGrowth":53.6,"pe":"亏损","gross":null,"rd":16.3,"spark":[340.4,453.7,520.6,1730.4]}')
+insert into research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data) values ('粤芯半导体', '301660.SZ', 'semiconductor', 'fab', true, null, 1730.4, null, 25.8, null, '{"name":"粤芯半导体","code":"301660.SZ","industry":"semiconductor","seg":"fab","listed":true,"desc":"广东省自主培育的首家进入量产的 12 英寸晶圆制造企业（“广州第一芯”），专注模拟芯片特色工艺代工；截至 2026 年 4 月末为中国大陆唯一具备 12 英寸硅光晶圆大规模量产能力的企业。2026-10-13 登陆创业板，发行价 12.01 元/股，初始发行 5.13 亿股，募资约 61.57 亿元。","cap":1730.4,"pe":"亏损","rev":25.8,"revGrowth":53.6,"gross":null,"rd":16.3,"spark":[340.4,453.7,520.6,1730.4],"latestTech":"12 英寸硅光晶圆大规模量产（大陆唯一），硅光平台累计投片超 7000 片，覆盖 400G/800G/1.6T 光模块","executives":[{"name":"陈谨","title":"董事长","role":"board","tenure":"2026.3–2029.3","shares":"4,251 万股 · 1.80%","bio":"1971 年 9 月生，硕士研究生。2019 年 3 月起任公司董事长。曾任广州智光电气董事兼总裁、广州金鹏集团董事长兼总裁、广州凯得控股副总经理、广州开发区建设创业投资董事长兼总经理等职务。"},{"name":"陈卫","title":"董事、总经理","role":"board","tenure":"2026.3–2029.3","shares":"4,183 万股 · 1.77%","bio":"1959 年 3 月生，新加坡国籍，硕士研究生。2018 年 1 月起任公司董事、总经理。曾任上海华虹宏力半导体销售及客户支持副总裁、新加坡特许半导体中国分公司首席代表及总经理。现兼任华南理工大学客座教授、中山大学顾问教授、广州市半导体协会会长、粤港澳大湾区半导体产业联盟理事长。"},{"name":"黄铠生","title":"董事","role":"board","tenure":"2026.3–2029.3","shares":"间接 188.33 万股","bio":"通过广州合信芯赢、联芯贰号间接持有公司股份。"},{"name":"欧阳俊","title":"董事","role":"board","tenure":"2026.3–2029.3"},{"name":"张瑞双","title":"董事","role":"board","tenure":"2026.3–2029.3","shares":"间接 0.93 万股","bio":"通过广东珩芯间接持有公司股份。"},{"name":"毛寒梅","title":"董事","role":"board","tenure":"2026.3–2029.3"},{"name":"韩瑞津","title":"职工代表董事、副总经理、首席运营官","role":"board","tenure":"2026.3–2029.3","shares":"间接 2,000 万股 · 0.85%","bio":"通过联芯贰号间接持有公司股份，同时担任公司首席运营官。"},{"name":"石水平","title":"独立董事","role":"board","tenure":"2026.3–2029.3"},{"name":"庄巍","title":"独立董事","role":"board","tenure":"2026.3–2029.3"},{"name":"郑德珵","title":"独立董事","role":"board","tenure":"2026.3–2029.3"},{"name":"彭燎原","title":"独立董事","role":"board","tenure":"2026.3–2029.3"},{"name":"周来春","title":"副总经理、首席财务官","role":"management","tenure":"2026.3–2029.3","shares":"间接 566.77 万股 · 0.24%","bio":"1968 年 8 月生，硕士研究生，国际注册内部审计师。2020 年 9 月起任公司副总经理、CFO。曾任深圳力维智联董事、副总裁兼 CFO，新加坡 GMG 环球副总裁兼 CFO。"},{"name":"杜扬","title":"副总经理、首席技术官","role":"management","tenure":"2026.3–2029.3","shares":"间接 400 万股 · 0.17%","bio":"通过联芯叁号间接持有公司股份，同时担任公司首席技术官。"},{"name":"吴漾","title":"董事会秘书","role":"management","tenure":"2026.3–2029.3","shares":"间接 200 万股 · 0.08%","bio":"1991 年 8 月生，硕士研究生。2022 年 5 月起任公司投资者关系总监，2023 年 2 月起任董事会秘书。曾任芯联集成电路制造股份有限公司投资者关系总监。现兼任武汉武粤光电、苏州德信芯片、广芯微电子（广州）董事。"}],"tech":[],"funding":[]}')
   on conflict (name) do update set code = excluded.code, industry = excluded.industry,
     seg = excluded.seg, listed = excluded.listed, round = excluded.round, cap = excluded.cap,
     valuation = excluded.valuation, rev = excluded.rev, last_funding = excluded.last_funding,

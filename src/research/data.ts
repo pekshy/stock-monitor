@@ -27,6 +27,21 @@ export interface ResearchCompany {
   desc?: string
   tech?: { date: string; title: string; kind?: string; desc?: string }[]
   funding?: { date: string; round: string; amount?: string; investors?: string; inv?: string | string[] }[]
+  /** 人事变动历史（日期倒序） */
+  execChanges?: { date: string; event: string }[]
+  /** 任职名单：上市企业为董监高，未上市为核心团队 */
+  executives?: {
+    name: string
+    title: string
+    /** board=董事会 / management=高级管理层 */
+    role?: 'board' | 'management'
+    /** 任职起止，如「2026.3–2029.3」 */
+    tenure?: string
+    /** 履历（默认折叠） */
+    bio?: string
+    /** 持股，如「4,251 万股 · 1.80%」 */
+    shares?: string
+  }[]
   spark?: (number | string | null)[]
   market?: string
   [key: string]: unknown
@@ -8086,6 +8101,108 @@ export const COMPANIES: ResearchCompany[] = [
    1730.4
   ],
   "latestTech": "12 英寸硅光晶圆大规模量产（大陆唯一），硅光平台累计投片超 7000 片，覆盖 400G/800G/1.6T 光模块",
+  "executives": [
+   {
+    "name": "陈谨",
+    "title": "董事长",
+    "role": "board",
+    "tenure": "2026.3–2029.3",
+    "shares": "4,251 万股 · 1.80%",
+    "bio": "1971 年 9 月生，硕士研究生。2019 年 3 月起任公司董事长。曾任广州智光电气董事兼总裁、广州金鹏集团董事长兼总裁、广州凯得控股副总经理、广州开发区建设创业投资董事长兼总经理等职务。"
+   },
+   {
+    "name": "陈卫",
+    "title": "董事、总经理",
+    "role": "board",
+    "tenure": "2026.3–2029.3",
+    "shares": "4,183 万股 · 1.77%",
+    "bio": "1959 年 3 月生，新加坡国籍，硕士研究生。2018 年 1 月起任公司董事、总经理。曾任上海华虹宏力半导体销售及客户支持副总裁、新加坡特许半导体中国分公司首席代表及总经理。现兼任华南理工大学客座教授、中山大学顾问教授、广州市半导体协会会长、粤港澳大湾区半导体产业联盟理事长。"
+   },
+   {
+    "name": "黄铠生",
+    "title": "董事",
+    "role": "board",
+    "tenure": "2026.3–2029.3",
+    "shares": "间接 188.33 万股",
+    "bio": "通过广州合信芯赢、联芯贰号间接持有公司股份。"
+   },
+   {
+    "name": "欧阳俊",
+    "title": "董事",
+    "role": "board",
+    "tenure": "2026.3–2029.3"
+   },
+   {
+    "name": "张瑞双",
+    "title": "董事",
+    "role": "board",
+    "tenure": "2026.3–2029.3",
+    "shares": "间接 0.93 万股",
+    "bio": "通过广东珩芯间接持有公司股份。"
+   },
+   {
+    "name": "毛寒梅",
+    "title": "董事",
+    "role": "board",
+    "tenure": "2026.3–2029.3"
+   },
+   {
+    "name": "韩瑞津",
+    "title": "职工代表董事、副总经理、首席运营官",
+    "role": "board",
+    "tenure": "2026.3–2029.3",
+    "shares": "间接 2,000 万股 · 0.85%",
+    "bio": "通过联芯贰号间接持有公司股份，同时担任公司首席运营官。"
+   },
+   {
+    "name": "石水平",
+    "title": "独立董事",
+    "role": "board",
+    "tenure": "2026.3–2029.3"
+   },
+   {
+    "name": "庄巍",
+    "title": "独立董事",
+    "role": "board",
+    "tenure": "2026.3–2029.3"
+   },
+   {
+    "name": "郑德珵",
+    "title": "独立董事",
+    "role": "board",
+    "tenure": "2026.3–2029.3"
+   },
+   {
+    "name": "彭燎原",
+    "title": "独立董事",
+    "role": "board",
+    "tenure": "2026.3–2029.3"
+   },
+   {
+    "name": "周来春",
+    "title": "副总经理、首席财务官",
+    "role": "management",
+    "tenure": "2026.3–2029.3",
+    "shares": "间接 566.77 万股 · 0.24%",
+    "bio": "1968 年 8 月生，硕士研究生，国际注册内部审计师。2020 年 9 月起任公司副总经理、CFO。曾任深圳力维智联董事、副总裁兼 CFO，新加坡 GMG 环球副总裁兼 CFO。"
+   },
+   {
+    "name": "杜扬",
+    "title": "副总经理、首席技术官",
+    "role": "management",
+    "tenure": "2026.3–2029.3",
+    "shares": "间接 400 万股 · 0.17%",
+    "bio": "通过联芯叁号间接持有公司股份，同时担任公司首席技术官。"
+   },
+   {
+    "name": "吴漾",
+    "title": "董事会秘书",
+    "role": "management",
+    "tenure": "2026.3–2029.3",
+    "shares": "间接 200 万股 · 0.08%",
+    "bio": "1991 年 8 月生，硕士研究生。2022 年 5 月起任公司投资者关系总监，2023 年 2 月起任董事会秘书。曾任芯联集成电路制造股份有限公司投资者关系总监。现兼任武汉武粤光电、苏州德信芯片、广芯微电子（广州）董事。"
+   }
+  ],
   "tech": [],
   "funding": []
  },
