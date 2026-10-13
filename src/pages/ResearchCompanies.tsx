@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Search, ArrowLeft, CloudOff, Pencil, Check, X, Loader2 } from 'lucide-react'
 import { useCloudCompanies, updateCompanyDesc, type CompanyRecord } from '../research/api'
 import { useAuth } from '../context/AuthContext'
-import { fundDateNum, toNum } from '../research/format'
+import { fundDateNum, toNum, currencyOf } from '../research/format'
 
 /** 市值 / 估值：纯数字（亿元），表头已标单位 */
 const fmtCapNum = (v?: number | string | null): string => {
@@ -195,6 +195,7 @@ const CompanyRow: React.FC<{
       </td>
       <td className="px-3 py-3 text-right text-gray-700 tabular-nums">
         {fmtCapNum(listed ? c.cap : c.valuation)}
+        {currencyOf(c) === 'USD' && <span className="ml-1 text-[10px] text-amber-600">USD</span>}
       </td>
       <td className="px-5 py-3 text-[13px] text-gray-600 max-w-md group/desc">
         {editing ? (

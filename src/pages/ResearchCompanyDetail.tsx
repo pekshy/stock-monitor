@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users } from 'lucide-react'
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
-import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode } from '../research/format'
+import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode, currencyOf } from '../research/format'
 import { findCompanyLocations, chainLocationUrl } from '../research/chain'
 import NotesPanel from '../components/NotesPanel'
 
@@ -40,6 +40,8 @@ const ResearchCompanyDetail: React.FC = () => {
   }
 
   const listed = !!company.listed
+  /** 美股企业金额口径为美元，A 股/港股为人民币 */
+  const cur = currencyOf(company)
 
   return (
     <div>
@@ -100,9 +102,9 @@ const ResearchCompanyDetail: React.FC = () => {
         {company.desc && <p className="text-[13px] text-gray-600 leading-relaxed mb-3">{company.desc}</p>}
         {listed ? (
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            <Metric label="市值" value={fmtCap(company.cap)} />
+            <Metric label="市值" value={fmtCap(company.cap, cur)} />
             <Metric label="PE(TTM)" value={peLabel(company.pe)} />
-            <Metric label="营收" value={fmtRev(company.rev)} />
+            <Metric label="营收" value={fmtRev(company.rev, cur)} />
             <Metric label="毛利率" value={fmtPct(company.gross)} />
             <Metric label="研发占比" value={fmtPct(company.rd)} />
           </div>

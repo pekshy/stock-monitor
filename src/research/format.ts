@@ -27,16 +27,31 @@ export function fundDateNum(s?: string | null): number {
 
 type Num = number | string | null | undefined
 
-/** 市值 / 估值（亿元） */
-export function fmtCap(v?: Num): string {
-  if (v == null || v === '') return '—'
-  return `¥${Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 1 })}亿`
+/** 币种：A 股 / 港股按人民币口径，美股为美元（亿美元） */
+type Currency = 'CNY' | 'USD'
+
+/** 依据企业记录判定币种：market==='US' 或代码以 .US 结尾 → 美元 */
+export function currencyOf(c?: { market?: unknown; code?: string | null } | null): Currency {
+  if (!c) return 'CNY'
+  if (String(c.market ?? '').toUpperCase() === 'US') return 'USD'
+  return String(c.code ?? '').toUpperCase().endsWith('.US') ? 'USD' : 'CNY'
 }
 
-/** 营收（亿元） */
-export function fmtRev(v?: Num): string {
-  if (v == null || v === '') return '—'
-  return `¥${Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 1 })}亿`
+const SYMBOL: Record<Currency, string> = { CNY: '¥', USD: '$' }
+
+function money(v: Num, cur: Currency): string | null {
+  if (v == null || v === '') return null
+  return `${SYMBOL[cur]}${Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 1 })}亿`
+}
+
+/** 市值 / 估值（亿元，默认人民币） */
+export function fmtCap(v?: Num, cur: Currency = 'CNY'): string {
+  return money(v, cur) ?? '—'
+}
+
+/** 营收（亿元，默认人民币） */
+export function fmtRev(v?: Num, cur: Currency = 'CNY'): string {
+  return money(v, cur) ?? '—'
 }
 
 /** 百分比 */
