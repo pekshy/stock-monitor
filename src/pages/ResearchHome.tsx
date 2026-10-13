@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { FileText, Zap, StickyNote, RefreshCw, CloudOff, ChevronRight } from 'lucide-react'
+import { FileText, Zap, StickyNote, RefreshCw, CloudOff, ChevronRight, TrendingUp, Flame } from 'lucide-react'
 import { INDUSTRY_DATA, TREE, isGrouped, treeLeaves, type TreeStage, type TreeLeaf } from '../research/data'
 import { useIntel, useCloudCompanies, parseList, type CloudNote } from '../research/api'
 import { fmtDate } from '../research/format'
@@ -26,6 +26,66 @@ const LOCAL_PILL: Record<LocalRate, string> = {
   '高': 'bg-green-50 text-green-700',
   '中': 'bg-amber-50 text-amber-700',
   '低': 'bg-red-50 text-red-700',
+}
+
+// 资本关注热度：一级/二级各 0-100，按 85 / 70 / 55 / 40 分档给色
+type HeatTier = 'hot' | 'warm' | 'mild' | 'cool' | 'cold'
+const HEAT_TIER_OF = (n: number): HeatTier =>
+  n >= 85 ? 'hot' : n >= 70 ? 'warm' : n >= 55 ? 'mild' : n >= 40 ? 'cool' : 'cold'
+const HEAT_BADGE: Record<HeatTier, string> = {
+  hot: 'bg-red-50 text-red-600',
+  warm: 'bg-orange-50 text-orange-600',
+  mild: 'bg-amber-50 text-amber-600',
+  cool: 'bg-sky-50 text-sky-600',
+  cold: 'bg-gray-100 text-gray-500',
+}
+const HEAT_PILL: Record<HeatTier, string> = {
+  hot: 'bg-red-50 text-red-700',
+  warm: 'bg-orange-50 text-orange-700',
+  mild: 'bg-amber-50 text-amber-700',
+  cool: 'bg-sky-50 text-sky-700',
+  cold: 'bg-gray-100 text-gray-600',
+}
+const HEAT_BAR: Record<HeatTier, string> = {
+  hot: 'bg-red-500',
+  warm: 'bg-orange-400',
+  mild: 'bg-amber-400',
+  cool: 'bg-sky-400',
+  cold: 'bg-gray-300',
+}
+const heatTierLabel = (n: number): string =>
+  n >= 85 ? '炙热' : n >= 70 ? '活跃' : n >= 55 ? '温和' : n >= 40 ? '偏冷' : '冷清'
+
+/** 侧边目录用的热度小徽标（仅一级热度，避免目录过挤），格式 95° */
+const HeatChip: React.FC<{ capital?: TreeLeaf['capital'] }> = ({ capital }) => {
+  if (!capital) return null
+  const tier = HEAT_TIER_OF(capital.primary)
+  return (
+    <span
+      className={`shrink-0 text-[10px] leading-none px-1 py-0.5 rounded font-medium ${HEAT_BADGE[tier]}`}
+      title={`资本关注热度：一级 ${capital.primary} / 二级 ${capital.secondary}`}
+    >{capital.primary}°</span>
+  )
+}
+
+/** 详情区的双维度热度条 */
+const HeatBar: React.FC<{ label: string; value: number; note?: string }> = ({ label, value, note }) => {
+  const tier = HEAT_TIER_OF(value)
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <span className="w-16 shrink-0 text-[11px] text-gray-500">{label}</span>
+        <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+          <div className={`h-full rounded-full ${HEAT_BAR[tier]}`} style={{ width: `${value}%` }} />
+        </div>
+        <span className="w-14 shrink-0 text-right text-[11px] font-semibold text-gray-700 tabular-nums">
+          {value}
+          <span className="ml-1 font-normal text-gray-400">{heatTierLabel(value)}</span>
+        </span>
+      </div>
+      {note && <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">{note}</p>}
+    </div>
+  )
 }
 
 /** 软筛选：环节/细分层级下，未标注 seg/sub 的条目仍可见 */
@@ -282,6 +342,7 @@ const ResearchHome: React.FC = () => {
                                               title={`国产化率：${sb.local}`}
                                             >{sb.local}</span>
                                           )}
+                                          <HeatChip capital={sb.capital} />
                                           {sb.companies?.length ? <span className="shrink-0 text-gray-400 ml-auto">{sb.companies.length}</span> : null}
                                         </button>
                                       ))}
@@ -308,6 +369,7 @@ const ResearchHome: React.FC = () => {
                                       title={`国产化率：${sb.local}`}
                                     >{sb.local}</span>
                                   )}
+                                  <HeatChip capital={sb.capital} />
                                   {sb.companies?.length ? <span className="shrink-0 text-gray-300 ml-auto">{sb.companies.length}</span> : null}
                                 </button>
                               ))}
@@ -355,6 +417,18 @@ const ResearchHome: React.FC = () => {
                       title={`国产化率：${subInfo.local}`}
                     >国产化率 {subInfo.local}</span>
                   )}
+                  {subInfo.capital && (
+                    <>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${HEAT_PILL[HEAT_TIER_OF(subInfo.capital.primary)]}`}
+                        title="一级市场融资热度（0-100）"
+                      >一级热度 {subInfo.capital.primary}</span>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${HEAT_PILL[HEAT_TIER_OF(subInfo.capital.secondary)]}`}
+                        title="二级市场估值热度（0-100）"
+                      >二级热度 {subInfo.capital.secondary}</span>
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -367,6 +441,39 @@ const ResearchHome: React.FC = () => {
                     ? (segInfo.seg.detail || segInfo.seg.summary)
                     : segInfo.industryDetail}
             </p>
+
+            {/* 资本关注热度（仅细分 leaf 级有数据）：一级/二级双维度 + 资金动向 + 资本焦点 */}
+            {subInfo?.capital && (
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
+                  <span className="text-xs font-semibold text-gray-700">资本关注热度</span>
+                  <span className="text-[10px] text-gray-400">一级融资 / 二级估值，各 0-100</span>
+                </div>
+                <div className="space-y-2.5">
+                  <HeatBar label="一级融资" value={subInfo.capital.primary} note={subInfo.capital.primaryNote} />
+                  <HeatBar label="二级估值" value={subInfo.capital.secondary} note={subInfo.capital.secondaryNote} />
+                </div>
+                {subInfo.capital.hotspots && (
+                  <div className="mt-3 flex items-start gap-1.5">
+                    <Flame className="h-3.5 w-3.5 text-orange-400 shrink-0 mt-0.5" />
+                    <span className="text-[11px] text-gray-600 leading-relaxed">
+                      <span className="text-gray-400">资本焦点：</span>{subInfo.capital.hotspots}
+                    </span>
+                  </div>
+                )}
+                {subInfo.capital.events && subInfo.capital.events.length > 0 && (
+                  <ul className="mt-2.5 space-y-1">
+                    {subInfo.capital.events.map((ev, i) => (
+                      <li key={i} className="flex items-start gap-1.5 text-[11px] text-gray-500 leading-relaxed">
+                        <span className="shrink-0 mt-1.5 w-1 h-1 rounded-full bg-gray-300" />
+                        <span>{ev}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
         )}
 
