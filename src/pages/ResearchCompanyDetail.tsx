@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users } from 'lucide-react'
+import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users, Scale } from 'lucide-react'
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode, currencyOf } from '../research/format'
 import { findCompanyLocations, chainLocationUrl } from '../research/chain'
@@ -117,6 +117,17 @@ const ResearchCompanyDetail: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* 国际巨头：国产替代对标关系 */}
+      {company.note && (
+        <div className="bg-indigo-50/60 rounded-xl border border-indigo-100 px-5 py-3.5 mb-4">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Scale className="h-3.5 w-3.5 text-indigo-600" />
+            <span className="text-xs font-bold text-indigo-900">国产替代对标</span>
+          </div>
+          <p className="text-[13px] text-indigo-800/90 leading-relaxed">{company.note}</p>
+        </div>
+      )}
 
       {/* 未上市：融资历史 + 技术/产品动态 */}
       {!listed && !!(company.funding?.length) && (
