@@ -4,6 +4,7 @@ import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Us
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode, currencyOf } from '../research/format'
 import { findCompanyLocations, chainLocationUrl } from '../research/chain'
+import { splitInvestors, ROLE_LABEL, ROLE_CLASS } from '../research/investors'
 import NotesPanel from '../components/NotesPanel'
 
 const ResearchCompanyDetail: React.FC = () => {
@@ -134,7 +135,13 @@ const ResearchCompanyDetail: React.FC = () => {
         <Card title="融资历史" icon={<TrendingUp className="h-4 w-4" />} count={company.funding!.length}>
           <div className="divide-y divide-gray-50">
             {company.funding!.map((f, i) => {
-              const insts = splitInvestors(f.investors || f.inv)
+              // 优先用结构化的 investorsStructured（按轮次匹配），否则从原始文本解析
+              const structured = (company.investorsStructured ?? [])
+                .filter(s => s.round === f.round || (s.date && s.date === f.date))
+                .map(s => ({ name: s.name, role: s.role, note: s.note }))
+              const insts = structured.length
+                ? structured
+                : splitInvestors(f.investors || f.inv).map(s => ({ ...s, note: undefined as string | undefined }))
               return (
                 <div key={i} className="py-2.5">
                   <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[13px]">
@@ -147,12 +154,12 @@ const ResearchCompanyDetail: React.FC = () => {
                       {insts.map((it, j) => (
                         <span
                           key={j}
-                          className={`text-[11px] px-1.5 py-0.5 rounded whitespace-nowrap ${INVESTOR_ROLE_CLASS[it.role]}`}
-                          title={it.role !== 'other' ? IT_ROLE_LABEL[it.role] : undefined}
+                          className={`text-[11px] px-1.5 py-0.5 rounded whitespace-nowrap ${ROLE_CLASS[it.role]}`}
+                          title={it.note || (it.role !== 'other' ? ROLE_LABEL[it.role] : undefined)}
                         >
                           {it.name}
                           {it.role !== 'other' && (
-                            <span className="opacity-70 ml-1">{IT_ROLE_LABEL[it.role]}</span>
+                            <span className="opacity-70 ml-1">{ROLE_LABEL[it.role]}</span>
                           )}
                         </span>
                       ))}
@@ -224,80 +231,11 @@ const ResearchCompanyDetail: React.FC = () => {
   )
 }
 
-/** 投资机构角色标签体系（未上市企业重点关注：谁领投、谁跟投、谁战略投资） */
-type InvestorRole = 'lead' | 'follow' | 'strategic' | 'other'
-
-const IT_ROLE_LABEL: Record<Exclude<InvestorRole, 'other'>, string> = {
-  lead: '领投',
-  follow: '跟投',
-  strategic: '战投',
-}
-
-const INVESTOR_ROLE_CLASS: Record<InvestorRole, string> = {
-  lead: 'bg-indigo-50 text-indigo-700 font-medium',
-  strategic: 'bg-purple-50 text-purple-700 font-medium',
-  follow: 'bg-gray-100 text-gray-600',
-  other: 'bg-gray-50 text-gray-500',
-}
-
 /**
- * 把融资记录里的机构串拆成「机构名 + 角色」列表。
- * 数据源有两种写法：`inv` 用「领投：A / B；跟投：C」的分段式，
- * `investors` 用「A（领投）· B（战略投资）」的行内式。两种都要吃得下。
+ * 投资机构角色标签体系（未上市企业重点关注：谁领投、谁跟投、谁战略投资）
+ * 解析与聚合逻辑统一放在 research/investors.ts，供详情页与机构统计视图复用。
  */
-function splitInvestors(raw: string | string[] | undefined): { name: string; role: InvestorRole }[] {
-  if (!raw) return []
-  const text = Array.isArray(raw) ? raw.join('；') : raw
-  const out: { name: string; role: InvestorRole }[] = []
-
-  // 分段式：按 ；/; 切开，每段可能是「角色：机构 / 机构」或裸机构串
-  const segments = text.split(/[；;]/).map(s => s.trim()).filter(Boolean)
-  for (const seg of segments) {
-    const m = seg.match(/^(领投|联合领投|跟投|战略投资|战略投资人|老股东追投|老股东|联合投资|投资方|参与投资)\s*[:：]\s*(.+)$/)
-    const role: InvestorRole = m ? roleOf(m[1]) : 'other'
-    const body = m ? m[2] : seg
-    for (let name of body.split(/[\/、·]/)) {
-      name = name.trim()
-      // 行内式：「机构（战略投资）」——先取括号内的角色，再剥括号
-      let inlineRole: InvestorRole = role
-      const inline = name.match(/^(.+?)（(.+?)）$/)
-      if (inline) {
-        name = inline[1].trim()
-        inlineRole = roleOf(inline[2])
-      }
-      name = name.replace(/（[^）]*）/g, '').replace(/\([^)]*\)/g, '')
-      // 去掉「等 9 家机构」「等投资平台」「等多家机构」这类收尾虚词
-      name = name.trim()
-        .replace(/^等\s*/, '')
-        .replace(/\s*等\s*[\d一二三四五六七八九十百]*\s*家?\s*(机构|投资平台|投资方|企业|公司)?$/, '')
-        .replace(/\s*(等|多家机构|家机构)$/, '')
-        .trim()
-      if (!name || name === '未披露' || name === '—') continue
-      // 排除估值/金额类尾注，它们不是机构
-      if (/投后估值|投前估值|估值约?[\d.]|亿元|万元|本轮|股权|对应/.test(name)) continue
-      if (name.length > 40) continue
-      out.push({ name, role: inlineRole })
-    }
-  }
-  // 去重（同名机构保留角色权重最高的那条）
-  const rank: Record<InvestorRole, number> = { lead: 3, strategic: 2, follow: 1, other: 0 }
-  const dedup = new Map<string, { name: string; role: InvestorRole }>()
-  for (const it of out) {
-    const prev = dedup.get(it.name)
-    if (!prev || rank[it.role] > rank[prev.role]) dedup.set(it.name, it)
-  }
-  return [...dedup.values()]
-}
-
-function roleOf(word: string): InvestorRole {
-  if (/领投/.test(word)) return 'lead'
-  if (/战略/.test(word)) return 'strategic'
-  if (/跟投|老股东|联合投资|参与投资|投资方/.test(word)) return 'follow'
-  return 'other'
-}
-
-/** PE 展示：数值保留一位小数；非数值口径（如「亏损」）原样呈现，避免丢失语义 */
-function peLabel(v: number | string | null | undefined): string {
+/** PE 展示：数值保留一位小数；非数值口径（如「亏损」）原样呈现，避免丢失语义 */function peLabel(v: number | string | null | undefined): string {
   if (v == null || v === '') return '—'
   const n = toNum(v)
   return n == null ? String(v) : n.toFixed(1)

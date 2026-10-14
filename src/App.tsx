@@ -11,6 +11,7 @@ import EtfDetail from './pages/EtfDetail'
 import ResearchHome from './pages/ResearchHome'
 import ResearchCompanies from './pages/ResearchCompanies'
 import ResearchCompanyDetail from './pages/ResearchCompanyDetail'
+import ResearchInvestors from './pages/ResearchInvestors'
 
 function AppContent() {
   const { latestDate } = useStockContext()
@@ -50,6 +51,7 @@ function AppContent() {
           {/* 行业研究模块（独立新增，不影响既有路由） */}
           <Route path="/research" element={<ResearchHome />} />
           <Route path="/research/companies" element={<ResearchCompanies />} />
+          <Route path="/research/investors" element={<ResearchInvestors />} />
           <Route path="/research/company/:name" element={<ResearchCompanyDetail />} />
         </Routes>
       </main>

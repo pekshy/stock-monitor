@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { FileText, Zap, StickyNote, RefreshCw, CloudOff, ChevronRight, TrendingUp, Flame } from 'lucide-react'
+import { useSearchParams, Link } from 'react-router-dom'
+import { FileText, Zap, StickyNote, RefreshCw, CloudOff, ChevronRight, TrendingUp, Flame, Building2 } from 'lucide-react'
 import { INDUSTRY_DATA, TREE, isGrouped, treeLeaves, type TreeStage, type TreeLeaf } from '../research/data'
 import { useIntel, useCloudCompanies, parseList, type CloudNote } from '../research/api'
 import { fmtDate } from '../research/format'
@@ -497,6 +497,13 @@ const ResearchHome: React.FC = () => {
             <StickyNote className="h-3.5 w-3.5" />研究笔记
             <span className="text-xs opacity-70">· {counts.notes} 条</span>
           </button>
+          <Link
+            to="/research/investors"
+            className="ml-auto px-4 py-2 text-sm rounded-lg transition-colors flex items-center gap-1.5 bg-white text-gray-600 hover:bg-gray-50 border border-gray-100 shadow-sm"
+            title="按机构维度统计半导体领域的投资版图"
+          >
+            <Building2 className="h-3.5 w-3.5" />投资机构
+          </Link>
         </div>
 
         {mainTab === 'companies' && (
