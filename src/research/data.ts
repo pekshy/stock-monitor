@@ -502,6 +502,26 @@ export const TREE: Record<string, TreeValue> = {
             ],
             "hotspots": "SiC/IGBT 激光退火、晶圆隐形切割、激光打标、AI 智能体晶圆切割"
           }
+        },
+        {
+          "name": "晶圆传输设备",
+          "local": "中",
+          "desc": "贯穿前道全流程的晶圆搬送与洁净传输：EFEM、真空/大气机械手、LoadPort、对准机。",
+          "detail": "归属前道配套工序，晶圆传输设备贯穿晶圆制造与封装测试全流程，是保障芯片量产与工艺稳定的基础核心装备。核心品类包括：① EFEM（设备前端模块）——对接工艺机台，内置晶圆真空/洁净机械手实现单片精密传输；② 真空直驱机械手（两轴/三轴/四轴）——在刻蚀、薄膜、离子注入等真空工艺腔体间传输晶圆；③ 大气机械手、LoadPort（晶圆加载机）、SMIF（晶圆装载检测机）、Aligner（预对准机）；④ 整合立式炉等整机集成产品。技术壁垒最高的是真空/洁净晶圆机械手（EFEM 核心），要求重复定位精度 ±0.005mm、Class 1 超高洁净、耐高真空，长期由 Brooks、Rorze、日本 Yaskawa/JEL 等海外厂商垄断，国内仅少数厂商实现规模化量产。",
+          "companies": ["沈阳新松半导体", "山口精工", "Rorze", "Brooks Automation", "Yaskawa", "JEL", "平田机工"],
+          "capital": {
+            "primary": 72,
+            "secondary": 68,
+            "primaryNote": "一级市场：沈阳新松半导体 2026-07 完成新一轮融资，盛京金控旗下机器人智能制造产业投资基金领投，北方华创、中微公司等投资平台跟投，辽宁省级母基金累计投资突破亿元；2024-05 完成 4 亿元战略融资并引入大基金二期，投后估值约 14 亿元。",
+            "secondaryNote": "二级市场：母公司新松机器人（300024.SZ）为 A 股机器人板块标的，半导体装备板块贡献其晶圆传输业务营收；山口精工（真空轴承配套）尚未上市。国际对标 Rorze（日本上市）PE 长期处于 20-30 倍区间。",
+            "events": [
+              "2026-07 沈阳新松半导体完成新一轮融资，盛京金控领投，北方华创、中微公司跟投",
+              "2026-06-28 辽宁省级母基金完成对新松半导体投资，项目累计投资规模突破亿元",
+              "2026-06-12 新松半导体北交所增资挂牌成交，合计 1.78 亿元",
+              "2024-05 新松半导体完成 4 亿元战略融资，引入大基金二期等 9 家机构，投后估值约 14 亿元"
+            ],
+            "hotspots": "EFEM 整机、真空直驱机械手、十二英寸前道产线配套、洁净 AMR 与整线搬送系统"
+          }
         }
       ]
     },
@@ -540,6 +560,7 @@ export const TREE: Record<string, TreeValue> = {
           "desc": "后道·封装。混合键合、TSV、扇出、晶圆植球，AI 芯片增量最大。",
           "detail": "分类大类：后道设备下的先进封装（Advanced Packaging），AI 芯片驱动的高增量赛道。机型分混合键合（W2W 晶圆对晶圆/D2W 芯片对晶圆）、临时键合与解键合、硅通孔 TSV（深硅刻蚀/激光打孔/铜填充）、扇出封装（FOPLP 面板级）、晶圆植球（球植入/基板植球/激光植球）、背面金属化与介电层沉积、AP 检测（晶圆翘曲/键合对准/SAM/X-Ray/SWIR）。国产中科晶禾（异质集成键合装备）切入混合键合，芯碁微装直写光刻进入先进封装产线。",
           "companies": [
+            "青禾晶元",
             "中科晶禾",
             "芯碁微装",
             "华封科技",
@@ -10898,7 +10919,7 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ]
  },
- {  "name": "天仁微纳",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "国内纳米压印光刻设备龙头，微纳光学晶圆级加工市占率超九成，中芯聚源与华为哈勃投资。",  "round": "C 轮",  "lastFunding": "2022-09",  "latestFunding": "2022-09 · C 轮",  "execChanges": [],  "latestTech": "微纳光学晶圆级纳米压印设备市占率超 90%，国内唯一 DOE 量产设备商",  "tech": [],  "funding": [   {"date": "2022-09", "round": "C 轮", "amount": "数亿元", "inv": "前海母基金 / 深创投 / 山东财金等"}  ] }, {  "name": "费勉仪器",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "复旦系高端仪器平台商，真空/低温/薄膜/等离子四大技术底座，晶圆级 MBE 薄膜设备批量交付头部晶圆厂。",  "round": "C++ 轮",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · C++ 轮",  "execChanges": [],  "latestTech": "晶圆级 MBE 设备批量交付国内头部半导体企业",  "tech": [],  "funding": [   {"date": "2026-05", "round": "C++ 轮", "amount": "数亿元", "inv": "复容投资 / 元禾控股 / 深创投等"}  ] }, {  "name": "特思迪",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "国内唯一规模化量产化合物半导体减薄磨抛 CMP 装备企业，SiC 衬底磨抛设备市占率第一，供货天科合达、比亚迪。",  "round": "B+ 轮",  "lastFunding": "2024",  "latestFunding": "2024 · B+ 轮",  "execChanges": [],  "latestTech": "SiC 衬底磨抛设备市占率国内第一，覆盖减薄/研磨/抛光/CMP 全工序",  "tech": [],  "funding": [   {"date": "2024-04", "round": "B+ 轮", "inv": "顺义科创"},   {"date": "2023-10", "round": "B 轮", "amount": "2.1 亿元", "inv": "临芯投资 / 北京市高精尖基金 / 尚颀资本 / 中金启辰 / 优山资本 / 芯微投资 / 长石资本 / 浑璞资本 / 博众信合 / 安芯投资 / 洪泰基金"},   {"date": "2022-05", "round": "A 轮（战略投资）", "inv": "深圳哈勃（华为）/ 安芯投资 / 洪泰基金"}  ] }, {  "name": "全芯微电子",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "半导体匀胶显影与去胶剥离设备商，覆盖化合物半导体、LED、MEMS 与先进封装，哈勃与华登投资。",  "round": "战略融资",  "lastFunding": "2025-01",  "latestFunding": "2025-01 · 战略融资",  "execChanges": [],  "latestTech": "匀胶显影机覆盖化合物半导体、LED、MEMS 与先进封装",  "tech": [],  "funding": [   {"date": "2020-11", "round": "战略投资", "inv": "华为哈勃 / 华登国际"},   {"date": "2025-01", "round": "战略融资", "inv": "宁波通商基金"}  ] }, {  "name": "强一股份",  "code": "688809.SH",  "industry": "semiconductor",  "seg": "equipment",  "listed": true,  "desc": "国内 MEMS 探针卡龙头，自主 MEMS 探针技术打破境外垄断，2025 年 12 月科创板上市。",  "cap": 613.0,  "rev": 6.41,  "execChanges": [],  "latestTech": "MEMS 探针卡收入占比约 96%，2026H1 毛利率约 64%",  "tech": [],  "funding": [] }, {  "name": "杰冯测试",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "马来西亚 JF Technology 与华为哈勃合资的集成电路测试接触方案商，主营测试探针与测试插座。",  "round": "战略融资",  "lastFunding": "2021-10",  "latestFunding": "2021-10 · 战略融资（哈勃增资持股 45%）",  "execChanges": [],  "latestTech": "测试探针与测试插座深度绑定华为供应链",  "tech": [],  "funding": [   {"date": "2021-10", "round": "战略融资（增资）", "inv": "华为哈勃（持股 45%）"}  ] }, {  "name": "中科晶禾",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "晶圆异质集成键合装备商，2026 年 7 月并入青禾晶元集团成为全资子公司，此前获哈勃战略投资。",  "round": "战略融资",  "lastFunding": "2023-04",  "latestFunding": "2026-07 并入青禾晶元集团",  "execChanges": [],  "latestTech": "常温晶圆键合设备入选首批国家颠覆性技术创新专项",  "tech": [],  "funding": [   {"date": "2022-09", "round": "战略投资", "inv": "华为哈勃"},   {"date": "2023-04", "round": "战略融资", "inv": "海河产业基金"}  ] }, {  "name": "中科艾尔",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "半导体超高纯管阀件国产化代表企业，EP 管与气路零配件打破国外垄断，中科院微电子所合资背景。",  "round": "B 轮",  "lastFunding": "2026-01",  "latestFunding": "2026-01 · B 轮",  "execChanges": [],  "latestTech": "EP 管路/减压阀/阀门进入中芯国际合格供应商体系",  "tech": [],  "funding": [   {"date": "2026-01", "round": "B 轮", "inv": "青松资本"}  ] }, {  "name": "山口精工",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "中国特微型精密轴承制造商，为半导体设备晶圆传输机械臂供超精密真空轴承，哈勃 2021 年入股。",  "round": "C 轮",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · C 轮",  "execChanges": [],  "latestTech": "晶圆传输机械臂超精密真空轴承供货应用材料",  "tech": [],  "funding": [   {"date": "2021", "round": "战略投资", "inv": "华为哈勃"},   {"date": "2026-05", "round": "C 轮", "amount": "数亿元", "inv": "比亚迪 / 东方嘉富等"}  ] }, {  "name": "先普科技",  "code": "874935.NQ",  "industry": "semiconductor",  "seg": "equipment",  "listed": true,  "desc": "国内首家 9N 级气体纯化器制造商，POU 纯化器/过滤器配套晶圆厂外延与 CVD 工艺，哈勃与中芯聚源投资。",  "execChanges": [],  "latestTech": "9N 级气体纯化器配套外延与 CVD 工艺，北交所 IPO 辅导中",  "tech": [],  "funding": [] }, {  "name": "瀚天天成",  "code": "02726.HK",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "全球最大 SiC 外延晶片供应商（2024 年份额 31.6%），率先量产 8 英寸并全球首发 12 英寸，华为哈勃持股。",  "cap": 330.0,  "execChanges": [],  "latestTech": "2025 年 12 月全球首发 12 英寸 SiC 外延晶片",  "tech": [],  "funding": [] }, {  "name": "天域半导体",  "code": "02658.HK",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "国内首家专业 SiC 外延片企业，4/6/8 英寸全体系，2024 年中国收入份额 30.6% 居首、全球第三。",  "cap": 173.0,  "execChanges": [],  "latestTech": "8 英寸 SiC 外延放量，年产能 80 万片",  "tech": [],  "funding": [] }, {  "name": "天科合达",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内导电型 SiC 衬底双龙头之一，8 英寸量产，股东含宁德时代、大基金、华为哈勃，科创板 IPO 已受理。",  "valuation": 175.0,  "round": "IPO 已受理",  "lastFunding": "2023",  "latestFunding": "2026-07 · 科创板 IPO 已受理（拟募 27.8 亿元）",  "execChanges": [],  "latestTech": "8 英寸导电型衬底量产，2024 年全球导电型份额约 17.3%",  "tech": [],  "funding": [   {"date": "2023", "round": "Pre-IPO"}  ] }, {  "name": "鑫耀半导体",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内稀缺 GaAs/InP 化合物衬底制造商，云南锗业控股，哈勃与深创投入股。",  "valuation": 19.0,  "round": "战略融资",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · 增资（投后约 18.9 亿元）",  "execChanges": [],  "latestTech": "GaAs/InP 衬底扩产，黄冈高品质砷化镓晶片基地建设中",  "tech": [],  "funding": [   {"date": "2024-12", "round": "增资", "inv": "深创投新材料基金"},   {"date": "2026-05", "round": "增资", "amount": "0.56 亿元", "inv": "于跃（获 2.97% 股权）"}  ] }, {  "name": "晶正电子",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "全球首家铌酸锂单晶薄膜（LNOI）商业化企业，3-6 英寸薄膜晶圆全球市占率第一，卡位光通信与光电计算。",  "round": "战略融资",  "lastFunding": "2026-04",  "latestFunding": "2026-04 · 战略融资",  "execChanges": [],  "latestTech": "全球首款 170GHz 薄膜铌酸锂调制器发布（2026-03）",  "tech": [],  "funding": [   {"date": "2026-04", "round": "战略融资", "amount": "5000 万元", "inv": "南京中银 AIC 基金"}  ] }, {  "name": "烯晶半导体",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内首家半导体碳纳米管研发量产企业，建成全球首条 8 英寸碳纳米管晶圆中试线，哈勃与元禾投资。",  "round": "Pre-A++ 轮",  "lastFunding": "2026-02",  "latestFunding": "2026-02 · Pre-A++ 轮",  "execChanges": [],  "latestTech": "全球首条 8 英寸碳纳米管晶圆中试线（2025 年建成）",  "tech": [],  "funding": [   {"date": "2024-09", "round": "天使轮", "inv": "华为哈勃 / 元禾控股"},   {"date": "2026-02", "round": "Pre-A+ / Pre-A++", "inv": "首都科发集团 / 光谷产业投资等"}  ] }, {  "name": "博康信息",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内唯一光刻胶单体—成品胶全产业链厂商，ArF/KrF 胶覆盖 80 余家晶圆厂，大基金二期重仓。",  "valuation": 70.0,  "round": "Pre-IPO",  "lastFunding": "2023-11",  "latestFunding": "2023-11 · Pre-IPO（投后 70 亿元）",  "execChanges": [],  "latestTech": "ArF 湿法胶推进至 14nm，覆盖 80 余家晶圆厂",  "tech": [],  "funding": [   {"date": "2021", "round": "战略投资", "amount": "3 亿元", "inv": "华为哈勃"},   {"date": "2023-11", "round": "Pre-IPO", "amount": "超 6 亿元"}  ] }, {  "name": "阜阳欣奕华",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "显示光刻胶龙头，彩色光阻与 TFT 光刻胶国内市占率超 15%，客户京东方、TCL 华星，半导体胶进入验证出货。",  "round": "IPO 辅导",  "lastFunding": "2023-06",  "latestFunding": "2024-08 · A 股 IPO 辅导备案",  "execChanges": [],  "latestTech": "半导体 g/i 线及 KrF 光刻胶进入验证出货",  "tech": [],  "funding": [   {"date": "2023-06", "round": "D 轮", "amount": "超 5 亿元", "inv": "盛景嘉成等"}  ] }, {  "name": "玟昕科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "光热固化功能材料平台商，感光 OC、PSPI、Underfill 用于显示与先进封装，量产多款填补国产空白的光刻胶。",  "round": "B+ 轮",  "lastFunding": "2025-05",  "latestFunding": "2025-05 · B+ 轮",  "execChanges": [],  "latestTech": "感光 OC/PSPI/Underfill 多款产品填补国产空白",  "tech": [],  "funding": [   {"date": "2025-05", "round": "B+ 轮", "amount": "近亿元", "inv": "方广资本领投"}  ] }, {  "name": "德智新材",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内头部 SiC 涂层石墨基座与 SiC 刻蚀环供应商，CVD 工艺率先实现半导体级 Solid SiC 组件国产量产。",  "round": "C 轮",  "lastFunding": "2023",  "latestFunding": "2023 · C 轮（超 6 亿元）",  "execChanges": [],  "latestTech": "Solid SiC 刻蚀组件率先实现国产量产",  "tech": [],  "funding": [   {"date": "2023", "round": "C 轮", "amount": "超 6 亿元", "inv": "国风投 / 中信证券投资 / 中车资本 / 哈勃等"}  ] }, {  "name": "灿勤科技",  "code": "688182.SH",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "微波介质陶瓷元器件龙头，介质滤波器占收入约 83%，拓展 HTCC 陶瓷封装管壳与基板。",  "cap": 116.0,  "execChanges": [],  "latestTech": "HTCC 陶瓷封装管壳与基板拓展，2026H1 营收 +108.6%",  "tech": [],  "funding": [] }, {  "name": "芯爱科技",
+ {  "name": "天仁微纳",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "国内纳米压印光刻设备龙头，微纳光学晶圆级加工市占率超九成，中芯聚源与华为哈勃投资。",  "round": "C 轮",  "lastFunding": "2022-09",  "latestFunding": "2022-09 · C 轮",  "execChanges": [],  "latestTech": "微纳光学晶圆级纳米压印设备市占率超 90%，国内唯一 DOE 量产设备商",  "tech": [],  "funding": [   {"date": "2022-09", "round": "C 轮", "amount": "数亿元", "inv": "前海母基金 / 深创投 / 山东财金等"}  ] }, {  "name": "费勉仪器",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "复旦系高端仪器平台商，真空/低温/薄膜/等离子四大技术底座，晶圆级 MBE 薄膜设备批量交付头部晶圆厂。",  "round": "C++ 轮",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · C++ 轮",  "execChanges": [],  "latestTech": "晶圆级 MBE 设备批量交付国内头部半导体企业",  "tech": [],  "funding": [   {"date": "2026-05", "round": "C++ 轮", "amount": "数亿元", "inv": "复容投资 / 元禾控股 / 深创投等"}  ] }, {  "name": "特思迪",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "国内唯一规模化量产化合物半导体减薄磨抛 CMP 装备企业，SiC 衬底磨抛设备市占率第一，供货天科合达、比亚迪。",  "round": "B+ 轮",  "lastFunding": "2024",  "latestFunding": "2024 · B+ 轮",  "execChanges": [],  "latestTech": "SiC 衬底磨抛设备市占率国内第一，覆盖减薄/研磨/抛光/CMP 全工序",  "tech": [],  "funding": [   {"date": "2024-04", "round": "B+ 轮", "inv": "顺义科创"},   {"date": "2023-10", "round": "B 轮", "amount": "2.1 亿元", "inv": "临芯投资 / 北京市高精尖基金 / 尚颀资本 / 中金启辰 / 优山资本 / 芯微投资 / 长石资本 / 浑璞资本 / 博众信合 / 安芯投资 / 洪泰基金"},   {"date": "2022-05", "round": "A 轮（战略投资）", "inv": "深圳哈勃（华为）/ 安芯投资 / 洪泰基金"}  ] }, {  "name": "全芯微电子",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "半导体匀胶显影与去胶剥离设备商，覆盖化合物半导体、LED、MEMS 与先进封装，哈勃与华登投资。",  "round": "战略融资",  "lastFunding": "2025-01",  "latestFunding": "2025-01 · 战略融资",  "execChanges": [],  "latestTech": "匀胶显影机覆盖化合物半导体、LED、MEMS 与先进封装",  "tech": [],  "funding": [   {"date": "2020-11", "round": "战略投资", "inv": "华为哈勃 / 华登国际"},   {"date": "2025-01", "round": "战略融资", "inv": "宁波通商基金"}  ] }, {  "name": "强一股份",  "code": "688809.SH",  "industry": "semiconductor",  "seg": "equipment",  "listed": true,  "desc": "国内 MEMS 探针卡龙头，自主 MEMS 探针技术打破境外垄断，2025 年 12 月科创板上市。",  "cap": 613.0,  "rev": 6.41,  "execChanges": [],  "latestTech": "MEMS 探针卡收入占比约 96%，2026H1 毛利率约 64%",  "tech": [],  "funding": [] }, {  "name": "杰冯测试",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "马来西亚 JF Technology 与华为哈勃合资的集成电路测试接触方案商，主营测试探针与测试插座。",  "round": "战略融资",  "lastFunding": "2021-10",  "latestFunding": "2021-10 · 战略融资（哈勃增资持股 45%）",  "execChanges": [],  "latestTech": "测试探针与测试插座深度绑定华为供应链",  "tech": [],  "funding": [   {"date": "2021-10", "round": "战略融资（增资）", "inv": "华为哈勃（持股 45%）"}  ] }, {  "name": "中科晶禾",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "天津中科晶禾电子科技有限责任公司，晶圆异质集成键合装备商，现为青禾晶元半导体科技（集团）股份有限公司全资子公司（2026-07 并入青禾晶元集团），总部天津。主营常温/混合键合设备与配套工艺，此前获华为哈勃战略投资。作为青禾晶元体系内的装备承接主体，与母公司「高端键合装备 + 精密键合工艺服务」双轮驱动模式协同。",  "round": "战略融资",  "lastFunding": "2023-04",  "latestFunding": "2026-07 并入青禾晶元集团成为全资子公司",  "execChanges": [],  "latestTech": "常温晶圆键合设备入选首批国家颠覆性技术创新专项",  "tech": [],  "funding": [   {"date": "2022-09", "round": "战略投资", "inv": "华为哈勃"},   {"date": "2023-04", "round": "战略融资", "inv": "海河产业基金"}  ] }, {  "name": "中科艾尔",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "半导体超高纯管阀件国产化代表企业，EP 管与气路零配件打破国外垄断，中科院微电子所合资背景。",  "round": "B 轮",  "lastFunding": "2026-01",  "latestFunding": "2026-01 · B 轮",  "execChanges": [],  "latestTech": "EP 管路/减压阀/阀门进入中芯国际合格供应商体系",  "tech": [],  "funding": [   {"date": "2026-01", "round": "B 轮", "inv": "青松资本"}  ] }, {  "name": "山口精工",  "code": "—",  "industry": "semiconductor",  "seg": "equipment",  "listed": false,  "desc": "中国特微型精密轴承制造商，为半导体设备晶圆传输机械臂供超精密真空轴承，哈勃 2021 年入股。",  "round": "C 轮",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · C 轮",  "execChanges": [],  "latestTech": "晶圆传输机械臂超精密真空轴承供货应用材料",  "tech": [],  "funding": [   {"date": "2021", "round": "战略投资", "inv": "华为哈勃"},   {"date": "2026-05", "round": "C 轮", "amount": "数亿元", "inv": "比亚迪 / 东方嘉富等"}  ] }, {  "name": "先普科技",  "code": "874935.NQ",  "industry": "semiconductor",  "seg": "equipment",  "listed": true,  "desc": "国内首家 9N 级气体纯化器制造商，POU 纯化器/过滤器配套晶圆厂外延与 CVD 工艺，哈勃与中芯聚源投资。",  "execChanges": [],  "latestTech": "9N 级气体纯化器配套外延与 CVD 工艺，北交所 IPO 辅导中",  "tech": [],  "funding": [] }, {  "name": "瀚天天成",  "code": "02726.HK",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "全球最大 SiC 外延晶片供应商（2024 年份额 31.6%），率先量产 8 英寸并全球首发 12 英寸，华为哈勃持股。",  "cap": 330.0,  "execChanges": [],  "latestTech": "2025 年 12 月全球首发 12 英寸 SiC 外延晶片",  "tech": [],  "funding": [] }, {  "name": "天域半导体",  "code": "02658.HK",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "国内首家专业 SiC 外延片企业，4/6/8 英寸全体系，2024 年中国收入份额 30.6% 居首、全球第三。",  "cap": 173.0,  "execChanges": [],  "latestTech": "8 英寸 SiC 外延放量，年产能 80 万片",  "tech": [],  "funding": [] }, {  "name": "天科合达",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内导电型 SiC 衬底双龙头之一，8 英寸量产，股东含宁德时代、大基金、华为哈勃，科创板 IPO 已受理。",  "valuation": 175.0,  "round": "IPO 已受理",  "lastFunding": "2023",  "latestFunding": "2026-07 · 科创板 IPO 已受理（拟募 27.8 亿元）",  "execChanges": [],  "latestTech": "8 英寸导电型衬底量产，2024 年全球导电型份额约 17.3%",  "tech": [],  "funding": [   {"date": "2023", "round": "Pre-IPO"}  ] }, {  "name": "鑫耀半导体",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内稀缺 GaAs/InP 化合物衬底制造商，云南锗业控股，哈勃与深创投入股。",  "valuation": 19.0,  "round": "战略融资",  "lastFunding": "2026-05",  "latestFunding": "2026-05 · 增资（投后约 18.9 亿元）",  "execChanges": [],  "latestTech": "GaAs/InP 衬底扩产，黄冈高品质砷化镓晶片基地建设中",  "tech": [],  "funding": [   {"date": "2024-12", "round": "增资", "inv": "深创投新材料基金"},   {"date": "2026-05", "round": "增资", "amount": "0.56 亿元", "inv": "于跃（获 2.97% 股权）"}  ] }, {  "name": "晶正电子",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "全球首家铌酸锂单晶薄膜（LNOI）商业化企业，3-6 英寸薄膜晶圆全球市占率第一，卡位光通信与光电计算。",  "round": "战略融资",  "lastFunding": "2026-04",  "latestFunding": "2026-04 · 战略融资",  "execChanges": [],  "latestTech": "全球首款 170GHz 薄膜铌酸锂调制器发布（2026-03）",  "tech": [],  "funding": [   {"date": "2026-04", "round": "战略融资", "amount": "5000 万元", "inv": "南京中银 AIC 基金"}  ] }, {  "name": "烯晶半导体",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内首家半导体碳纳米管研发量产企业，建成全球首条 8 英寸碳纳米管晶圆中试线，哈勃与元禾投资。",  "round": "Pre-A++ 轮",  "lastFunding": "2026-02",  "latestFunding": "2026-02 · Pre-A++ 轮",  "execChanges": [],  "latestTech": "全球首条 8 英寸碳纳米管晶圆中试线（2025 年建成）",  "tech": [],  "funding": [   {"date": "2024-09", "round": "天使轮", "inv": "华为哈勃 / 元禾控股"},   {"date": "2026-02", "round": "Pre-A+ / Pre-A++", "inv": "首都科发集团 / 光谷产业投资等"}  ] }, {  "name": "博康信息",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内唯一光刻胶单体—成品胶全产业链厂商，ArF/KrF 胶覆盖 80 余家晶圆厂，大基金二期重仓。",  "valuation": 70.0,  "round": "Pre-IPO",  "lastFunding": "2023-11",  "latestFunding": "2023-11 · Pre-IPO（投后 70 亿元）",  "execChanges": [],  "latestTech": "ArF 湿法胶推进至 14nm，覆盖 80 余家晶圆厂",  "tech": [],  "funding": [   {"date": "2021", "round": "战略投资", "amount": "3 亿元", "inv": "华为哈勃"},   {"date": "2023-11", "round": "Pre-IPO", "amount": "超 6 亿元"}  ] }, {  "name": "阜阳欣奕华",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "显示光刻胶龙头，彩色光阻与 TFT 光刻胶国内市占率超 15%，客户京东方、TCL 华星，半导体胶进入验证出货。",  "round": "IPO 辅导",  "lastFunding": "2023-06",  "latestFunding": "2024-08 · A 股 IPO 辅导备案",  "execChanges": [],  "latestTech": "半导体 g/i 线及 KrF 光刻胶进入验证出货",  "tech": [],  "funding": [   {"date": "2023-06", "round": "D 轮", "amount": "超 5 亿元", "inv": "盛景嘉成等"}  ] }, {  "name": "玟昕科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "光热固化功能材料平台商，感光 OC、PSPI、Underfill 用于显示与先进封装，量产多款填补国产空白的光刻胶。",  "round": "B+ 轮",  "lastFunding": "2025-05",  "latestFunding": "2025-05 · B+ 轮",  "execChanges": [],  "latestTech": "感光 OC/PSPI/Underfill 多款产品填补国产空白",  "tech": [],  "funding": [   {"date": "2025-05", "round": "B+ 轮", "amount": "近亿元", "inv": "方广资本领投"}  ] }, {  "name": "德智新材",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "国内头部 SiC 涂层石墨基座与 SiC 刻蚀环供应商，CVD 工艺率先实现半导体级 Solid SiC 组件国产量产。",  "round": "C 轮",  "lastFunding": "2023",  "latestFunding": "2023 · C 轮（超 6 亿元）",  "execChanges": [],  "latestTech": "Solid SiC 刻蚀组件率先实现国产量产",  "tech": [],  "funding": [   {"date": "2023", "round": "C 轮", "amount": "超 6 亿元", "inv": "国风投 / 中信证券投资 / 中车资本 / 哈勃等"}  ] }, {  "name": "灿勤科技",  "code": "688182.SH",  "industry": "semiconductor",  "seg": "material",  "listed": true,  "desc": "微波介质陶瓷元器件龙头，介质滤波器占收入约 83%，拓展 HTCC 陶瓷封装管壳与基板。",  "cap": 116.0,  "execChanges": [],  "latestTech": "HTCC 陶瓷封装管壳与基板拓展，2026H1 营收 +108.6%",  "tech": [],  "funding": [] }, {  "name": "芯爱科技",
   "code": "—",
   "industry": "semiconductor",
   "seg": "material",
@@ -18009,7 +18030,150 @@ export const COMPANIES: ResearchCompany[] = [
       273.4
     ],
     "note": "军工模拟芯片领域国产替代代表：区别于消费级模拟芯片追求性价比，军工模拟芯片需满足高可靠、长寿命、抗极端环境、高集成度、100% 自主可控五大要求，长期由 TI、ADI、英飞凌等国际巨头垄断高端市场；国内企业多聚焦低端替代与逆向设计，展芯以自主正向设计 + 全链条技术闭环（设计-封装-测试筛选）切入，是军工电源管理芯片较早实现全品类覆盖的企业"
-  }
+  },
+ {
+  "name": "青禾晶元",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "equipment",
+  "listed": false,
+  "desc": "青禾晶元半导体科技（集团）股份有限公司（2020-07-08 成立，原名北京青禾晶元半导体科技，2026 年完成股份制改革并更现名，总部已迁至天津滨海高新区），由母凤文博士（清华大学机械系硕士、东京大学博士，原中科院微电子所研究员，国家级海外高层次人才）创立。公司定位「先进半导体键合集成技术与方案提供商」，以「高端键合装备制造 + 精密键合工艺服务」双轮驱动，构建「材料—工艺—装备」全产业链闭环。装备端已形成四大自主知识产权产品矩阵：超高真空常温键合系统、混合键合设备、热压（TCB）键合装备、临时键合/解键合装备，另配套表面处理（超原子束 TRIM）设备；键合设备覆盖 4/6/8/12 英寸全尺寸。① SAB61 系列超高真空常温键合设备采用超高真空离子束轰击活化表面，无需加热或退火即可形成牢固化学键，支持 SiC、Ga2O3、金刚石等异质材料键合，无热应力、无界面氧化层；② SAB62 系列亲水性键合与混合键合设备通过等离子体活化 + 旋涂清洗富集羟基，室温键合后经退火获得高强度介质键合与铜铜互连，用于 POI/SOI 衬底、MEMS 晶圆级封装、3D 堆叠 CIS；③ SAB82 系列 C2W 混合键合设备无需凸点即可铜对铜直接键合，支持 <10μm 高密度互联间距与 KGD 芯片筛选，是 Chiplet 先进封装核心装备；④ SAB64 系列临时键合/解键合设备支持 3μm 以内 TTV 与超薄晶圆解键合。材料端 SiC、LNOI（薄膜铌酸锂）、POI 复合衬底已量产并达国际先进水平，金刚石 Smart-Cut 国内率先突破，另开发 Dual LNOI、GeOI、SiCOI 等新工艺。工艺平台拥有十级/百级洁净间超 2000 ㎡、百余台设备、50 余名工程师，以 H-cut + 减薄键合路线覆盖 4/6/8 英寸晶圆加工，可提供从材料到产线的 Turnkey 交钥匙方案。厂区面积 3 万㎡，5 大研发生产中心，国内外专利 200 余项；常温键合装备获评国家颠覆性技术创新重点专项、全国首批六大标杆项目之一；全资/控股子公司含天津中科晶禾电子科技、青禾晶元（天津）半导体材料、青禾晶元（晋城）半导体材料。计划 2027 年申报上市。",
+  "valuation": 79.5,
+  "round": "C+ 轮",
+  "lastFunding": "2026-10",
+  "latestFunding": "2026-10 · 中微公司子公司中微临港增资（本轮投前估值 67.5 亿元，中微临港+17 方合计增资 2.5 亿元）",
+  "execChanges": [],
+  "latestTech": "2025 年发布全球首台自主研发 C2W & W2W 双模式 SAB8210CWW 设备；12 英寸 TCB 键合设备交付、超原子束设备自主研发成功；常温键合装备获评国家颠覆性技术创新重点专项并成为全国首批六大标杆项目之一；2025 年键合设备新增订单近 5 亿元（2024 年超 3 亿元）",
+  "tech": [
+   {
+    "date": "2026-10",
+    "title": "中微公司全资子公司中微临港拟以不超过 3500 万元增资，本轮投前估值 67.5 亿元；连同前期增资，中微临港合计持有 7.07% 注册资本，中微董事长尹志尧任公司董事（关联交易）"
+   },
+   {
+    "date": "2026-03",
+    "title": "完成约 5 亿元战略融资，中微公司及孚腾资本联合领投，北汽产投跟投，老股东英诺基金追加投资；资金用于核心技术研发、高端产品迭代、研发交付团队建设及生产基地扩建"
+   },
+   {
+    "date": "2026",
+    "title": "完成 C、C+ 轮融资，增资超 6 亿元；完成股份制改革，正式更名为青禾晶元半导体科技（集团）股份有限公司"
+   },
+   {
+    "date": "2025",
+    "title": "发布全球首台自主研发 C2W & W2W 双模式 SAB8210CWW 设备；异质集成设备二期产线投产，年产能超百台；整线方案获头部客户订单，实现「材料—工艺—装备」闭环落地"
+   },
+   {
+    "date": "2024",
+    "title": "键合设备实现批量销售，全年订单超 3 亿元；推出 8 寸 LTOI、LNOI 与 6 寸 SiCOI 等复合衬底；6-8 寸 SiC 复合衬底成果在 IEDM 发布"
+   }
+  ],
+  "funding": [
+   {
+    "date": "2026-10",
+    "round": "C+ 轮（中微临港增资）",
+    "amount": "本轮合计 2.5 亿元（中微临港 ≤3500 万元）",
+    "inv": "中微临港 + 其他 17 方；投前估值 67.5 亿元"
+   },
+   {
+    "date": "2026-03",
+    "round": "战略融资",
+    "amount": "约 5 亿元",
+    "inv": "中微公司 / 孚腾资本（联合领投）/ 北汽产投 / 英诺基金（追加）"
+   },
+   {
+    "date": "2026",
+    "round": "C / C+ 轮",
+    "amount": "超 6 亿元",
+    "inv": "（C、C+ 两轮合计增资超 6 亿元）"
+   },
+   {
+    "date": "2024",
+    "round": "B+ / B++ 轮",
+    "amount": "超 2 亿元",
+    "inv": "（持续引入产业资本，加速 SiC/LNOI 复合衬底与键合设备量产）"
+   },
+   {
+    "date": "2023",
+    "round": "B 轮",
+    "amount": "超 2 亿元",
+    "inv": "英诺基金等"
+   },
+   {
+    "date": "2022",
+    "round": "A+ / A++ 轮",
+    "amount": "超 3 亿元",
+    "inv": "（同步收购日本常温键合设备公司，布局海外业务）"
+   },
+   {
+    "date": "2021",
+    "round": "Pre-A / Pre-A+ 轮",
+    "amount": "近 2 亿元",
+    "inv": "（国内首台常温键合设备完成交付，填补行业空白）"
+   },
+   {
+    "date": "2020",
+    "round": "天使轮",
+    "inv": "（公司成立，异质集成设备事业部设立）"
+   }
+  ],
+  "note": "键合集成领域国产替代代表：高端键合装备（尤其混合键合、超高真空常温键合）与复合衬底长期由 EVG（奥地利）、SUSS MicroTec（德国）、Tokyo Ohka、Adeka 等海外厂商主导；青禾晶元以「装备 + 工艺 + 材料」三线并进切入，是国内少数同时掌握常温键合、混合键合、临时键合全品类装备并具备复合衬底量产能力的企业，卡位 Chiplet / 3D 堆叠 / 硅光异质集成 / Micro-LED 核心装备环节。2025 年营收 9373.32 万元、净利润 -1.82 亿元；2026 年 1-7 月营收 1.56 亿元、净利润 -1.13 亿元，仍处产能与市场投入期。"
+ },
+ {
+  "name": "沈阳新松半导体",
+  "code": "—",
+  "industry": "semiconductor",
+  "seg": "equipment",
+  "listed": false,
+  "desc": "沈阳新松半导体设备有限公司（2023-02-23 成立，前身为新松机器人（300024.SZ）半导体装备事业部，核心团队近 20 年技术积淀，法定代表人程龙，注册地沈阳市浑南区「北方芯谷」片区），专注半导体晶圆传输自动化专用设备，是国内晶圆传输设备第一梯队企业与国产龙头，国内市场份额位居首位。核心产品全面覆盖：真空直驱机械手（两轴/三轴/四轴，用于刻蚀、薄膜、离子注入等真空工艺腔体间传输）、大气机械手、EFEM（设备前端模块）、真空传输平台（真空装载机 VPH、真空预对准机 Aligner）、LoadPort 晶圆加载机、SMIF 晶圆装载检测机，以及立式炉等集成产品。真空机械手为行业最高壁垒核心部件（要求重复定位精度 ±0.005mm、Class 1 超高洁净、耐高真空），长期被 Brooks、Rorze、日本 Yaskawa/JEL 等海外厂商垄断，公司凭借近二十年积累实现真空机械手全面国产化落地，彻底打破海外技术垄断、补齐国内产业链核心部件短板。产品已批量导入北方华创、拓荆科技、芯源微、中微公司等前道设备龙头，以及中芯国际、华虹半导体等晶圆厂；两轴/三轴真空直驱机械手已落地先进制程产线示范应用，四轴真空直驱机械手完成自主研发与客户端现场验证，2025 年半导体装备业务营收约 5.25 亿元。公司由中国机器人龙头沈阳新松机器人控股（2026-07 增资后持股 68.2721%），2024 年 10 月入选「中国潜在独角兽企业」，参与国家重大科技专项，纳入浑南区「北方芯谷」半导体设备产业「6+N」体系。",
+  "valuation": 14.0,
+  "round": "战略融资",
+  "lastFunding": "2026-07",
+  "latestFunding": "2026-07 · 新一轮融资（盛京金控旗下机器人智能制造产业投资基金领投，北方华创 / 中微公司跟投；2024-05 战略融资 4 亿元，投后估值约 14 亿元）",
+  "execChanges": [],
+  "latestTech": "真空直驱机械手全面导入终端 FAB 厂并批量量产，两轴/三轴产品落地先进制程产线示范应用；四轴真空直驱机械手完成自主研发与客户端多工艺验证；EFEM、大气机械手规模化并批量导入市场；LoadPort/SMIF 完成客户验证并集成量产销售",
+  "tech": [
+   {
+    "date": "2026-07",
+    "title": "完成新一轮融资，盛京金控旗下机器人智能制造产业投资基金领投，北方华创、中微公司等投资平台跟投；注册资本增至 29294.5455 万元，新松机器人持股比例变更为 68.2721%"
+   },
+   {
+    "date": "2026-06",
+    "title": "辽宁省级母基金（辽宁省发展新质生产力母基金）完成投资，项目累计投资规模突破亿元；同期北交所增资挂牌成交合计 1.78 亿元"
+   },
+   {
+    "date": "2025",
+    "title": "真空直驱机械手全面导入终端 FAB 厂，两轴/三轴完成下游工艺设备厂与 FAB 厂验证并批量量产，进入先进制程产线示范应用阶段；半导体装备业务营收约 5.25 亿元"
+   },
+   {
+    "date": "2024-10",
+    "title": "入选「中国潜在独角兽企业」，参与国家重大科技专项，纳入浑南区「北方芯谷」半导体设备产业体系"
+   },
+   {
+    "date": "2024-05",
+    "title": "完成 4 亿元战略融资，引入国家集成电路产业投资基金二期、北京集成电路装备产业投资并购基金、中微半导体（上海）等 9 家战略投资者，投后估值约 14 亿元"
+   }
+  ],
+  "funding": [
+   {
+    "date": "2026-07",
+    "round": "新一轮融资",
+    "amount": "未披露",
+    "inv": "盛京金控旗下机器人智能制造产业投资基金（领投）/ 北方华创 / 中微公司 等投资平台"
+   },
+   {
+    "date": "2026-06",
+    "round": "增资（北交所挂牌）",
+    "amount": "合计 1.78 亿元",
+    "inv": "多笔成交（5000 万元 / 1 亿元 / 2500 万元 / 300 万元等），对应 0-5% 股权"
+   },
+   {
+    "date": "2024-05",
+    "round": "战略融资",
+    "amount": "4 亿元",
+    "inv": "国家集成电路产业投资基金二期 / 北京集成电路装备产业投资并购基金 / 中微半导体（上海）等 9 家机构；投后估值约 14 亿元"
+   }
+  ],
+  "note": "晶圆传输设备国产替代代表：EFEM 与真空/洁净晶圆机械手是半导体设备的核心配套部件，真空机械手技术壁垒最高，长期由 Brooks Automation（美国）、Rorze（日本）与 Yaskawa、JEL 等日本厂商垄断；新松半导体是国产厂商中少数实现真空机械手规模化量产的企业，与母公司体系内苏州新施诺（AMHS 整线系统）形成「核心机械手 + OHT 天车 + 调度软件」全栈闭环，公司自称是国内唯一同时掌握核心搬运机械手与整线系统的厂商。产品已进入国产前道设备龙头与主流晶圆厂供应链，是设备零部件国产化的关键一环。"
+ }
 ]
 
 export interface ResearchSegment {
