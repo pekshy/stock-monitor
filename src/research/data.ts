@@ -10459,8 +10459,7 @@ export const COMPANIES: ResearchCompany[] = [
    "investorsStructured": [
        {"name": "宁德时代", "role": "strategic", "round": "出资设立子公司（紫光同芯科技）", "date": "2025-12", "kind": "cvc"},
        {"name": "紫光国微", "role": "other", "round": "增资", "date": "2019-09", "kind": "cvc"}
-     ]
- },
+     ]},
  {
   "name": "紫光同创",
   "code": "—",
@@ -11229,7 +11228,56 @@ export const COMPANIES: ResearchCompany[] = [
   "execChanges": [],
   "latestTech": "",
   "tech": [],
-  "funding": []
+  "funding": [
+       {"date": "2016-01", "round": "A轮", "inv": "华西股份、追远创投、耀途资本、一村资本、同威资本"},
+       {"date": "2018-09", "round": "B轮", "amount": "上亿元", "inv": "华业天成资本、高榕创投、欧菲光、追远创投、同威资本、武进高新投、耀途资本、瑞麒创投、恒岳投资"},
+       {"date": "2019-01", "round": "B+轮", "amount": "上亿元", "inv": "武岳峰科创、前海母基金、追远创投、华业天成资本、华盈开泰"},
+       {"date": "2019-09", "round": "C轮", "inv": "创创基金、一村资本"},
+       {"date": "2020-12", "round": "C+轮", "inv": "小米长江产业基金、武岳峰科创、华业天成资本、哈勃投资"},
+       {"date": "2021-09", "round": "C++轮", "amount": "数亿元", "inv": "武岳峰科创、比亚迪、CPE源峰、高榕创投、一村资本、中慧资本"},
+       {"date": "2022-03", "round": "C+++轮", "inv": "凯旭源资本、中慧资本、一村资本、小米长江产业基金、武岳峰科创、哈勃投资、比亚迪、高榕创投、耀途资本、大疆创新"},
+       {"date": "2022-08", "round": "战略融资", "inv": "速腾聚创、禾赛科技"},
+       {"date": "2025-08", "round": "C++++轮", "amount": "数亿元", "inv": "国开制造业转型升级基金、联动丰业、永鑫方舟、芯禾资本、维度资本、哈勃投资、小米长江产业基金、耀途资本、东阳光科"},
+       {"date": "2025-12", "round": "D轮", "inv": "东阳光科、永鑫方舟、启宸资本、芯禾资本、乾融控股、元禾控股"},
+       {"date": "2026-05", "round": "股权融资", "inv": "新微资本、久奕投资、武岳峰科创、蚂蚁集团"}
+     ],
+   "investorsStructured": [
+       {"name": "东阳光科", "role": "lead", "round": "C++++轮", "date": "2025-08", "kind": "cvc"},
+       {"name": "国开制造业转型升级基金", "role": "lead", "round": "C++++轮", "date": "2025-08", "kind": "gov"},
+       {"name": "武岳峰科创", "role": "lead", "round": "B+轮", "date": "2019-01", "kind": "vc"},
+       {"name": "哈勃投资", "role": "strategic", "round": "C+轮", "date": "2020-12", "kind": "cvc"},
+       {"name": "大疆创新", "role": "strategic", "round": "C+++轮", "date": "2022-03", "kind": "cvc"},
+       {"name": "小米长江产业基金", "role": "strategic", "round": "C+轮", "date": "2020-12", "kind": "cvc"},
+       {"name": "欧菲光", "role": "strategic", "round": "B轮", "date": "2018-09", "kind": "cvc"},
+       {"name": "比亚迪", "role": "strategic", "round": "C++轮", "date": "2021-09", "kind": "cvc"},
+       {"name": "禾赛科技", "role": "strategic", "round": "战略融资", "date": "2022-08", "kind": "cvc"},
+       {"name": "蚂蚁集团", "role": "strategic", "round": "股权融资", "date": "2026-05", "kind": "cvc"},
+       {"name": "速腾聚创", "role": "strategic", "round": "战略融资", "date": "2022-08", "kind": "cvc"},
+       {"name": "CPE源峰", "role": "follow", "round": "C++轮", "date": "2021-09", "kind": "pe"},
+       {"name": "一村资本", "role": "follow", "round": "A轮", "date": "2016-01", "kind": "vc"},
+       {"name": "中慧资本", "role": "follow", "round": "C++轮", "date": "2021-09", "kind": "vc"},
+       {"name": "久奕投资", "role": "follow", "round": "股权融资", "date": "2026-05", "kind": "vc"},
+       {"name": "乾融控股", "role": "follow", "round": "D轮", "date": "2025-12", "kind": "vc"},
+       {"name": "元禾控股", "role": "follow", "round": "D轮", "date": "2025-12", "kind": "vc"},
+       {"name": "凯旭源资本", "role": "follow", "round": "C+++轮", "date": "2022-03", "kind": "vc"},
+       {"name": "前海母基金", "role": "follow", "round": "B+轮", "date": "2019-01", "kind": "pe"},
+       {"name": "华业天成资本", "role": "follow", "round": "B轮", "date": "2018-09", "kind": "vc"},
+       {"name": "华盈开泰", "role": "follow", "round": "B+轮", "date": "2019-01", "kind": "vc"},
+       {"name": "同威资本", "role": "follow", "round": "A轮", "date": "2016-01", "kind": "vc"},
+       {"name": "启宸资本", "role": "follow", "round": "D轮", "date": "2025-12", "kind": "vc"},
+       {"name": "新微资本", "role": "follow", "round": "股权融资", "date": "2026-05", "kind": "vc"},
+       {"name": "武进高新投", "role": "follow", "round": "B轮", "date": "2018-09", "kind": "gov"},
+       {"name": "永鑫方舟", "role": "follow", "round": "C++++轮", "date": "2025-08", "kind": "vc"},
+       {"name": "瑞麒创投", "role": "follow", "round": "B轮", "date": "2018-09", "kind": "vc"},
+       {"name": "维度资本", "role": "follow", "round": "C++++轮", "date": "2025-08", "kind": "vc"},
+       {"name": "耀途资本", "role": "follow", "round": "A轮", "date": "2016-01", "kind": "vc"},
+       {"name": "联动丰业", "role": "follow", "round": "C++++轮", "date": "2025-08", "kind": "vc"},
+       {"name": "芯禾资本", "role": "follow", "round": "C++++轮", "date": "2025-08", "kind": "vc"},
+       {"name": "追远创投", "role": "follow", "round": "A轮", "date": "2016-01", "kind": "vc"},
+       {"name": "高榕创投", "role": "follow", "round": "B轮", "date": "2018-09", "kind": "vc"},
+       {"name": "创创基金", "role": "other", "round": "C轮", "date": "2019-09", "kind": "vc"},
+       {"name": "华西股份", "role": "other", "round": "A轮", "date": "2016-01", "kind": "other"}
+     ]
  },
  {
   "name": "泰科天润",
@@ -12534,7 +12582,18 @@ export const COMPANIES: ResearchCompany[] = [
                    {"name": "国投招商", "role": "follow", "round": "A轮", "date": "2025-02", "kind": "gov"},
                    {"name": "徽元中小", "role": "follow", "round": "A轮", "date": "2025-02", "kind": "other"},
                    {"name": "湖畔资本/湖畔宏盛", "role": "follow", "round": "A轮", "date": "2025-02", "kind": "vc"}
-                 ] }, {  "name": "清连科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "高可靠芯片封装材料商，烧结银/铜膏与焊片服务功率半导体封装国产化，哈勃、元禾、光速光合投资。",  "round": "A+ 轮",  "lastFunding": "2024-12",  "latestFunding": "2024-12 · A+ 轮",  "execChanges": [],  "latestTech": "烧结银膏产能 10 吨/年（2025 年建成）",  "tech": [],  "funding": [   {"date": "2024-12", "round": "A+ 轮", "amount": "数千万元", "inv": "冯源资本领投"}  ] }, {  "name": "赛墨科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "高导热金属基复合材料商（金刚石铜/铝），用于大功率芯片封装散热，中科院宁波材料所孵化、江铜集团投资。",  "round": "B+ 轮",  "execChanges": [],  "latestTech": "金刚石铜微通道散热模组批量应用于曙光 MW 级液冷整机柜",  "tech": [],  "funding": [
+                 ] }, {  "name": "清连科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "高可靠芯片封装材料商，烧结银/铜膏与焊片服务功率半导体封装国产化，哈勃、元禾、光速光合投资。",  "round": "A+ 轮",  "lastFunding": "2024-12",  "latestFunding": "2024-12 · A+ 轮",  "execChanges": [],  "latestTech": "烧结银膏产能 10 吨/年（2025 年建成）",  "tech": [],  "funding": [
+                       {"date": "2024-04", "round": "A轮", "inv": "光合创投"},
+                       {"date": "2024-12", "round": "A+轮", "amount": "数千万元", "inv": "冯源资本、元禾控股、哈勃投资、光合创投（光速光合）"},
+                       {"date": "2025-02", "round": "股权转让", "inv": "元禾控股"}
+                     ],
+                   "investorsStructured": [
+                       {"name": "光合创投", "role": "lead", "round": "A轮", "date": "2024-04", "kind": "vc"},
+                       {"name": "冯源资本", "role": "lead", "round": "A+轮", "date": "2024-12", "kind": "vc"},
+                       {"name": "元禾控股", "role": "follow", "round": "A+轮", "date": "2024-12", "kind": "vc"},
+                       {"name": "光合创投", "role": "follow", "round": "股权转让", "date": "2025-02", "kind": "vc"},
+                       {"name": "哈勃投资", "role": "follow", "round": "A+轮", "date": "2024-12", "kind": "cvc"}
+                     ] }, {  "name": "赛墨科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "高导热金属基复合材料商（金刚石铜/铝），用于大功率芯片封装散热，中科院宁波材料所孵化、江铜集团投资。",  "round": "B+ 轮",  "execChanges": [],  "latestTech": "金刚石铜微通道散热模组批量应用于曙光 MW 级液冷整机柜",  "tech": [],  "funding": [
                        {"date": "2022-09", "round": "Pre-A轮/天使轮", "inv": "镇海产业基金（镇海汇智天使基金）"},
                        {"date": "2024-04", "round": "A轮", "amount": "数千万元", "inv": "哈勃投资、江西铜业集团"},
                        {"date": "2025-01", "round": "A+轮", "inv": "深创投（领投）、甬股交、曦晨资本（晨曦乾元基金）、润宁创投"},
@@ -12573,7 +12632,15 @@ export const COMPANIES: ResearchCompany[] = [
                                {"name": "鑫迪投资", "role": "lead", "round": "A轮", "date": "2020-01", "kind": "vc"},
                                {"name": "哈勃投资", "role": "strategic", "round": "战略融资", "date": "2020-02", "kind": "cvc", "note": "6333万元，第一大机构股东，持股8.92%"},
                                {"name": "第六元素", "role": "follow", "round": "Pre-A轮", "date": "2017-09", "kind": "cvc"}
-                             ] }, {  "name": "心电科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "电磁功能材料商，超薄高磁导率吸波/屏蔽薄膜用于 3C 电子 EMC，武汉理工团队孵化，哈勃 2025 年入股。",  "round": "天使轮",  "lastFunding": "2025-11",  "latestFunding": "2025-11 · 哈勃战略入股（1.85%）",  "execChanges": [],  "latestTech": "超薄高磁导率吸波薄膜用于 3C 电子 EMC",  "tech": [],  "funding": [   {"date": "2025-11", "round": "战略入股", "inv": "华为哈勃（1.85%）"}  ] }, {  "name": "华丰科技",  "code": "688629.SH",  "industry": "semiconductor",  "seg": "terminal",  "listed": true,  "desc": "国内光电连接器骨干企业，全自研 224G 高速背板连接器进入华为、中兴、浪潮服务器供应链。",  "cap": 547.0,  "execChanges": [],  "latestTech": "224G 高速背板连接器可批量交付，布局 6.4T NPO 光模块",  "tech": [],  "funding": [] }, {  "name": "庆虹电子",  "code": "—",  "industry": "semiconductor",  "seg": "terminal",  "listed": false,  "desc": "华为参股的高速连接器与高速线缆厂商，产品覆盖背板、存储与汽车连接器，服务数据中心与汽车电子。",  "round": "战略融资",  "lastFunding": "2020",  "latestFunding": "2020 · 战略融资（华为参股）",  "execChanges": [],  "latestTech": "背板/存储/汽车连接器绑定华为供应链",  "tech": [],  "funding": [
+                             ] }, {  "name": "心电科技",  "code": "—",  "industry": "semiconductor",  "seg": "material",  "listed": false,  "desc": "电磁功能材料商，超薄高磁导率吸波/屏蔽薄膜用于 3C 电子 EMC，武汉理工团队孵化，哈勃 2025 年入股。",  "round": "天使轮",  "lastFunding": "2025-11",  "latestFunding": "2025-11 · 哈勃战略入股（1.85%）",  "execChanges": [],  "latestTech": "超薄高磁导率吸波薄膜用于 3C 电子 EMC",  "tech": [],  "funding": [
+                                   {"date": "2025-10", "round": "天使轮/股权融资", "inv": "哈勃投资、长江创投、湖北省楚天凤鸣科创天使投资基金、武创院及相关产业方"}
+                                 ],
+                               "investorsStructured": [
+                                   {"name": "长江创投", "role": "lead", "round": "天使轮", "date": "2025-10", "kind": "gov"},
+                                   {"name": "哈勃投资", "role": "follow", "round": "天使轮", "date": "2025-10", "kind": "cvc"},
+                                   {"name": "武汉武创院投资有限公司", "role": "follow", "round": "天使轮", "date": "2025-10", "kind": "gov"},
+                                   {"name": "湖北省楚天凤鸣科创天使投资基金", "role": "follow", "round": "天使轮", "date": "2025-10", "kind": "gov"}
+                                 ] }, {  "name": "华丰科技",  "code": "688629.SH",  "industry": "semiconductor",  "seg": "terminal",  "listed": true,  "desc": "国内光电连接器骨干企业，全自研 224G 高速背板连接器进入华为、中兴、浪潮服务器供应链。",  "cap": 547.0,  "execChanges": [],  "latestTech": "224G 高速背板连接器可批量交付，布局 6.4T NPO 光模块",  "tech": [],  "funding": [] }, {  "name": "庆虹电子",  "code": "—",  "industry": "semiconductor",  "seg": "terminal",  "listed": false,  "desc": "华为参股的高速连接器与高速线缆厂商，产品覆盖背板、存储与汽车连接器，服务数据中心与汽车电子。",  "round": "战略融资",  "lastFunding": "2020",  "latestFunding": "2020 · 战略融资（华为参股）",  "execChanges": [],  "latestTech": "背板/存储/汽车连接器绑定华为供应链",  "tech": [],  "funding": [
                                    {"date": "2020-01", "round": "战略投资（A轮）", "inv": "哈勃科技创业投资有限公司（华为旗下）"},
                                    {"date": "2024-11", "round": "战略投资", "inv": "比亚迪"}
                                  ],
@@ -13095,13 +13162,40 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026年9月",
-    "round": "C 轮",
-    "amount": "数亿元",
-    "inv": "浙江嘉合长越 / 成都科创投 / 上海半导体装备材料产业投资基金 / 山东财金系基金 / 贵州国创等 10 家国资与产业资本"
-   }
-  ]
+       {"date": "2020-03", "round": "天使轮", "inv": "策源创投"},
+       {"date": "2022-06", "round": "Pre-A轮", "amount": "数千万元", "inv": "策源创投"},
+       {"date": "2023-02", "round": "A轮", "inv": "北京亦庄创投领投，上海脉尊、杭州长江创投、富毓投资、智汇钱潮跟投"},
+       {"date": "2023-09", "round": "Pre-B轮", "inv": "物产中大投资、安芯投资、国新国证投资"},
+       {"date": "2024-12", "round": "Pre-B+轮", "amount": "亿元级", "inv": "路遥股投、爱杭基金、嘉兴南湖国有集团、衢州工业集团"},
+       {"date": "2025-07", "round": "B轮", "amount": "超1亿元", "inv": "路遥股投、爱杭基金、嘉兴南湖国有集团、北京智远投资、中芯熙诚"},
+       {"date": "2026-09", "round": "C轮", "amount": "数亿元", "inv": "谷雨嘉禾、成都创投、浦科投资、山东财金集团、京铭资本、源禾资本、开开门投资、瀚海千里、贵州国创"}
+     ],
+   "investorsStructured": [
+       {"name": "北京亦庄创投", "role": "lead", "round": "A轮", "date": "2023-02", "kind": "gov"},
+       {"name": "爱杭基金", "role": "lead", "round": "Pre-B+轮/B轮", "date": "2024-12", "kind": "vc"},
+       {"name": "策源创投", "role": "lead", "round": "Pre-A轮", "date": "2022-06", "kind": "vc"},
+       {"name": "路遥股投", "role": "lead", "round": "Pre-B+轮/B轮", "date": "2024-12", "kind": "gov"},
+       {"name": "上海脉尊", "role": "follow", "round": "A轮", "date": "2023-02", "kind": "vc"},
+       {"name": "中芯熙诚", "role": "follow", "round": "B轮", "date": "2025-07", "kind": "cvc"},
+       {"name": "京铭资本", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "vc"},
+       {"name": "北京智远投资", "role": "follow", "round": "B轮", "date": "2025-07", "kind": "vc"},
+       {"name": "嘉兴南湖国有集团", "role": "follow", "round": "Pre-B+轮/B轮", "date": "2024-12", "kind": "gov"},
+       {"name": "国新国证投资", "role": "follow", "round": "Pre-B轮", "date": "2023-09", "kind": "pe"},
+       {"name": "安芯投资", "role": "follow", "round": "Pre-B轮", "date": "2023-09", "kind": "vc"},
+       {"name": "富毓投资", "role": "follow", "round": "A轮", "date": "2023-02", "kind": "vc"},
+       {"name": "山东财金集团", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "gov"},
+       {"name": "开开门投资", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "vc"},
+       {"name": "成都创投", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "gov"},
+       {"name": "智汇钱潮", "role": "follow", "round": "A轮", "date": "2023-02", "kind": "vc"},
+       {"name": "杭州长江创投", "role": "follow", "round": "A轮", "date": "2023-02", "kind": "vc"},
+       {"name": "浦科投资", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "pe"},
+       {"name": "源禾资本", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "vc"},
+       {"name": "瀚海千里", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "vc"},
+       {"name": "物产中大投资", "role": "follow", "round": "Pre-B轮", "date": "2023-09", "kind": "cvc"},
+       {"name": "衢州工业集团", "role": "follow", "round": "Pre-B+轮", "date": "2024-12", "kind": "gov"},
+       {"name": "谷雨嘉禾", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "vc"},
+       {"name": "贵州国创", "role": "follow", "round": "C轮", "date": "2026-09", "kind": "gov"}
+     ]
  },
  {
   "name": "时维感知",
@@ -13124,13 +13218,13 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026年9月",
-    "round": "天使轮",
-    "amount": "数千万元",
-    "inv": "奇绩创坛 / 零以创投 / 鹏晨投资"
-   }
-  ]
+       {"date": "2025-11", "round": "天使轮", "amount": "数千万元", "inv": "奇绩创坛、零以创投、鹏晨投资"}
+     ],
+   "investorsStructured": [
+       {"name": "奇绩创坛", "role": "follow", "round": "天使轮", "date": "2025-11", "kind": "vc"},
+       {"name": "零以创投", "role": "follow", "round": "天使轮", "date": "2025-11", "kind": "vc"},
+       {"name": "鹏晨投资", "role": "follow", "round": "天使轮", "date": "2025-11", "kind": "vc"}
+     ]
  },
  {
   "name": "地瓜机器人",
@@ -13244,13 +13338,30 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026-03",
-    "round": "战略融资",
-    "amount": "5.5 亿元",
-    "inv": "大胜达（上市公司）"
-   }
-  ]
+       {"date": "2020-05", "round": "种子轮", "inv": "金鸿坛投资、陕西唐璞投资"},
+       {"date": "2022-03", "round": "Pre-A轮", "amount": "数千万元", "inv": "盈富泰克、深创投、龙鼎投资、源禾资本、正海投资、超越摩尔投资、航天科工投资等"},
+       {"date": "2023-03", "round": "A轮", "amount": "超1亿元", "inv": "金科君创、龙鼎投资、财金投资、源禾资本、正海投资、业达创投"},
+       {"date": "2024-11", "round": "A+轮", "inv": "阳光融汇资本、厦门集美区产业促进股权投资合伙企业"},
+       {"date": "2026-07", "round": "战略融资", "amount": "5.5亿元", "inv": "大胜达"}
+     ],
+   "investorsStructured": [
+       {"name": "深创投", "role": "lead", "round": "Pre-A轮", "date": "2022-03", "kind": "gov"},
+       {"name": "源禾资本", "role": "lead", "round": "Pre-A轮", "date": "2022-03", "kind": "vc"},
+       {"name": "盈富泰克", "role": "lead", "round": "Pre-A轮", "date": "2022-03", "kind": "gov"},
+       {"name": "财金投资", "role": "lead", "round": "A轮", "date": "2023-03", "kind": "gov"},
+       {"name": "金科君创", "role": "lead", "round": "A轮", "date": "2023-03", "kind": "vc"},
+       {"name": "大胜达", "role": "strategic", "round": "战略融资", "date": "2026-07", "kind": "cvc"},
+       {"name": "业达创投", "role": "follow", "round": "A轮", "date": "2023-03", "kind": "gov"},
+       {"name": "厦门集美区产业促进股权投资合伙企业", "role": "follow", "round": "A+轮", "date": "2024-11", "kind": "gov"},
+       {"name": "正海投资", "role": "follow", "round": "A轮/Pre-A轮", "date": "2022-03", "kind": "vc"},
+       {"name": "源禾资本", "role": "follow", "round": "A轮", "date": "2023-03", "kind": "vc"},
+       {"name": "航天科工投资", "role": "follow", "round": "Pre-A轮", "date": "2022-03", "kind": "cvc"},
+       {"name": "超越摩尔投资", "role": "follow", "round": "Pre-A轮", "date": "2022-03", "kind": "vc"},
+       {"name": "金鸿坛投资", "role": "follow", "round": "种子轮", "date": "2020-05", "kind": "vc"},
+       {"name": "阳光融汇资本", "role": "follow", "round": "A+轮", "date": "2024-11", "kind": "vc"},
+       {"name": "陕西唐璞投资", "role": "follow", "round": "种子轮", "date": "2020-05", "kind": "vc"},
+       {"name": "龙鼎投资", "role": "follow", "round": "A轮/Pre-A轮", "date": "2022-03", "kind": "vc"}
+     ]
  },
  {
   "name": "格兰菲",
@@ -13278,13 +13389,21 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2025-06",
-    "round": "股权融资",
-    "amount": "数亿元",
-    "inv": "云锋基金 / 君联资本等"
-   }
-  ]
+       {"date": "2021-09", "round": "Pre-A轮", "inv": "云锋基金、君联资本、昆桥资本、信熹资本、建鑫投资"},
+       {"date": "2022-12", "round": "A轮", "inv": "建信股权、盈港资本、高鲲资本、信峘投资、海通创意资本"}
+     ],
+   "investorsStructured": [
+       {"name": "云锋基金", "role": "follow", "round": "Pre-A轮", "date": "2021-09", "kind": "cvc"},
+       {"name": "信峘投资", "role": "follow", "round": "A轮", "date": "2022-12", "kind": "vc"},
+       {"name": "信熹资本", "role": "follow", "round": "Pre-A轮", "date": "2021-09", "kind": "vc"},
+       {"name": "君联资本", "role": "follow", "round": "Pre-A轮", "date": "2021-09", "kind": "vc"},
+       {"name": "建信股权", "role": "follow", "round": "A轮", "date": "2022-12", "kind": "pe"},
+       {"name": "建鑫投资", "role": "follow", "round": "Pre-A轮", "date": "2021-09", "kind": "vc"},
+       {"name": "昆桥资本", "role": "follow", "round": "Pre-A轮", "date": "2021-09", "kind": "vc"},
+       {"name": "海通创意资本", "role": "follow", "round": "A轮", "date": "2022-12", "kind": "vc"},
+       {"name": "盈港资本", "role": "follow", "round": "A轮", "date": "2022-12", "kind": "vc"},
+       {"name": "高鲲资本", "role": "follow", "round": "A轮", "date": "2022-12", "kind": "vc"}
+     ]
  },
  {
   "name": "中科驭数",
@@ -13307,13 +13426,54 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026-08",
-    "round": "C+ 轮",
-    "amount": "数亿元",
-    "inv": "云锋基金 / 长江资本 / 太平科创等"
-   }
-  ]
+       {"date": "2018-10", "round": "天使轮", "amount": "1400万元", "inv": "中科创星、久友资本、中科算源"},
+       {"date": "2020-04", "round": "股权融资", "inv": "国新思创"},
+       {"date": "2021-07", "round": "A轮", "amount": "数亿元", "inv": "华泰创新、灵均投资、国新思创、海丝泉宗、恒迅创投"},
+       {"date": "2021-12", "round": "A+轮", "amount": "数亿元", "inv": "麦星投资、昆仑资本、灵均投资、海丝泉宗、昶立投资"},
+       {"date": "2022-09", "round": "B轮", "amount": "数亿元", "inv": "金融街资本、建信资本、灵均投资、光环私募基金、海丝泉宗、建信股权、熙诚致远、中科创星"},
+       {"date": "2025-05", "round": "B+轮", "inv": "国新融智、光谷科创投、北京信息产业发展基金、华控基金、光环私募基金、湖报资本、华泰紫金投资"},
+       {"date": "2026-07", "round": "C轮", "inv": "龙江基金、三丰资本、建投华科、盈泰私募基金、长江资本、长宏资本"},
+       {"date": "2026-08", "round": "C+轮", "amount": "数亿元", "inv": "云锋基金、太平创新、光谷产业投资、浙江产投、智微攀峰基金、智微资本、尚颀资本、品芝基金、东方富兴"}
+     ],
+   "investorsStructured": [
+       {"name": "云锋基金", "role": "lead", "round": "C+轮", "date": "2026-08", "kind": "cvc"},
+       {"name": "中科算源", "role": "strategic", "round": "天使轮", "date": "2018-10", "kind": "cvc"},
+       {"name": "三丰资本", "role": "follow", "round": "C轮", "date": "2026-07", "kind": "vc"},
+       {"name": "东方富兴", "role": "follow", "round": "C+轮", "date": "2026-08", "kind": "pe"},
+       {"name": "中科创星", "role": "follow", "round": "B轮/天使轮", "date": "2018-10", "kind": "vc"},
+       {"name": "久友资本", "role": "follow", "round": "天使轮", "date": "2018-10", "kind": "vc"},
+       {"name": "光环私募基金", "role": "follow", "round": "B+轮/B轮", "date": "2022-09", "kind": "vc"},
+       {"name": "光谷产业投资", "role": "follow", "round": "C+轮", "date": "2026-08", "kind": "gov"},
+       {"name": "光谷科创投", "role": "follow", "round": "B+轮", "date": "2025-05", "kind": "gov"},
+       {"name": "北京信息产业发展基金", "role": "follow", "round": "B+轮", "date": "2025-05", "kind": "gov"},
+       {"name": "华控基金", "role": "follow", "round": "B+轮", "date": "2025-05", "kind": "pe"},
+       {"name": "华泰创新", "role": "follow", "round": "A轮", "date": "2021-07", "kind": "cvc"},
+       {"name": "华泰紫金投资", "role": "follow", "round": "B+轮", "date": "2025-05", "kind": "pe"},
+       {"name": "品芝基金", "role": "follow", "round": "C+轮", "date": "2026-08", "kind": "pe"},
+       {"name": "国新思创", "role": "follow", "round": "A轮/股权融资", "date": "2020-04", "kind": "pe"},
+       {"name": "国新融智", "role": "follow", "round": "B+轮", "date": "2025-05", "kind": "pe"},
+       {"name": "太平创新", "role": "follow", "round": "C+轮", "date": "2026-08", "kind": "pe"},
+       {"name": "尚颀资本", "role": "follow", "round": "C+轮", "date": "2026-08", "kind": "cvc"},
+       {"name": "建信股权", "role": "follow", "round": "B轮", "date": "2022-09", "kind": "pe"},
+       {"name": "建信资本", "role": "follow", "round": "B轮", "date": "2022-09", "kind": "pe"},
+       {"name": "建投华科", "role": "follow", "round": "C轮", "date": "2026-07", "kind": "pe"},
+       {"name": "恒迅创投", "role": "follow", "round": "A轮", "date": "2021-07", "kind": "vc"},
+       {"name": "昆仑资本", "role": "follow", "round": "A+轮", "date": "2021-12", "kind": "vc"},
+       {"name": "昶立投资", "role": "follow", "round": "A+轮", "date": "2021-12", "kind": "vc"},
+       {"name": "智微攀峰基金", "role": "follow", "round": "C+轮", "date": "2026-08", "kind": "pe"},
+       {"name": "智微资本", "role": "follow", "round": "C+轮", "date": "2026-08", "kind": "vc"},
+       {"name": "浙江产投", "role": "follow", "round": "C+轮", "date": "2026-08", "kind": "gov"},
+       {"name": "海丝泉宗", "role": "follow", "round": "A+轮/A轮/B轮", "date": "2021-07", "kind": "vc"},
+       {"name": "湖报资本", "role": "follow", "round": "B+轮", "date": "2025-05", "kind": "vc"},
+       {"name": "灵均投资", "role": "follow", "round": "A+轮/A轮/B轮", "date": "2021-07", "kind": "vc"},
+       {"name": "熙诚致远", "role": "follow", "round": "B轮", "date": "2022-09", "kind": "vc"},
+       {"name": "盈泰私募基金", "role": "follow", "round": "C轮", "date": "2026-07", "kind": "vc"},
+       {"name": "金融街资本", "role": "follow", "round": "B轮", "date": "2022-09", "kind": "pe"},
+       {"name": "长宏资本", "role": "follow", "round": "C轮", "date": "2026-07", "kind": "vc"},
+       {"name": "长江资本", "role": "follow", "round": "C轮", "date": "2026-07", "kind": "pe"},
+       {"name": "麦星投资", "role": "follow", "round": "A+轮", "date": "2021-12", "kind": "vc"},
+       {"name": "龙江基金", "role": "follow", "round": "C轮", "date": "2026-07", "kind": "gov"}
+     ]
  },
  {
   "name": "算能科技",
@@ -13442,13 +13602,48 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2025-12",
-    "round": "D 轮",
-    "amount": "数亿元",
-    "inv": "腾讯 / 同创伟业 / 东方富海 / 基石资本"
-   }
-  ]
+       {"date": "2020-12", "round": "种子轮", "inv": "五源资本、正心谷资本、中芯聚源、华业天成、耀途资本、弘卓资本"},
+       {"date": "2021-04", "round": "天使轮", "inv": "红杉中国、深创投、腾讯、五源资本、华业天成、QBN Capital"},
+       {"date": "2021-09", "round": "A轮", "amount": "数亿元", "inv": "腾讯、红杉中国、深创投、淡马锡、蔚来资本、正心谷资本、一村资本、民银资本、耀途资本、五源资本"},
+       {"date": "2023-04", "round": "战略融资", "inv": "阳光保险"},
+       {"date": "2023-11", "round": "B轮", "inv": "润信新观象产业基金、国信资本"},
+       {"date": "2024-05", "round": "B+轮", "inv": "宝安区产业投资引导基金、深圳市引导基金"},
+       {"date": "2025-04", "round": "C轮", "inv": "弘卓资本、杭实资管、IDG资本、萧山资本、杭州资本、中芯聚源、鹏鼎控股、云尖信息"},
+       {"date": "2025-11", "round": "D轮", "inv": "同创伟业、东方富海、基石资本、IDG资本、腾讯、五源资本"},
+       {"date": "2025-12", "round": "增资/战略投资", "amount": "2.5亿元", "inv": "腾讯"}
+     ],
+   "investorsStructured": [
+       {"name": "红杉中国", "role": "lead", "round": "天使轮", "date": "2021-04", "kind": "vc"},
+       {"name": "腾讯", "role": "lead", "round": "A轮/增资/战略投资", "date": "2021-09", "kind": "cvc"},
+       {"name": "阳光保险", "role": "strategic", "round": "战略融资", "date": "2023-04", "kind": "other"},
+       {"name": "IDG资本", "role": "follow", "round": "C轮/D轮", "date": "2025-04", "kind": "vc"},
+       {"name": "QBN Capital", "role": "follow", "round": "天使轮", "date": "2021-04", "kind": "vc"},
+       {"name": "一村资本", "role": "follow", "round": "A轮", "date": "2021-09", "kind": "vc"},
+       {"name": "东方富海", "role": "follow", "round": "D轮", "date": "2025-11", "kind": "vc"},
+       {"name": "中芯聚源", "role": "follow", "round": "C轮/种子轮", "date": "2020-12", "kind": "cvc"},
+       {"name": "云尖信息", "role": "follow", "round": "C轮", "date": "2025-04", "kind": "cvc"},
+       {"name": "五源资本", "role": "follow", "round": "A轮/D轮/天使轮/种子轮", "date": "2020-12", "kind": "vc"},
+       {"name": "华业天成", "role": "follow", "round": "天使轮/种子轮", "date": "2020-12", "kind": "vc"},
+       {"name": "同创伟业", "role": "follow", "round": "D轮", "date": "2025-11", "kind": "vc"},
+       {"name": "国信资本", "role": "follow", "round": "B轮", "date": "2023-11", "kind": "pe"},
+       {"name": "基石资本", "role": "follow", "round": "D轮", "date": "2025-11", "kind": "vc"},
+       {"name": "宝安区产业投资引导基金", "role": "follow", "round": "B+轮", "date": "2024-05", "kind": "gov"},
+       {"name": "弘卓资本", "role": "follow", "round": "C轮/种子轮", "date": "2020-12", "kind": "vc"},
+       {"name": "杭实资管", "role": "follow", "round": "C轮", "date": "2025-04", "kind": "gov"},
+       {"name": "杭州资本", "role": "follow", "round": "C轮", "date": "2025-04", "kind": "gov"},
+       {"name": "正心谷资本", "role": "follow", "round": "A轮/种子轮", "date": "2020-12", "kind": "vc"},
+       {"name": "民银资本", "role": "follow", "round": "A轮", "date": "2021-09", "kind": "pe"},
+       {"name": "润信新观象产业基金", "role": "follow", "round": "B轮", "date": "2023-11", "kind": "pe"},
+       {"name": "淡马锡", "role": "follow", "round": "A轮", "date": "2021-09", "kind": "pe"},
+       {"name": "深创投", "role": "follow", "round": "A轮/天使轮", "date": "2021-04", "kind": "gov"},
+       {"name": "深圳市引导基金", "role": "follow", "round": "B+轮", "date": "2024-05", "kind": "gov"},
+       {"name": "红杉中国", "role": "follow", "round": "A轮", "date": "2021-09", "kind": "vc"},
+       {"name": "耀途资本", "role": "follow", "round": "A轮/种子轮", "date": "2020-12", "kind": "vc"},
+       {"name": "腾讯", "role": "follow", "round": "D轮/天使轮", "date": "2021-04", "kind": "cvc"},
+       {"name": "萧山资本", "role": "follow", "round": "C轮", "date": "2025-04", "kind": "gov"},
+       {"name": "蔚来资本", "role": "follow", "round": "A轮", "date": "2021-09", "kind": "cvc"},
+       {"name": "鹏鼎控股", "role": "follow", "round": "C轮", "date": "2025-04", "kind": "cvc"}
+     ]
  },
  {
   "name": "平头哥",
@@ -13493,13 +13688,39 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026-05",
-    "round": "C 轮",
-    "amount": "近十亿元",
-    "inv": "深创投 / 岩山科技 / 大湾区共同家园"
-   }
-  ]
+       {"date": "2020-03", "round": "天使轮", "amount": "近千万美元", "inv": "凯旋创投（领投）"},
+       {"date": "2021-01", "round": "战略融资", "inv": "浪潮（领投）"},
+       {"date": "2021-03", "round": "Pre-A轮", "amount": "1亿元人民币", "inv": "将门创投（领投）、真格基金、深圳前海母基金、凯旋创投、创享投资"},
+       {"date": "2021-04", "round": "战略融资", "inv": "智慧互联产业基金"},
+       {"date": "2022-01", "round": "A轮", "amount": "数亿元人民币", "inv": "基石资本、大湾区共同家园发展基金（领投）、同威资本、华盛资本、深圳天使母基金"},
+       {"date": "2023-11", "round": "A+轮", "amount": "数亿元人民币", "inv": "金浦投资上海金融科技基金（领投）、华大松禾天使基金、岩山科技、将门创投"},
+       {"date": "2024-04", "round": "B轮", "amount": "数亿元人民币", "inv": "蚂蚁集团（领投）、盛景嘉成"},
+       {"date": "2024-07", "round": "B轮", "amount": "数亿元人民币", "inv": "上海尚理投资有限公司"},
+       {"date": "2026-05", "round": "C轮", "amount": "近10亿元人民币", "inv": "深创投、岩山科技、大湾区共同家园、力鼎资本、蕴盛资本、凯旋创投、创享投资、盛景嘉成"}
+     ],
+   "investorsStructured": [
+       {"name": "凯旋创投", "role": "lead", "round": "天使轮", "date": "2020-03", "kind": "vc"},
+       {"name": "基石资本", "role": "lead", "round": "A轮", "date": "2022-01", "kind": "vc"},
+       {"name": "大湾区共同家园发展基金", "role": "lead", "round": "A轮", "date": "2022-01", "kind": "pe"},
+       {"name": "将门创投", "role": "lead", "round": "Pre-A轮", "date": "2021-03", "kind": "vc"},
+       {"name": "浪潮", "role": "lead", "round": "战略融资", "date": "2021-01", "kind": "other"},
+       {"name": "深创投", "role": "lead", "round": "C轮", "date": "2026-05", "kind": "gov"},
+       {"name": "蚂蚁集团", "role": "lead", "round": "B轮", "date": "2024-04", "kind": "cvc"},
+       {"name": "金浦投资上海金融科技基金", "role": "lead", "round": "A+轮", "date": "2023-11", "kind": "vc"},
+       {"name": "岩山科技", "role": "strategic", "round": "A+轮", "date": "2023-11", "kind": "other"},
+       {"name": "创享投资", "role": "follow", "round": "Pre-A轮", "date": "2021-03", "kind": "vc"},
+       {"name": "力鼎资本", "role": "follow", "round": "C轮", "date": "2026-05", "kind": "vc"},
+       {"name": "华大松禾天使基金", "role": "follow", "round": "A+轮", "date": "2023-11", "kind": "vc"},
+       {"name": "华盛资本", "role": "follow", "round": "A轮", "date": "2022-01", "kind": "vc"},
+       {"name": "同威资本", "role": "follow", "round": "A轮", "date": "2022-01", "kind": "vc"},
+       {"name": "深圳前海母基金", "role": "follow", "round": "Pre-A轮", "date": "2021-03", "kind": "pe"},
+       {"name": "深圳天使母基金", "role": "follow", "round": "A轮", "date": "2022-01", "kind": "gov"},
+       {"name": "盛景嘉成", "role": "follow", "round": "B轮", "date": "2024-04", "kind": "vc"},
+       {"name": "真格基金", "role": "follow", "round": "Pre-A轮", "date": "2021-03", "kind": "vc"},
+       {"name": "蕴盛资本", "role": "follow", "round": "C轮", "date": "2026-05", "kind": "vc"},
+       {"name": "上海尚理投资有限公司", "role": "other", "round": "B轮", "date": "2024-07", "kind": "other"},
+       {"name": "智慧互联产业基金", "role": "other", "round": "战略融资", "date": "2021-04", "kind": "other"}
+     ]
  },
  {
   "name": "行云集成",
@@ -13527,19 +13748,26 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026-09-21",
-    "round": "新一轮",
-    "amount": "近 8 亿元",
-    "inv": "宁德时代（溥泉资本 + 自有资金）领投，春华资本 / 基石创投跟投"
-   },
-   {
-    "date": "2025-09",
-    "round": "Pre-A / Pre-A+ 轮",
-    "amount": "合计超 4 亿元",
-    "inv": "赛富投资基金 / 春华资本 / 五源资本领投，智谱AI / 中科创星 / 同创伟业等"
-   }
-  ]
+       {"date": "2024-11", "round": "天使轮及天使+轮", "amount": "数亿元", "inv": "同创伟业、奇绩创坛、中科创星、智谱AI、峰瑞资本、春华资本"},
+       {"date": "2025-05", "round": "Pre-A轮", "inv": "五源资本、中博聚力"},
+       {"date": "2026-04", "round": "Pre-A及Pre-A+轮", "amount": "超4亿元人民币", "inv": "五源资本、赛富投资基金、春华资本（联合领投）、北京/江苏地方国资、佰维存储、创维资本、金沙江联合"},
+       {"date": "2026-09", "round": "A轮", "amount": "近8亿元人民币", "inv": "宁德时代溥泉资本及自有资金（领投）、春华资本、基石创投"}
+     ],
+   "investorsStructured": [
+       {"name": "五源资本", "role": "lead", "round": "Pre-A轮", "date": "2025-05", "kind": "vc"},
+       {"name": "宁德时代溥泉资本", "role": "lead", "round": "A轮", "date": "2026-09", "kind": "cvc"},
+       {"name": "赛富投资基金", "role": "lead", "round": "Pre-A及Pre-A+轮", "date": "2026-04", "kind": "vc"},
+       {"name": "佰维存储", "role": "strategic", "round": "Pre-A及Pre-A+轮", "date": "2026-04", "kind": "cvc"},
+       {"name": "创维资本", "role": "strategic", "round": "Pre-A及Pre-A+轮", "date": "2026-04", "kind": "cvc"},
+       {"name": "智谱AI", "role": "strategic", "round": "天使轮及天使+轮", "date": "2024-11", "kind": "cvc"},
+       {"name": "中博聚力", "role": "follow", "round": "Pre-A轮", "date": "2025-05", "kind": "vc"},
+       {"name": "中科创星", "role": "follow", "round": "天使轮及天使+轮", "date": "2024-11", "kind": "vc"},
+       {"name": "同创伟业", "role": "follow", "round": "天使轮及天使+轮", "date": "2024-11", "kind": "vc"},
+       {"name": "基石创投", "role": "follow", "round": "A轮", "date": "2026-09", "kind": "vc"},
+       {"name": "奇绩创坛", "role": "follow", "round": "天使轮及天使+轮", "date": "2024-11", "kind": "vc"},
+       {"name": "峰瑞资本", "role": "follow", "round": "天使轮及天使+轮", "date": "2024-11", "kind": "vc"},
+       {"name": "春华资本", "role": "follow", "round": "天使轮及天使+轮", "date": "2024-11", "kind": "pe"}
+     ]
  },
  {
   "name": "曦智科技",
@@ -13590,13 +13818,40 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026-04",
-    "round": "A 轮",
-    "amount": "数亿元",
-    "inv": "商汤科技 / 锦秋基金 / 上海国投 / 创业接力"
-   }
-  ]
+       {"date": "2022-08", "round": "种子轮", "inv": "奇绩创坛（独投）"},
+       {"date": "2023-07", "round": "天使轮", "amount": "5000万元", "inv": "峰瑞资本、小苗朗程、奇绩创坛"},
+       {"date": "2024-03", "round": "天使+轮", "amount": "近亿元", "inv": "创业接力、峰瑞资本、中赢创投、小苗朗程、慕石资本"},
+       {"date": "2024-12", "round": "战略投资", "inv": "中赢创投、小苗朗程、锦秋基金、慕石资本"},
+       {"date": "2025-07", "round": "Pre-A轮", "inv": "国发创投、浦东创投、中赢创投、敦鸿资产、张江集团"},
+       {"date": "2026-04", "round": "A轮", "inv": "创业接力、华睿投资、海通开元、海汇投资、敦鸿资产、小苗朗程、商汤科技、锦秋基金、慕石资本、上海国投"},
+       {"date": "2026-08", "round": "B轮", "amount": "数十亿元人民币", "inv": "国投先导、上海科投、申能诚毅、吉利资本、商汤国香资本、砺思资本、华控基金、海通开元、中信建投、中贝通信、朗玛峰创投、鋆昊资本、浦耀信晔、华睿投资、海汇投资、道禾长期投资、明泓量化、锦秋基金、敦鸿资产、小苗朗程、接力资本、慕石资本"}
+     ],
+   "investorsStructured": [
+       {"name": "中赢创投", "role": "lead", "round": "天使+轮", "date": "2024-03", "kind": "vc"},
+       {"name": "国投先导", "role": "lead", "round": "B轮", "date": "2026-08", "kind": "gov"},
+       {"name": "奇绩创坛", "role": "lead", "round": "种子轮", "date": "2022-08", "kind": "vc"},
+       {"name": "峰瑞资本", "role": "lead", "round": "天使轮", "date": "2023-07", "kind": "vc"},
+       {"name": "吉利资本", "role": "strategic", "round": "B轮", "date": "2026-08", "kind": "cvc"},
+       {"name": "商汤国香资本", "role": "strategic", "round": "B轮", "date": "2026-08", "kind": "cvc"},
+       {"name": "商汤科技", "role": "strategic", "round": "A轮", "date": "2026-04", "kind": "cvc"},
+       {"name": "上海国投", "role": "follow", "round": "A轮", "date": "2026-04", "kind": "gov"},
+       {"name": "上海科投", "role": "follow", "round": "B轮", "date": "2026-08", "kind": "gov"},
+       {"name": "中信建投", "role": "follow", "round": "B轮", "date": "2026-08", "kind": "other"},
+       {"name": "创业接力", "role": "follow", "round": "天使+轮", "date": "2024-03", "kind": "vc"},
+       {"name": "华控基金", "role": "follow", "round": "B轮", "date": "2026-08", "kind": "pe"},
+       {"name": "华睿投资", "role": "follow", "round": "A轮", "date": "2026-04", "kind": "vc"},
+       {"name": "国发创投", "role": "follow", "round": "Pre-A轮", "date": "2025-07", "kind": "gov"},
+       {"name": "小苗朗程", "role": "follow", "round": "天使轮", "date": "2023-07", "kind": "vc"},
+       {"name": "张江集团", "role": "follow", "round": "Pre-A轮", "date": "2025-07", "kind": "gov"},
+       {"name": "慕石资本", "role": "follow", "round": "天使+轮", "date": "2024-03", "kind": "vc"},
+       {"name": "敦鸿资产", "role": "follow", "round": "Pre-A轮", "date": "2025-07", "kind": "vc"},
+       {"name": "朗玛峰创投", "role": "follow", "round": "B轮", "date": "2026-08", "kind": "vc"},
+       {"name": "浦东创投", "role": "follow", "round": "Pre-A轮", "date": "2025-07", "kind": "gov"},
+       {"name": "海汇投资", "role": "follow", "round": "A轮", "date": "2026-04", "kind": "vc"},
+       {"name": "海通开元", "role": "follow", "round": "A轮", "date": "2026-04", "kind": "vc"},
+       {"name": "申能诚毅", "role": "follow", "round": "B轮", "date": "2026-08", "kind": "gov"},
+       {"name": "锦秋基金", "role": "follow", "round": "战略投资", "date": "2024-12", "kind": "vc"}
+     ]
  },
  {
   "name": "图灵量子",
@@ -13624,13 +13879,45 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026-04",
-    "round": "C 轮",
-    "amount": "数亿元",
-    "inv": "国家创投引导基金长三角基金 / 浦东国资 / 上汽金控"
-   }
-  ]
+       {"date": "2021-05", "round": "天使轮", "amount": "近亿元", "inv": "联想之星（领投）、中科神光、前海基金、源来资本、小苗朗程、鸿一方投资、琥珀资本、君联资本"},
+       {"date": "2021-11", "round": "Pre-A轮", "amount": "数亿元", "inv": "君联资本、中芯聚源、深信服、交大菡源（上海交大母基金）、琥珀资本"},
+       {"date": "2022-03", "round": "Pre-A+轮", "amount": "超亿元", "inv": "元禾原点、无锡滨湖国投、君联资本、琥珀资本、势能资本、滨湖产业集团"},
+       {"date": "2023-01", "round": "A轮", "amount": "数亿元", "inv": "中网投、华控基金、东证创新、联想创投"},
+       {"date": "2025-07", "round": "战略轮", "amount": "亿元级", "inv": "盛世投资（领投）"},
+       {"date": "2026-01", "round": "战略轮/B+轮", "amount": "数亿元", "inv": "鼎晖百孚、国科资本、海通开元、疆亘资本、国家级资本"},
+       {"date": "2026-01", "round": "B轮", "amount": "数亿元", "inv": "投控东海（深投控）、复星资本、商汤、四川省产业振兴集团"},
+       {"date": "2026-04", "round": "战略轮", "amount": "数亿元", "inv": "国家创业投资引导基金长三角基金、浦东新区国资（浦东创投/张江科投/海望资本，联合领投）、达晨财智、上汽金控/尚颀资本、鼎晖百孚、彼岸时代"}
+     ],
+   "investorsStructured": [
+       {"name": "中网投", "role": "lead", "round": "A轮", "date": "2023-01", "kind": "gov"},
+       {"name": "元禾原点", "role": "lead", "round": "Pre-A+轮", "date": "2022-03", "kind": "vc"},
+       {"name": "君联资本", "role": "lead", "round": "Pre-A轮", "date": "2021-11", "kind": "vc"},
+       {"name": "国家创业投资引导基金长三角基金", "role": "lead", "round": "战略轮", "date": "2026-04", "kind": "gov"},
+       {"name": "浦东新区国资", "role": "lead", "round": "战略轮", "date": "2026-04", "kind": "gov"},
+       {"name": "盛世投资", "role": "lead", "round": "战略轮", "date": "2025-07", "kind": "pe"},
+       {"name": "联想之星", "role": "lead", "round": "天使轮", "date": "2021-05", "kind": "vc"},
+       {"name": "上汽金控", "role": "strategic", "round": "战略轮", "date": "2026-04", "kind": "cvc"},
+       {"name": "商汤", "role": "strategic", "round": "B轮", "date": "2026-01", "kind": "cvc"},
+       {"name": "深信服", "role": "strategic", "round": "Pre-A轮", "date": "2021-11", "kind": "cvc"},
+       {"name": "中科神光", "role": "follow", "round": "天使轮", "date": "2021-05", "kind": "vc"},
+       {"name": "中芯聚源", "role": "follow", "round": "Pre-A轮", "date": "2021-11", "kind": "cvc"},
+       {"name": "交大菡源", "role": "follow", "round": "Pre-A轮", "date": "2021-11", "kind": "other"},
+       {"name": "前海基金", "role": "follow", "round": "天使轮", "date": "2021-05", "kind": "pe"},
+       {"name": "华控基金", "role": "follow", "round": "A轮", "date": "2023-01", "kind": "pe"},
+       {"name": "四川省产业振兴集团", "role": "follow", "round": "B轮", "date": "2026-01", "kind": "gov"},
+       {"name": "国科资本", "role": "follow", "round": "战略轮/B+轮", "date": "2026-01", "kind": "pe"},
+       {"name": "复星资本", "role": "follow", "round": "B轮", "date": "2026-01", "kind": "pe"},
+       {"name": "小苗朗程", "role": "follow", "round": "天使轮", "date": "2021-05", "kind": "vc"},
+       {"name": "彼岸时代", "role": "follow", "round": "战略轮", "date": "2026-04", "kind": "vc"},
+       {"name": "投控东海", "role": "follow", "round": "B轮", "date": "2026-01", "kind": "gov"},
+       {"name": "无锡滨湖国投", "role": "follow", "round": "Pre-A+轮", "date": "2022-03", "kind": "gov"},
+       {"name": "海通开元", "role": "follow", "round": "战略轮/B+轮", "date": "2026-01", "kind": "vc"},
+       {"name": "源来资本", "role": "follow", "round": "天使轮", "date": "2021-05", "kind": "vc"},
+       {"name": "疆亘资本", "role": "follow", "round": "战略轮/B+轮", "date": "2026-01", "kind": "vc"},
+       {"name": "联想创投", "role": "follow", "round": "A轮", "date": "2023-01", "kind": "cvc"},
+       {"name": "达晨财智", "role": "follow", "round": "战略轮", "date": "2026-04", "kind": "vc"},
+       {"name": "鼎晖百孚", "role": "follow", "round": "战略轮/B+轮", "date": "2026-01", "kind": "pe"}
+     ]
  },
  {
   "name": "奇算光启",
@@ -13653,13 +13940,19 @@ export const COMPANIES: ResearchCompany[] = [
    }
   ],
   "funding": [
-   {
-    "date": "2026-01",
-    "round": "Pre-A 轮",
-    "amount": "数千万元",
-    "inv": "百度风投 / 高瓴创投 / 张江浩成"
-   }
-  ]
+       {"date": "2025-08", "round": "天使轮", "inv": "深流资本"},
+       {"date": "2026-01", "round": "天使轮", "inv": "高瓴创投（领投）、BV百度风投、张江浩成（张江高科）"},
+       {"date": "2026-08", "round": "天使+轮", "amount": "数亿元", "inv": "高瓴创投、真格基金、上海未来产业基金（联合领投）、同创伟业、深流资本、张江高科、BV百度风投"}
+     ],
+   "investorsStructured": [
+       {"name": "上海未来产业基金", "role": "lead", "round": "天使+轮", "date": "2026-08", "kind": "gov"},
+       {"name": "深流资本", "role": "lead", "round": "天使轮", "date": "2025-08", "kind": "vc"},
+       {"name": "真格基金", "role": "lead", "round": "天使+轮", "date": "2026-08", "kind": "vc"},
+       {"name": "高瓴创投", "role": "lead", "round": "天使轮", "date": "2026-01", "kind": "pe"},
+       {"name": "BV百度风投", "role": "follow", "round": "天使轮", "date": "2026-01", "kind": "cvc"},
+       {"name": "同创伟业", "role": "follow", "round": "天使+轮", "date": "2026-08", "kind": "vc"},
+       {"name": "张江浩成", "role": "follow", "round": "天使轮", "date": "2026-01", "kind": "gov"}
+     ]
  },
  {
   "name": "光联芯科",
@@ -13676,13 +13969,31 @@ export const COMPANIES: ResearchCompany[] = [
   "latestTech": "沿「电算光联」技术路线推进片间光互连（OIO）架构级创新，提升算力集群互连带宽与传输效率",
   "tech": [],
   "funding": [
-   {
-    "date": "2026年9月",
-    "round": "A+ 轮",
-    "amount": "近 10 亿元",
-    "inv": "河南投资集团汇融基金"
-   }
-  ]
+       {"date": "2024-05", "round": "天使轮", "inv": "真知创投"},
+       {"date": "2025-11", "round": "Pre-A轮", "inv": "高瓴创投、红杉中国、真知创投"},
+       {"date": "2026-06", "round": "A轮", "amount": "近5亿元人民币", "inv": "高榕创投、联想创投、基石资本（联合领投）、红杉中国、芯禾资本、隐山资本、尚势资本、真知创投、君联资本、仁爱资本、高瓴创投"},
+       {"date": "2026-08", "round": "A+轮", "amount": "近10亿元人民币", "inv": "国寿资本、招商局资本、星连资本、中信建投、河南汇融、裴振华、赵洪修、红杉中国、高瓴创投、君联资本"}
+     ],
+   "investorsStructured": [
+       {"name": "国寿资本", "role": "lead", "round": "A+轮", "date": "2026-08", "kind": "pe"},
+       {"name": "基石资本", "role": "lead", "round": "A轮", "date": "2026-06", "kind": "vc"},
+       {"name": "招商局资本", "role": "lead", "round": "A+轮", "date": "2026-08", "kind": "pe"},
+       {"name": "星连资本", "role": "lead", "round": "A+轮", "date": "2026-08", "kind": "vc"},
+       {"name": "真知创投", "role": "lead", "round": "天使轮", "date": "2024-05", "kind": "vc"},
+       {"name": "联想创投", "role": "lead", "round": "A轮", "date": "2026-06", "kind": "cvc"},
+       {"name": "高榕创投", "role": "lead", "round": "A轮", "date": "2026-06", "kind": "vc"},
+       {"name": "中信建投", "role": "follow", "round": "A+轮", "date": "2026-08", "kind": "other"},
+       {"name": "仁爱资本", "role": "follow", "round": "A轮", "date": "2026-06", "kind": "vc"},
+       {"name": "君联资本", "role": "follow", "round": "A轮", "date": "2026-06", "kind": "vc"},
+       {"name": "尚势资本", "role": "follow", "round": "A轮", "date": "2026-06", "kind": "vc"},
+       {"name": "河南汇融", "role": "follow", "round": "A+轮", "date": "2026-08", "kind": "gov"},
+       {"name": "红杉中国", "role": "follow", "round": "Pre-A轮", "date": "2025-11", "kind": "vc"},
+       {"name": "芯禾资本", "role": "follow", "round": "A轮", "date": "2026-06", "kind": "vc"},
+       {"name": "裴振华", "role": "follow", "round": "A+轮", "date": "2026-08", "kind": "other"},
+       {"name": "赵洪修", "role": "follow", "round": "A+轮", "date": "2026-08", "kind": "other"},
+       {"name": "隐山资本", "role": "follow", "round": "A轮", "date": "2026-06", "kind": "pe"},
+       {"name": "高瓴创投", "role": "follow", "round": "Pre-A轮", "date": "2025-11", "kind": "pe"}
+     ]
  },
  {
   "name": "DeepSeek",
