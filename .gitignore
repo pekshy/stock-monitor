@@ -34,3 +34,7 @@ __pycache__/
 
 *.tsbuildinfo
 vite.config.d.ts
+
+# 项目级 skill：只跟踪 skills 子目录，其余 .codebuddy 内容不入库
+.codebuddy/*
+!.codebuddy/skills/
