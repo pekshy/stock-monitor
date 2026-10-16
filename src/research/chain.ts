@@ -30,6 +30,22 @@ for (const [industry, data] of Object.entries(INDUSTRY_DATA)) {
 }
 
 /**
+ * 环节 id → 中文环节名，如 material → 「材料」、ai-app → 「AI 应用」。
+ * 用于详情页等场景直接展示中文赛道，避免裸出 material 这类内部 id。
+ * 未登记的 id 原样返回（保住老数据的可读性，不显示空白）。
+ */
+export function segName(segId?: string | null): string {
+  if (!segId) return '—'
+  return SEG_INDEX.get(segId)?.segName ?? segId
+}
+
+/** 环节 id → 所属行业中文名，如 material → 「半导体」。 */
+export function industryNameOf(segId?: string | null): string {
+  if (!segId) return '—'
+  return SEG_INDEX.get(segId)?.industryName ?? segId
+}
+
+/**
  * 反查某企业名出现在产业链的哪些位置。
  *
  * 依据是 TREE[环节id] 下每个细分项的 companies 名单（而非公司记录的 seg 字段），

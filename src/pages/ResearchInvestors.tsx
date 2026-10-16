@@ -2,24 +2,13 @@ import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, Building2, TrendingUp, Target, ChevronRight, ArrowUpDown } from 'lucide-react'
 import { useCloudCompanies } from '../research/api'
+import { segName } from '../research/chain'
 import {
   aggregateInvestors, ROLE_LABEL, ROLE_CLASS, KIND_LABEL,
   type InvestorAggregate, type InvestorKind,
 } from '../research/investors'
 
 /** 细分环节的中文名，用于把 seg slug 展示成人能读的字样 */
-const SEG_LABEL: Record<string, string> = {
-  eda: 'EDA / IP',
-  equipment: '半导体设备',
-  material: '半导体材料',
-  design: '芯片设计',
-  fab: '晶圆制造',
-  osat: '封装测试',
-  pcb: 'PCB',
-  terminal: '终端 / 算力',
-  maas: '模型 / 服务',
-}
-
 type SortKey = 'companyCount' | 'leadCount' | 'dealCount'
 type KindFilter = 'all' | InvestorKind
 
@@ -112,7 +101,7 @@ const ResearchInvestors: React.FC = () => {
               onClick={() => setSeg(s)}
               className={`px-2.5 py-1 text-xs rounded-lg ${seg === s ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-500 hover:bg-gray-50'}`}
             >
-              {SEG_LABEL[s] ?? s}
+              {segName(s)}
             </button>
           ))}
           <div className="ml-auto flex items-center gap-2">
@@ -196,7 +185,7 @@ const InvestorRow: React.FC<{ agg: InvestorAggregate; expanded: boolean; onToggl
       <span className="flex flex-wrap gap-1 ml-auto">
         {agg.segs.slice(0, 4).map(s => (
           <span key={s} className="text-[10px] px-1.5 py-0.5 rounded bg-sky-50 text-sky-700">
-            {SEG_LABEL[s] ?? s}
+            {segName(s)}
           </span>
         ))}
         {agg.segs.length > 4 && <span className="text-[10px] text-gray-400">+{agg.segs.length - 4}</span>}
@@ -215,7 +204,7 @@ const InvestorRow: React.FC<{ agg: InvestorAggregate; expanded: boolean; onToggl
               >
                 {h.company}
               </Link>
-              {h.seg && <span className="text-[10px] text-gray-400">{SEG_LABEL[h.seg] ?? h.seg}</span>}
+              {h.seg && <span className="text-[10px] text-gray-400">{segName(h.seg)}</span>}
               <span className={`text-[10px] px-1.5 py-0.5 rounded ${ROLE_CLASS[h.topRole]}`}>
                 {ROLE_LABEL[h.topRole]}
               </span>

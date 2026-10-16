@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp } from 'lucide-react'
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode, currencyOf } from '../research/format'
-import { findCompanyLocations, chainLocationUrl } from '../research/chain'
+import { findCompanyLocations, chainLocationUrl, segName } from '../research/chain'
 import { splitInvestors, ROLE_LABEL, ROLE_CLASS } from '../research/investors'
 import NotesPanel from '../components/NotesPanel'
 
@@ -114,7 +114,7 @@ const ResearchCompanyDetail: React.FC = () => {
             <Metric label="估值" value={fmtCap(company.valuation)} />
             <Metric label="最近融资" value={fmtDate(company.lastFunding)} />
             <Metric label="轮次" value={company.round || '—'} />
-            <Metric label="赛道" value={company.seg || '—'} />
+            <Metric label="赛道" value={segName(company.seg)} />
           </div>
         )}
       </div>
