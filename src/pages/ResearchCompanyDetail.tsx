@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp } from 'lucide-react'
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
@@ -241,9 +241,8 @@ const ResearchCompanyDetail: React.FC = () => {
   return n == null ? String(v) : n.toFixed(1)
 }
 
-/** 管理层：任职名单按「董事会 / 高级管理层」分组，履历默认折叠；另附人事变动历史 */
+/** 管理层：任职名单按「董事会 / 高级管理层」分组，履历直接展示；另附人事变动历史 */
 function ExecutivesCard({ company, listed }: { company: CompanyRecord; listed: boolean }) {
-  const [open, setOpen] = useState<string | null>(null)
   const execs = company.executives ?? []
   const changes = company.execChanges ?? []
   if (!execs.length && !changes.length) return null
@@ -264,7 +263,6 @@ function ExecutivesCard({ company, listed }: { company: CompanyRecord; listed: b
           <div className="divide-y divide-gray-50">
             {g.rows.map(e => {
               const id = `${g.key}|${e.name}|${e.title}`
-              const expanded = open === id
               return (
                 <div key={id} className="py-2">
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -272,16 +270,8 @@ function ExecutivesCard({ company, listed }: { company: CompanyRecord; listed: b
                     <span className="text-[11px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{e.title}</span>
                     {e.tenure && <span className="text-[11px] text-gray-400">任期 {e.tenure}</span>}
                     {e.shares && <span className="text-[11px] text-gray-400">持股 {e.shares}</span>}
-                    {e.bio && (
-                      <button
-                        onClick={() => setOpen(expanded ? null : id)}
-                        className="text-[11px] text-blue-600 hover:underline"
-                      >
-                        {expanded ? '收起' : '履历'}
-                      </button>
-                    )}
                   </div>
-                  {expanded && e.bio && (
+                  {e.bio && (
                     <p className="text-[12px] text-gray-500 leading-relaxed mt-1.5">{e.bio}</p>
                   )}
                 </div>
