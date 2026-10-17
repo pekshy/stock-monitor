@@ -19,11 +19,6 @@ const REPORT_TAB: Record<TabType, string> = {
 
 // 细分环节国产化率标记：高=绿 / 中=琥珀 / 低=红（低=卡脖子风险警示）
 type LocalRate = '高' | '中' | '低'
-const LOCAL_BADGE: Record<LocalRate, string> = {
-  '高': 'bg-green-50 text-green-600',
-  '中': 'bg-amber-50 text-amber-600',
-  '低': 'bg-red-50 text-red-500',
-}
 const LOCAL_PILL: Record<LocalRate, string> = {
   '高': 'bg-green-50 text-green-700',
   '中': 'bg-amber-50 text-amber-700',
@@ -34,13 +29,6 @@ const LOCAL_PILL: Record<LocalRate, string> = {
 type HeatTier = 'hot' | 'warm' | 'mild' | 'cool' | 'cold'
 const HEAT_TIER_OF = (n: number): HeatTier =>
   n >= 85 ? 'hot' : n >= 70 ? 'warm' : n >= 55 ? 'mild' : n >= 40 ? 'cool' : 'cold'
-const HEAT_BADGE: Record<HeatTier, string> = {
-  hot: 'bg-red-50 text-red-600',
-  warm: 'bg-orange-50 text-orange-600',
-  mild: 'bg-amber-50 text-amber-600',
-  cool: 'bg-sky-50 text-sky-600',
-  cold: 'bg-gray-100 text-gray-500',
-}
 const HEAT_PILL: Record<HeatTier, string> = {
   hot: 'bg-red-50 text-red-700',
   warm: 'bg-orange-50 text-orange-700',
@@ -57,18 +45,6 @@ const HEAT_BAR: Record<HeatTier, string> = {
 }
 const heatTierLabel = (n: number): string =>
   n >= 85 ? '炙热' : n >= 70 ? '活跃' : n >= 55 ? '温和' : n >= 40 ? '偏冷' : '冷清'
-
-/** 侧边目录用的热度小徽标（仅一级热度，避免目录过挤），格式 95° */
-const HeatChip: React.FC<{ capital?: TreeLeaf['capital'] }> = ({ capital }) => {
-  if (!capital) return null
-  const tier = HEAT_TIER_OF(capital.primary)
-  return (
-    <span
-      className={`shrink-0 text-[10px] leading-none px-1 py-0.5 rounded font-medium ${HEAT_BADGE[tier]}`}
-      title={`资本关注热度：一级 ${capital.primary} / 二级 ${capital.secondary}`}
-    >{capital.primary}°</span>
-  )
-}
 
 /** 详情区的双维度热度条 */
 const HeatBar: React.FC<{ label: string; value: number; note?: string }> = ({ label, value, note }) => {
@@ -345,13 +321,6 @@ const ResearchHome: React.FC = () => {
                                           title={sb.desc || sb.name}
                                         >
                                           <span className="truncate">{sb.name}</span>
-                                          {sb.local && (
-                                            <span
-                                              className={`shrink-0 text-[10px] leading-none px-1 py-0.5 rounded ${LOCAL_BADGE[sb.local]}`}
-                                              title={`国产化率：${sb.local}`}
-                                            >{sb.local}</span>
-                                          )}
-                                          <HeatChip capital={sb.capital} />
                                           {sb.companies?.length ? <span className="shrink-0 text-gray-400 ml-auto">{sb.companies.length}</span> : null}
                                         </button>
                                       ))}
@@ -372,13 +341,6 @@ const ResearchHome: React.FC = () => {
                                   title={sb.desc || sb.name}
                                 >
                                   <span className="truncate">{sb.name}</span>
-                                  {sb.local && (
-                                    <span
-                                      className={`shrink-0 text-[10px] leading-none px-1 py-0.5 rounded ${LOCAL_BADGE[sb.local]}`}
-                                      title={`国产化率：${sb.local}`}
-                                    >{sb.local}</span>
-                                  )}
-                                  <HeatChip capital={sb.capital} />
                                   {sb.companies?.length ? <span className="shrink-0 text-gray-300 ml-auto">{sb.companies.length}</span> : null}
                                 </button>
                               ))}
