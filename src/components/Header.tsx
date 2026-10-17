@@ -12,7 +12,7 @@ interface HeaderProps {
  * 板块切换统一走这里，页面内部不再各自维护一套 tab。
  */
 const NAV_ITEMS = [
-  { key: 'stock', label: '行情', to: '/stocks', Icon: BarChart3 },
+  { key: 'stock', label: '股票', to: '/stocks', Icon: BarChart3 },
   { key: 'etf', label: 'ETF', to: '/etf', Icon: Layers },
   { key: 'trade', label: '交易', to: '/?tab=trade', Icon: Wallet },
   { key: 'research', label: '行业研究', to: '/research', Icon: FlaskConical },
@@ -22,8 +22,8 @@ type NavKey = typeof NAV_ITEMS[number]['key']
 
 /**
  * 当前所处板块，与 Home 的 getActiveTab 保持同一口径：
- * `/` 已登录默认落交易 tab、未登录落行情，所以「行情」入口必须指向 /stocks，
- * 否则已登录用户点「行情」会落到交易页。
+ * `/` 已登录默认落交易 tab、未登录落股票，所以「股票」入口必须指向 /stocks，
+ * 否则已登录用户点「股票」会落到交易页。
  */
 function useActiveSection(): NavKey {
   const { pathname, search } = useLocation()
@@ -31,7 +31,7 @@ function useActiveSection(): NavKey {
   return useMemo(() => {
     if (pathname.startsWith('/research')) return 'research'
     if (pathname.startsWith('/etf')) return 'etf'
-    // 个股/行业详情页归属「行情」
+    // 个股/行业详情页归属「股票」
     if (pathname.startsWith('/stock/') || pathname.startsWith('/industry/')) return 'stock'
     if (pathname === '/stocks') return 'stock'
     if (pathname === '/etf') return 'etf'
