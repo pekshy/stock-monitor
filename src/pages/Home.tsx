@@ -23,20 +23,15 @@ type TabType = 'trade' | 'etf' | 'stock'
 
 const Home: React.FC = () => {
   const location = useLocation()
-  const { isAuthenticated } = useAuth()
   const { stocks, loading: stockLoading } = useStockContext()
   const { latestDate: etfLatestDate } = useEtfContext()
   const industrySummaries = useIndustrySummaries(stocks)
 
-  // 未登录时「交易记录」不可看。
-  // `?tab=trade` 表示用户主动点了交易 tab（此时展示锁定引导）；
-  // 不带参数落到 `/` 属于「默认首页」，未登录时改看股票，避免首屏直接撞门禁。
-  const explicitTrade = new URLSearchParams(location.search).get('tab') === 'trade'
-
+  // 默认落地「交易」板块：门禁由 TradeBoardContent 内部处理
+  // （未登录时展示市场指标 + 锁定引导），不再回退到股票。
   const getActiveTab = (): TabType => {
     if (location.pathname === '/stocks') return 'stock'
     if (location.pathname === '/etf') return 'etf'
-    if (!isAuthenticated && !explicitTrade) return 'stock'
     return 'trade'
   }
 
