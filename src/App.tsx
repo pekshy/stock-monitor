@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import IndustryDetail from './pages/IndustryDetail'
 import CompanyDetail from './pages/CompanyDetail'
 import EtfDetail from './pages/EtfDetail'
+import Macro from './pages/Macro'
 import ResearchHome from './pages/ResearchHome'
 import ResearchCompanies from './pages/ResearchCompanies'
 // 企业/股票详情已合并为统一页面 CompanyDetail；旧文件暂留作研究池版本回滚参考
@@ -54,6 +55,8 @@ function AppContent() {
           <Route path="/research/companies" element={<ResearchCompanies />} />
           <Route path="/research/investors" element={<ResearchInvestors />} />
           <Route path="/research/company/:name" element={<CompanyDetail />} />
+          {/* 宏观板块：市场指标独立成页，与交易板块解耦 */}
+          <Route path="/macro" element={<Macro />} />
         </Routes>
       </main>
     </div>

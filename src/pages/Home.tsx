@@ -11,7 +11,6 @@ import { useMarketViews } from '../hooks/useMarketViews'
 import IndustryCard from '../components/IndustryCard'
 import StockList from '../components/StockList'
 import UnifiedTradeBoard from '../components/UnifiedTradeBoard'
-import { MarketIndicators } from '../components/MarketIndicators'
 import { NoteItem } from '../components/NoteItem'
 import { NoteModal, type TradeAction, type NoteModalInitialValues } from '../components/NoteModal'
 import EtfListOnly from './EtfBoard'
@@ -312,7 +311,7 @@ const TradeLocked: React.FC = () => (
     <h2 className="text-lg font-bold text-gray-900">交易记录需登录后查看</h2>
     <p className="text-sm text-gray-500 mt-2 max-w-md leading-relaxed">
       持仓、买卖点与交易提醒属于个人交易信息，不对外公开。
-      登录后即可查看完整交易记录；市场指标、股票、ETF 与行业研究仍可自由浏览。
+      登录后即可查看完整交易记录；宏观指标、股票、ETF 与行业研究仍可自由浏览。
     </p>
     <p className="text-xs text-gray-400 mt-4">
       可点击右上角「登录」输入暗号解锁
@@ -321,33 +320,15 @@ const TradeLocked: React.FC = () => (
 )
 
 // ========== 交易内容 ==========
-// 未登录时只渲染「市场指标」等公开区块；交易看板与笔记（含持仓/执行价/触发提醒）需登录。
+// 市场指标已迁至「宏观」板块；这里只剩个人交易信息（持仓/买卖点/笔记），未登录即锁定。
 const TradeBoardContent: React.FC = memo(() => {
   const { isAuthenticated } = useAuth()
-  const { globalIndicatorSeries, chinaIndicatorSeries, fearGreedSeries } = useEtfContext()
 
-  // ---- 公开部分：市场指标（宏观/中国指标/恐慌贪婪），不含任何个人交易信息 ----
-  const publicIndicators = (
-    <MarketIndicators
-      globalIndicatorSeries={globalIndicatorSeries}
-      chinaIndicatorSeries={chinaIndicatorSeries}
-      fearGreedSeries={fearGreedSeries}
-    />
-  )
-
-  if (!isAuthenticated) {
-    return (
-      <div className="space-y-6">
-        <TradeLocked />
-        {publicIndicators}
-      </div>
-    )
-  }
+  if (!isAuthenticated) return <TradeLocked />
 
   return (
     <div className="space-y-6">
       <TradePrivateContent />
-      {publicIndicators}
     </div>
   )
 })
