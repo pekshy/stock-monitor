@@ -1,8 +1,8 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp, Star } from 'lucide-react'
-import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
-import { fmtDate, fmtCap, fmtRev, fmtPct, bareCode, currencyOf } from '../research/format'
+import { ArrowLeft, StickyNote, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp, Star } from 'lucide-react'
+import { useCloudCompanies, useIntel, parseList, type CompanyRecord } from '../research/api'
+import { fmtDate, fmtCap, fmtRev, fmtPct, currencyOf } from '../research/format'
 import { fmtCapLive, fmtMultiple, fmtPctLive, pctClass, currencyOfCode, amountUnit } from '../research/quotes'
 import { findCompanyLocations, chainLocationUrl, segName } from '../research/chain'
 import { splitInvestors, ROLE_LABEL, ROLE_CLASS } from '../research/investors'
@@ -25,8 +25,6 @@ const CompanyDetail: React.FC = () => {
       ?? companies.find(c => c.code === decoded)
       ?? null,
     [companies, decoded])
-  const { anns, loading: annLoading } = useCompanyAnnouncements(company?.code)
-
   // 与股票板块的关注关系：研究池是全集，watchlist 是重点跟踪子集
   const { codes, busy: watchBusy, loading: watchLoading, toggle: toggleWatch } = useWatchlist()
   const { refresh: refreshStocks } = useStockContext()
@@ -314,48 +312,7 @@ const CompanyDetail: React.FC = () => {
       {/* 管理层：任职名单（上市=董监高，未上市=核心团队）+ 人事变动历史 */}
       <ExecutivesCard company={company} listed={listed} />
 
-      {/* 研究笔记（页面可增改删，自动关联当前企业） */}
-      <Card title="研究笔记" icon={<StickyNote className="h-4 w-4" />} count={coNotes.length}>
-        <NotesPanel
-          notes={coNotes}
-          scope={{
-            industry: company.industry ?? null,
-            seg: company.seg ?? null,
-            sub: null,
-            companies: [company.name],
-          }}
-          onChanged={refresh}
-          readOnly={!cloudOk}
-        />
-      </Card>
-
-      {/* 公司公告（上市企业） */}
-      {listed && (
-        <Card title="公司公告" icon={<FileText className="h-4 w-4" />} count={anns.length}>
-          {annLoading && <div className="text-sm text-gray-400 py-4 text-center">加载中...</div>}
-          {!annLoading && anns.length === 0 && (
-            <div className="text-sm text-gray-400 py-4 text-center">暂无公告（代码 {bareCode(company.code)}）</div>
-          )}
-          <div className="divide-y divide-gray-50">
-            {anns.map(a => (
-              <div key={a.id} className="py-2.5 flex items-baseline gap-3">
-                <span className="text-[13px] text-gray-400 shrink-0">{fmtDate(a.date)}</span>
-                <span className={`text-xs px-1.5 py-0.5 rounded shrink-0 ${annTagClass(a.tag)}`}>{a.tag}</span>
-                <a
-                  href={a.attach_url || a.detail_url || '#'}
-                  target="_blank" rel="noreferrer"
-                  className="text-sm text-gray-800 hover:text-blue-700 leading-snug flex items-center gap-1"
-                >
-                  {a.title}
-                  <ExternalLink className="h-3 w-3 text-gray-300 shrink-0" />
-                </a>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* 交易记录与交易笔记：按股票代码取数，与是否关注无关
+      {/* 交易记录：按股票代码取数，与是否关注无关
           （取消关注不该让历史买卖记录消失） */}
       {company.code && (
         isAuthenticated ? (
@@ -377,6 +334,21 @@ const CompanyDetail: React.FC = () => {
           </div>
         )
       )}
+
+      {/* 研究笔记（页面可增改删，自动关联当前企业） */}
+      <Card title="研究笔记" icon={<StickyNote className="h-4 w-4" />} count={coNotes.length}>
+        <NotesPanel
+          notes={coNotes}
+          scope={{
+            industry: company.industry ?? null,
+            seg: company.seg ?? null,
+            sub: null,
+            companies: [company.name],
+          }}
+          onChanged={refresh}
+          readOnly={!cloudOk}
+        />
+      </Card>
 
       {company.code && (
         <NotesSection
@@ -474,16 +446,6 @@ function Card({ title, icon, count, children }: {
   )
 }
 
-function annTagClass(tag: string): string {
-  switch (tag) {
-    case '财报': return 'bg-blue-50 text-blue-700'
-    case '业绩': return 'bg-cyan-50 text-cyan-700'
-    case '融资': return 'bg-purple-50 text-purple-700'
-    case '高管变动': return 'bg-amber-50 text-amber-700'
-    case '风险': return 'bg-red-50 text-red-700'
-    default: return 'bg-gray-100 text-gray-600'
-  }
-}
 
 export default CompanyDetail
 

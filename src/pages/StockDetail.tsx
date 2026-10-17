@@ -19,6 +19,14 @@ import {
   formatValuation
 } from '../utils/formatters'
 
+/** 成交量量级：亿 / 万，避免小票显示成 0M */
+function fmtVolume(v: number): string {
+  if (!Number.isFinite(v) || v <= 0) return '0'
+  if (v >= 1e8) return `${(v / 1e8).toFixed(1)}亿`
+  if (v >= 1e4) return `${(v / 1e4).toFixed(0)}万`
+  return String(Math.round(v))
+}
+
 function getMarketType(stockCode: string): 'us' | 'hk' | 'cn' {
   const code = stockCode.toUpperCase()
   if (code.endsWith('.US') || code.endsWith('.US_A') || code.endsWith('.NASDAQ') || code.endsWith('.NYSE')) return 'us'
@@ -47,10 +55,12 @@ export const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
       const open = q.open_price > 0 ? q.open_price : close
       const high = q.high_price > 0 ? q.high_price : Math.max(open, close)
       const low = q.low_price > 0 ? q.low_price : Math.min(open, close)
+      const prev = i > 0 ? (sorted[i - 1].close_price ?? null) : null
       return {
         date: String(q.trade_date),
         open, close, high, low,
-        isUp: close >= open,
+        // 优先用「相对前收」判断涨跌：美股 open_price 常缺失，close >= open 会恒成立
+        isUp: prev != null && prev > 0 ? close >= prev : close >= open,
         ma5: calculateMA(closes, 5, i),
         ma10: calculateMA(closes, 10, i),
         ma20: calculateMA(closes, 20, i),
@@ -125,14 +135,18 @@ export const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
 
 export const VolumeChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
   const data = useMemo(() => {
-    return [...quotes]
+    const sorted = [...quotes]
       .filter(q => (q.close_price ?? 0) > 0)
       .sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
-      .map(q => ({
+    return sorted.map((q, i) => {
+      const close = q.close_price ?? 0
+      const prev = i > 0 ? (sorted[i - 1].close_price ?? 0) : 0
+      return {
         date: String(q.trade_date),
         volume: q.volume ?? 0,
-        isUp: (q.close_price ?? 0) >= (q.open_price > 0 ? q.open_price : q.close_price ?? 0),
-      }))
+        isUp: prev > 0 ? close >= prev : close >= (q.open_price > 0 ? q.open_price : close),
+      }
+    })
   }, [quotes])
 
   if (data.length === 0) return null
@@ -154,12 +168,12 @@ export const VolumeChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
             y={H - B - h}
             width={bw}
             height={Math.max(h, 1)}
-            fill={d.isUp ? '#fca5a5' : '#86efac'}
+            fill={d.isUp ? '#ef4444' : '#22c55e'}
           />
         )
       })}
       <text x={L - 6} y={12} textAnchor="end" fontSize="9" fill="#9ca3af">
-        {(maxV / 1e6).toFixed(0)}M
+        {fmtVolume(maxV)}
       </text>
     </svg>
   )
