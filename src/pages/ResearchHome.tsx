@@ -273,7 +273,8 @@ const ResearchHome: React.FC = () => {
             <div className="text-sm font-bold text-gray-800">产业链图谱</div>
             <div className="text-xs text-gray-400 mt-0.5">行业 → 环节 → 细分</div>
           </div>
-          <nav className="py-1 max-h-[70vh] overflow-y-auto text-sm">
+          {/* 高度随视口自适应：减去顶栏与卡片标题，尽量一屏放下全部行业，超长时才滚动 */}
+          <nav className="py-1 max-h-[calc(100vh-5rem)] overflow-y-auto text-sm">
             {Object.entries(INDUSTRY_DATA).map(([id, ind]) => (
               <div key={id}>
                 <button
