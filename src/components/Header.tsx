@@ -32,7 +32,7 @@ function useActiveSection(): NavKey {
     if (pathname.startsWith('/research')) return 'research'
     if (pathname.startsWith('/etf')) return 'etf'
     // 个股/行业详情页归属「股票」
-    if (pathname.startsWith('/stock/') || pathname.startsWith('/industry/')) return 'stock'
+    if (pathname.startsWith('/company/') || pathname.startsWith('/stock/') || pathname.startsWith('/industry/')) return 'stock'
     if (pathname === '/stocks') return 'stock'
     if (pathname === '/etf') return 'etf'
     if (new URLSearchParams(search).get('tab') === 'trade') return 'trade'

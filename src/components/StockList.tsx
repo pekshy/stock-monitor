@@ -87,7 +87,7 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
           {pagedStocks.map((stock) => (
             <tr
               key={stock.stock_code}
-              onClick={() => navigate(`/stock/${stock.stock_code}`)}
+              onClick={() => navigate(`/company/${stock.stock_code}`)}
               className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
             >
               <td className="py-4 px-4">

@@ -7,17 +7,23 @@ import { fmtCapLive, fmtMultiple, fmtPctLive, pctClass, currencyOfCode, amountUn
 import { findCompanyLocations, chainLocationUrl, segName } from '../research/chain'
 import { splitInvestors, ROLE_LABEL, ROLE_CLASS } from '../research/investors'
 import NotesPanel from '../components/NotesPanel'
+import { KLineChart, VolumeChart, TradesSection, NotesSection } from './StockDetail'
+import { supabase } from '../utils/supabase'
+import { useAuth } from '../context/AuthContext'
 import { useWatchlist } from '../research/watchlist'
 import { useStockContext } from '../context/StockContext'
 
-const ResearchCompanyDetail: React.FC = () => {
-  const { name } = useParams<{ name: string }>()
-  const decoded = decodeURIComponent(name ?? '')
+const CompanyDetail: React.FC = () => {
+  // 统一入口：/company/:key（key 可为代码或企业名），兼容旧路由参数名
+  const params = useParams<{ key?: string; name?: string; stockCode?: string }>()
+  const decoded = decodeURIComponent(params.key ?? params.name ?? params.stockCode ?? '')
   const navigate = useNavigate()
   const { companies, loading, cloudOk } = useCloudCompanies()
   const { notes, refresh } = useIntel()
   const company = useMemo(
-    () => companies.find(c => c.name === decoded) ?? null,
+    () => companies.find(c => c.name === decoded)
+      ?? companies.find(c => c.code === decoded)
+      ?? null,
     [companies, decoded])
   const { anns, loading: annLoading } = useCompanyAnnouncements(company?.code)
 
@@ -26,6 +32,9 @@ const ResearchCompanyDetail: React.FC = () => {
   const { refresh: refreshStocks } = useStockContext()
   const [watchErr, setWatchErr] = useState('')
   const followed = !!company?.code && codes.has(company.code)
+  const { isAuthenticated } = useAuth()
+  /** K 线与多周期涨跌只在「已关注的上市企业」页面加载 */
+  const { quotes, latest, loading: quoteLoading } = useDailyQuotes(company?.code, followed)
 
   const onToggleWatch = async () => {
     if (!company) return
@@ -103,12 +112,23 @@ const ResearchCompanyDetail: React.FC = () => {
           {listed ? '已上市' : (company.round || '未上市')}
         </span>
 
+        {listed && company.liveClose != null && (
+          <div className="ml-auto flex items-baseline gap-2">
+            <span className="text-xl font-bold text-gray-900 tabular-nums">
+              {company.liveClose.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}
+            </span>
+            <span className={`text-sm font-semibold tabular-nums ${pctClass(company.livePct)}`}>
+              {fmtPctLive(company.livePct)}
+            </span>
+          </div>
+        )}
+
         {listed && (
           <button
             onClick={onToggleWatch}
             disabled={watchBusy || watchLoading}
             title={followed ? '从股票板块移除' : '加入股票板块重点跟踪'}
-            className={`ml-auto flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
+            className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
               followed
                 ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
                 : 'border-gray-200 text-gray-500 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700'
@@ -190,6 +210,41 @@ const ResearchCompanyDetail: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* 行情走势：仅「已关注的上市企业」展示，未关注不请求也不渲染 */}
+      {followed && company.code && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4 mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
+            <span className="text-xs font-bold text-gray-700">行情走势</span>
+            <span className="text-[11px] text-gray-400">近 120 个交易日</span>
+          </div>
+          {quoteLoading ? (
+            <div className="text-sm text-gray-400 py-6 text-center">加载中...</div>
+          ) : quotes.length === 0 ? (
+            <div className="text-sm text-gray-400 py-6 text-center">
+              暂无日线数据（该股票未纳入行情抓取范围）
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                {([['5 日', latest?.pct_change_5d], ['10 日', latest?.pct_change_10d],
+                   ['20 日', latest?.pct_change_20d], ['60 日', latest?.pct_change_60d]] as const).map(
+                  ([label, v]) => (
+                    <div key={label}>
+                      <div className="text-xs text-gray-400">{label}涨跌幅</div>
+                      <div className={`text-base font-semibold tabular-nums mt-0.5 ${pctClass(v)}`}>
+                        {fmtPctLive(v)}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+              <KLineChart quotes={quotes} />
+              <VolumeChart quotes={quotes} />
+            </>
+          )}
+        </div>
+      )}
 
       {/* 国际巨头：国产替代对标关系 */}
       {company.note && (
@@ -299,6 +354,37 @@ const ResearchCompanyDetail: React.FC = () => {
           </div>
         </Card>
       )}
+
+      {/* 交易记录与交易笔记：按股票代码取数，与是否关注无关
+          （取消关注不该让历史买卖记录消失） */}
+      {company.code && (
+        isAuthenticated ? (
+          <TradesSection
+            stockCode={company.code}
+            stockName={company.name}
+            currentPrice={latest?.close_price ?? company.liveClose ?? undefined}
+            quotes={quotes}
+          />
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4">
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100">
+              <span className="text-blue-600"><TrendingUp className="h-4 w-4" /></span>
+              <h3 className="text-sm font-bold text-gray-800">交易记录</h3>
+            </div>
+            <div className="px-5 py-6 text-center text-sm text-gray-400">
+              登录后可查看该股票的交易记录
+            </div>
+          </div>
+        )
+      )}
+
+      {company.code && (
+        <NotesSection
+          stockCode={company.code}
+          stockName={company.name}
+          closes={quotes.map((q: any) => q.close_price ?? 0)}
+        />
+      )}
     </div>
   )
 }
@@ -399,4 +485,38 @@ function annTagClass(tag: string): string {
   }
 }
 
-export default ResearchCompanyDetail
+export default CompanyDetail
+
+/** 关注股的日线历史（daily_quotes），用于 K 线与多周期涨跌 */
+function useDailyQuotes(code?: string | null, enabled?: boolean) {
+  const [quotes, setQuotes] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    let alive = true
+    if (!code || !enabled) {
+      setQuotes([])
+      return
+    }
+    setLoading(true)
+    ;(async () => {
+      try {
+        const { data, error } = await supabase
+          .from('daily_quotes')
+          .select('*')
+          .eq('stock_code', code)
+          .order('trade_date', { ascending: false })
+          .limit(120)
+        if (error) throw error
+        if (alive) setQuotes((data ?? []) as any[])
+      } catch {
+        if (alive) setQuotes([])
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
+    return () => { alive = false }
+  }, [code, enabled])
+
+  return { quotes, latest: quotes[0] ?? null, loading }
+}

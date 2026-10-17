@@ -532,7 +532,7 @@ const TradePrivateContent: React.FC = memo(() => {
       note: n,
       symbol: n.stock_code,
       name: getStockDisplayName(n.stock_code),
-      navigatePath: `/stock/${n.stock_code}`
+      navigatePath: `/company/${n.stock_code}`
     }))
     return [...etfList, ...stockList].sort((a, b) => {
       const aTime = new Date((a.note.updated_at ?? a.note.created_at)).getTime()
@@ -642,7 +642,7 @@ const TradePrivateContent: React.FC = memo(() => {
           execPrice: n.execution_price,
           currentPrice,
           note: n.note,
-          navigatePath: `/stock/${n.stock_code}`
+          navigatePath: `/company/${n.stock_code}`
         })
       }
     })

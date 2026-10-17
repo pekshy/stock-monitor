@@ -225,7 +225,7 @@ const CompanyRow: React.FC<{
               <Star className="h-3.5 w-3.5" fill={followed ? 'currentColor' : 'none'} />
             </button>
           )}
-          <Link to={`/research/company/${encodeURIComponent(c.name)}`}
+          <Link to={`/company/${encodeURIComponent(c.name)}`}
                 className="font-medium text-gray-800 hover:text-blue-700">
             {c.name}
           </Link>

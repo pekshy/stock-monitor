@@ -11,23 +11,11 @@ import { NoteModal, type TradeAction, type NoteModalInitialValues } from '../com
 import { TradeRecordItem } from '../components/TradeRecordItem'
 import { TradeModal } from '../components/TradeModal'
 import { SellConfirmModal } from '../components/SellConfirmModal'
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend
-} from 'recharts'
 import { StockNote } from '../types'
 import {
   formatPercent,
   formatPrice,
   getChangeColor,
-  formatDate,
   formatValuation
 } from '../utils/formatters'
 
@@ -48,235 +36,132 @@ function calculateMA(closes: number[], period: number, index: number): number | 
   return sum / period
 }
 
-const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
-  const chartData = useMemo(() => {
-    const sorted = [...quotes].sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
+export const KLineChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
+  const data = useMemo(() => {
+    const sorted = [...quotes]
+      .filter(q => (q.close_price ?? 0) > 0)
+      .sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
     const closes = sorted.map(q => q.close_price ?? null)
-    return sorted.map((q, idx) => {
-      const ma5 = calculateMA(closes, 5, idx)
-      const ma10 = calculateMA(closes, 10, idx)
-      const ma20 = calculateMA(closes, 20, idx)
-      const ma60 = calculateMA(closes, 60, idx)
-      // 若 open_price 为 null/0（美股数据常见），用 close_price 兜底，避免实体高度为0
-      const open = q.open_price != null && q.open_price !== 0 ? q.open_price : (q.close_price ?? 0)
+    return sorted.map((q, i) => {
       const close = q.close_price ?? 0
-      const high = q.high_price != null ? q.high_price : Math.max(open, close)
-      const low = q.low_price != null ? q.low_price : Math.min(open, close)
-      const prevClose = idx > 0 ? closes[idx - 1] : null
-      const changePct = prevClose && prevClose > 0
-        ? ((close - prevClose) / prevClose) * 100
-        : null
+      const open = q.open_price > 0 ? q.open_price : close
+      const high = q.high_price > 0 ? q.high_price : Math.max(open, close)
+      const low = q.low_price > 0 ? q.low_price : Math.min(open, close)
       return {
-        date: formatDate(q.trade_date),
-        trade_date: q.trade_date,
-        open,
-        high,
-        low,
-        close,
+        date: String(q.trade_date),
+        open, close, high, low,
         isUp: close >= open,
-        bodyTop: Math.max(open, close),
-        bodyBottom: Math.min(open, close),
-        ma5,
-        ma10,
-        ma20,
-        ma60,
-        volume: q.volume ?? 0,
-        changePct,
+        ma5: calculateMA(closes, 5, i),
+        ma10: calculateMA(closes, 10, i),
+        ma20: calculateMA(closes, 20, i),
+        ma60: calculateMA(closes, 60, i),
       }
     })
   }, [quotes])
 
-  if (chartData.length === 0) {
-    return <div className="flex items-center justify-center min-h-[300px] text-gray-500 text-sm">暂无数据</div>
+  if (data.length === 0) {
+    return <div className="flex items-center justify-center h-[300px] text-gray-400 text-sm">暂无数据</div>
   }
 
-  const prices = chartData.flatMap(d => [d.high, d.low])
-  const minPrice = Math.min(...prices)
-  const maxPrice = Math.max(...prices)
-  const padding = (maxPrice - minPrice) * 0.1
-  const domainLow = minPrice - padding
-  const domainHigh = maxPrice + padding
-
-  const CustomBar = ({ x, y, width, height, payload }: any) => {
-    if (!payload) return <g />
-    const color = payload.isUp ? '#ef4444' : '#22c55e'
-    const priceRange = domainHigh - domainLow
-
-    const barValue = payload.high ?? 0
-    const chartBottomY = y + height
-    const pixelsPerPriceUnit = height / Math.max(barValue - domainLow, 0.0001)
-    const chartPixelHeight = priceRange * pixelsPerPriceUnit
-    const chartTopY = chartBottomY - chartPixelHeight
-
-    const getY = (price: number) => {
-      return chartTopY + chartPixelHeight * (domainHigh - price) / priceRange
-    }
-
-    const highY = getY(payload.high)
-    const lowY = getY(payload.low)
-    const bodyTopY = getY(payload.bodyTop)
-    const bodyBottomY = getY(payload.bodyBottom)
-    const bodyHeight = Math.abs(bodyBottomY - bodyTopY) || 1
-
-    return (
-      <g>
-        <line
-          x1={x + width / 2}
-          y1={highY}
-          x2={x + width / 2}
-          y2={lowY}
-          stroke={color}
-          strokeWidth={1}
-        />
-        <rect
-          x={x}
-          y={bodyTopY}
-          width={width}
-          height={bodyHeight}
-          fill={color}
-        />
-      </g>
-    )
-  }
+  // 纯 SVG 手绘：Recharts 的 Bar 基线始终是 0，坐标轴不从 0 起时蜡烛会被画到可视区外
+  const W = 1000, H = 320, L = 58, R = 8, T = 10, B = 22
+  const lows = data.map(d => d.low)
+  const highs = data.map(d => d.high)
+  const min = Math.min(...lows)
+  const max = Math.max(...highs)
+  const pad = (max - min) * 0.08 || 1
+  const lo = min - pad
+  const hi = max + pad
+  const iw = (W - L - R) / data.length
+  const px = (i: number) => L + (i + 0.5) * iw
+  const py = (v: number) => T + ((hi - v) / (hi - lo)) * (H - T - B)
+  const ticks = Array.from({ length: 5 }, (_, k) => lo + ((hi - lo) * k) / 4)
+  const step = Math.max(1, Math.ceil(data.length / 8))
 
   return (
-    <div className="h-[380px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart
-          data={chartData}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis
-            dataKey="date"
-            tick={{ fontSize: 11 }}
-            tickFormatter={(v) => v.slice(5)}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            domain={[domainLow, domainHigh]}
-            tick={{ fontSize: 11 }}
-            tickFormatter={(v) => v.toFixed(2)}
-          />
-          <Tooltip
-            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: 12 }}
-            content={({ payload }: any) => {
-              if (!payload || !payload[0]) return null
-              const data = payload[0].payload
-              return (
-                <div className="bg-white/60 border border-gray-200/60 rounded-lg shadow-lg p-3 min-w-[180px] max-w-[240px] backdrop-blur-sm">
-                  <div className="text-gray-600 text-sm mb-2">{data.date}</div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                    <span className="text-gray-500">开盘:</span>
-                    <span className="text-right font-medium">{formatPrice(data.open)}</span>
-                    <span className="text-gray-500">最高:</span>
-                    <span className="text-right font-medium">{formatPrice(data.high)}</span>
-                    <span className="text-gray-500">最低:</span>
-                    <span className="text-right font-medium">{formatPrice(data.low)}</span>
-                    <span className="text-gray-500">收盘:</span>
-                    <span className="text-right font-medium">
-                      {formatPrice(data.close)}
-                      {data.changePct != null && (
-                        <span className={`ml-2 ${data.changePct >= 0 ? 'text-red-600' : 'text-green-600'}`}>
-                          {data.changePct >= 0 ? '+' : ''}{data.changePct.toFixed(2)}%
-                        </span>
-                      )}
-                    </span>
-                    {data.ma5 != null && (
-                      <>
-                        <span className="text-gray-500">MA5:</span>
-                        <span className="text-right font-medium text-amber-600">{data.ma5.toFixed(2)}</span>
-                      </>
-                    )}
-                    {data.ma10 != null && (
-                      <>
-                        <span className="text-gray-500">MA10:</span>
-                        <span className="text-right font-medium text-purple-600">{data.ma10.toFixed(2)}</span>
-                      </>
-                    )}
-                    {data.ma20 != null && (
-                      <>
-                        <span className="text-gray-500">MA20:</span>
-                        <span className="text-right font-medium text-cyan-600">{data.ma20.toFixed(2)}</span>
-                      </>
-                    )}
-                    {data.ma60 != null && (
-                      <>
-                        <span className="text-gray-500">MA60:</span>
-                        <span className="text-right font-medium text-pink-600">{data.ma60.toFixed(2)}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )
-            }}
-          />
-          <Legend wrapperStyle={{ fontSize: 11 }} payload={[
-            { value: 'MA5', type: 'line', color: '#f59e0b' },
-            { value: 'MA10', type: 'line', color: '#8b5cf6' },
-            { value: 'MA20', type: 'line', color: '#06b6d4' },
-            { value: 'MA60', type: 'line', color: '#ec4899' }
-          ]} />
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" className="block select-none">
+      {ticks.map((t, k) => (
+        <g key={k}>
+          <line x1={L} y1={py(t)} x2={W - R} y2={py(t)} stroke="#e5e7eb" strokeDasharray="3 3" />
+          <text x={L - 6} y={py(t) + 3} textAnchor="end" fontSize="10" fill="#9ca3af">{t.toFixed(2)}</text>
+        </g>
+      ))}
 
-          <Bar dataKey="close" barSize={5} shape={<CustomBar />} name="K线" legendType="none" />
+      {data.map((d, i) => {
+        const color = d.isUp ? '#ef4444' : '#22c55e'
+        const bw = Math.max(iw * 0.6, 1)
+        const yTop = py(Math.max(d.open, d.close))
+        const yBot = py(Math.min(d.open, d.close))
+        return (
+          <g key={i}>
+            <title>{`${d.date}  开 ${d.open.toFixed(2)} 高 ${d.high.toFixed(2)} 低 ${d.low.toFixed(2)} 收 ${d.close.toFixed(2)}`}</title>
+            <line x1={px(i)} y1={py(d.high)} x2={px(i)} y2={py(d.low)} stroke={color} strokeWidth="1" />
+            <rect x={px(i) - bw / 2} y={yTop} width={bw} height={Math.max(yBot - yTop, 1)} fill={color} />
+          </g>
+        )
+      })}
 
-          <Line type="monotone" dataKey="ma5" stroke="#f59e0b" dot={false} strokeWidth={1} name="MA5" connectNulls />
-          <Line type="monotone" dataKey="ma10" stroke="#8b5cf6" dot={false} strokeWidth={1} name="MA10" connectNulls />
-          <Line type="monotone" dataKey="ma20" stroke="#06b6d4" dot={false} strokeWidth={1} name="MA20" connectNulls />
-          <Line type="monotone" dataKey="ma60" stroke="#ec4899" dot={false} strokeWidth={1} name="MA60" connectNulls />
-        </ComposedChart>
-      </ResponsiveContainer>
-    </div>
+      {([['ma5', '#f59e0b'], ['ma10', '#8b5cf6'], ['ma20', '#06b6d4'], ['ma60', '#ec4899']] as const).map(
+        ([key, color]) => {
+          const pts = data
+            .map((d, i) => (d[key] != null ? `${px(i)},${py(d[key] as number)}` : null))
+            .filter(Boolean)
+            .join(' ')
+          return pts ? (
+            <polyline key={key} points={pts} fill="none" stroke={color} strokeWidth="1" opacity="0.85" />
+          ) : null
+        })}
+
+      {data.map((d, i) =>
+        i % step === 0 ? (
+          <text key={i} x={px(i)} y={H - 6} textAnchor="middle" fontSize="9" fill="#9ca3af">
+            {d.date.slice(5)}
+          </text>
+        ) : null,
+      )}
+    </svg>
   )
 }
 
-const VolumeChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
-  const chartData = useMemo(() => {
-    const sorted = [...quotes].sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
-    return sorted.map(q => {
-      const open = q.open_price != null && q.open_price !== 0 ? q.open_price : (q.close_price ?? 0)
-      const close = q.close_price ?? 0
-      return {
-        date: formatDate(q.trade_date),
+export const VolumeChart: React.FC<{ quotes: any[] }> = ({ quotes }) => {
+  const data = useMemo(() => {
+    return [...quotes]
+      .filter(q => (q.close_price ?? 0) > 0)
+      .sort((a, b) => new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime())
+      .map(q => ({
+        date: String(q.trade_date),
         volume: q.volume ?? 0,
-        amount: q.amount ?? 0,
-        isUp: close >= open,
-        value: q.volume ?? 0
-      }
-    })
+        isUp: (q.close_price ?? 0) >= (q.open_price > 0 ? q.open_price : q.close_price ?? 0),
+      }))
   }, [quotes])
 
-  if (chartData.length === 0) {
-    return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
-  }
+  if (data.length === 0) return null
+
+  const W = 1000, H = 110, L = 58, R = 8, B = 16
+  const maxV = Math.max(...data.map(d => d.volume)) || 1
+  const iw = (W - L - R) / data.length
+  const bw = Math.max(iw * 0.6, 1)
 
   return (
-    <div className="h-24 mt-2">
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} interval="preserveStartEnd" />
-          <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 100000000).toFixed(1) + '亿'} />
-          <Tooltip
-            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(229, 231, 235, 0.6)', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(2px)' }}
-            wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
-            formatter={(value: number) => [(value / 100000000).toFixed(2) + ' 亿', '成交量']}
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" className="block select-none">
+      <line x1={L} y1={H - B} x2={W - R} y2={H - B} stroke="#e5e7eb" />
+      {data.map((d, i) => {
+        const h = (d.volume / maxV) * (H - B - 8)
+        return (
+          <rect
+            key={i}
+            x={L + (i + 0.5) * iw - bw / 2}
+            y={H - B - h}
+            width={bw}
+            height={Math.max(h, 1)}
+            fill={d.isUp ? '#fca5a5' : '#86efac'}
           />
-          <Bar dataKey="value" barSize={5} shape={(props: any) => {
-            const { x, y, width, height, payload } = props
-            return (
-              <rect
-                x={x}
-                y={y}
-                width={width}
-                height={height}
-                fill={payload.isUp ? '#ef4444' : '#22c55e'}
-              />
-            )
-          }} name="成交量" />
-        </ComposedChart>
-      </ResponsiveContainer>
-    </div>
+        )
+      })}
+      <text x={L - 6} y={12} textAnchor="end" fontSize="9" fill="#9ca3af">
+        {(maxV / 1e6).toFixed(0)}M
+      </text>
+    </svg>
   )
 }
 
@@ -331,7 +216,7 @@ const StockDetail: React.FC = () => {
         <div className="flex gap-3">
           {prevStock && (
             <button
-              onClick={() => navigate(`/stock/${prevStock.stock_code}`)}
+              onClick={() => navigate(`/company/${prevStock.stock_code}`)}
               className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors text-sm"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
@@ -340,7 +225,7 @@ const StockDetail: React.FC = () => {
           )}
           {nextStock && (
             <button
-              onClick={() => navigate(`/stock/${nextStock.stock_code}`)}
+              onClick={() => navigate(`/company/${nextStock.stock_code}`)}
               className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors text-sm"
             >
               下翻
@@ -512,7 +397,7 @@ const TradeRecordsLocked: React.FC = () => (
   </div>
 )
 
-function TradesSection({ stockCode, stockName, currentPrice, quotes }: { stockCode: string; stockName: string; currentPrice?: number; quotes: any[] }) {
+export function TradesSection({ stockCode, stockName, currentPrice, quotes }: { stockCode: string; stockName: string; currentPrice?: number; quotes: any[] }) {
   const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
   const [modalOpen, setModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<any>(null)
@@ -697,7 +582,7 @@ function TradesSection({ stockCode, stockName, currentPrice, quotes }: { stockCo
   )
 }
 
-function NotesSection({ stockCode, stockName, closes }: { stockCode: string; stockName: string; closes: number[] }) {
+export function NotesSection({ stockCode, stockName, closes }: { stockCode: string; stockName: string; closes: number[] }) {
   const { notes, loading, addNote, updateNote, deleteNote } = useStockNotesByCode(stockCode)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalSubmitting, setModalSubmitting] = useState(false)
@@ -780,7 +665,7 @@ function NotesSection({ stockCode, stockName, closes }: { stockCode: string; sto
               note={note}
               name={stockName}
               code={note.stock_code}
-              navigatePath={`/stock/${note.stock_code}`}
+              navigatePath={`/company/${note.stock_code}`}
               onUpdate={updateNote}
               onDelete={deleteNote}
               onEdit={(n) => handleEdit(n as StockNote)}

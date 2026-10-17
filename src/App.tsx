@@ -6,11 +6,11 @@ import Header from './components/Header'
 import LoginGate from './components/LoginGate'
 import Home from './pages/Home'
 import IndustryDetail from './pages/IndustryDetail'
-import StockDetail from './pages/StockDetail'
+import CompanyDetail from './pages/CompanyDetail'
 import EtfDetail from './pages/EtfDetail'
 import ResearchHome from './pages/ResearchHome'
 import ResearchCompanies from './pages/ResearchCompanies'
-import ResearchCompanyDetail from './pages/ResearchCompanyDetail'
+// 企业/股票详情已合并为统一页面 CompanyDetail；旧文件暂留作研究池版本回滚参考
 import ResearchInvestors from './pages/ResearchInvestors'
 
 function AppContent() {
@@ -45,14 +45,16 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/stocks" element={<Home />} />
           <Route path="/industry/:industry1" element={<IndustryDetail />} />
-          <Route path="/stock/:stockCode" element={<StockDetail />} />
+          {/* 统一详情页：股票板块与行业研究共用，key 可为代码或企业名 */}
+          <Route path="/company/:key" element={<CompanyDetail />} />
+          <Route path="/stock/:stockCode" element={<CompanyDetail />} />
           <Route path="/etf" element={<Home />} />
           <Route path="/etf/:code" element={<EtfDetail />} />
           {/* 行业研究模块（独立新增，不影响既有路由） */}
           <Route path="/research" element={<ResearchHome />} />
           <Route path="/research/companies" element={<ResearchCompanies />} />
           <Route path="/research/investors" element={<ResearchInvestors />} />
-          <Route path="/research/company/:name" element={<ResearchCompanyDetail />} />
+          <Route path="/research/company/:name" element={<CompanyDetail />} />
         </Routes>
       </main>
     </div>

@@ -199,7 +199,7 @@ const InvestorRow: React.FC<{ agg: InvestorAggregate; expanded: boolean; onToggl
           {agg.hits.map(h => (
             <div key={h.company} className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[12px]">
               <Link
-                to={`/research/company/${encodeURIComponent(h.company)}`}
+                to={`/company/${encodeURIComponent(h.company)}`}
                 className="text-gray-800 hover:text-blue-700 hover:underline font-medium"
               >
                 {h.company}
