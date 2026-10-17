@@ -1,8 +1,10 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, ArrowLeft, CloudOff, Pencil, Check, X, Loader2 } from 'lucide-react'
+import { Search, ArrowLeft, CloudOff, Pencil, Check, X, Loader2, Star } from 'lucide-react'
 import { useCloudCompanies, updateCompanyDesc, type CompanyRecord } from '../research/api'
 import { useAuth } from '../context/AuthContext'
+import { useStockContext } from '../context/StockContext'
+import { useWatchlist } from '../research/watchlist'
 import { fundDateNum, fmtDate } from '../research/format'
 import { fmtCapLive, currencyOfCode, capInCny } from '../research/quotes'
 
@@ -27,7 +29,13 @@ export const CompanyTable: React.FC<{
   canEdit?: boolean; onDescSaved?: () => void
   /** 行情日期（research_quotes 的最新交易日），用于标注市值口径 */
   quoteDate?: string | null
-}> = ({ pool, loading, pageSize = 20, canEdit, onDescSaved, quoteDate }) => {
+  /** 与股票板块的关注关系；不传则不显示星标 */
+  watch?: {
+    codes: Set<string>
+    busy: boolean
+    toggle: (c: CompanyRecord) => Promise<{ error?: string }>
+  }
+}> = ({ pool, loading, pageSize = 20, canEdit, onDescSaved, quoteDate, watch }) => {
   const [filter, setFilter] = useState<CoFilter>('all')
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
@@ -98,7 +106,15 @@ export const CompanyTable: React.FC<{
               <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-400">加载中...</td></tr>
             )}
             {!loading && pageRows.map(c => (
-              <CompanyRow key={c.name} c={c} canEdit={canEdit} onDescSaved={onDescSaved} />
+              <CompanyRow
+                key={c.name}
+                c={c}
+                canEdit={canEdit}
+                onDescSaved={onDescSaved}
+                followed={!!c.code && !!watch?.codes.has(c.code)}
+                watchBusy={watch?.busy}
+                onToggleWatch={watch && c.listed && c.code ? () => watch.toggle(c) : undefined}
+              />
             ))}
             {!loading && pageRows.length === 0 && (
               <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-400">无匹配企业</td></tr>
@@ -131,6 +147,14 @@ export const CompanyTable: React.FC<{
 const ResearchCompanies: React.FC = () => {
   const { companies, cloudOk, loading, refresh, quoteDate } = useCloudCompanies()
   const { isAuthenticated } = useAuth()
+  const watch = useWatchlist()
+  const { refresh: refreshStocks } = useStockContext()
+
+  const toggleAndSync = async (c: CompanyRecord) => {
+    const r = await watch.toggle(c)
+    if (!r.error) refreshStocks()     // 股票板块跟着刷新
+    return r
+  }
 
   useEffect(() => { document.title = '企业名单 · 行业研究' }, [])
 
@@ -156,14 +180,16 @@ const ResearchCompanies: React.FC = () => {
       </div>
 
       <CompanyTable pool={companies} loading={loading} canEdit={isAuthenticated && cloudOk}
-        onDescSaved={refresh} quoteDate={quoteDate} />
+        onDescSaved={refresh} quoteDate={quoteDate}
+        watch={{ codes: watch.codes, busy: watch.busy || watch.loading, toggle: toggleAndSync }} />
     </div>
   )
 }
 
 const CompanyRow: React.FC<{
   c: CompanyRecord; canEdit?: boolean; onDescSaved?: () => void
-}> = ({ c, canEdit, onDescSaved }) => {
+  followed?: boolean; watchBusy?: boolean; onToggleWatch?: () => void
+}> = ({ c, canEdit, onDescSaved, followed, watchBusy, onToggleWatch }) => {
   const listed = !!c.listed
   const [editing, setEditing] = useState(false)
   const [val, setVal] = useState('')
@@ -186,13 +212,27 @@ const CompanyRow: React.FC<{
   return (
     <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
       <td className="px-5 py-3">
-        <Link to={`/research/company/${encodeURIComponent(c.name)}`}
-              className="font-medium text-gray-800 hover:text-blue-700">
-          {c.name}
-        </Link>
-        {listed && c.code && (
-          <span className="ml-2 text-[11px] text-gray-400 font-mono">{c.code}</span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {onToggleWatch && (
+            <button
+              onClick={onToggleWatch}
+              disabled={watchBusy}
+              title={followed ? '取消重点关注（移出股票板块）' : '重点关注（加入股票板块）'}
+              className={`shrink-0 transition-colors disabled:opacity-40 ${
+                followed ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'
+              }`}
+            >
+              <Star className="h-3.5 w-3.5" fill={followed ? 'currentColor' : 'none'} />
+            </button>
+          )}
+          <Link to={`/research/company/${encodeURIComponent(c.name)}`}
+                className="font-medium text-gray-800 hover:text-blue-700">
+            {c.name}
+          </Link>
+          {listed && c.code && (
+            <span className="text-[11px] text-gray-400 font-mono">{c.code}</span>
+          )}
+        </div>
       </td>
       <td className="px-3 py-3">
         <span className={`text-xs px-2 py-0.5 rounded-full ${

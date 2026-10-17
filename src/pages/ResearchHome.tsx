@@ -2,9 +2,11 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { FileText, Zap, StickyNote, RefreshCw, CloudOff, ChevronRight, TrendingUp, Flame, Building2 } from 'lucide-react'
 import { INDUSTRY_DATA, TREE, isGrouped, treeLeaves, type TreeStage, type TreeLeaf } from '../research/data'
-import { useIntel, useCloudCompanies, parseList, type CloudNote } from '../research/api'
+import { useIntel, useCloudCompanies, parseList, type CloudNote, type CompanyRecord } from '../research/api'
 import { fmtDate } from '../research/format'
 import { CompanyTable } from './ResearchCompanies'
+import { useWatchlist } from '../research/watchlist'
+import { useStockContext } from '../context/StockContext'
 import NotesPanel from '../components/NotesPanel'
 import { useAuth } from '../context/AuthContext'
 
@@ -102,6 +104,13 @@ function softMatch(itemIndustry: string | null, itemSeg: string | null, itemSub:
 const ResearchHome: React.FC = () => {
   const { reports, events, notes, cloudOk, loading, refresh } = useIntel()
   const { companies: cloudCompanies, loading: coLoading, refresh: coRefresh, quoteDate } = useCloudCompanies()
+  const watch = useWatchlist()
+  const { refresh: refreshStocks } = useStockContext()
+  const toggleWatch = async (c: CompanyRecord) => {
+    const r = await watch.toggle(c)
+    if (!r.error) refreshStocks()
+    return r
+  }
   const { isAuthenticated } = useAuth()
 
   // 选中状态放 URL 参数：ind / seg / sub / mt(顶层tab: intel|notes|companies) / tab(情报子tab)
@@ -513,6 +522,7 @@ const ResearchHome: React.FC = () => {
             canEdit={isAuthenticated && cloudOk}
             onDescSaved={coRefresh}
             quoteDate={quoteDate}
+            watch={{ codes: watch.codes, busy: watch.busy || watch.loading, toggle: toggleWatch }}
           />
         )}
 

@@ -1,12 +1,14 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp } from 'lucide-react'
+import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp, Star } from 'lucide-react'
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, bareCode, currencyOf } from '../research/format'
 import { fmtCapLive, fmtMultiple, fmtPctLive, pctClass, currencyOfCode, amountUnit } from '../research/quotes'
 import { findCompanyLocations, chainLocationUrl, segName } from '../research/chain'
 import { splitInvestors, ROLE_LABEL, ROLE_CLASS } from '../research/investors'
 import NotesPanel from '../components/NotesPanel'
+import { useWatchlist } from '../research/watchlist'
+import { useStockContext } from '../context/StockContext'
 
 const ResearchCompanyDetail: React.FC = () => {
   const { name } = useParams<{ name: string }>()
@@ -18,6 +20,20 @@ const ResearchCompanyDetail: React.FC = () => {
     () => companies.find(c => c.name === decoded) ?? null,
     [companies, decoded])
   const { anns, loading: annLoading } = useCompanyAnnouncements(company?.code)
+
+  // 与股票板块的关注关系：研究池是全集，watchlist 是重点跟踪子集
+  const { codes, busy: watchBusy, loading: watchLoading, toggle: toggleWatch } = useWatchlist()
+  const { refresh: refreshStocks } = useStockContext()
+  const [watchErr, setWatchErr] = useState('')
+  const followed = !!company?.code && codes.has(company.code)
+
+  const onToggleWatch = async () => {
+    if (!company) return
+    const r = await toggleWatch(company)
+    if (r.error) { setWatchErr(r.error); return }
+    setWatchErr('')
+    refreshStocks()      // 让股票板块跟着更新，切过去就能看到
+  }
 
   /** 企业在产业链中的位置（可能多处，如拓尔思同时属 AI 办公 / AI 教育 / AI 法律·政务） */
   const locations = useMemo(() => findCompanyLocations(decoded), [decoded])
@@ -86,7 +102,24 @@ const ResearchCompanyDetail: React.FC = () => {
         <span className={`text-xs px-2 py-0.5 rounded-full ${listed ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
           {listed ? '已上市' : (company.round || '未上市')}
         </span>
+
+        {listed && (
+          <button
+            onClick={onToggleWatch}
+            disabled={watchBusy || watchLoading}
+            title={followed ? '从股票板块移除' : '加入股票板块重点跟踪'}
+            className={`ml-auto flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
+              followed
+                ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                : 'border-gray-200 text-gray-500 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700'
+            }`}
+          >
+            <Star className="h-3.5 w-3.5" fill={followed ? 'currentColor' : 'none'} />
+            {followed ? '已重点关注' : '重点关注'}
+          </button>
+        )}
       </div>
+      {watchErr && <div className="mb-3 text-xs text-red-600">{watchErr}</div>}
 
       {/* 产业链归属：行业 → 环节 → 细分（点击可跳回图谱对应范围） */}
       {locations.length > 0 && (
