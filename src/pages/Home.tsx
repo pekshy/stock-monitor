@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, memo } from 'react'
-import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus, Lock } from 'lucide-react'
+import { MessageSquare, TrendingUp, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus, Lock } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useEtfContext } from '../context/EtfContext'
@@ -24,8 +24,8 @@ type TabType = 'trade' | 'etf' | 'stock'
 const Home: React.FC = () => {
   const location = useLocation()
   const { isAuthenticated } = useAuth()
-  const { stocks, loading: stockLoading, refresh: refreshStocks } = useStockContext()
-  const { latestDate: etfLatestDate, refresh: refreshEtf } = useEtfContext()
+  const { stocks, loading: stockLoading } = useStockContext()
+  const { latestDate: etfLatestDate } = useEtfContext()
   const industrySummaries = useIndustrySummaries(stocks)
 
   // 未登录时「交易记录」不可看。
@@ -166,17 +166,6 @@ const Home: React.FC = () => {
     )
   }
 
-  const handleRefresh = () => {
-    if (activeTab === 'stock') {
-      refreshStocks()
-    } else if (activeTab === 'etf') {
-      refreshEtf()
-    } else {
-      refreshEtf()
-      refreshStocks()
-    }
-  }
-
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
     return date.toLocaleDateString('zh-CN', {
@@ -186,52 +175,12 @@ const Home: React.FC = () => {
     })
   }
 
-  const getTabColor = (tab: TabType) => {
-    switch (tab) {
-      case 'trade': return 'bg-orange-600'
-      case 'etf': return 'bg-purple-600'
-      case 'stock': return 'bg-blue-600'
-    }
-  }
-
-  const getTabHoverColor = (tab: TabType) => {
-    switch (tab) {
-      case 'trade': return 'hover:bg-orange-700'
-      case 'etf': return 'hover:bg-purple-700'
-      case 'stock': return 'hover:bg-blue-700'
-    }
-  }
-
   return (
     <div className="space-y-6">
-      {/* 顶部工具栏（板块切换已上移至全局导航，此处只保留工具动作） */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          {activeTab === 'etf' && etfLatestDate && (
-            <span className="text-sm text-gray-500">数据更新至：{formatDate(etfLatestDate)}</span>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <a
-            href="https://moonimprint.com/portfolio"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-500 hover:text-blue-700 flex items-center gap-1 transition-colors"
-          >
-            Moon Imprint
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-          {activeTab !== 'trade' && (
-            <button
-              onClick={handleRefresh}
-              className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${getTabColor(activeTab)} ${getTabHoverColor(activeTab)}`}
-            >
-              <RefreshCw className="h-4 w-4" />
-              刷新
-            </button>
-          )}
-        </div>
-      </div>
+      {/* ETF 数据日期（板块切换已上移至全局导航，工具按钮按需再议） */}
+      {activeTab === 'etf' && etfLatestDate && (
+        <div className="text-sm text-gray-500">数据更新至：{formatDate(etfLatestDate)}</div>
+      )}
 
       {/* 交易 tab：门禁在 TradeBoardContent 内部处理（未登录=锁定提示 + 市场指标公开） */}
       {activeTab === 'trade' && <TradeBoardContent />}
