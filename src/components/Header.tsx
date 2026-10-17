@@ -1,11 +1,7 @@
 import React, { useState, useMemo, FormEvent } from 'react'
-import { TrendingUp, Calendar, LogOut, LogIn, Lock, Eye, EyeOff, X, AlertCircle, BarChart3, Layers, Wallet, FlaskConical } from 'lucide-react'
+import { TrendingUp, LogOut, LogIn, Lock, Eye, EyeOff, X, AlertCircle, BarChart3, Layers, Wallet, FlaskConical } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-
-interface HeaderProps {
-  latestDate?: string | null
-}
 
 /**
  * 全局导航：四个板块的唯一定义处。
@@ -39,7 +35,7 @@ function useActiveSection(): NavKey {
   }, [pathname, search])
 }
 
-const Header: React.FC<HeaderProps> = ({ latestDate }) => {
+const Header: React.FC = () => {
   const { isAuthenticated, login, logout } = useAuth()
   const [showLogin, setShowLogin] = useState(false)
   const [pwd, setPwd] = useState('')
@@ -47,18 +43,6 @@ const Header: React.FC<HeaderProps> = ({ latestDate }) => {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const activeSection = useActiveSection()
-
-  const formatDate = (dateStr: string | null | undefined) => {
-    if (!dateStr) return null
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    })
-  }
-
-  const displayDate = formatDate(latestDate)
 
   const doLogin = async (e: FormEvent) => {
     e.preventDefault()
@@ -112,23 +96,6 @@ const Header: React.FC<HeaderProps> = ({ latestDate }) => {
           </nav>
 
           <div className="order-2 lg:order-3 ml-auto flex items-center gap-3">
-            {displayDate && (
-              <div className="hidden md:flex items-center gap-1.5 text-xs bg-blue-800 px-3 py-1.5 rounded-lg">
-                <Calendar className="h-3.5 w-3.5" />
-                <span>数据更新至：{displayDate}</span>
-              </div>
-            )}
-            {/* 登录状态徽标：绿点=已登录，灰点=未登录（只读） */}
-            <div
-              className={`hidden sm:flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg ${
-                isAuthenticated ? 'bg-blue-800' : 'bg-blue-800/60'}`}
-              title={isAuthenticated ? '已登录，可编辑研究内容' : '未登录，研究内容只读'}
-            >
-              <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${isAuthenticated ? 'bg-green-400' : 'bg-gray-400'}`} />
-              <span className={isAuthenticated ? 'text-green-300' : 'text-gray-300'}>
-                {isAuthenticated ? '已登录' : '未登录 · 只读'}
-              </span>
-            </div>
             {isAuthenticated ? (
               <button
                 onClick={logout}

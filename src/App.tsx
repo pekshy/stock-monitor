@@ -1,5 +1,5 @@
 import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { StockProvider, useStockContext } from './context/StockContext'
+import { StockProvider } from './context/StockContext'
 import { EtfProvider } from './context/EtfContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Header from './components/Header'
@@ -14,7 +14,6 @@ import ResearchCompanies from './pages/ResearchCompanies'
 import ResearchInvestors from './pages/ResearchInvestors'
 
 function AppContent() {
-  const { latestDate } = useStockContext()
   const { isAuthenticated, ready } = useAuth()
   const location = useLocation()
   // 访问策略：全部页面公开只读，唯一受限内容是「交易记录」（首页交易 tab）。
@@ -39,7 +38,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header latestDate={latestDate} />
+      <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <Routes>
           <Route path="/" element={<Home />} />
