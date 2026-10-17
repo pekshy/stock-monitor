@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback, memo } from 'react'
-import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus, BookOpen, Lock } from 'lucide-react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { RefreshCw, MessageSquare, TrendingUp, ExternalLink, Pencil, Trash2, Check, X, Bell, ChevronDown, ChevronUp, Plus, Lock } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useStockContext } from '../context/StockContext'
 import { useEtfContext } from '../context/EtfContext'
 import { useAuth } from '../context/AuthContext'
@@ -22,7 +22,6 @@ type SortPeriod = '1d' | '5d' | '10d' | '20d' | '60d'
 type TabType = 'trade' | 'etf' | 'stock'
 
 const Home: React.FC = () => {
-  const navigate = useNavigate()
   const location = useLocation()
   const { isAuthenticated } = useAuth()
   const { stocks, loading: stockLoading, refresh: refreshStocks } = useStockContext()
@@ -42,19 +41,6 @@ const Home: React.FC = () => {
   }
 
   const activeTab = getActiveTab()
-  // 交易记录仅登录可见（持仓/买卖点/交易提醒均属个人交易信息）
-  const tradeLocked = !isAuthenticated
-
-  const switchTab = (tab: TabType) => {
-    if (tab === 'stock') {
-      navigate('/stocks')
-    } else if (tab === 'etf') {
-      navigate('/etf')
-    } else {
-      // 带 tab=trade 以便未登录时也能进入交易 tab（展示锁定引导而非被弹回股票）
-      navigate('/?tab=trade')
-    }
-  }
 
   // 记录当前Tab，用于详情页"返回"时回到用户之前所在的Tab
   useEffect(() => {
@@ -218,53 +204,14 @@ const Home: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* 顶部 Tab 栏 */}
+      {/* 顶部工具栏（板块切换已上移至全局导航，此处只保留工具动作） */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => switchTab('trade')}
-            title={tradeLocked ? '交易记录需登录后查看' : undefined}
-            className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all flex items-center gap-1.5 ${
-              activeTab === 'trade'
-                ? 'bg-orange-600 text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            交易
-            {tradeLocked && <Lock className="h-3.5 w-3.5 opacity-60" />}
-          </button>
-          <button
-            onClick={() => switchTab('etf')}
-            className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all ${
-              activeTab === 'etf'
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            ETF
-          </button>
-          <button
-            onClick={() => switchTab('stock')}
-            className={`px-6 py-2.5 rounded-lg font-semibold text-base transition-all ${
-              activeTab === 'stock'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            股票
-          </button>
           {activeTab === 'etf' && etfLatestDate && (
-            <span className="text-sm text-gray-500 ml-2">数据更新至：{formatDate(etfLatestDate)}</span>
+            <span className="text-sm text-gray-500">数据更新至：{formatDate(etfLatestDate)}</span>
           )}
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            to="/research"
-            className="text-sm text-blue-500 hover:text-blue-700 flex items-center gap-1 transition-colors"
-          >
-            行业研究
-            <BookOpen className="h-3.5 w-3.5" />
-          </Link>
           <a
             href="https://moonimprint.com/portfolio"
             target="_blank"

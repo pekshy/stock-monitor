@@ -1,10 +1,43 @@
-import React, { useState, FormEvent } from 'react'
-import { TrendingUp, Calendar, LogOut, LogIn, Lock, Eye, EyeOff, X, AlertCircle } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import React, { useState, useMemo, FormEvent } from 'react'
+import { TrendingUp, Calendar, LogOut, LogIn, Lock, Eye, EyeOff, X, AlertCircle, BarChart3, Layers, Wallet, FlaskConical } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 interface HeaderProps {
   latestDate?: string | null
+}
+
+/**
+ * 全局导航：四个板块的唯一定义处。
+ * 板块切换统一走这里，页面内部不再各自维护一套 tab。
+ */
+const NAV_ITEMS = [
+  { key: 'stock', label: '行情', to: '/stocks', Icon: BarChart3 },
+  { key: 'etf', label: 'ETF', to: '/etf', Icon: Layers },
+  { key: 'trade', label: '交易', to: '/?tab=trade', Icon: Wallet },
+  { key: 'research', label: '行业研究', to: '/research', Icon: FlaskConical },
+] as const
+
+type NavKey = typeof NAV_ITEMS[number]['key']
+
+/**
+ * 当前所处板块，与 Home 的 getActiveTab 保持同一口径：
+ * `/` 已登录默认落交易 tab、未登录落行情，所以「行情」入口必须指向 /stocks，
+ * 否则已登录用户点「行情」会落到交易页。
+ */
+function useActiveSection(): NavKey {
+  const { pathname, search } = useLocation()
+  const { isAuthenticated } = useAuth()
+  return useMemo(() => {
+    if (pathname.startsWith('/research')) return 'research'
+    if (pathname.startsWith('/etf')) return 'etf'
+    // 个股/行业详情页归属「行情」
+    if (pathname.startsWith('/stock/') || pathname.startsWith('/industry/')) return 'stock'
+    if (pathname === '/stocks') return 'stock'
+    if (pathname === '/etf') return 'etf'
+    if (new URLSearchParams(search).get('tab') === 'trade') return 'trade'
+    return isAuthenticated ? 'trade' : 'stock'
+  }, [pathname, search, isAuthenticated])
 }
 
 const Header: React.FC<HeaderProps> = ({ latestDate }) => {
@@ -14,6 +47,7 @@ const Header: React.FC<HeaderProps> = ({ latestDate }) => {
   const [showPwd, setShowPwd] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const activeSection = useActiveSection()
 
   const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return null
@@ -48,22 +82,43 @@ const Header: React.FC<HeaderProps> = ({ latestDate }) => {
 
   return (
     <header className="bg-primary text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 小屏：Logo + 状态在首行，导航独占第二行；大屏：三者同行 */}
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 py-2.5">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity shrink-0">
             <TrendingUp className="h-6 w-6" />
-            <h1 className="text-lg font-bold">涛哥投研工作室</h1>
+            <h1 className="text-lg font-bold whitespace-nowrap">涛哥投研工作室</h1>
           </Link>
-          <div className="flex items-center gap-3">
+
+          <nav className="order-3 lg:order-2 w-full lg:w-auto flex items-center gap-1 overflow-x-auto">
+            {NAV_ITEMS.map(({ key, label, to, Icon }) => {
+              const on = activeSection === key
+              return (
+                <Link
+                  key={key}
+                  to={to}
+                  aria-current={on ? 'page' : undefined}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    on ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{label}</span>
+                </Link>
+              )
+            })}
+          </nav>
+
+          <div className="order-2 lg:order-3 ml-auto flex items-center gap-3">
             {displayDate && (
-              <div className="flex items-center gap-1.5 text-xs bg-blue-800 px-3 py-1.5 rounded-lg">
+              <div className="hidden md:flex items-center gap-1.5 text-xs bg-blue-800 px-3 py-1.5 rounded-lg">
                 <Calendar className="h-3.5 w-3.5" />
                 <span>数据更新至：{displayDate}</span>
               </div>
             )}
             {/* 登录状态徽标：绿点=已登录，灰点=未登录（只读） */}
             <div
-              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg ${
+              className={`hidden sm:flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg ${
                 isAuthenticated ? 'bg-blue-800' : 'bg-blue-800/60'}`}
               title={isAuthenticated ? '已登录，可编辑研究内容' : '未登录，研究内容只读'}
             >
