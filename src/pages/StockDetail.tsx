@@ -658,14 +658,14 @@ export function NotesSection({ stockCode, stockName, closes, embedded }: { stock
         </h2>
       )}
 
-      <div className="mb-3">
+      <div className="flex justify-end mb-4">
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="w-full py-2 px-3 bg-green-50 text-green-600 hover:bg-green-100 border border-dashed border-green-200 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
+          className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm transition-colors"
         >
-          <Plus className="h-3.5 w-3.5" />
-          添加笔记
+          <Plus className="h-4 w-4" />
+          添加
         </button>
       </div>
 

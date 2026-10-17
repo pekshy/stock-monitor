@@ -30,10 +30,13 @@ const CompanyDetail: React.FC = () => {
   const { refresh: refreshStocks } = useStockContext()
   const [watchErr, setWatchErr] = useState('')
   const [tradeTab, setTradeTab] = useState<'records' | 'notes'>('records')
-  const followed = !!company?.code && codes.has(company.code)
+  /** 未上市企业用「—」「-」占位，那不是可查询的代码，行情/交易/关注都不该据此触发 */
+  const rawCode = (company?.code ?? '').trim()
+  const realCode = rawCode && !['—', '-', ''].includes(rawCode) ? rawCode : null
+  const followed = !!realCode && codes.has(realCode)
   const { isAuthenticated } = useAuth()
   /** K 线与多周期涨跌只在「已关注的上市企业」页面加载 */
-  const { quotes, latest, loading: quoteLoading } = useDailyQuotes(company?.code, followed)
+  const { quotes, latest, loading: quoteLoading } = useDailyQuotes(realCode, followed)
 
   const onToggleWatch = async () => {
     if (!company) return
@@ -111,17 +114,6 @@ const CompanyDetail: React.FC = () => {
           {listed ? '已上市' : (company.round || '未上市')}
         </span>
 
-        {listed && company.liveClose != null && (
-          <div className="ml-auto flex items-baseline gap-2">
-            <span className="text-xl font-bold text-gray-900 tabular-nums">
-              {company.liveClose.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}
-            </span>
-            <span className={`text-sm font-semibold tabular-nums ${pctClass(company.livePct)}`}>
-              {fmtPctLive(company.livePct)}
-            </span>
-          </div>
-        )}
-
         {listed && (
           <button
             onClick={onToggleWatch}
@@ -137,6 +129,17 @@ const CompanyDetail: React.FC = () => {
             {followed ? '已重点关注' : '重点关注'}
           </button>
         )}
+        {listed && company.liveClose != null && (
+          <div className="ml-auto flex items-baseline gap-2">
+            <span className="text-xl font-bold text-gray-900 tabular-nums">
+              {company.liveClose.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}
+            </span>
+            <span className={`text-sm font-semibold tabular-nums ${pctClass(company.livePct)}`}>
+              {fmtPctLive(company.livePct)}
+            </span>
+          </div>
+        )}
+
       </div>
       {watchErr && <div className="mb-3 text-xs text-red-600">{watchErr}</div>}
 
@@ -210,8 +213,19 @@ const CompanyDetail: React.FC = () => {
         )}
       </div>
 
+      {/* 国际巨头：国产替代对标关系 */}
+      {company.note && (
+        <div className="bg-indigo-50/60 rounded-xl border border-indigo-100 px-5 py-3.5 mb-4">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Scale className="h-3.5 w-3.5 text-indigo-600" />
+            <span className="text-xs font-bold text-indigo-900">国产替代对标</span>
+          </div>
+          <p className="text-[13px] text-indigo-800/90 leading-relaxed">{company.note}</p>
+        </div>
+      )}
+
       {/* 行情走势：仅「已关注的上市企业」展示，未关注不请求也不渲染 */}
-      {followed && company.code && (
+      {followed && realCode && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4 mb-4">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
@@ -222,7 +236,7 @@ const CompanyDetail: React.FC = () => {
             <div className="text-sm text-gray-400 py-6 text-center">加载中...</div>
           ) : quotes.length === 0 ? (
             <div className="text-sm text-gray-400 py-6 text-center">
-              暂无日线数据（该股票未纳入行情抓取范围）
+              暂无日线行情数据
             </div>
           ) : (
             <>
@@ -242,17 +256,6 @@ const CompanyDetail: React.FC = () => {
               <VolumeChart quotes={quotes} />
             </>
           )}
-        </div>
-      )}
-
-      {/* 国际巨头：国产替代对标关系 */}
-      {company.note && (
-        <div className="bg-indigo-50/60 rounded-xl border border-indigo-100 px-5 py-3.5 mb-4">
-          <div className="flex items-center gap-2 mb-1.5">
-            <Scale className="h-3.5 w-3.5 text-indigo-600" />
-            <span className="text-xs font-bold text-indigo-900">国产替代对标</span>
-          </div>
-          <p className="text-[13px] text-indigo-800/90 leading-relaxed">{company.note}</p>
         </div>
       )}
 
@@ -314,7 +317,7 @@ const CompanyDetail: React.FC = () => {
       <ExecutivesCard company={company} listed={listed} />
 
       {/* 交易：记录与交易笔记同卡切换（按股票代码取数，与是否关注无关） */}
-      {company.code && (
+      {realCode && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4">
           <div className="flex items-center gap-1 px-3 py-2 border-b border-gray-100">
             {([['records', '交易记录'], ['notes', '交易笔记']] as const).map(([key, label]) => (
@@ -333,24 +336,23 @@ const CompanyDetail: React.FC = () => {
           </div>
 
           <div className="px-5 py-3">
-            {tradeTab === 'records' ? (
-              isAuthenticated ? (
-                <TradesSection
-                  embedded
-                  stockCode={company.code}
-                  stockName={company.name}
-                  currentPrice={latest?.close_price ?? company.liveClose ?? undefined}
-                  quotes={quotes}
-                />
-              ) : (
-                <div className="py-6 text-center text-sm text-gray-400">
-                  登录后可查看该股票的交易记录
-                </div>
-              )
+            {/* 交易记录与交易笔记都属个人数据，未登录一律不给看 */}
+            {!isAuthenticated ? (
+              <div className="py-6 text-center text-sm text-gray-400">
+                登录后可查看该股票的交易{tradeTab === 'records' ? '记录' : '笔记'}
+              </div>
+            ) : tradeTab === 'records' ? (
+              <TradesSection
+                embedded
+                stockCode={realCode}
+                stockName={company.name}
+                currentPrice={latest?.close_price ?? company.liveClose ?? undefined}
+                quotes={quotes}
+              />
             ) : (
               <NotesSection
                 embedded
-                stockCode={company.code}
+                stockCode={realCode}
                 stockName={company.name}
                 closes={quotes.map((q: any) => q.close_price ?? 0)}
               />
