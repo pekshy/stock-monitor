@@ -122,16 +122,22 @@ const ResearchHome: React.FC = () => {
 
   // 展开状态（纯视觉）与选中状态（驱动右侧内容）分离：
   // 再点同一行业/环节只收起子列表，选中范围保持不变
-  const [expandedInd, setExpandedInd] = useState<string | null>(() => searchParams.get('ind'))
+  // 默认三个行业都展开一层（各自列出环节，不改右侧范围）；
+  // 带 ind 参数时只展开该行业，例如从详情页跳回时聚焦到所在行业
+  const [expandedInds, setExpandedInds] = useState<string[]>(() => {
+    const only = searchParams.get('ind')
+    return only && INDUSTRY_DATA[only] ? [only] : Object.keys(INDUSTRY_DATA)
+  })
   const [expandedSeg, setExpandedSeg] = useState<string | null>(() => searchParams.get('seg'))
   const [expandedStage, setExpandedStage] = useState<string | null>(() => searchParams.get('stage'))
 
   // 切换层级时清下级选择
   const pickIndustry = (id: string | null) => {
     // 点击行业：右侧始终切换到该行业范围（清 seg/stage/sub）；再次点击同一行业仅切换环节列表展开/收起
-    if (!id) { patchParams({ ind: null, seg: null, stage: null, sub: null }); setExpandedInd(null); setExpandedSeg(null); setExpandedStage(null); return }
+    if (!id) { patchParams({ ind: null, seg: null, stage: null, sub: null }); setExpandedInds([]); setExpandedSeg(null); setExpandedStage(null); return }
     patchParams({ ind: id, seg: null, stage: null, sub: null })
-    setExpandedInd(e => (industry === id ? (e === id ? null : id) : id))
+    // 多个行业可同时展开，所以只翻转当前这一个
+    setExpandedInds(e => (e.includes(id) ? e.filter(x => x !== id) : [...e, id]))
     setExpandedSeg(null)
     setExpandedStage(null)
   }
@@ -277,7 +283,7 @@ const ResearchHome: React.FC = () => {
                   <span>{ind.name}</span>
                   <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
                 </button>
-                {expandedInd === id && (
+                {expandedInds.includes(id) && (
                   <div className="bg-gray-50/60">
                     {ind.segs.map(s => {
                       const segVal = TREE[s.id]
