@@ -2,7 +2,8 @@ import React, { useMemo, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, StickyNote, FileText, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp } from 'lucide-react'
 import { useCloudCompanies, useCompanyAnnouncements, useIntel, parseList, type CompanyRecord } from '../research/api'
-import { fmtDate, fmtCap, fmtRev, fmtPct, toNum, bareCode, currencyOf } from '../research/format'
+import { fmtDate, fmtCap, fmtRev, fmtPct, bareCode, currencyOf } from '../research/format'
+import { fmtCapLive, fmtMultiple, fmtPctLive, pctClass, currencyOfCode, amountUnit } from '../research/quotes'
 import { findCompanyLocations, chainLocationUrl, segName } from '../research/chain'
 import { splitInvestors, ROLE_LABEL, ROLE_CLASS } from '../research/investors'
 import NotesPanel from '../components/NotesPanel'
@@ -43,6 +44,31 @@ const ResearchCompanyDetail: React.FC = () => {
   const listed = !!company.listed
   /** 美股企业金额口径为美元，A 股/港股为人民币 */
   const cur = currencyOf(company)
+  /** 市值/估值的币种：行情的 currency 更准（含 JPY/HKD/EUR 等），缺失时才按代码推断 */
+  const capCur = company.liveCurrency ?? currencyOfCode(company.code) ?? (cur === 'USD' ? 'USD' : 'CNY')
+  /** 营收来自企业档案，币种跟随上市地（财报以本币计价） */
+  const revCur = currencyOfCode(company.code) ?? (cur === 'USD' ? 'USD' : 'CNY')
+
+  /**
+   * 上市企业指标卡：市值/PE/PB 只认 research_quotes 的实时值，
+   * 营收/毛利率/研发占比来自企业档案。任一指标缺值就不渲染该格，不做占位。
+   */
+  const liveMetrics = [
+    company.liveCap != null && {
+      label: '市值', value: fmtCapLive(company.liveCap, capCur), hint: amountUnit(capCur),
+    },
+    company.livePe != null && {
+      label: 'PE(TTM)', value: fmtMultiple(company.livePe), hint: '滚动市盈率',
+    },
+    company.livePb != null && {
+      label: 'PB', value: fmtMultiple(company.livePb), hint: '市净率',
+    },
+    company.rev != null && {
+      label: '营收', value: fmtRev(company.rev, revCur), hint: amountUnit(revCur),
+    },
+    company.gross != null && { label: '毛利率', value: fmtPct(company.gross) },
+    company.rd != null && { label: '研发占比', value: fmtPct(company.rd) },
+  ].filter((m): m is { label: string; value: string; hint?: string } => Boolean(m))
 
   return (
     <div>
@@ -102,16 +128,29 @@ const ResearchCompanyDetail: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4 mb-4">
         {company.desc && <p className="text-[13px] text-gray-600 leading-relaxed mb-3">{company.desc}</p>}
         {listed ? (
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            <Metric label="市值" value={fmtCap(company.cap, cur)} />
-            <Metric label="PE(TTM)" value={peLabel(company.pe)} />
-            <Metric label="营收" value={fmtRev(company.rev, cur)} />
-            <Metric label="毛利率" value={fmtPct(company.gross)} />
-            <Metric label="研发占比" value={fmtPct(company.rd)} />
-          </div>
+          <>
+            {liveMetrics.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {liveMetrics.map(m => <Metric key={m.label} label={m.label} value={m.value} hint={m.hint} />)}
+              </div>
+            )}
+            <div className={`${liveMetrics.length > 0 ? 'mt-3 pt-2.5 border-t border-gray-50' : ''} flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-400`}>
+              {company.quoteDate ? (
+                <>
+                  <span>行情 {fmtDate(company.quoteDate)}</span>
+                  {company.liveClose != null && (
+                    <span>收盘 {company.liveClose.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</span>
+                  )}
+                  <span className={pctClass(company.livePct)}>当日 {fmtPctLive(company.livePct)}</span>
+                </>
+              ) : (
+                <span>暂无行情数据</span>
+              )}
+            </div>
+          </>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Metric label="估值" value={fmtCap(company.valuation)} />
+            <Metric label="估值" value={fmtCap(company.valuation, "CNY")} hint="人民币亿元" />
             <Metric label="最近融资" value={fmtDate(company.lastFunding)} />
             <Metric label="轮次" value={company.round || '—'} />
             <Metric label="赛道" value={segName(company.seg)} />
@@ -235,12 +274,6 @@ const ResearchCompanyDetail: React.FC = () => {
  * 投资机构角色标签体系（未上市企业重点关注：谁领投、谁跟投、谁战略投资）
  * 解析与聚合逻辑统一放在 research/investors.ts，供详情页与机构统计视图复用。
  */
-/** PE 展示：数值保留一位小数；非数值口径（如「亏损」）原样呈现，避免丢失语义 */function peLabel(v: number | string | null | undefined): string {
-  if (v == null || v === '') return '—'
-  const n = toNum(v)
-  return n == null ? String(v) : n.toFixed(1)
-}
-
 /** 管理层：任职名单按「董事会 / 高级管理层」分组，履历直接展示；另附人事变动历史 */
 function ExecutivesCard({ company, listed }: { company: CompanyRecord; listed: boolean }) {
   const execs = company.executives ?? []
@@ -298,11 +331,11 @@ function ExecutivesCard({ company, listed }: { company: CompanyRecord; listed: b
   )
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div>
       <div className="text-xs text-gray-400">{label}</div>
-      <div className="text-base font-semibold text-gray-800 mt-0.5 tabular-nums">{value}</div>
+      <div className="text-base font-semibold text-gray-800 mt-0.5 tabular-nums" title={hint}>{value}</div>
     </div>
   )
 }

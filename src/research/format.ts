@@ -1,3 +1,5 @@
+import { currencySymbol } from './quotes'
+
 // 行业研究模块 · 展示口径工具
 // 约定与原工作台一致：日期统一「年月日」，货币 ¥，A股红涨绿跌
 
@@ -27,30 +29,26 @@ export function fundDateNum(s?: string | null): number {
 
 type Num = number | string | null | undefined
 
-/** 币种：A 股 / 港股按人民币口径，美股为美元（亿美元） */
-type Currency = 'CNY' | 'USD'
-
 /** 依据企业记录判定币种：market==='US' 或代码以 .US 结尾 → 美元 */
-export function currencyOf(c?: { market?: unknown; code?: string | null } | null): Currency {
+export function currencyOf(c?: { market?: unknown; code?: string | null } | null): string {
   if (!c) return 'CNY'
   if (String(c.market ?? '').toUpperCase() === 'US') return 'USD'
   return String(c.code ?? '').toUpperCase().endsWith('.US') ? 'USD' : 'CNY'
 }
 
-const SYMBOL: Record<Currency, string> = { CNY: '¥', USD: '$' }
-
-function money(v: Num, cur: Currency): string | null {
+/** 金额统一「亿」+ 币种符号；具体符号由 research/quotes 的币种表决定 */
+function money(v: Num, cur: string): string | null {
   if (v == null || v === '') return null
-  return `${SYMBOL[cur]}${Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 1 })}亿`
+  return `${currencySymbol(cur)}${Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 1 })}亿`
 }
 
-/** 市值 / 估值（亿元，默认人民币） */
-export function fmtCap(v?: Num, cur: Currency = 'CNY'): string {
+/** 市值 / 估值（亿元，币种按调用方传入） */
+export function fmtCap(v?: Num, cur = 'CNY'): string {
   return money(v, cur) ?? '—'
 }
 
-/** 营收（亿元，默认人民币） */
-export function fmtRev(v?: Num, cur: Currency = 'CNY'): string {
+/** 营收（亿元，币种按调用方传入） */
+export function fmtRev(v?: Num, cur = 'CNY'): string {
   return money(v, cur) ?? '—'
 }
 

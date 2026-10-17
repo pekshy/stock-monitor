@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../utils/supabase'
 import { COMPANIES, INTEL_FALLBACK, ANN_FALLBACK, type ResearchCompany } from './data'
+import type { ResearchQuote } from './quotes'
 import { bareCode } from './format'
 import { noteHash } from './notes'
 
@@ -114,11 +115,25 @@ export function useIntel(): IntelData {
 export interface CompanyRecord extends ResearchCompany {
   /** 云端行补充的规范化字段 */
   cloudRound?: string | null
+  /**
+   * 以下为 research_quotes 的实时值（每只股票只留最新交易日一行）。
+   * 与 data 里的静态快照分开存放，避免保存核心竞争力时把行情写回 data。
+   * null 表示该股票暂无行情数据（未覆盖 / 非上市 / 抓取失败）。
+   */
+  liveCap?: number | null
+  liveClose?: number | null
+  livePe?: number | null
+  livePb?: number | null
+  livePct?: number | null
+  liveCurrency?: string | null
+  quoteDate?: string | null
 }
 
 export function useCloudCompanies() {
   const [companies, setCompanies] = useState<CompanyRecord[]>(COMPANIES)
   const [cloudOk, setCloudOk] = useState(false)
+  const [quoteDate, setQuoteDate] = useState<string | null>(null)
+  const [quoted, setQuoted] = useState(0)
   const [loading, setLoading] = useState(true)
   const [tick, setTick] = useState(0)
 
@@ -128,10 +143,36 @@ export function useCloudCompanies() {
     let alive = true
     setLoading(true)
     ;(async () => {
-      const rows = await fetchTable<CloudCompanyRow>('research_companies', 'name')
+      const [rows, quotes] = await Promise.all([
+        fetchTable<CloudCompanyRow>('research_companies', 'name'),
+        fetchTable<ResearchQuote>('research_quotes', 'code'),
+      ])
       if (!alive) return
       if (rows && rows.length > 0) {
-        setCompanies(rows.map(r => ({ ...r.data, cloudRound: r.round })))
+        // 行情按 code 索引；同一公司多视图共用代码，查表时天然复用同一行
+        const qm = new Map<string, ResearchQuote>()
+        for (const q of quotes ?? []) qm.set(q.code, q)
+        const dates = (quotes ?? []).map(q => q.trade_date).filter(Boolean).sort()
+
+        let hit = 0
+        const merged = rows.map(r => {
+          const q = r.code ? qm.get(r.code) : undefined
+          if (q) hit += 1
+          return {
+            ...r.data,
+            cloudRound: r.round,
+            liveCap: q?.total_market_cap ?? null,
+            liveClose: q?.close ?? null,
+            livePe: q?.pe_ttm ?? null,
+            livePb: q?.pb ?? null,
+            livePct: q?.pct_change ?? null,
+            liveCurrency: q?.currency ?? null,
+            quoteDate: q?.trade_date ?? null,
+          }
+        })
+        setCompanies(merged)
+        setQuoted(hit)
+        setQuoteDate(dates.length ? dates[dates.length - 1] : null)
         setCloudOk(true)
       }
       setLoading(false)
@@ -139,7 +180,7 @@ export function useCloudCompanies() {
     return () => { alive = false }
   }, [tick])
 
-  return { companies, cloudOk, loading, refresh }
+  return { companies, cloudOk, loading, refresh, quoteDate, quoted }
 }
 
 /** 修改企业「核心竞争力」（desc 存在 research_companies.data JSON 里，整包回写） */

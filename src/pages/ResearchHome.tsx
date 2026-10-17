@@ -101,7 +101,7 @@ function softMatch(itemIndustry: string | null, itemSeg: string | null, itemSub:
 
 const ResearchHome: React.FC = () => {
   const { reports, events, notes, cloudOk, loading, refresh } = useIntel()
-  const { companies: cloudCompanies, loading: coLoading, refresh: coRefresh } = useCloudCompanies()
+  const { companies: cloudCompanies, loading: coLoading, refresh: coRefresh, quoteDate } = useCloudCompanies()
   const { isAuthenticated } = useAuth()
 
   // 选中状态放 URL 参数：ind / seg / sub / mt(顶层tab: intel|notes|companies) / tab(情报子tab)
@@ -512,6 +512,7 @@ const ResearchHome: React.FC = () => {
             loading={coLoading}
             canEdit={isAuthenticated && cloudOk}
             onDescSaved={coRefresh}
+            quoteDate={quoteDate}
           />
         )}
 

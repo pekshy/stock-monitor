@@ -3,19 +3,16 @@ import { Link } from 'react-router-dom'
 import { Search, ArrowLeft, CloudOff, Pencil, Check, X, Loader2 } from 'lucide-react'
 import { useCloudCompanies, updateCompanyDesc, type CompanyRecord } from '../research/api'
 import { useAuth } from '../context/AuthContext'
-import { fundDateNum, toNum, currencyOf } from '../research/format'
-
-/** 市值 / 估值：纯数字（亿元），表头已标单位 */
-const fmtCapNum = (v?: number | string | null): string => {
-  if (v == null || v === '') return '—'
-  return Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 1 })
-}
+import { fundDateNum, fmtDate } from '../research/format'
+import { fmtCapLive, currencyOfCode, capInCny } from '../research/quotes'
 
 type CoFilter = 'all' | 'listed' | 'unlisted'
 
 /** 排序：上市在前（市值降序），未上市在后（最近融资倒序；披露越细越靠前，无日期最后） */
 export function coSort(list: CompanyRecord[]): CompanyRecord[] {
-  const listed = list.filter(c => c.listed).sort((a, b) => (toNum(b.cap) ?? 0) - (toNum(a.cap) ?? 0))
+  // 跨市场市值须折算成同一币种再比大小（日元数值天然比人民币大两个量级）
+  const cny = (c: CompanyRecord) => capInCny(c.liveCap, c.liveCurrency ?? currencyOfCode(c.code))
+  const listed = list.filter(c => c.listed).sort((a, b) => cny(b) - cny(a))
   const unlisted = list.filter(c => !c.listed).sort((a, b) => {
     const ka = Math.max(fundDateNum(a.lastFunding), ...(a.funding ?? []).map(f => fundDateNum(f.date)))
     const kb = Math.max(fundDateNum(b.lastFunding), ...(b.funding ?? []).map(f => fundDateNum(f.date)))
@@ -28,7 +25,9 @@ export function coSort(list: CompanyRecord[]): CompanyRecord[] {
 export const CompanyTable: React.FC<{
   pool: CompanyRecord[]; loading?: boolean; pageSize?: number
   canEdit?: boolean; onDescSaved?: () => void
-}> = ({ pool, loading, pageSize = 20, canEdit, onDescSaved }) => {
+  /** 行情日期（research_quotes 的最新交易日），用于标注市值口径 */
+  quoteDate?: string | null
+}> = ({ pool, loading, pageSize = 20, canEdit, onDescSaved, quoteDate }) => {
   const [filter, setFilter] = useState<CoFilter>('all')
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
@@ -66,14 +65,21 @@ export const CompanyTable: React.FC<{
             {t.label} <span className="text-xs text-gray-400">{t.n}</span>
           </button>
         ))}
-        <div className="ml-auto relative">
-          <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            value={q}
-            onChange={e => setQ(e.target.value)}
-            placeholder="搜索公司 / 代码 / 业务"
-            className="pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 w-52"
-          />
+        <div className="ml-auto flex items-center gap-3">
+          {quoteDate && (
+            <span className="text-[11px] text-gray-400 whitespace-nowrap" title="市值 / PE / PB 的行情日期">
+              市值截至 {fmtDate(quoteDate)}
+            </span>
+          )}
+          <div className="relative">
+            <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              value={q}
+              onChange={e => setQ(e.target.value)}
+              placeholder="搜索公司 / 代码 / 业务"
+              className="pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 w-52"
+            />
+          </div>
         </div>
       </div>
 
@@ -83,7 +89,7 @@ export const CompanyTable: React.FC<{
             <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
               <th className="px-5 py-2.5 font-medium">公司</th>
               <th className="px-3 py-2.5 font-medium">轮次</th>
-              <th className="px-3 py-2.5 font-medium text-right">市值 / 估值（亿元）</th>
+              <th className="px-3 py-2.5 font-medium text-right">市值 / 估值</th>
               <th className="px-5 py-2.5 font-medium">核心竞争力</th>
             </tr>
           </thead>
@@ -123,7 +129,7 @@ export const CompanyTable: React.FC<{
 }
 
 const ResearchCompanies: React.FC = () => {
-  const { companies, cloudOk, loading, refresh } = useCloudCompanies()
+  const { companies, cloudOk, loading, refresh, quoteDate } = useCloudCompanies()
   const { isAuthenticated } = useAuth()
 
   useEffect(() => { document.title = '企业名单 · 行业研究' }, [])
@@ -149,7 +155,8 @@ const ResearchCompanies: React.FC = () => {
         </div>
       </div>
 
-      <CompanyTable pool={companies} loading={loading} canEdit={isAuthenticated && cloudOk} onDescSaved={refresh} />
+      <CompanyTable pool={companies} loading={loading} canEdit={isAuthenticated && cloudOk}
+        onDescSaved={refresh} quoteDate={quoteDate} />
     </div>
   )
 }
@@ -193,9 +200,12 @@ const CompanyRow: React.FC<{
           {listed ? '已上市' : (c.round || '未上市')}
         </span>
       </td>
-      <td className="px-3 py-3 text-right text-gray-700 tabular-nums">
-        {fmtCapNum(listed ? c.cap : c.valuation)}
-        {currencyOf(c) === 'USD' && <span className="ml-1 text-[10px] text-amber-600">USD</span>}
+      <td className="px-3 py-3 text-right text-gray-700 tabular-nums whitespace-nowrap">
+        {listed
+          ? (c.liveCap != null
+              ? fmtCapLive(c.liveCap, c.liveCurrency ?? currencyOfCode(c.code) ?? 'CNY')
+              : <span className="text-gray-300" title="暂无行情数据">—</span>)
+          : (c.valuation != null ? fmtCapLive(c.valuation, 'CNY') : <span className="text-gray-300">—</span>)}
       </td>
       <td className="px-5 py-3 text-[13px] text-gray-600 max-w-md group/desc">
         {editing ? (
