@@ -411,7 +411,7 @@ const TradeRecordsLocked: React.FC = () => (
   </div>
 )
 
-export function TradesSection({ stockCode, stockName, currentPrice, quotes }: { stockCode: string; stockName: string; currentPrice?: number; quotes: any[] }) {
+export function TradesSection({ stockCode, stockName, currentPrice, quotes, embedded }: { stockCode: string; stockName: string; currentPrice?: number; quotes: any[]; embedded?: boolean }) {
   const { records, addRecord, updateRecord, deleteRecord } = useTradeRecords()
   const [modalOpen, setModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<any>(null)
@@ -511,12 +511,12 @@ export function TradesSection({ stockCode, stockName, currentPrice, quotes }: { 
   }, [filteredRecords])
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-4">
+    <div className={embedded ? '' : 'bg-white rounded-xl shadow-md p-4'}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900">交易记录</h2>
+        {!embedded && <h2 className="text-lg font-bold text-gray-900">交易记录</h2>}
         <button
           onClick={() => { setEditRecord(null); setModalOpen(true) }}
-          className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm transition-colors"
+          className={`flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm transition-colors ${embedded ? 'ml-auto' : ''}`}
         >
           <Plus className="h-4 w-4" />
           添加
@@ -596,7 +596,7 @@ export function TradesSection({ stockCode, stockName, currentPrice, quotes }: { 
   )
 }
 
-export function NotesSection({ stockCode, stockName, closes }: { stockCode: string; stockName: string; closes: number[] }) {
+export function NotesSection({ stockCode, stockName, closes, embedded }: { stockCode: string; stockName: string; closes: number[]; embedded?: boolean }) {
   const { notes, loading, addNote, updateNote, deleteNote } = useStockNotesByCode(stockCode)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalSubmitting, setModalSubmitting] = useState(false)
@@ -650,11 +650,13 @@ export function NotesSection({ stockCode, stockName, closes }: { stockCode: stri
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-4">
-      <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-        <MessageSquare className="h-4 w-4" />
-        笔记
-      </h2>
+    <div className={embedded ? '' : 'bg-white rounded-xl shadow-md p-4'}>
+      {!embedded && (
+        <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <MessageSquare className="h-4 w-4" />
+          笔记
+        </h2>
+      )}
 
       <div className="mb-3">
         <button

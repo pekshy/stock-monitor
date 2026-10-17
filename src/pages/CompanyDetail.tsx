@@ -29,6 +29,7 @@ const CompanyDetail: React.FC = () => {
   const { codes, busy: watchBusy, loading: watchLoading, toggle: toggleWatch } = useWatchlist()
   const { refresh: refreshStocks } = useStockContext()
   const [watchErr, setWatchErr] = useState('')
+  const [tradeTab, setTradeTab] = useState<'records' | 'notes'>('records')
   const followed = !!company?.code && codes.has(company.code)
   const { isAuthenticated } = useAuth()
   /** K 线与多周期涨跌只在「已关注的上市企业」页面加载 */
@@ -312,27 +313,50 @@ const CompanyDetail: React.FC = () => {
       {/* 管理层：任职名单（上市=董监高，未上市=核心团队）+ 人事变动历史 */}
       <ExecutivesCard company={company} listed={listed} />
 
-      {/* 交易记录：按股票代码取数，与是否关注无关
-          （取消关注不该让历史买卖记录消失） */}
+      {/* 交易：记录与交易笔记同卡切换（按股票代码取数，与是否关注无关） */}
       {company.code && (
-        isAuthenticated ? (
-          <TradesSection
-            stockCode={company.code}
-            stockName={company.name}
-            currentPrice={latest?.close_price ?? company.liveClose ?? undefined}
-            quotes={quotes}
-          />
-        ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4">
-            <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100">
-              <span className="text-blue-600"><TrendingUp className="h-4 w-4" /></span>
-              <h3 className="text-sm font-bold text-gray-800">交易记录</h3>
-            </div>
-            <div className="px-5 py-6 text-center text-sm text-gray-400">
-              登录后可查看该股票的交易记录
-            </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4">
+          <div className="flex items-center gap-1 px-3 py-2 border-b border-gray-100">
+            {([['records', '交易记录'], ['notes', '交易笔记']] as const).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setTradeTab(key)}
+                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  tradeTab === key
+                    ? 'bg-blue-50 text-blue-700 font-medium'
+                    : 'text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        )
+
+          <div className="px-5 py-3">
+            {tradeTab === 'records' ? (
+              isAuthenticated ? (
+                <TradesSection
+                  embedded
+                  stockCode={company.code}
+                  stockName={company.name}
+                  currentPrice={latest?.close_price ?? company.liveClose ?? undefined}
+                  quotes={quotes}
+                />
+              ) : (
+                <div className="py-6 text-center text-sm text-gray-400">
+                  登录后可查看该股票的交易记录
+                </div>
+              )
+            ) : (
+              <NotesSection
+                embedded
+                stockCode={company.code}
+                stockName={company.name}
+                closes={quotes.map((q: any) => q.close_price ?? 0)}
+              />
+            )}
+          </div>
+        </div>
       )}
 
       {/* 研究笔记（页面可增改删，自动关联当前企业） */}
@@ -350,13 +374,6 @@ const CompanyDetail: React.FC = () => {
         />
       </Card>
 
-      {company.code && (
-        <NotesSection
-          stockCode={company.code}
-          stockName={company.name}
-          closes={quotes.map((q: any) => q.close_price ?? 0)}
-        />
-      )}
     </div>
   )
 }
