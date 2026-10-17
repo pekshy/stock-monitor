@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Target, ChevronDown, ChevronUp, Search, TrendingUp, Star } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { usePersistentState } from '../hooks/usePersistentState'
+import type { EtfWithData } from '../types'
 import { formatPercent, getChangeColor, resolveTechDirection, formatTechDirection, type TechDirection } from '../utils/formatters'
 
 const EtfListOnly: React.FC = memo(() => {
@@ -16,18 +17,23 @@ const EtfListOnly: React.FC = memo(() => {
     toggleFocus
   } = useEtfContext()
 
-  const getActionPriority = (action: string | null | undefined, sig?: any): number => {
-    const dir: TechDirection = sig
-      ? resolveTechDirection({ ...sig, action })
-      : (() => {
-          if (!action) return 'neutral'
-          const act = action.toLowerCase()
-          if (act.includes('卖出') || act.includes('减仓') || act.includes('sell') || act.includes('bear')) return 'sell'
-          if (act.includes('买入') || act.includes('加仓') || act.includes('buy') || act.includes('bull')) return 'buy'
-          return 'neutral'
-        })()
-    if (dir === 'sell') return 1
-    if (dir === 'buy') return 2
+  /** 趋势信号（字符串字段）转方向，如 BUY / SELL / WATCH */
+  const trendDirection = (v: string | null | undefined): TechDirection => {
+    const t = (v ?? '').toUpperCase()
+    if (t.includes('BUY') || t.includes('买')) return 'buy'
+    if (t.includes('SELL') || t.includes('卖')) return 'sell'
+    return 'neutral'
+  }
+
+  /**
+   * 关注列表排序优先级：
+   * 「趋势信号」或「技术指标建议」任一为买入 → 1（最前），任一为卖出 → 2，其余 → 3。
+   * 两者冲突时买入优先（避免漏掉一个买点提示）。
+   */
+  const getActionPriority = (etf: EtfWithData): number => {
+    const dirs = [resolveTechDirection(etf.latest_signal), trendDirection(etf.latest_trend_signal)]
+    if (dirs.includes('buy')) return 1
+    if (dirs.includes('sell')) return 2
     return 3
   }
 
@@ -44,14 +50,14 @@ const EtfListOnly: React.FC = memo(() => {
 
   const { sellEtfs, buyEtfs, watchEtfs } = useMemo(() => {
     const sorted = [...etfs].sort((a, b) => {
-      const priorityA = getActionPriority(a.latest_signal?.action, a.latest_signal)
-      const priorityB = getActionPriority(b.latest_signal?.action, b.latest_signal)
+      const priorityA = getActionPriority(a)
+      const priorityB = getActionPriority(b)
       return priorityA - priorityB
     })
     return {
-      sellEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 1),
-      buyEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 2),
-      watchEtfs: sorted.filter(e => getActionPriority(e.latest_signal?.action, e.latest_signal) === 3)
+      sellEtfs: sorted.filter(e => getActionPriority(e) === 2),
+      buyEtfs: sorted.filter(e => getActionPriority(e) === 1),
+      watchEtfs: sorted.filter(e => getActionPriority(e) === 3)
     }
   }, [etfs])
 
@@ -287,7 +293,7 @@ const EtfListOnly: React.FC = memo(() => {
             <Target className="h-5 w-5 text-green-500" />
             关注ETF列表
             <span className="text-sm font-normal text-gray-500">
-              （{filteredSellEtfs.length > 0 ? `${filteredSellEtfs.length}卖出` : ''}{filteredBuyEtfs.length > 0 ? `、${filteredBuyEtfs.length}买入` : ''}{filteredWatchEtfs.length > 0 ? `、观望${filteredWatchEtfs.length}` : ''}{searchText.trim() && ` · 共${filteredSellEtfs.length + filteredBuyEtfs.length + filteredWatchEtfs.length}条`}）
+              （{[[filteredBuyEtfs.length, '买入'], [filteredSellEtfs.length, '卖出'], [filteredWatchEtfs.length, '观望']].filter(([n]) => Number(n) > 0).map(([n, label]) => `${n}${label}`).join('、')}{searchText.trim() && ` · 共${filteredBuyEtfs.length + filteredSellEtfs.length + filteredWatchEtfs.length}条`}）
             </span>
           </h2>
           <div className="flex items-center gap-2">
@@ -387,8 +393,8 @@ const EtfListOnly: React.FC = memo(() => {
               </thead>
               <tbody>
                 {(signalFilter !== 'all' || showAll
-                  ? [...filteredSellEtfs, ...filteredBuyEtfs, ...filteredWatchEtfs]
-                  : [...filteredSellEtfs, ...filteredBuyEtfs]).map((etf) => (
+                  ? [...filteredBuyEtfs, ...filteredSellEtfs, ...filteredWatchEtfs]
+                  : [...filteredBuyEtfs, ...filteredSellEtfs]).map((etf) => (
                   <tr
                     key={etf.symbol}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
