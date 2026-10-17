@@ -90,7 +90,8 @@ const Header: React.FC<HeaderProps> = ({ latestDate }) => {
             <h1 className="text-lg font-bold whitespace-nowrap">涛哥投研工作室</h1>
           </Link>
 
-          <nav className="order-3 lg:order-2 w-full lg:w-auto flex items-center gap-1 overflow-x-auto">
+          {/* 全局导航：小屏换行到第二行，大屏与 Logo 同行 */}
+          <nav className="order-3 lg:order-2 w-full lg:w-auto flex items-center gap-0.5 overflow-x-auto rounded-xl bg-white/10 ring-1 ring-white/15 p-1">
             {NAV_ITEMS.map(({ key, label, to, Icon }) => {
               const on = activeSection === key
               return (
@@ -98,8 +99,10 @@ const Header: React.FC<HeaderProps> = ({ latestDate }) => {
                   key={key}
                   to={to}
                   aria-current={on ? 'page' : undefined}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                    on ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm whitespace-nowrap transition-all ${
+                    on
+                      ? 'bg-white text-primary font-semibold shadow-sm'
+                      : 'text-white/90 font-medium hover:bg-white/15 hover:text-white'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
