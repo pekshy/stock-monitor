@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Activity } from 'lucide-react'
+import { Globe2, Landmark } from 'lucide-react'
 import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import {
   GLOBAL_CATEGORIES,
@@ -495,6 +495,40 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
   )
 }
 
+/**
+ * 指标分层：海外市场 / 中国市场。
+ * 分组只决定展示位置，数据来源与取数逻辑不变（仍由 GLOBAL_CATEGORIES 匹配）。
+ */
+const OVERSEAS_CATEGORY_IDS = [
+  'dollar_index', 'treasury_yield_curve', 'inflation_us', 'fear_index',
+  'precious_metals', 'commodities', 'crypto',
+]
+const CHINA_CATEGORY_IDS = [
+  'cny_exchange', 'interest_rate', 'cn_macro', 'a_stock_volume',
+  'margin_balance', 'hk_connect_capital',
+]
+
+/** 分层卡片外壳：统一标题与栅格，避免两段各写一套样式 */
+const IndicatorSection: React.FC<{
+  title: string
+  hint: string
+  icon: React.ReactNode
+  children: React.ReactNode
+}> = ({ title, hint, icon, children }) => (
+  <section className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-sm p-5">
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-4">
+      <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+        {icon}
+        {title}
+      </h2>
+      <span className="text-xs text-gray-400">{hint}</span>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {children}
+    </div>
+  </section>
+)
+
 interface MarketIndicatorsProps {
   globalIndicatorSeries: IndicatorSeries[]
   chinaIndicatorSeries: IndicatorSeries[]
@@ -526,39 +560,46 @@ export const MarketIndicators: React.FC<MarketIndicatorsProps> = ({
     [globalIndicatorSeries, chinaIndicatorSeries]
   )
 
-  return (
-    <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-sm p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Activity className="h-5 w-5 text-blue-600" />
-          市场指标
-        </h2>
+  const overseasCategories = globalCategories.filter(c => OVERSEAS_CATEGORY_IDS.includes(c.id))
+  const chinaCategories = globalCategories.filter(c => CHINA_CATEGORY_IDS.includes(c.id))
+
+  const hasOverseas = overseasCategories.length > 0
+  // A 股恐贪指数属于中国市场情绪，放在国内段首格，与汇率/流动性/资金面并列
+  const hasChina = chinaCategories.length > 0 || !!fearGreedSeries
+
+  if (!hasOverseas && !hasChina) {
+    return (
+      <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-sm p-6 text-gray-500 text-center py-8">
+        暂无指标数据
       </div>
-      {globalCategories.length > 0 || fearGreedSeries ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {(() => {
-            // A股恐贪指数插入到中国通胀之后、A股成交量之前
-            const insertAfterId = 'cn_macro'
-            const insertIdx = globalCategories.findIndex(c => c.id === insertAfterId) + 1
-            const beforeCards = globalCategories.slice(0, insertIdx)
-            const afterCards = globalCategories.slice(insertIdx)
-            return (
-              <>
-                {beforeCards.map((category) => (
-                  <CategoryCard key={category.id} category={category} />
-                ))}
-                {fearGreedSeries && (
-                  <FearGreedCard series={fearGreedSeries} />
-                )}
-                {afterCards.map((category) => (
-                  <CategoryCard key={category.id} category={category} />
-                ))}
-              </>
-            )
-          })()}
-        </div>
-      ) : (
-        <div className="text-gray-500 text-center py-8">暂无指标数据</div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {hasOverseas && (
+        <IndicatorSection
+          title="海外市场"
+          hint="美元 · 利率 · 通胀 · 波动率 · 商品"
+          icon={<Globe2 className="h-5 w-5 text-blue-600" />}
+        >
+          {overseasCategories.map(category => (
+            <CategoryCard key={category.id} category={category} />
+          ))}
+        </IndicatorSection>
+      )}
+
+      {hasChina && (
+        <IndicatorSection
+          title="中国市场"
+          hint="情绪 · 汇率 · 流动性 · 资金面"
+          icon={<Landmark className="h-5 w-5 text-emerald-600" />}
+        >
+          {fearGreedSeries && <FearGreedCard series={fearGreedSeries} />}
+          {chinaCategories.map(category => (
+            <CategoryCard key={category.id} category={category} />
+          ))}
+        </IndicatorSection>
       )}
     </div>
   )
