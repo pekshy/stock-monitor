@@ -152,7 +152,21 @@ export function useCloudCompanies() {
         // 行情按 code 索引；同一公司多视图共用代码，查表时天然复用同一行
         const qm = new Map<string, ResearchQuote>()
         for (const q of quotes ?? []) qm.set(q.code, q)
-        const dates = (quotes ?? []).map(q => q.trade_date).filter(Boolean).sort()
+        // 台股/欧股因时区差异会落到次日，若直接取最大日期，标签会显示成周六。
+        // 取「覆盖股票数最多」的交易日作为行情日标签，同票数时取较新的一天。
+        const dateCount = new Map<string, number>()
+        for (const q of quotes ?? []) {
+          if (!q.trade_date) continue
+          dateCount.set(q.trade_date, (dateCount.get(q.trade_date) ?? 0) + 1)
+        }
+        let mainDate: string | null = null
+        let mainCount = -1
+        for (const [d, n] of dateCount) {
+          if (n > mainCount || (n === mainCount && d > (mainDate ?? ''))) {
+            mainDate = d
+            mainCount = n
+          }
+        }
 
         let hit = 0
         const merged = rows.map(r => {
@@ -172,7 +186,7 @@ export function useCloudCompanies() {
         })
         setCompanies(merged)
         setQuoted(hit)
-        setQuoteDate(dates.length ? dates[dates.length - 1] : null)
+        setQuoteDate(mainDate)
         setCloudOk(true)
       }
       setLoading(false)
