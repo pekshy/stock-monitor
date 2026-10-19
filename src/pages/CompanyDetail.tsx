@@ -48,6 +48,10 @@ const CompanyDetail: React.FC = () => {
 
   /** 企业在产业链中的位置（可能多处，如拓尔思同时属 AI 办公 / AI 教育 / AI 法律·政务） */
   const locations = useMemo(() => findCompanyLocations(decoded), [decoded])
+  /** 赛道展示：图谱里能唯一定位到细分时用细分名（更具体），多归属或未收录时回落到环节名 */
+  const trackLabel = useMemo(
+    () => (locations.length === 1 ? locations[0].sub : segName(company?.seg)),
+    [locations, company?.seg])
 
   useEffect(() => { document.title = `${decoded} · 行业研究` }, [decoded])
 
@@ -208,7 +212,7 @@ const CompanyDetail: React.FC = () => {
             <Metric label="估值" value={fmtCap(company.valuation, "CNY")} hint="人民币亿元" />
             <Metric label="最近融资" value={fmtDate(company.lastFunding)} />
             <Metric label="轮次" value={company.round || '—'} />
-            <Metric label="赛道" value={segName(company.seg)} />
+            <Metric label="赛道" value={trackLabel} />
           </div>
         )}
       </div>
