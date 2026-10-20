@@ -183,8 +183,11 @@ def fetch_tx(targets, want_date=None):
 
 def parse_tx(t, f, want_date=None):
     mk = t["market"]
-    # PB：A 股在 46，港股/美股在 47；日股无
+    # PB：A 股在 46，港股/美股在 47；日股无。
+    # 港股新股常返回 0，0 不是有效 PB（不是「市净率 0 倍」），按缺失处理。
     pb = _num(f[46]) if mk == "cn" else (_num(f[47]) if mk in ("hk", "us") else None)
+    if pb is not None and pb <= 0:
+        pb = None
     amount = _num(f[37])
     if mk == "cn" and amount:                 # A 股成交额单位「万元」
         amount = round(amount * 1e4)

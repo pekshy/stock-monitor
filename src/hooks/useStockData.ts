@@ -90,6 +90,11 @@ export function useStocks() {
           const tradeDate = String(r.trade_date ?? '')
           const current = latestQuotes.get(code)
           if (current && current.trade_date >= tradeDate) return
+          // 市值单位对齐 daily_valuations 的口径：A 股存「亿」，美股/港股存「元」。
+          // research_quotes 全市场都存「亿」，这里对境外市场乘 1e8 还原，
+          // 否则列表里的市值会被 StockList 的 ÷1e8 再缩一次，显示成 0。
+          const suffix = code.split('.').pop()?.toUpperCase() ?? ''
+          const capFactor = ['SH', 'SZ', 'BJ'].includes(suffix) ? 1 : 1e8
           // 昨日行情与新行情相差超过 7 天，说明中间缺了数据，旧的多周期涨跌幅不可信
           const keepPeriods =
             !!current &&
@@ -129,7 +134,8 @@ export function useStocks() {
             pe_static: null,
             pb: r.pb ?? null,
             psr: r.psr ?? null,
-            total_market_cap: r.total_market_cap ?? null,
+            total_market_cap:
+              r.total_market_cap != null ? Number(r.total_market_cap) * capFactor : null,
             circulating_market_cap: null,
             created_at: r.fetched_at ?? '',
           })

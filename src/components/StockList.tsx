@@ -116,7 +116,10 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
                 {formatValuation(stock.latest_valuation?.pe_ttm)}
               </td>
               <td className="text-right py-4 px-4 text-gray-700">
-                {formatValuation(stock.latest_valuation?.pb)}
+                {/* PB 为 0 无意义（港股新股常见），按缺失显示 */}
+                {stock.latest_valuation?.pb != null && stock.latest_valuation.pb > 0
+                  ? formatValuation(stock.latest_valuation.pb)
+                  : '--'}
               </td>
               <td className="text-right py-4 px-4 text-gray-700">
                 {(() => {
