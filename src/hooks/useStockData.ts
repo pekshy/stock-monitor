@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
+import { classifyOf } from '../research/watchlist'
 import { WatchlistItem, DailyQuote, DailyValuation, StockWithQuote } from '../types'
 
 export function useStocks() {
@@ -23,6 +24,23 @@ export function useStocks() {
       if (watchlistError) throw watchlistError
 
       const stockCodes = watchlist.map((s) => s.stock_code)
+
+      // 行业分类以研究池为准：watchlist 里的 industry1/2 只是写入当时的快照。
+      // 这里按代码回查 research_companies，展示时始终用研究池当前的 industry / seg，
+      // 研究池改了分类，股票板块的行业卡片、筛选、详情页会一起变。
+      const classMap = new Map<string, { industry1: string; industry2: string }>()
+      if (stockCodes.length > 0) {
+        const { data: companies } = await supabase
+          .from('research_companies')
+          .select('code,industry,seg')
+          .in('code', stockCodes)
+
+        ;(companies ?? []).forEach(
+          (c: { code: string | null; industry: string | null; seg: string | null }) => {
+            if (c.code) classMap.set(c.code, classifyOf(c.industry, c.seg))
+          },
+        )
+      }
 
       const { data: quotes, error: quotesError } = await supabase
         .from('daily_quotes')
@@ -55,16 +73,89 @@ export function useStocks() {
         }
       })
 
-      const stocksWithData = watchlist.map((stock) => ({
-        ...stock,
-        latest_quote: latestQuotes.get(stock.stock_code),
-        latest_valuation: latestValuations.get(stock.stock_code),
-      }))
+      // 兜底：daily_quotes 按日批跑，新加入关注的标的可能完全没有记录，
+      // 或者只停在很早的历史日期上。这里用研究池行情（research_quotes，腾讯源，
+      // 每股仅保留最新一个交易日）做当日补位：
+      //   - daily_quotes 没有该股 → 直接补
+      //   - research_quotes 的交易日更新 → 用当日价格/估值覆盖，多周期涨跌幅置空（前端显示 --）
+      // 若 daily_quotes 已是最新交易日，则保持原样，不动历史口径。
+      if (stockCodes.length > 0) {
+        const { data: researchQuotes } = await supabase
+          .from('research_quotes')
+          .select('*')
+          .in('code', stockCodes)
+
+        ;(researchQuotes ?? []).forEach((r: Record<string, any>) => {
+          const code = String(r.code)
+          const tradeDate = String(r.trade_date ?? '')
+          const current = latestQuotes.get(code)
+          if (current && current.trade_date >= tradeDate) return
+          // 昨日行情与新行情相差超过 7 天，说明中间缺了数据，旧的多周期涨跌幅不可信
+          const keepPeriods =
+            !!current &&
+            !!current.trade_date &&
+            (Date.parse(tradeDate) - Date.parse(current.trade_date)) / 86400000 <= 7
+          latestQuotes.set(code, {
+            id: -1,
+            stock_code: code,
+            trade_date: tradeDate,
+            open_price: r.open ?? null,
+            close_price: r.close ?? null,
+            high_price: r.high ?? null,
+            low_price: r.low ?? null,
+            volume: r.volume ?? null,
+            amount: r.amount ?? null,
+            pct_change: r.pct_change ?? null,
+            amplitude: null,
+            price_change:
+              r.close != null && r.prev_close != null
+                ? Number((Number(r.close) - Number(r.prev_close)).toFixed(2))
+                : null,
+            turnover_rate: r.turnover_rate ?? null,
+            // 多周期涨跌幅沿用 daily_quotes 的口径（腾讯接口不分发，由批跑脚本算）。
+            // 仅当昨日行情就在 1 周内时才沿用，否则多周期是旧价格算出来的，会失真（如期间除权），置空。
+            pct_change_5d: keepPeriods ? current!.pct_change_5d : null,
+            pct_change_10d: keepPeriods ? current!.pct_change_10d : null,
+            pct_change_20d: keepPeriods ? current!.pct_change_20d : null,
+            pct_change_30d: keepPeriods ? current!.pct_change_30d : null,
+            pct_change_60d: keepPeriods ? current!.pct_change_60d : null,
+            created_at: r.fetched_at ?? '',
+          })
+          latestValuations.set(code, {
+            id: -1,
+            stock_code: code,
+            trade_date: tradeDate,
+            pe_ttm: r.pe_ttm ?? null,
+            pe_static: null,
+            pb: r.pb ?? null,
+            psr: r.psr ?? null,
+            total_market_cap: r.total_market_cap ?? null,
+            circulating_market_cap: null,
+            created_at: r.fetched_at ?? '',
+          })
+        })
+      }
+
+      const stocksWithData = watchlist.map((stock) => {
+        const labels = classMap.get(stock.stock_code)
+        return {
+          ...stock,
+          industry1: labels?.industry1 ?? stock.industry1,
+          industry2: labels?.industry2 ?? stock.industry2,
+          latest_quote: latestQuotes.get(stock.stock_code),
+          latest_valuation: latestValuations.get(stock.stock_code),
+        }
+      })
 
       setStocks(stocksWithData)
-      
-      if (quotes.length > 0) {
-        setLatestDate(quotes[0].trade_date)
+
+      // 最新交易日取「已有行情 + 兜底行情」里的最大值
+      const dates = Array.from(latestQuotes.values())
+        .map((quote) => quote.trade_date)
+        .filter(Boolean)
+        .sort()
+      if (dates.length > 0) {
+        setLatestDate(dates[dates.length - 1])
       }
     } catch (error) {
       console.error('Error fetching stocks:', error)

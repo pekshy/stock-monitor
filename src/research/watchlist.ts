@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../utils/supabase'
+import { industryLabel, segNameOf } from './chain'
 import type { CompanyRecord } from './api'
 
 /** 研究池 industry → watchlist.industry1 */
@@ -34,7 +35,7 @@ const SEG_LABEL: Record<string, string> = {
   hw: '算力硬件',
   llm: 'LLM',
   maas: 'MaaS',
-  'ai-app': 'AI应用',
+  'ai-app': 'AI 应用',
   // 机器人
   reducer: '减速器',
   servo: '伺服系统',
@@ -46,8 +47,9 @@ const SEG_LABEL: Record<string, string> = {
 
 function segLabel(seg?: string | null): string {
   if (!seg) return '其他'
-  // ai-coding / ai-agent / ai-office … 在股票板块统一归到「AI应用」，避免二级分类碎成十几项
-  if (seg.startsWith('ai-')) return 'AI应用'
+  // ai-coding / ai-agent / ai-office … 在股票板块统一归到「AI 应用」，避免二级分类碎成十几项。
+  // 文案与产业链 TREE 里 ai-app 环节名保持一致（带空格），否则下拉里会出现两个几乎一样的选项。
+  if (seg.startsWith('ai-')) return 'AI 应用'
   return SEG_LABEL[seg] ?? '其他'
 }
 
@@ -60,6 +62,29 @@ function marketLabel(code?: string | null): string {
   if (s === 'T') return '日股'
   if (s === 'TW' || s === 'TWO') return '台股'
   return '其他'
+}
+
+/**
+ * 研究池分类 → 股票板块的两级分类。
+ *
+ * 股票板块不再自己维护行业归属，统一以研究池为准：
+ * 一级行业取产业链的行业名（半导体 / AI / 机器人），
+ * 二级环节优先取产业链 TREE 里的环节名（"EDA / IP"、"半导体材料"…），
+ * 只有环节 id 未登记（如 AI 行业按细分写的 ai-agent）时才落到本地的归并规则。
+ */
+export function classifyOf(
+  industry?: string | null,
+  seg?: string | null,
+): { industry1: string; industry2: string } {
+  const fromChain = segNameOf(seg)
+  const industryLabelText = industryLabel(industry)
+  return {
+    industry1:
+      industryLabelText !== '其他'
+        ? industryLabelText
+        : INDUSTRY_LABEL[industry ?? ''] ?? '其他',
+    industry2: fromChain ?? segLabel(seg),
+  }
 }
 
 /**
@@ -115,11 +140,12 @@ export function useWatchlist(): WatchState {
           return next
         })
       } else {
+        const labels = classifyOf(c.industry, c.seg)
         const { error } = await supabase.from('watchlist').insert({
           stock_code: code,
           stock_name: displayName(c.name),
-          industry1: INDUSTRY_LABEL[c.industry] ?? '其他',
-          industry2: segLabel(c.seg),
+          industry1: labels.industry1,
+          industry2: labels.industry2,
           market: marketLabel(code),
         })
         if (error) {

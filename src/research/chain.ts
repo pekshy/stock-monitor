@@ -46,6 +46,21 @@ export function industryNameOf(segId?: string | null): string {
 }
 
 /**
+ * 环节 id → 中文环节名，未登记返回 null（供调用方决定兜底文案）。
+ * 与 segName 的区别：不会把内部 id 原样吐出来。
+ */
+export function segNameOf(segId?: string | null): string | null {
+  if (!segId) return null
+  return SEG_INDEX.get(segId)?.segName ?? null
+}
+
+/** 行业 id → 行业中文名，如 semiconductor → 「半导体」。 */
+export function industryLabel(industryId?: string | null): string {
+  if (!industryId) return '其他'
+  return INDUSTRY_DATA[industryId]?.name ?? '其他'
+}
+
+/**
  * 反查某企业名出现在产业链的哪些位置。
  *
  * 依据是 TREE[环节id] 下每个细分项的 companies 名单（而非公司记录的 seg 字段），
