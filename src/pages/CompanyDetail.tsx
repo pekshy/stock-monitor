@@ -4,13 +4,13 @@ import { ArrowLeft, StickyNote, ExternalLink, Layers, ChevronRight, Users, Scale
 import { useCloudCompanies, useIntel, parseList, type CompanyRecord } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, currencyOf } from '../research/format'
 import { fmtCapLive, fmtMultiple, fmtPctLive, pctClass, currencyOfCode, amountUnit } from '../research/quotes'
-import { findCompanyLocations, chainLocationUrl, segName } from '../research/chain'
+import { findCompanyLocations, chainLocationUrl, segName, industryNameOf } from '../research/chain'
 import { splitInvestors, ROLE_LABEL, ROLE_CLASS } from '../research/investors'
 import NotesPanel from '../components/NotesPanel'
 import { KLineChart, VolumeChart, TradesSection, NotesSection } from './StockDetail'
 import { supabase } from '../utils/supabase'
 import { useAuth } from '../context/AuthContext'
-import { useWatchlist } from '../research/watchlist'
+import { useWatchlist, displayName } from '../research/watchlist'
 import { useStockContext } from '../context/StockContext'
 
 const CompanyDetail: React.FC = () => {
@@ -46,14 +46,28 @@ const CompanyDetail: React.FC = () => {
     refreshStocks()      // 让股票板块跟着更新，切过去就能看到
   }
 
-  /** 企业在产业链中的位置（可能多处，如拓尔思同时属 AI 办公 / AI 教育 / AI 法律·政务） */
-  const locations = useMemo(() => findCompanyLocations(decoded), [decoded])
+  /**
+   * 企业在产业链中的位置（可能多处，如拓尔思同时属 AI 办公 / AI 教育 / AI 法律·政务）。
+   *
+   * 必须用「企业名」查，不能用 URL 参数：从股票板块点进来时 key 是代码（688795.SH），
+   * 而产业链图谱里挂的是企业名，用代码永远查不到，导致这块整块不渲染。
+   */
+  const chainLookupName = useMemo(
+    () => displayName(company?.name ?? decoded),
+    [company?.name, decoded])
+  const locations = useMemo(() => findCompanyLocations(chainLookupName), [chainLookupName])
   /** 赛道展示：图谱里能唯一定位到细分时用细分名（更具体），多归属或未收录时回落到环节名 */
   const trackLabel = useMemo(
     () => (locations.length === 1 ? locations[0].sub : segName(company?.seg)),
     [locations, company?.seg])
+  /** 图谱里查不到（企业名与图谱名单不一致）时，至少用档案里的 seg 展示「行业 / 环节」 */
+  const segFallback = useMemo(
+    () => (locations.length === 0 && company?.seg
+      ? { industryName: industryNameOf(company.seg), segName: segName(company.seg) }
+      : null),
+    [locations.length, company?.seg])
 
-  useEffect(() => { document.title = `${decoded} · 行业研究` }, [decoded])
+  useEffect(() => { document.title = `${company?.name ?? decoded} · 行业研究` }, [company?.name, decoded])
 
   const coNotes = useMemo(() => {
     if (!company) return []
@@ -148,7 +162,7 @@ const CompanyDetail: React.FC = () => {
       {watchErr && <div className="mb-3 text-xs text-red-600">{watchErr}</div>}
 
       {/* 产业链归属：行业 → 环节 → 细分（点击可跳回图谱对应范围） */}
-      {locations.length > 0 && (
+      {(locations.length > 0 || segFallback) && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-3.5 mb-4">
           <div className="flex items-center gap-2 mb-2.5">
             <Layers className="h-3.5 w-3.5 text-blue-600" />
@@ -157,29 +171,38 @@ const CompanyDetail: React.FC = () => {
               <span className="text-[11px] text-gray-400">共 {locations.length} 处</span>
             )}
           </div>
-          <div className="space-y-2">
-            {locations.map(loc => (
-              <Link
-                key={`${loc.industry}|${loc.seg}|${loc.stage ?? ''}|${loc.sub}`}
-                to={chainLocationUrl(loc)}
-                className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] rounded-lg -mx-2 px-2 py-1 hover:bg-blue-50/60 group"
-                title="在产业链图谱中查看该细分"
-              >
-                <span className="text-gray-500">{loc.industryName}</span>
-                <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
-                <span className="text-gray-500">{loc.segName}</span>
-                <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
-                {loc.stageName && (
-                  <>
-                    <span className="text-gray-500">{loc.stageName}</span>
-                    <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
-                  </>
-                )}
-                <span className="font-medium text-blue-700 group-hover:underline">{loc.sub}</span>
-                <ExternalLink className="h-3 w-3 text-gray-300 shrink-0 opacity-0 group-hover:opacity-100" />
-              </Link>
-            ))}
-          </div>
+          {locations.length > 0 ? (
+            <div className="space-y-2">
+              {locations.map(loc => (
+                <Link
+                  key={`${loc.industry}|${loc.seg}|${loc.stage ?? ''}|${loc.sub}`}
+                  to={chainLocationUrl(loc)}
+                  className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] rounded-lg -mx-2 px-2 py-1 hover:bg-blue-50/60 group"
+                  title="在产业链图谱中查看该细分"
+                >
+                  <span className="text-gray-500">{loc.industryName}</span>
+                  <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
+                  <span className="text-gray-500">{loc.segName}</span>
+                  <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
+                  {loc.stageName && (
+                    <>
+                      <span className="text-gray-500">{loc.stageName}</span>
+                      <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
+                    </>
+                  )}
+                  <span className="font-medium text-blue-700 group-hover:underline">{loc.sub}</span>
+                  <ExternalLink className="h-3 w-3 text-gray-300 shrink-0 opacity-0 group-hover:opacity-100" />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            // 图谱名单里没有这家（名称口径不一致），退到档案里的行业 / 环节，保证不空
+            <div className="flex items-center gap-1.5 text-[13px]">
+              <span className="text-gray-500">{segFallback!.industryName}</span>
+              <ChevronRight className="h-3 w-3 text-gray-300 shrink-0" />
+              <span className="font-medium text-gray-700">{segFallback!.segName}</span>
+            </div>
+          )}
         </div>
       )}
 
