@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 """
+【历史回补工具，不参与日常调度】
+
+中债国债收益率的日常增量由既有宏观抓取任务负责，本脚本只用于一次性回补历史
+（例如首次接入时补齐 3 年），或主任务漏数时手工补跑。请勿配置定时任务，避免重复写入。
+
 抓取中债国债收益率（2Y/5Y/10Y/30Y + 10Y-2Y 期限利差）并写入 china_indicators。
 
 数据源：东方财富数据中心「中美国债收益率」，原始数据来自中国债券信息网。
@@ -8,7 +13,7 @@
   EMM00166466 -> 10年   EMM00166469 -> 30年
   EMM01276014 -> 10Y-2Y 利差
 
-用法：
+用法（手工执行）：
   SUPABASE_SERVICE_KEY=... python3 scripts/macro-sync/fetch_cn_bond.py --years 3
   python3 scripts/macro-sync/fetch_cn_bond.py --years 3 --dry-run
 """
