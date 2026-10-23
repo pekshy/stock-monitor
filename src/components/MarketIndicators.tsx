@@ -57,6 +57,45 @@ const formatValue = (value: number | null, indicatorId: string): string => {
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 
+/**
+ * 当前值在近 N 个自然日样本中的分位（0–100）。
+ *
+ * 用「自然日窗口」而不是「近 N 个点」，是因为不同指标的频率不同（日频/月频/周频），
+ * 按点取会把窗口拉成不同的时间跨度，分位就不可比了。
+ * 样本不足 20 个时返回 null——数据刚接入时给出的分位没有统计意义。
+ */
+const percentileInWindow = (
+  series: IndicatorSeries,
+  days = 180,
+): { pct: number; n: number; median: number; min: number; max: number } | null => {
+  const pts = series.history.filter(p => p.value !== null && p.value !== undefined)
+  if (pts.length < 20) return null
+
+  const latest = pts[pts.length - 1]
+  const cutoff = new Date(latest.date)
+  cutoff.setDate(cutoff.getDate() - days)
+  const cutStr = cutoff.toISOString().slice(0, 10)
+
+  const win = pts.filter(p => p.date >= cutStr).map(p => p.value)
+  if (win.length < 20) return null
+
+  const vals = [...win].sort((a, b) => a - b)
+  const cur = latest.value
+  const below = vals.filter(v => v < cur).length
+  const equal = vals.filter(v => v === cur).length
+  const mid = Math.floor(vals.length / 2)
+  const median = vals.length % 2 ? vals[mid] : (vals[mid - 1] + vals[mid]) / 2
+
+  return {
+    // 并列值取半，避免同一数值批量出现时分位跳变
+    pct: ((below + equal / 2) / vals.length) * 100,
+    n: vals.length,
+    median,
+    min: vals[0],
+    max: vals[vals.length - 1],
+  }
+}
+
 const getIndicatorLabel = (id: string): string => {
   const map: Record<string, string> = {
     'DXY': '美元指数',
@@ -392,6 +431,23 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
 
   const goldSilverRatio = category.id === 'precious_metals' ? calculateGoldSilverRatio(selectedSeries) : null
 
+  // A 股成交量额外给一个 6 个月分位：绝对值（1.97 万亿）看不出是地量还是放量，分位能。
+  // 只对成交量启用，其他指标暂不展示，避免所有卡片都堆一行统计信息。
+  const volumeStats = category.id === 'a_stock_volume'
+    ? (() => {
+        const s = selectedSeries.find(x => x.indicator_id === 'stock_market_volume')
+        return s ? percentileInWindow(s, 180) : null
+      })()
+    : null
+
+  const volumeBand = !volumeStats
+    ? null
+    : volumeStats.pct <= 30
+      ? { color: '#16a34a', label: '地量' }
+      : volumeStats.pct >= 70
+        ? { color: '#dc2626', label: '放量' }
+        : { color: '#4b5563', label: '中性' }
+
   return (
     <div
       className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
@@ -473,6 +529,42 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
               <div className="text-xs text-gray-500">
                 1盎司黄金 = {goldSilverRatio.toFixed(1)}盎司白银
               </div>
+            </div>
+          </div>
+        )}
+
+        {volumeStats && volumeBand && (
+          <div className="pt-2 border-t border-gray-100 mt-2">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                  6M PERCENTILE
+                </div>
+                <div className="text-xs text-gray-600">
+                  近 6 个月分位 · {volumeStats.n} 个交易日
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold" style={{ color: volumeBand.color }}>
+                  {volumeStats.pct.toFixed(0)}%
+                  <span className="ml-1 text-xs font-normal">{volumeBand.label}</span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  中位 {formatValue(volumeStats.median, 'stock_market_volume')}
+                </div>
+              </div>
+            </div>
+            {/* 分位刻度：左低右高，中点 50% 处加一道刻线 */}
+            <div className="relative h-1.5 bg-gray-100 rounded-full mt-2">
+              <div
+                className="absolute inset-y-0 left-0 rounded-full transition-all"
+                style={{ width: `${Math.min(Math.max(volumeStats.pct, 2), 100)}%`, background: volumeBand.color }}
+              />
+              <div className="absolute top-1/2 -translate-y-1/2 h-3 w-px bg-gray-300" style={{ left: '50%' }} />
+            </div>
+            <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+              <span>低 {formatValue(volumeStats.min, 'stock_market_volume')}</span>
+              <span>高 {formatValue(volumeStats.max, 'stock_market_volume')}</span>
             </div>
           </div>
         )}

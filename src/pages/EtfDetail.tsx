@@ -455,6 +455,33 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   )
 }
 
+/**
+ * 成交额 6 个月分位。
+ *
+ * 数据窗口已由 useEtfDetailData 限定为近 6 个月，所以这里直接对全部样本排序取位，
+ * 不再二次裁剪日期。amount 的单位是「万元」（与 volume 的「手」口径对应）。
+ */
+const amountPercentile6m = (
+  data: EtfDailyData[],
+): { pct: number; median: number; n: number } | null => {
+  const pts = data.filter(d => d.amount != null && d.amount > 0) as (EtfDailyData & { amount: number })[]
+  if (pts.length < 20) return null
+
+  const sorted = [...pts].sort((a, b) => a.trade_date.localeCompare(b.trade_date))
+  const cur = sorted[sorted.length - 1].amount
+  const vals = pts.map(d => d.amount).sort((a, b) => a - b)
+  const below = vals.filter(v => v < cur).length
+  const equal = vals.filter(v => v === cur).length
+  const mid = Math.floor(vals.length / 2)
+  const median = vals.length % 2 ? vals[mid] : (vals[mid - 1] + vals[mid]) / 2
+
+  // 并列值取一半，避免同一数值批量出现时分位跳变
+  return { pct: ((below + equal / 2) / vals.length) * 100, median, n: vals.length }
+}
+
+/** 成交额单位是万元，统一按「亿 / 万」展示 */
+const fmtAmount = (v: number) => (v >= 10000 ? (v / 10000).toFixed(2) + '亿' : v.toFixed(0) + '万')
+
 const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
   const chartData = useMemo(() => {
     return [...data].reverse().map(d => ({
@@ -465,36 +492,62 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
     }))
   }, [data])
 
+  const amountStats = useMemo(() => amountPercentile6m(data), [data])
+
   if (chartData.length === 0) {
     return <div className="h-16 flex items-center justify-center text-gray-500 text-sm">暂无数据</div>
   }
 
+  const band = !amountStats
+    ? null
+    : amountStats.pct <= 30
+      ? { color: '#16a34a', label: '地量' }
+      : amountStats.pct >= 70
+        ? { color: '#dc2626', label: '放量' }
+        : { color: '#6b7280', label: '中性' }
+
   return (
-    <div className="h-24 mt-2">
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
-          <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 10000).toFixed(0) + '万'} />
-          <Tooltip
-            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(229, 231, 235, 0.6)', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(2px)' }}
-            wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
-            formatter={(value: number) => [(value / 10000).toFixed(0) + ' 万份', '成交量']}
-          />
-          <Bar dataKey="value" barSize={5} shape={(props: any) => {
-            const { x, y, width, height, payload } = props
-            return (
-              <rect
-                x={x}
-                y={y}
-                width={width}
-                height={height}
-                fill={payload.isUp ? '#ef4444' : '#22c55e'}
-              />
-            )
-          }} name="成交量" />
-        </ComposedChart>
-      </ResponsiveContainer>
+    <div className="mt-2">
+      <div className="flex items-baseline justify-between mb-0.5 text-[11px] leading-none">
+        <span className="text-gray-400">成交量</span>
+        {amountStats && band && (
+          <span className="text-gray-500">
+            成交额 6M 分位
+            <span className="ml-1 font-bold" style={{ color: band.color }}>
+              {amountStats.pct.toFixed(0)}%
+            </span>
+            <span className="ml-1 text-gray-400">
+              {band.label} · 中位 {fmtAmount(amountStats.median)}
+            </span>
+          </span>
+        )}
+      </div>
+      <div className="h-24">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
+            <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 10000).toFixed(0) + '万'} />
+            <Tooltip
+              contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(229, 231, 235, 0.6)', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(2px)' }}
+              wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
+              formatter={(value: number) => [(value / 10000).toFixed(0) + ' 万份', '成交量']}
+            />
+            <Bar dataKey="value" barSize={5} shape={(props: any) => {
+              const { x, y, width, height, payload } = props
+              return (
+                <rect
+                  x={x}
+                  y={y}
+                  width={width}
+                  height={height}
+                  fill={payload.isUp ? '#ef4444' : '#22c55e'}
+                />
+              )
+            }} name="成交量" />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   )
 }
