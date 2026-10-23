@@ -50,8 +50,6 @@ const NoteCard: React.FC<{
     setClamped(el.scrollHeight > el.clientHeight + 2)
   }, [n.body, n.title])
 
-  const text = n.body || n.title || ''
-
   return (
     <div className="px-5 py-3 group">
       <div className="flex items-baseline gap-3">
@@ -79,13 +77,19 @@ const NoteCard: React.FC<{
           </button>
         </span>
       </div>
-      {text && (
+      {/* 标题：列表里必须有标题，否则笔记一多就无法辨认（正文只给两行预览） */}
+      {n.title && (
+        <p className="mt-1 text-[13px] font-semibold text-gray-900 leading-snug pl-[76px]">
+          {n.title}
+        </p>
+      )}
+      {n.body && (
         <>
           <p
             ref={bodyRef}
-            className={`mt-1 text-[13px] text-gray-700 leading-relaxed pl-[76px] whitespace-pre-wrap ${expanded ? '' : 'line-clamp-2'}`}
+            className={`mt-0.5 text-[13px] text-gray-600 leading-relaxed pl-[76px] whitespace-pre-wrap ${expanded ? '' : 'line-clamp-2'}`}
           >
-            {text}
+            {n.body}
           </p>
           {clamped && (
             <button

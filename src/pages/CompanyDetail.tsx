@@ -291,9 +291,16 @@ const CompanyDetail: React.FC = () => {
         <Card title="融资历史" icon={<TrendingUp className="h-4 w-4" />} count={company.funding!.length}>
           <div className="divide-y divide-gray-50">
             {company.funding!.map((f, i) => {
-              // 优先用结构化的 investorsStructured（按轮次匹配），否则从原始文本解析
+              // 优先用结构化的 investorsStructured：先按日期精确匹配，再按轮次匹配。
+              // 但「未披露 / —」这类占位轮次不能作为匹配键——多笔融资都写「未披露」时，
+              // 会把同一批投资人错配到每一笔上（幂级智能的 6 月与 9 月两轮就出现过）。
+              const roundKey = (r?: string | null) => {
+                const t = (r ?? '').trim()
+                return t && !['未披露', '—', '-', 'N/A'].includes(t) ? t : null
+              }
+              const thisRound = roundKey(f.round)
               const structured = (company.investorsStructured ?? [])
-                .filter(s => s.round === f.round || (s.date && s.date === f.date))
+                .filter(s => (f.date && s.date === f.date) || (!!thisRound && s.round === thisRound))
                 .map(s => ({ name: s.name, role: s.role, note: s.note }))
               const insts = structured.length
                 ? structured
