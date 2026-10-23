@@ -19,6 +19,31 @@ import {
 
 type AnyIndicator = ChinaIndicator | FredIndicator | MarketIndicator | StockMarketVolume
 
+/**
+ * Supabase 单次查询最多返回 1000 行（服务端 max-rows 限制），
+ * 而 china_indicators 是长表（多指标 × 多日期，约 2.6 万行），
+ * 不分页只能取到最近约 100 天，且新增日频指标会进一步挤压其他指标的可用历史。
+ * 这里按 range 翻页取全（配合 since 限制时间跨度）。
+ */
+async function fetchPaged(table: string, orderCol: string, since?: string): Promise<any[]> {
+  const PAGE = 1000
+  const rows: any[] = []
+  for (let from = 0; ; from += PAGE) {
+    let q: any = supabase
+      .from(table)
+      .select('*')
+      .order(orderCol, { ascending: false })
+      .range(from, from + PAGE - 1)
+    if (since) q = q.gte(orderCol, since)
+    const { data, error } = await q
+    if (error) throw error
+    if (!data || data.length === 0) break
+    rows.push(...data)
+    if (data.length < PAGE) break
+  }
+  return rows
+}
+
 function groupIndicatorsBySeries(indicators: AnyIndicator[]): IndicatorSeries[] {
   const grouped = new Map<string, { date: string; value: number; classification?: string | null }[]>()
   const latestMap = new Map<string, { value: number; date: string; classification?: string | null }>()
@@ -177,6 +202,18 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
       return u.includes('SHIBOR') || u.includes('LPR') || u.includes('MONEY') || u.includes('SUPPLY') || u.includes('M1') || u.includes('M2')
     },
     defaultIndicator: 'SHIBOR'
+  },
+  {
+    id: 'cn_bond_yield',
+    label: '中国国债',
+    color: '#7c3aed',
+    // 中债国债到期收益率，由 scripts/macro-sync/fetch_cn_bond.py 写入 china_indicators
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u.includes('CN_BOND') || u.includes('CN_TERM_SPREAD')
+    },
+    defaultIndicator: 'cn_bond_10y',
+    memberOrder: ['cn_bond_2y', 'cn_bond_5y', 'cn_bond_10y', 'cn_bond_30y', 'cn_term_spread_10y2y']
   },
   {
     id: 'cn_macro',
@@ -350,7 +387,8 @@ export function useEtfData() {
         momentumResult
       ] = await Promise.all([
         supabase.from('etf_info').select('*'),
-        supabase.from('china_indicators').select('*').order('date', { ascending: false }),
+        // 近 2 年足够看趋势，分页避免被 1000 行上限截断
+        fetchPaged('china_indicators', 'date', new Date(Date.now() - 730 * 864e5).toISOString().slice(0, 10)),
         supabase.from('fred_indicators').select('*').order('date', { ascending: false }),
         supabase.from('market_indicators').select('*').order('date', { ascending: false }),
         supabase.from('stock_market_volume').select('*').order('date', { ascending: false }),
@@ -363,9 +401,8 @@ export function useEtfData() {
       const etfInfo: EtfInfo[] = etfInfoData || []
       console.log('ETF info:', etfInfo)
 
-      const { data: chinaData, error: chinaErr } = chinaResult
-      if (chinaErr) throw chinaErr
-      console.log('China indicators:', chinaData)
+      const chinaData = chinaResult as any[]
+      console.log('China indicators:', chinaData?.length)
       setChinaIndicators(chinaData || [])
 
       const { data: fredData, error: fredErr } = fredResult

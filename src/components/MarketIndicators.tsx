@@ -21,6 +21,10 @@ const formatValue = (value: number | null, indicatorId: string): string => {
   if (u.startsWith('DGS') || u.includes('TREASURY')) {
     return value.toFixed(2) + '%'
   }
+  // 中债国债收益率与期限利差：本身就是百分数，直接保留两位
+  if (u.includes('CN_BOND') || u.includes('CN_TERM_SPREAD')) {
+    return value.toFixed(2) + '%'
+  }
   if (u === 'DXY' || u.startsWith('DTWEX') || u === 'DOLLAR_INDEX') {
     return value.toFixed(2)
   }
@@ -123,6 +127,11 @@ const getIndicatorLabel = (id: string): string => {
     'treasury_10y': '10年',
     'treasury_20y': '20年',
     'treasury_30y': '30年',
+    'cn_bond_2y': '2年',
+    'cn_bond_5y': '5年',
+    'cn_bond_10y': '10年',
+    'cn_bond_30y': '30年',
+    'cn_term_spread_10y2y': '10Y-2Y',
     'GOLD': '黄金',
     'XAU': '黄金',
     'SILVER': '白银',
@@ -453,12 +462,13 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
       className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
       style={{ borderTop: `3px solid ${category.color}` }}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-sm font-bold text-gray-800" style={{ color: category.color }}>
+      {/* 成员超过 4 个时（如国债 2Y/5Y/10Y/30Y/利差），按钮换到下一行，避免把标题挤成两行 */}
+      <div className={category.members.length > 4 ? 'mb-3' : 'flex items-center justify-between mb-3'}>
+        <div className="text-sm font-bold text-gray-800 shrink-0 whitespace-nowrap" style={{ color: category.color }}>
           {category.label}
         </div>
         {category.members.length > 1 && (
-          <div className="flex flex-wrap gap-1">
+          <div className={`flex flex-wrap gap-1 ${category.members.length > 4 ? 'mt-1.5' : ''}`}>
             {category.members.map((m) => (
               <button
                 key={m.indicator_id}
@@ -596,7 +606,7 @@ const OVERSEAS_CATEGORY_IDS = [
   'precious_metals', 'commodities', 'crypto',
 ]
 const CHINA_CATEGORY_IDS = [
-  'cny_exchange', 'interest_rate', 'cn_macro', 'a_stock_volume',
+  'cny_exchange', 'interest_rate', 'cn_bond_yield', 'cn_macro', 'a_stock_volume',
   'margin_balance', 'hk_connect_capital',
 ]
 
