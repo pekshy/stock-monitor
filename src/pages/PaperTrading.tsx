@@ -71,6 +71,20 @@ const money = (v: number | null | undefined) => {
   return v.toFixed(0)
 }
 
+/**
+ * 标的类型：ETF 还是股票。
+ *
+ * 现在是纯 ETF 组合，未来会加股票，所以这里不能写死链接到 /company：
+ * ETF 走 /etf/:symbol，股票走 /company/:code。
+ * 优先用 etf_info 的真实 symbol 表匹配（能兼容 159796.SZ 这种带后缀的历史数据），
+ * 取不到时退回代码段前缀判断。
+ */
+type InstrumentKind = 'etf' | 'stock'
+
+const ETF_PREFIX = /^(51|56|58|15|16|18)/
+
+const bareCode = (code: string) => (code || '').split('.')[0].toUpperCase()
+
 const ACTION_STYLE: Record<string, string> = {
   buy: 'bg-red-50 text-red-600',
   sell: 'bg-green-50 text-green-600',
@@ -188,11 +202,23 @@ const PaperTrading: React.FC = () => {
   const [trades, setTrades] = useState<PaperTrade[]>([])
   const [loading, setLoading] = useState(true)
   const [setupMissing, setSetupMissing] = useState(false)
+  // 6 位代码 -> etf_info 里的原始 symbol（可能是纯数字，也可能带 .SZ 后缀）
+  const [etfSymbolMap, setEtfSymbolMap] = useState<Map<string, string>>(new Map())
 
   useEffect(() => {
     let alive = true
     ;(async () => {
       setLoading(true)
+      // 同时取 ETF 清单：用于判断持仓是 ETF 还是股票，并拿到可用的详情页 symbol
+      supabase.from('etf_info').select('symbol').then(({ data: etfs }) => {
+        if (!alive) return
+        const m = new Map<string, string>()
+        ;(etfs ?? []).forEach((e: { symbol: string }) => {
+          if (e?.symbol) m.set(bareCode(e.symbol), e.symbol)
+        })
+        setEtfSymbolMap(m)
+      })
+
       const { data, error } = await supabase.from('paper_accounts').select('*').order('created_at')
       if (!alive) return
       if (error) {
@@ -273,10 +299,34 @@ const PaperTrading: React.FC = () => {
     }
   }, [navs])
 
+  /** 判定标的类型：优先查 etf_info，取不到时按代码段兜底 */
+  const kindOf = (code: string): InstrumentKind => {
+    const bare = bareCode(code)
+    if (etfSymbolMap.has(bare)) return 'etf'
+    return ETF_PREFIX.test(bare) ? 'etf' : 'stock'
+  }
+
+  /** 详情页路径：ETF 走 /etf/:symbol，股票走 /company/:code */
+  const detailPath = (code: string) =>
+    kindOf(code) === 'etf'
+      ? `/etf/${etfSymbolMap.get(bareCode(code)) ?? bareCode(code)}`
+      : `/company/${code}`
+
+  /** ETF 报价到厘（1.186），股票到分（21.35） */
+  const priceDigits = (code: string) => (kindOf(code) === 'etf' ? 3 : 2)
+
   // CASH 不是真实持仓，单列出来
   const stockPositions = positions.filter(p => p.code !== 'CASH')
   const cashRow = positions.find(p => p.code === 'CASH')
   const decisions = positions.filter(p => p.decision && p.decision.trim())
+
+  // 组合类型由持仓自动推断，空仓时不显示——避免写死「ETF 组合」而未来加股票后失真
+  const portKind: InstrumentKind | 'mixed' | null = (() => {
+    const kinds = new Set(stockPositions.map(p => kindOf(p.code)))
+    if (kinds.size === 0) return null
+    return kinds.size === 1 ? (Array.from(kinds)[0] as InstrumentKind) : 'mixed'
+  })()
+  const portKindLabel = portKind === 'etf' ? 'ETF 组合' : portKind === 'stock' ? '股票组合' : portKind === 'mixed' ? '混合组合' : null
 
   if (loading) {
     return <div className="flex items-center justify-center h-[400px] text-gray-500">加载中...</div>
@@ -314,6 +364,11 @@ const PaperTrading: React.FC = () => {
             <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
               <Briefcase className="h-5 w-5 text-blue-600" />
               {account?.label || account?.id}
+              {portKindLabel && (
+                <span className="text-[11px] font-normal px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                  {portKindLabel}
+                </span>
+              )}
               {notStarted && (
                 <span className="text-[11px] font-normal px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
                   待启动 · {account?.inception}
@@ -406,14 +461,19 @@ const PaperTrading: React.FC = () => {
                 {stockPositions.map(p => (
                   <tr key={p.code} className="border-b border-gray-50">
                     <td className="py-2">
-                      <Link to={`/company/${p.code}`} className="text-gray-800 hover:text-blue-600">
+                      <span className={`inline-block text-[10px] leading-4 px-1 rounded mr-1.5 align-middle ${
+                        kindOf(p.code) === 'etf' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-700'
+                      }`}>
+                        {kindOf(p.code) === 'etf' ? 'ETF' : '股票'}
+                      </span>
+                      <Link to={detailPath(p.code)} className="text-gray-800 hover:text-blue-600">
                         {p.name || p.code}
                       </Link>
                       <span className="text-xs text-gray-400 ml-1.5">{p.code}</span>
                     </td>
                     <td className="text-right text-gray-700">{(p.shares ?? 0).toLocaleString()}</td>
-                    <td className="text-right text-gray-500">{p.avg_cost?.toFixed(3) ?? '--'}</td>
-                    <td className="text-right text-gray-700">{p.close?.toFixed(3) ?? '--'}</td>
+                    <td className="text-right text-gray-500">{p.avg_cost?.toFixed(priceDigits(p.code)) ?? '--'}</td>
+                    <td className="text-right text-gray-700">{p.close?.toFixed(priceDigits(p.code)) ?? '--'}</td>
                     <td className="text-right text-gray-700">{money(p.market_value)}</td>
                     <td className="text-right text-gray-500">{pct(p.weight, 1)}</td>
                     <td className={`text-right font-medium ${(p.pnl ?? 0) >= 0 ? 'text-red-600' : 'text-green-600'}`}>
@@ -489,6 +549,11 @@ const PaperTrading: React.FC = () => {
                       <td className="py-2 text-gray-500 whitespace-nowrap">{t.trade_date}</td>
                       <td className="py-2 text-gray-400 text-xs whitespace-nowrap">{t.signal_date || '—'}</td>
                       <td className="py-2">
+                        <span className={`inline-block text-[10px] leading-4 px-1 rounded mr-1.5 align-middle ${
+                          kindOf(t.code) === 'etf' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-700'
+                        }`}>
+                          {kindOf(t.code) === 'etf' ? 'ETF' : '股票'}
+                        </span>
                         <span className="text-gray-800">{t.name || t.code}</span>
                         <span className="text-xs text-gray-400 ml-1.5">{t.code}</span>
                       </td>
@@ -498,7 +563,7 @@ const PaperTrading: React.FC = () => {
                           {isBuy ? '买入' : '卖出'}
                         </span>
                       </td>
-                      <td className="text-right text-gray-700">{t.price?.toFixed(3) ?? '--'}</td>
+                      <td className="text-right text-gray-700">{t.price?.toFixed(priceDigits(t.code)) ?? '--'}</td>
                       <td className="text-right text-gray-700">{(t.shares ?? 0).toLocaleString()}</td>
                       <td className="text-right text-gray-700">{money(t.amount)}</td>
                       <td className="text-right text-gray-500 text-xs">{money(t.cash_after)}</td>
