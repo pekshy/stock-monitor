@@ -1,5 +1,5 @@
 import React, { useState, useMemo, FormEvent } from 'react'
-import { TrendingUp, LogOut, LogIn, Lock, Eye, EyeOff, X, AlertCircle, BarChart3, Layers, Wallet, FlaskConical, Globe2 } from 'lucide-react'
+import { TrendingUp, LogOut, LogIn, Lock, Eye, EyeOff, X, AlertCircle, BarChart3, Layers, Wallet, FlaskConical, Globe2, Target } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { key: 'stock', label: '股票', to: '/stocks', Icon: BarChart3 },
   { key: 'research', label: '行业研究', to: '/research', Icon: FlaskConical },
   { key: 'macro', label: '宏观', to: '/macro', Icon: Globe2 },
+  { key: 'paper', label: '模拟盘', to: '/paper', Icon: Target },
 ] as const
 
 type NavKey = typeof NAV_ITEMS[number]['key']
@@ -27,6 +28,7 @@ function useActiveSection(): NavKey {
   return useMemo(() => {
     if (pathname.startsWith('/research')) return 'research'
     if (pathname.startsWith('/macro')) return 'macro'
+    if (pathname.startsWith('/paper')) return 'paper'
     if (pathname.startsWith('/etf')) return 'etf'
     // 个股/行业详情页归属「股票」
     if (pathname.startsWith('/company/') || pathname.startsWith('/stock/') || pathname.startsWith('/industry/')) return 'stock'
