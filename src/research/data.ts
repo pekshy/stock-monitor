@@ -14594,7 +14594,7 @@ export const COMPANIES: ResearchCompany[] = [
   "seg": "maas",
   "listed": false,
   "desc": "清华系 AI 原生基础设施（AI Infra）独角兽，2023 年 5 月由清华大学电子工程系长聘教授汪玉联合学生夏立雪（联合创始人兼 CEO）、戴国浩等人创立，为清华大学与上海交通大学科技成果转化企业。公司不生产芯片、也不持有实体数据中心，而是将不同厂商、代际、地域的算力统一调度为可调用的 Token，提出 Agentic Infra 范式（底座本身内置智能体，自主完成算力优化），并以「前店后厂一中心」战略落地。",
-  "valuation": 50,
+  "valuation": 143,
   "round": "C 轮",
   "lastFunding": "2026-10",
   "latestFunding": "2026-10 · C 轮 23 亿元（累计 43 亿元，单轮及累计均创国内 AI Infra 赛道纪录）；投资方涵盖国资、产业与财务三类资本。市场普遍判断本轮为 Pre-IPO 轮，公司被曝已以保密形式向港交所递交 IPO 申请，最早或于 2027 年上半年挂牌。",
