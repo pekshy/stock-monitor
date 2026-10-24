@@ -113,7 +113,6 @@ const Header: React.FC = () => {
               <button
                 onClick={() => { setShowLogin(true); setErr(''); setPwd('') }}
                 className="flex items-center gap-1.5 text-xs bg-blue-800 hover:bg-blue-900 px-3 py-1.5 rounded-lg transition-colors"
-                title="登录后可新增/编辑研究内容"
               >
                 <LogIn className="h-3.5 w-3.5" />
                 <span>登录</span>
@@ -139,7 +138,6 @@ const Header: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-base font-bold text-gray-900">输入暗号登录</h2>
-                <p className="text-xs text-gray-400">登录后可编辑研究内容</p>
               </div>
               <button
                 onClick={() => setShowLogin(false)}
