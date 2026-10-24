@@ -85,6 +85,20 @@ const ETF_PREFIX = /^(51|56|58|15|16|18)/
 
 const bareCode = (code: string) => (code || '').split('.')[0].toUpperCase()
 
+/**
+ * 策略说明（mandate）里最后一段是仓位约束——权益区间、单腿上限、持仓只数。
+ * 那属于执行参数，不是策略描述，页面上不展示。
+ * 按「；」切段后过滤掉含约束关键词的片段；若全被过滤则回退原文，避免整条空白。
+ */
+const MANDATE_CONSTRAINT = /(权益|单腿|仓位|最多|上限|硬顶)/
+
+const displayMandate = (m: string | null | undefined) => {
+  if (!m) return '策略说明待补充'
+  const parts = m.split('；').map(x => x.trim()).filter(Boolean)
+  const kept = parts.filter(p => !MANDATE_CONSTRAINT.test(p))
+  return (kept.length ? kept : parts).join('；')
+}
+
 const ACTION_STYLE: Record<string, string> = {
   buy: 'bg-red-50 text-red-600',
   sell: 'bg-green-50 text-green-600',
@@ -375,7 +389,7 @@ const PaperTrading: React.FC = () => {
                 </span>
               )}
             </h1>
-            <p className="text-sm text-gray-500 mt-1 leading-relaxed">{account?.mandate || '策略说明待补充'}</p>
+            <p className="text-sm text-gray-500 mt-1 leading-relaxed">{displayMandate(account?.mandate)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {accounts.length > 1 && (
