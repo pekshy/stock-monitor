@@ -1,7 +1,16 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 
 const AUTH_STORAGE_KEY = 'stock-monitor-auth'
-const ENV_PASSWORD = import.meta.env.VITE_SITE_PASSWORD as string | undefined
+
+// 只注入暗号的 SHA-256 摘要，绝不注入明文。
+// 原因：Vite 会把 import.meta.env.VITE_* 在构建时替换成字符串字面量，
+// 若注入明文密码，它就直接躺在公开的 assets/*.js 里。
+const ENV_PASSWORD_HASH = (
+  (import.meta.env.VITE_SITE_PASSWORD_HASH as string | undefined) || ''
+).trim().toLowerCase()
+
+// 合法摘要为 64 位十六进制；未配置时视为「本地开发态」，登录直接放行
+const AUTH_ENABLED = /^[0-9a-f]{64}$/.test(ENV_PASSWORD_HASH)
 
 // 使用 Web Crypto API 计算 SHA-256 哈希(浏览器原生,无需依赖)
 async function sha256(text: string): Promise<string> {
@@ -11,11 +20,6 @@ async function sha256(text: string): Promise<string> {
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
 }
-
-// 从环境变量计算期望的密码哈希(模块加载时执行一次)
-const expectedHashPromise: Promise<string | null> = ENV_PASSWORD
-  ? sha256(ENV_PASSWORD)
-  : Promise.resolve(null)
 
 interface AuthContextValue {
   isAuthenticated: boolean
@@ -39,16 +43,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [])
 
   const login = useCallback(async (password: string): Promise<boolean> => {
-    if (!ENV_PASSWORD) {
-      // 未配置密码: 直接放行(开发态友好)
+    if (!AUTH_ENABLED) {
+      // 未配置暗号摘要: 直接放行(本地开发态)
       localStorage.setItem(AUTH_STORAGE_KEY, '1')
       setIsAuthenticated(true)
       return true
     }
-    const expected = await expectedHashPromise
-    if (!expected) return false
     const inputHash = await sha256(password)
-    if (inputHash === expected) {
+    if (inputHash === ENV_PASSWORD_HASH) {
       localStorage.setItem(AUTH_STORAGE_KEY, '1')
       setIsAuthenticated(true)
       return true
