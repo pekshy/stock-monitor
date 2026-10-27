@@ -237,6 +237,18 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     memberOrder: ['cpi', 'ppi', 'pmi']
   },
   {
+    id: 'cn_index',
+    label: 'A股指数',
+    color: '#c2410c',
+    // 上证指数 / 深证成指日收盘点位，由 macro_data_incremental.py 写入 china_indicators
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'SH_COMPOSITE' || u === 'SZ_COMPONENT'
+    },
+    defaultIndicator: 'sh_composite',
+    memberOrder: ['sh_composite', 'sz_component']
+  },
+  {
     id: 'a_stock_volume',
     label: 'A股成交量',
     color: '#9333ea',

@@ -606,7 +606,7 @@ const OVERSEAS_CATEGORY_IDS = [
   'precious_metals', 'commodities', 'crypto',
 ]
 const CHINA_CATEGORY_IDS = [
-  'cny_exchange', 'interest_rate', 'cn_bond_yield', 'cn_macro', 'a_stock_volume',
+  'cny_exchange', 'interest_rate', 'cn_bond_yield', 'cn_macro', 'cn_index', 'a_stock_volume',
   'margin_balance', 'hk_connect_capital',
 ]
 
