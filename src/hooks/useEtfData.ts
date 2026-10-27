@@ -182,6 +182,18 @@ const GLOBAL_CATEGORIES: CategoryRule[] = [
     },
     defaultIndicator: 'vix'
   },
+  {
+    id: 'sox_index',
+    label: '费半指数',
+    color: '#0ea5e9',
+    // 费城半导体指数（PHLX Semiconductor Index, ^SOX）日收盘点位，
+    // 由 scripts/macro-sync/fetch_sox.py 写入 fred_indicators
+    matches: (id) => {
+      const u = id.toUpperCase()
+      return u === 'SOX' || u === 'SOX_INDEX' || u === 'SOXINDEX' || u === 'PHLX_SOX'
+    },
+    defaultIndicator: 'sox_index'
+  },
   // === 中国相关指标 ===
   {
     id: 'cny_exchange',
@@ -389,7 +401,8 @@ export function useEtfData() {
         supabase.from('etf_info').select('*'),
         // 近 2 年足够看趋势，分页避免被 1000 行上限截断
         fetchPaged('china_indicators', 'date', new Date(Date.now() - 730 * 864e5).toISOString().slice(0, 10)),
-        supabase.from('fred_indicators').select('*').order('date', { ascending: false }),
+        // fred_indicators 已超 6 万行（含 SOX 等日频指标），同样分页取近 2 年
+        fetchPaged('fred_indicators', 'date', new Date(Date.now() - 730 * 864e5).toISOString().slice(0, 10)),
         supabase.from('market_indicators').select('*').order('date', { ascending: false }),
         supabase.from('stock_market_volume').select('*').order('date', { ascending: false }),
         supabase.from('fed_forecast').select('*').order('date', { ascending: false }),
@@ -405,10 +418,9 @@ export function useEtfData() {
       console.log('China indicators:', chinaData?.length)
       setChinaIndicators(chinaData || [])
 
-      const { data: fredData, error: fredErr } = fredResult
-      if (fredErr) throw fredErr
-      console.log('FRED indicators:', fredData)
-      console.log('FRED indicator_ids:', Array.from(new Set((fredData || []).map(d => d.indicator_id))))
+      const fredData = fredResult as any[]
+      console.log('FRED indicators:', fredData?.length)
+      console.log('FRED indicator_ids:', Array.from(new Set((fredData || []).map((d: any) => d.indicator_id))))
       setFredIndicators(fredData || [])
 
       const { data: marketData, error: marketErr } = marketResult

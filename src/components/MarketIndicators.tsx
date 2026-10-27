@@ -602,7 +602,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
  * 分组只决定展示位置，数据来源与取数逻辑不变（仍由 GLOBAL_CATEGORIES 匹配）。
  */
 const OVERSEAS_CATEGORY_IDS = [
-  'dollar_index', 'treasury_yield_curve', 'inflation_us', 'fear_index',
+  'dollar_index', 'treasury_yield_curve', 'inflation_us', 'fear_index', 'sox_index',
   'precious_metals', 'commodities', 'crypto',
 ]
 const CHINA_CATEGORY_IDS = [
