@@ -2165,6 +2165,390 @@
    "code": "002338.SZ",
    "industry": "quantum",
    "seg": "q-sensing"
+  },
+  {
+   "name": "大疆创新",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "航天飞鸿",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "腾盾科创",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "联合飞机",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "极飞科技",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "天域航通",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "沃飞长空",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "沃兰特航空",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "小鹏汇天",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "峰飞航空",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "时的科技",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "御风未来",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "零重力飞机工业",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "亿维特",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "aircraft-oem"
+  },
+  {
+   "name": "蓝箭航天",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "天兵科技",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "星际荣耀",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "星河动力",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "中科宇航",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "东方空间",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "深蓝航天",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "箭元科技",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "快舟航天",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "零壹空间",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "凌空天行",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "执宇航天",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "银河航天",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "长光卫星",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "微纳星空",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "垣信卫星",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "格思航天",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "国星宇航",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "天仪空间",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "时空道宇",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "九州云箭",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-system"
+  },
+  {
+   "name": "星移联信",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-payload"
+  },
+  {
+   "name": "京济通信",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-payload"
+  },
+  {
+   "name": "氦星光联",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-payload"
+  },
+  {
+   "name": "蓝星光域",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-payload"
+  },
+  {
+   "name": "星测未来",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-payload"
+  },
+  {
+   "name": "深空矩阵",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-payload"
+  },
+  {
+   "name": "东方天算",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-payload"
+  },
+  {
+   "name": "航天驭星",
+   "code": "—",
+   "industry": "aerospace",
+   "seg": "space-service"
+  },
+  {
+   "name": "本源量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "玻色量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "启科量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "中科富海",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-cryo"
+  },
+  {
+   "name": "华翊博奥",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "两仪万象",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "相干科技",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "量旋科技",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "未磁科技",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-sensing"
+  },
+  {
+   "name": "国光量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-security"
+  },
+  {
+   "name": "图灵量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "幺正量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "问天量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "中科酷原",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "太一量生",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "衡昇科技",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "国耀量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-sensing"
+  },
+  {
+   "name": "赋同量子",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-device"
+  },
+  {
+   "name": "中电信量子科技",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "PsiQuantum",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "Xanadu",
+   "code": "—",
+   "industry": "quantum",
+   "seg": "q-computing"
   }
  ],
  "tracked": [
