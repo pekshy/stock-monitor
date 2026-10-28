@@ -17,6 +17,7 @@ const INDUSTRY_LABEL: Record<string, string> = {
   robotics: '机器人',
   aerospace: '航空航天',
   quantum: '量子科技',
+  fusion: '核聚变',
 }
 
 /**

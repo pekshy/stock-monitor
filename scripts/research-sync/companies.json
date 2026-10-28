@@ -2555,6 +2555,360 @@
    "code": "—",
    "industry": "quantum",
    "seg": "q-material"
+  },
+  {
+   "name": "雪人集团",
+   "code": "002639.SZ",
+   "industry": "fusion",
+   "seg": "fusion-cryo"
+  },
+  {
+   "name": "中科清能",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-cryo"
+  },
+  {
+   "name": "皖仪科技",
+   "code": "688600.SH",
+   "industry": "fusion",
+   "seg": "fusion-cryo"
+  },
+  {
+   "name": "鲍斯股份",
+   "code": "300441.SZ",
+   "industry": "fusion",
+   "seg": "fusion-cryo"
+  },
+  {
+   "name": "汉钟精机",
+   "code": "002158.SZ",
+   "industry": "fusion",
+   "seg": "fusion-cryo"
+  },
+  {
+   "name": "上海电气",
+   "code": "601727.SH",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "中国核建",
+   "code": "601611.SH",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "国机重装",
+   "code": "601399.SH",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "泽塔聚变",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "东曦聚变",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "瀚海聚能",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "国脉聚能",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "贝塔聚变",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "聚合聚变",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "星能玄光",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "诺瓦聚变",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "新奥聚变",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "星环聚能",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "中国聚变能源",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "能量奇点",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "星核聚变",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "蔚蓝恒星",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "岩超聚能",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "聚变新能",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "东方电气",
+   "code": "600875.SH",
+   "industry": "fusion",
+   "seg": "fusion-device"
+  },
+  {
+   "name": "聚光科技",
+   "code": "300203.SZ",
+   "industry": "fusion",
+   "seg": "fusion-diagnostic"
+  },
+  {
+   "name": "天瑞仪器",
+   "code": "300165.SZ",
+   "industry": "fusion",
+   "seg": "fusion-diagnostic"
+  },
+  {
+   "name": "钢研纳克",
+   "code": "300797.SZ",
+   "industry": "fusion",
+   "seg": "fusion-diagnostic"
+  },
+  {
+   "name": "东方钽业",
+   "code": "000962.SZ",
+   "industry": "fusion",
+   "seg": "fusion-firstwall"
+  },
+  {
+   "name": "翔鹭钨业",
+   "code": "002842.SZ",
+   "industry": "fusion",
+   "seg": "fusion-firstwall"
+  },
+  {
+   "name": "章源钨业",
+   "code": "002378.SZ",
+   "industry": "fusion",
+   "seg": "fusion-firstwall"
+  },
+  {
+   "name": "久立特材",
+   "code": "002318.SZ",
+   "industry": "fusion",
+   "seg": "fusion-firstwall"
+  },
+  {
+   "name": "安泰科技",
+   "code": "000969.SZ",
+   "industry": "fusion",
+   "seg": "fusion-firstwall"
+  },
+  {
+   "name": "中钨高新",
+   "code": "000657.SZ",
+   "industry": "fusion",
+   "seg": "fusion-firstwall"
+  },
+  {
+   "name": "厦门钨业",
+   "code": "600549.SH",
+   "industry": "fusion",
+   "seg": "fusion-firstwall"
+  },
+  {
+   "name": "西部材料",
+   "code": "002149.SZ",
+   "industry": "fusion",
+   "seg": "fusion-firstwall"
+  },
+  {
+   "name": "国睿科技",
+   "code": "600562.SH",
+   "industry": "fusion",
+   "seg": "fusion-heating"
+  },
+  {
+   "name": "旭光电子",
+   "code": "600353.SH",
+   "industry": "fusion",
+   "seg": "fusion-heating"
+  },
+  {
+   "name": "束研聚创",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-heating"
+  },
+  {
+   "name": "翌曦科技",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-magnet"
+  },
+  {
+   "name": "汉缆股份",
+   "code": "002498.SZ",
+   "industry": "fusion",
+   "seg": "fusion-magnet"
+  },
+  {
+   "name": "宝胜股份",
+   "code": "600973.SH",
+   "industry": "fusion",
+   "seg": "fusion-magnet"
+  },
+  {
+   "name": "精达股份",
+   "code": "600577.SH",
+   "industry": "fusion",
+   "seg": "fusion-magnet"
+  },
+  {
+   "name": "上海超导",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-magnet"
+  },
+  {
+   "name": "超磁新能",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-magnet"
+  },
+  {
+   "name": "科华数据",
+   "code": "002335.SZ",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "思源电气",
+   "code": "002028.SZ",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "英杰电气",
+   "code": "300820.SZ",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "华驰动能",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "荣信汇科",
+   "code": "—",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "湘电股份",
+   "code": "600416.SH",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "华自科技",
+   "code": "300490.SZ",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "四方股份",
+   "code": "601126.SH",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "新风光",
+   "code": "688663.SH",
+   "industry": "fusion",
+   "seg": "fusion-power"
+  },
+  {
+   "name": "中核科技",
+   "code": "000777.SZ",
+   "industry": "fusion",
+   "seg": "fusion-vessel"
+  },
+  {
+   "name": "海陆重工",
+   "code": "002255.SZ",
+   "industry": "fusion",
+   "seg": "fusion-vessel"
+  },
+  {
+   "name": "纽威股份",
+   "code": "603699.SH",
+   "industry": "fusion",
+   "seg": "fusion-vessel"
+  },
+  {
+   "name": "江苏神通",
+   "code": "002438.SZ",
+   "industry": "fusion",
+   "seg": "fusion-vessel"
+  },
+  {
+   "name": "兰石重装",
+   "code": "603169.SH",
+   "industry": "fusion",
+   "seg": "fusion-vessel"
   }
  ],
  "tracked": [
