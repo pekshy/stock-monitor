@@ -1997,6 +1997,174 @@
    "code": "603131.SH",
    "industry": "aerospace",
    "seg": "space-system"
+  },
+  {
+   "name": "神州信息",
+   "code": "000555.SZ",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "国电南瑞",
+   "code": "600406.SH",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "亨通光电",
+   "code": "600487.SH",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "中天科技",
+   "code": "600522.SH",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "浙江东方",
+   "code": "600120.SH",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "国盾量子",
+   "code": "688027.SH",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "烽火通信",
+   "code": "600498.SH",
+   "industry": "quantum",
+   "seg": "q-communication"
+  },
+  {
+   "name": "科大国创",
+   "code": "300520.SZ",
+   "industry": "quantum",
+   "seg": "q-computing"
+  },
+  {
+   "name": "富瑞特装",
+   "code": "300228.SZ",
+   "industry": "quantum",
+   "seg": "q-cryo"
+  },
+  {
+   "name": "中泰股份",
+   "code": "300435.SZ",
+   "industry": "quantum",
+   "seg": "q-cryo"
+  },
+  {
+   "name": "冰轮环境",
+   "code": "000811.SZ",
+   "industry": "quantum",
+   "seg": "q-cryo"
+  },
+  {
+   "name": "光库科技",
+   "code": "300620.SZ",
+   "industry": "quantum",
+   "seg": "q-device"
+  },
+  {
+   "name": "腾景科技",
+   "code": "688195.SH",
+   "industry": "quantum",
+   "seg": "q-device"
+  },
+  {
+   "name": "福晶科技",
+   "code": "002222.SZ",
+   "industry": "quantum",
+   "seg": "q-device"
+  },
+  {
+   "name": "华工科技",
+   "code": "000988.SZ",
+   "industry": "quantum",
+   "seg": "q-device"
+  },
+  {
+   "name": "富士达",
+   "code": "835640.BJ",
+   "industry": "quantum",
+   "seg": "q-device"
+  },
+  {
+   "name": "永鼎股份",
+   "code": "600105.SH",
+   "industry": "quantum",
+   "seg": "q-material"
+  },
+  {
+   "name": "长飞光纤",
+   "code": "601869.SH",
+   "industry": "quantum",
+   "seg": "q-material"
+  },
+  {
+   "name": "格尔软件",
+   "code": "603232.SH",
+   "industry": "quantum",
+   "seg": "q-security"
+  },
+  {
+   "name": "吉大正元",
+   "code": "003029.SZ",
+   "industry": "quantum",
+   "seg": "q-security"
+  },
+  {
+   "name": "三未信安",
+   "code": "688489.SH",
+   "industry": "quantum",
+   "seg": "q-security"
+  },
+  {
+   "name": "数字认证",
+   "code": "300579.SZ",
+   "industry": "quantum",
+   "seg": "q-security"
+  },
+  {
+   "name": "电科网安",
+   "code": "002268.SZ",
+   "industry": "quantum",
+   "seg": "q-security"
+  },
+  {
+   "name": "安恒信息",
+   "code": "688023.SH",
+   "industry": "quantum",
+   "seg": "q-security"
+  },
+  {
+   "name": "国仪公司",
+   "code": "688828.SH",
+   "industry": "quantum",
+   "seg": "q-sensing"
+  },
+  {
+   "name": "优利德",
+   "code": "688628.SH",
+   "industry": "quantum",
+   "seg": "q-sensing"
+  },
+  {
+   "name": "普源精电",
+   "code": "688337.SH",
+   "industry": "quantum",
+   "seg": "q-sensing"
+  },
+  {
+   "name": "奥普光电",
+   "code": "002338.SZ",
+   "industry": "quantum",
+   "seg": "q-sensing"
   }
  ],
  "tracked": [
