@@ -214,12 +214,12 @@ const CompanyRow: React.FC<{
     <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
       <td className="px-5 py-3">
         <div className="flex items-center gap-1.5">
-          {onToggleWatch && (
+          {/* 未登录不显示关注星标：既看不到关注状态，也没有可点的入口 */}
+          {onToggleWatch && isAuthenticated && (
             <button
               onClick={onToggleWatch}
               disabled={watchBusy}
-              title={!isAuthenticated ? '登录后可重点关注（加入股票板块）'
-                : followed ? '取消重点关注（移出股票板块）' : '重点关注（加入股票板块）'}
+              title={followed ? '取消重点关注（移出股票板块）' : '重点关注（加入股票板块）'}
               className={`shrink-0 transition-colors disabled:opacity-40 ${
                 followed ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'
               }`}

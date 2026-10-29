@@ -132,11 +132,12 @@ const CompanyDetail: React.FC = () => {
           {listed ? '已上市' : (company.round || '未上市')}
         </span>
 
-        {listed && (
+        {/* 未登录不显示关注按钮：既看不到关注状态，也没有可点的入口 */}
+        {listed && isAuthenticated && (
           <button
             onClick={onToggleWatch}
             disabled={watchBusy || watchLoading}
-            title={!isAuthenticated ? '登录后可重点关注' : followed ? '从股票板块移除' : '加入股票板块重点跟踪'}
+            title={followed ? '从股票板块移除' : '加入股票板块重点跟踪'}
             className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
               followed
                 ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
