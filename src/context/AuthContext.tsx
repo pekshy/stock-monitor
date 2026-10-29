@@ -26,6 +26,10 @@ interface AuthContextValue {
   ready: boolean
   login: (password: string) => Promise<boolean>
   logout: () => void
+  /** 登录弹窗开关：任意页面需要登录才能做的操作（关注、写笔记等）可直接唤起 */
+  loginOpen: boolean
+  openLogin: () => void
+  closeLogin: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -33,6 +37,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [ready, setReady] = useState<boolean>(false)
+  const [loginOpen, setLoginOpen] = useState<boolean>(false)
 
   // 初始化: 读取 localStorage 中的会话标记
   useEffect(() => {
@@ -63,8 +68,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsAuthenticated(false)
   }, [])
 
+  const openLogin = useCallback(() => setLoginOpen(true), [])
+  const closeLogin = useCallback(() => setLoginOpen(false), [])
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, ready, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, ready, login, logout, loginOpen, openLogin, closeLogin }}>
       {children}
     </AuthContext.Provider>
   )

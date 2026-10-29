@@ -191,6 +191,7 @@ const CompanyRow: React.FC<{
   followed?: boolean; watchBusy?: boolean; onToggleWatch?: () => void
 }> = ({ c, canEdit, onDescSaved, followed, watchBusy, onToggleWatch }) => {
   const listed = !!c.listed
+  const { isAuthenticated } = useAuth()
   const [editing, setEditing] = useState(false)
   const [val, setVal] = useState('')
   const [busy, setBusy] = useState(false)
@@ -217,7 +218,8 @@ const CompanyRow: React.FC<{
             <button
               onClick={onToggleWatch}
               disabled={watchBusy}
-              title={followed ? '取消重点关注（移出股票板块）' : '重点关注（加入股票板块）'}
+              title={!isAuthenticated ? '登录后可重点关注（加入股票板块）'
+                : followed ? '取消重点关注（移出股票板块）' : '重点关注（加入股票板块）'}
               className={`shrink-0 transition-colors disabled:opacity-40 ${
                 followed ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'
               }`}

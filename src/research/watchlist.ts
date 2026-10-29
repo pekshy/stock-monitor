@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../utils/supabase'
+import { useAuth } from '../context/AuthContext'
 import { industryLabel, segNameOf } from './chain'
 import type { CompanyRecord } from './api'
 
@@ -109,11 +110,18 @@ export interface WatchState {
 }
 
 export function useWatchlist(): WatchState {
+  const { isAuthenticated, openLogin } = useAuth()
   const [codes, setCodes] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
 
   const reload = useCallback(async () => {
+    // 未登录不读 watchlist：这份列表属于站点主人，公开访客不该看到，也不该误以为「已关注」
+    if (!isAuthenticated) {
+      setCodes(new Set())
+      setLoading(false)
+      return
+    }
     try {
       const { data, error } = await supabase.from('watchlist').select('stock_code')
       if (error) throw error
@@ -123,11 +131,16 @@ export function useWatchlist(): WatchState {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [isAuthenticated])
 
   useEffect(() => { reload() }, [reload])
 
   const toggle = useCallback(async (c: CompanyRecord) => {
+    // 关注关系是全站共享的私有数据：未登录直接拦在读之外，并唤起登录框引导
+    if (!isAuthenticated) {
+      openLogin()
+      return { error: '请先登录后再关注' }
+    }
     const code = (c.code ?? '').trim()
     if (!code || code === '—' || code === '-') {
       return { error: '该企业没有股票代码，无法加入股票板块' }
@@ -167,7 +180,7 @@ export function useWatchlist(): WatchState {
     } finally {
       setBusy(false)
     }
-  }, [codes])
+  }, [codes, isAuthenticated, openLogin])
 
   return { codes, loading, busy, toggle, reload }
 }

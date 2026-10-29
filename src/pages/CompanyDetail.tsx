@@ -136,7 +136,7 @@ const CompanyDetail: React.FC = () => {
           <button
             onClick={onToggleWatch}
             disabled={watchBusy || watchLoading}
-            title={followed ? '从股票板块移除' : '加入股票板块重点跟踪'}
+            title={!isAuthenticated ? '登录后可重点关注' : followed ? '从股票板块移除' : '加入股票板块重点跟踪'}
             className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
               followed
                 ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'

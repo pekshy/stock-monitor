@@ -40,8 +40,9 @@ function useActiveSection(): NavKey {
 }
 
 const Header: React.FC = () => {
-  const { isAuthenticated, login, logout } = useAuth()
-  const [showLogin, setShowLogin] = useState(false)
+  const { isAuthenticated, login, logout, loginOpen, openLogin, closeLogin } = useAuth()
+  const showLogin = loginOpen
+  const setShowLogin = (v: boolean) => (v ? openLogin() : closeLogin())
   const [pwd, setPwd] = useState('')
   const [showPwd, setShowPwd] = useState(false)
   const [err, setErr] = useState('')
