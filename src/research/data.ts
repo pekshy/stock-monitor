@@ -1832,7 +1832,8 @@ export const TREE: Record<string, TreeValue> = {
             "犀里光电",
             "芯速联",
             "慧芯激光",
-            "芯光界"],
+            "芯光界",
+            "澜昆微"],
       "capital": {
         "primary": 70,
         "secondary": 92,
