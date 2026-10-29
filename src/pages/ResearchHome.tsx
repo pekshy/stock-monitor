@@ -122,11 +122,13 @@ const ResearchHome: React.FC = () => {
 
   // 展开状态（纯视觉）与选中状态（驱动右侧内容）分离：
   // 再点同一行业/环节只收起子列表，选中范围保持不变
-  // 默认三个行业都展开一层（各自列出环节，不改右侧范围）；
-  // 带 ind 参数时只展开该行业，例如从详情页跳回时聚焦到所在行业
+  // 默认只展开当前选中的行业，没有选中时展开第一个行业（保持首次进入有内容可看）；
+  // 其余行业收起，六个行业能在一屏内放下，需要时手动点开
   const [expandedInds, setExpandedInds] = useState<string[]>(() => {
     const only = searchParams.get('ind')
-    return only && INDUSTRY_DATA[only] ? [only] : Object.keys(INDUSTRY_DATA)
+    if (only && INDUSTRY_DATA[only]) return [only]
+    const first = Object.keys(INDUSTRY_DATA)[0]
+    return first ? [first] : []
   })
   const [expandedSeg, setExpandedSeg] = useState<string | null>(() => searchParams.get('seg'))
   const [expandedStage, setExpandedStage] = useState<string | null>(() => searchParams.get('stage'))
@@ -136,8 +138,8 @@ const ResearchHome: React.FC = () => {
     // 点击行业：右侧始终切换到该行业范围（清 seg/stage/sub）；再次点击同一行业仅切换环节列表展开/收起
     if (!id) { patchParams({ ind: null, seg: null, stage: null, sub: null }); setExpandedInds([]); setExpandedSeg(null); setExpandedStage(null); return }
     patchParams({ ind: id, seg: null, stage: null, sub: null })
-    // 多个行业可同时展开，所以只翻转当前这一个
-    setExpandedInds(e => (e.includes(id) ? e.filter(x => x !== id) : [...e, id]))
+    // 手风琴：同时只展开一个行业（点已展开的那个则全部收起），保证六个行业始终一屏可见
+    setExpandedInds(e => (e.length === 1 && e[0] === id ? [] : [id]))
     setExpandedSeg(null)
     setExpandedStage(null)
   }
