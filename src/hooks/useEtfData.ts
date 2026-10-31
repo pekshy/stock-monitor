@@ -415,7 +415,11 @@ export function useEtfData() {
         fetchPaged('china_indicators', 'date', new Date(Date.now() - 730 * 864e5).toISOString().slice(0, 10)),
         // fred_indicators 已超 6 万行（含 SOX 等日频指标），同样分页取近 2 年
         fetchPaged('fred_indicators', 'date', new Date(Date.now() - 730 * 864e5).toISOString().slice(0, 10)),
-        supabase.from('market_indicators').select('*').order('date', { ascending: false }),
+        // etf_* 是宽基资金流指标（2500+ 行），由 NationalTeam 单独读取；
+        // 这里排除掉，否则 1000 行上限会把比特币/黄金等老指标挤掉
+        supabase.from('market_indicators').select('*')
+          .not('indicator_id', 'like', 'etf_%')
+          .order('date', { ascending: false }),
         supabase.from('stock_market_volume').select('*').order('date', { ascending: false }),
         supabase.from('fed_forecast').select('*').order('date', { ascending: false }),
         supabase.from('etf_momentum_signals').select('*').order('trade_date', { ascending: false })

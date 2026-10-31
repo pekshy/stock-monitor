@@ -1,0 +1,38 @@
+name: etf-flow-sync
+
+# 宽基 ETF 资金流同步：抓沪深交易所每日份额，算净申购，写 etf_flow（明细）+ market_indicators（指数加总）。
+# 需要在仓库 Secrets 配置：SUPABASE_URL、SUPABASE_SERVICE_KEY
+#
+# 时点选择：上交所 T 日盘后更新，深交所 T+1 上午更新。
+# 若在 T 日晚上跑，会出现「沪市 T 日 + 深市 T-1 日」混日，所以统一放在 T+1 早上（UTC 00:30 = 北京 08:30）。
+on:
+  schedule:
+    - cron: '30 0 * * 2-6'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check required secrets
+        env:
+          HAS_URL: ${{ secrets.SUPABASE_URL != '' }}
+          HAS_KEY: ${{ secrets.SUPABASE_SERVICE_KEY != '' }}
+        run: |
+          if [ "$HAS_URL" != "true" ] || [ "$HAS_KEY" != "true" ]; then
+            echo "::error::缺少 SUPABASE_URL / SUPABASE_SERVICE_KEY，无法写库。"
+            exit 1
+          fi
+
+      - name: Sync ETF share & net subscription
+        run: python scripts/macro-sync/fetch_etf_flow.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}

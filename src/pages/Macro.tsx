@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { MarketIndicators } from '../components/MarketIndicators'
+import { NationalTeam } from '../components/NationalTeam'
 import { useEtfContext } from '../context/EtfContext'
 
 /**
@@ -20,6 +21,7 @@ const Macro: React.FC = () => {
         chinaIndicatorSeries={chinaIndicatorSeries}
         fearGreedSeries={fearGreedSeries}
       />
+      <NationalTeam />
     </div>
   )
 }
