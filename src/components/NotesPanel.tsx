@@ -149,7 +149,7 @@ const NotesPanel: React.FC<{
     return () => clearTimeout(t)
   }, [msg])
 
-  /** 新增态关联企业候选：按关键词模糊匹配（大小写不敏感），排除已选，最多 8 条 */
+  /** 关联企业候选：按关键词模糊匹配（大小写不敏感），排除已选，最多 8 条 */
   const coMatches = useMemo(() => {
     const kw = coQ.trim().toLowerCase()
     if (!kw || !companyOptions?.length) return []
@@ -157,6 +157,14 @@ const NotesPanel: React.FC<{
       .filter(name => !v.companies.includes(name) && name.toLowerCase().includes(kw))
       .slice(0, 8)
   }, [coQ, companyOptions, v.companies])
+
+  /** 追加一家关联企业：池内选择与自定义输入共用，去重去空 */
+  const addCompany = (name: string) => {
+    const val = name.trim().replace(/[,，]$/, '').trim()
+    if (!val) return
+    setV(prev => (prev.companies.includes(val) ? prev : { ...prev, companies: [...prev.companies, val] }))
+    setCoQ('')
+  }
 
   const shown = useMemo(() => {
     const kw = q.trim()
@@ -179,7 +187,7 @@ const NotesPanel: React.FC<{
       body: n.body || '',
       companies: parseList(n.companies), tags: parseList(n.tags),
     })
-    setFile(null); setErr(''); setMsg('')
+    setFile(null); setErr(''); setMsg(''); setCoQ('')
     setEditId(n.id); setMode('edit')
   }
 
@@ -315,6 +323,21 @@ const NotesPanel: React.FC<{
             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 resize-y"
           />
 
+          {mode === 'edit' && (
+            <div className="mt-2">
+              <label className="block text-xs text-gray-500 mb-1">
+                标题（≤{TITLE_MAX} 字，留空则按正文首行自动生成）
+              </label>
+              <input
+                value={v.title}
+                onChange={e => setV({ ...v, title: e.target.value })}
+                maxLength={TITLE_MAX}
+                placeholder={autoTitle(v.body) || '笔记标题'}
+                className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+          )}
+
           <div className="mt-2 flex items-center gap-2 flex-wrap">
             <input
               ref={fileRef}
@@ -333,11 +356,11 @@ const NotesPanel: React.FC<{
             </span>
           </div>
 
-          {/* 新增态：关联企业用模糊搜索添加（不选则按产业链节点归属） */}
-          {mode === 'new' && !!companyOptions?.length && (
+          {/* 关联企业：搜索选择（新增/编辑通用），池外名称可按回车直接添加 */}
+          {!!companyOptions?.length && (
             <div className="mt-2">
               <label className="block text-xs text-gray-500 mb-1">
-                关联企业（输入名称模糊搜索，可关联多家）
+                关联企业（搜索选择，可关联多家；池外名称直接回车添加）
               </label>
               {v.companies.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-1.5">
@@ -359,6 +382,12 @@ const NotesPanel: React.FC<{
                 <input
                   value={coQ}
                   onChange={e => setCoQ(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ',' || e.key === '，') {
+                      e.preventDefault()
+                      addCompany(coQ)
+                    }
+                  }}
                   placeholder="输入企业名称搜索，如「华创」"
                   className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400"
                 />
@@ -368,10 +397,7 @@ const NotesPanel: React.FC<{
                       <button
                         key={name}
                         type="button"
-                        onClick={() => {
-                          setV(v => ({ ...v, companies: [...v.companies, name] }))
-                          setCoQ('')
-                        }}
+                        onClick={() => addCompany(name)}
                         className="w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-blue-50"
                       >
                         {name}
@@ -379,24 +405,17 @@ const NotesPanel: React.FC<{
                     ))}
                   </div>
                 )}
+                {coQ.trim() && coMatches.length === 0 && (
+                  <p className="mt-1 text-[11px] text-gray-400">
+                    池内无匹配，按回车把「{coQ.trim()}」直接关联
+                  </p>
+                )}
               </div>
             </div>
           )}
 
           {mode === 'edit' && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
-              <div className="col-span-2 sm:col-span-3">
-                <label className="block text-xs text-gray-500 mb-1">
-                  标题（≤{TITLE_MAX} 字，留空则按正文首行自动生成）
-                </label>
-                <input
-                  value={v.title}
-                  onChange={e => setV({ ...v, title: e.target.value })}
-                  maxLength={TITLE_MAX}
-                  placeholder={autoTitle(v.body) || '笔记标题'}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100"
-                />
-              </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">内容日期（YYYY-MM-DD）</label>
                 <input
@@ -416,15 +435,7 @@ const NotesPanel: React.FC<{
                   {NOTE_KINDS.map(k => <option key={k} value={k}>{k}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">关联企业（逗号分隔）</label>
-                <input
-                  value={v.companies.join(',')}
-                  onChange={e => setV({ ...v, companies: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100"
-                />
-              </div>
-              <div className="sm:col-span-3">
+              <div className="col-span-2 sm:col-span-3">
                 <label className="block text-xs text-gray-500 mb-1">标签（逗号分隔）</label>
                 <input
                   value={v.tags.join(',')}
