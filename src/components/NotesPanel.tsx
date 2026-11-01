@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from 'react'
 import { Plus, Pencil, Trash2, Paperclip, Search, X, CloudOff, Lock } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { fmtDate } from '../research/format'
-import { NOTE_KINDS, autoTitle, todayISO, validateNote, type NoteFormValues } from '../research/notes'
+import { NOTE_KINDS, TITLE_MAX, autoTitle, todayISO, validateNote, type NoteFormValues } from '../research/notes'
 import {
   insertNote, updateNote, removeNote, uploadNoteFile, isTextFile, parseList, type CloudNote,
 } from '../research/api'
@@ -295,7 +295,7 @@ const NotesPanel: React.FC<{
           <div className="flex items-center gap-2 mb-2">
             <b className="text-sm text-gray-800">{mode === 'new' ? '新增研究笔记' : '编辑研究笔记'}</b>
             <span className="text-xs text-gray-400">
-              {mode === 'new' ? '写正文或传原件都行，归属自动记，不用手填' : '可调整日期、类型与归属'}
+              {mode === 'new' ? '写正文或传原件都行，归属自动记，不用手填' : '可改标题、日期、类型与归属'}
             </span>
             <button onClick={cancel} className="ml-auto p-1 text-gray-400 hover:text-gray-600" title="取消">
               <X className="h-4 w-4" />
@@ -385,6 +385,18 @@ const NotesPanel: React.FC<{
 
           {mode === 'edit' && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+              <div className="col-span-2 sm:col-span-3">
+                <label className="block text-xs text-gray-500 mb-1">
+                  标题（≤{TITLE_MAX} 字，留空则按正文首行自动生成）
+                </label>
+                <input
+                  value={v.title}
+                  onChange={e => setV({ ...v, title: e.target.value })}
+                  maxLength={TITLE_MAX}
+                  placeholder={autoTitle(v.body) || '笔记标题'}
+                  className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">内容日期（YYYY-MM-DD）</label>
                 <input

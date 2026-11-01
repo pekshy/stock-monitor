@@ -39,12 +39,14 @@ export interface NoteFormValues {
   tags: string[]
 }
 
-/** 新增态只校验「正文或原件至少一项」；编辑态才校验标题/日期/类型（口径同原工作台） */
+/**
+ * 标题留空时保存前会用正文首行（或原件文件名）自动补，因此只需保证
+ * 「标题 / 正文 / 原件」三者不全空；编辑态额外校验日期与类型。
+ */
 export function validateNote(v: NoteFormValues, isNew: boolean, hasFile: boolean): string[] {
   const bad: string[] = []
-  if (isNew && !v.body.trim() && !hasFile) bad.push('正文与原件至少要有一项')
+  if (!v.title.trim() && !v.body.trim() && !hasFile) bad.push('标题与正文至少要有一项')
   if (!isNew) {
-    if (!v.title.trim()) bad.push('标题不能为空')
     const date = v.date.trim()
     if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) bad.push('内容日期格式需为 YYYY-MM-DD')
     if (!NOTE_KINDS.includes(v.kind as NoteKind)) bad.push(`类型必须是 ${NOTE_KINDS.join('/')} 之一`)
