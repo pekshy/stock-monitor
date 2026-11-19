@@ -26,6 +26,7 @@ dist-ssr
 # Environment variables
 .env
 .env.local
+.env.sync
 .env.*.local
 
 # research-sync 本地测试产物（云端同步不需要本地库）
