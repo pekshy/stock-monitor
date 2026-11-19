@@ -41,12 +41,25 @@ export interface CloudCompanyRow {
 
 // ---------- 通用取数（失败静默降级） ----------
 
-async function fetchTable<T>(table: string, order: string, limit = 2000): Promise<T[] | null> {
+/**
+ * 分页拉全表。
+ * Supabase 服务端有单次返回行数上限（默认 1000），单纯 .limit(2000) 仍会被截到 1000，
+ * 企业池已超千行，超出部分（按排序落在末尾的公司）会静默丢失，因此这里按 range 翻页取。
+ */
+async function fetchTable<T>(table: string, order: string, limit = 5000): Promise<T[] | null> {
   try {
-    const { data, error } = await supabase
-      .from(table).select('*').order(order, { ascending: false }).limit(limit)
-    if (error) throw error
-    return (data ?? []) as T[]
+    const pageSize = 1000
+    const out: T[] = []
+    for (let from = 0; from < limit; from += pageSize) {
+      const { data, error } = await supabase
+        .from(table).select('*').order(order, { ascending: false })
+        .range(from, from + pageSize - 1)
+      if (error) throw error
+      const rows = (data ?? []) as T[]
+      out.push(...rows)
+      if (rows.length < pageSize) break
+    }
+    return out
   } catch {
     return null  // 云端不可达 / 表不存在 / RLS 拦截
   }
