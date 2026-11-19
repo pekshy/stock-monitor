@@ -633,19 +633,19 @@ const TradePrivateContent: React.FC = memo(() => {
 
       {/* 笔记模块 */}
       <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900 flex flex-wrap items-center gap-x-2 gap-y-0.5">
             <MessageSquare className="h-5 w-5 text-blue-500" />
             笔记
-            <span className="text-sm font-normal text-gray-500">
+            <span className="text-xs md:text-sm font-normal text-gray-500">
               （ETF {etfNotes.length} 条 · 股票 {stockNotes.length} 条 · 市场观点 {marketViews.length} 条）
             </span>
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setNoteType('etf')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                className={`px-2.5 md:px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                   noteType === 'etf'
                     ? 'bg-white text-purple-600 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
@@ -655,7 +655,7 @@ const TradePrivateContent: React.FC = memo(() => {
               </button>
               <button
                 onClick={() => setNoteType('stock')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                className={`px-2.5 md:px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                   noteType === 'stock'
                     ? 'bg-white text-green-600 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
@@ -665,7 +665,7 @@ const TradePrivateContent: React.FC = memo(() => {
               </button>
               <button
                 onClick={() => setNoteType('market')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                className={`px-2.5 md:px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                   noteType === 'market'
                     ? 'bg-white text-orange-600 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
@@ -678,7 +678,7 @@ const TradePrivateContent: React.FC = memo(() => {
               <button
                 type="button"
                 onClick={handleOpenAddNoteModal}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
+                className={`px-2.5 md:px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
                   noteType === 'etf'
                     ? 'bg-blue-500 text-white hover:bg-blue-600'
                     : 'bg-green-500 text-white hover:bg-green-600'
@@ -707,7 +707,7 @@ const TradePrivateContent: React.FC = memo(() => {
               {triggeredNotes.map(t => (
                 <div key={t.id} className="bg-white rounded-lg p-3">
                   <div
-                    className="flex items-center justify-between cursor-pointer"
+                    className="flex flex-wrap items-start justify-between gap-2 cursor-pointer"
                     onClick={() => setExpandedTrigger(expandedTrigger === t.id ? null : t.id)}
                   >
                     <div className="flex items-center gap-2 flex-wrap">
@@ -722,23 +722,23 @@ const TradePrivateContent: React.FC = memo(() => {
                         现价 <span className={t.action === 'buy' ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>{t.currentPrice.toFixed(3)}</span>
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0 ml-auto">
                       <button
                         onClick={(e) => { e.stopPropagation(); navigate(t.navigatePath) }}
-                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline whitespace-nowrap"
                       >
                         查看详情
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); dismissTrigger(t.id) }}
-                        className="text-xs px-2 py-0.5 rounded bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
+                        className="text-xs px-2 py-0.5 rounded bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 whitespace-nowrap"
                         title="标记为已交易，不再提醒"
                       >
                         已交易
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); dismissTrigger(t.id) }}
-                        className="text-xs px-2 py-0.5 rounded bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                        className="text-xs px-2 py-0.5 rounded bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200 whitespace-nowrap"
                         title="忽略此提醒"
                       >
                         忽略

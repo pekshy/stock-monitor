@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Activity, ArrowDownRight, ArrowUpRight, BrainCircuit, Briefcase, Database, Wallet } from 'lucide-react'
 import { supabase } from '../utils/supabase'
+import { useNarrow } from '../hooks/useNarrow'
 
 /* ---------- 类型：与线上 paper_* 表结构一致 ---------- */
 interface PaperAccount {
@@ -99,6 +100,12 @@ const displayMandate = (m: string | null | undefined) => {
   return (kept.length ? kept : parts).join('；')
 }
 
+/** pe_percent 多数是小数（0.08→8%），个别记录写入时已乘 100，>1 视为已是百分数 */
+const pePct = (v: number | null | undefined) => {
+  if (v === null || v === undefined) return null
+  return (v <= 1 ? v * 100 : v).toFixed(0)
+}
+
 const ACTION_STYLE: Record<string, string> = {
   buy: 'bg-red-50 text-red-600',
   sell: 'bg-green-50 text-green-600',
@@ -120,6 +127,9 @@ const BENCHMARK_LABEL = `${BENCHMARK.name} ${BENCHMARK.code}`
 
 /** 净值曲线：上 2/3 策略与基准，下 1/3 回撤 */
 const NavChart: React.FC<{ rows: PaperNav[]; benchmarkName: string }> = ({ rows, benchmarkName }) => {
+  // 窄屏不能沿用 1000 宽的 viewBox：整图等比缩到 390 后 10px 字只剩 3.9px，等于不可读。
+  // 这里按视口换一套几何量，横轴刻度数量与字号同步收敛。
+  const narrow = useNarrow()
   if (rows.length < 2) {
     return (
       <div className="h-44 flex flex-col items-center justify-center text-sm text-gray-400 gap-1">
@@ -128,8 +138,14 @@ const NavChart: React.FC<{ rows: PaperNav[]; benchmarkName: string }> = ({ rows,
       </div>
     )
   }
-  const W = 1000, H = 250, L = 48, R = 12, T = 14
-  const navH = 160
+  const W = narrow ? 380 : 1000
+  const H = narrow ? 236 : 250
+  const L = narrow ? 34 : 48
+  const R = narrow ? 8 : 12
+  const T = narrow ? 12 : 14
+  const navH = narrow ? 150 : 160
+  const FS = narrow ? 9 : 10
+  const FS_S = narrow ? 8 : 9
   const ddTop = T + navH + 22
   const ddH = H - ddTop - 12
 
@@ -164,7 +180,7 @@ const NavChart: React.FC<{ rows: PaperNav[]; benchmarkName: string }> = ({ rows,
         return (
           <g key={t}>
             <line x1={L} y1={y(v)} x2={W - R} y2={y(v)} stroke="#f1f5f9" />
-            <text x={L - 6} y={y(v) + 3} textAnchor="end" fontSize="10" fill="#9ca3af">{v.toFixed(3)}</text>
+            <text x={L - 5} y={y(v) + 3} textAnchor="end" fontSize={FS} fill="#9ca3af">{v.toFixed(3)}</text>
           </g>
         )
       })}
@@ -172,32 +188,32 @@ const NavChart: React.FC<{ rows: PaperNav[]; benchmarkName: string }> = ({ rows,
       {hasBm && <path d={line(bms)} fill="none" stroke="#cbd5e1" strokeWidth={1.4} strokeDasharray="4 3" />}
       <path d={line(navs)} fill="none" stroke="#2563eb" strokeWidth={1.8} />
       <circle cx={x(rows.length - 1)} cy={y(last)} r={3} fill="#2563eb" />
-      <text x={x(rows.length - 1) - 6} y={y(last) - 8} textAnchor="end" fontSize="10" fill="#2563eb" fontWeight={600}>
+      <text x={x(rows.length - 1) - 4} y={y(last) - 7} textAnchor="end" fontSize={FS} fill="#2563eb" fontWeight={600}>
         {last.toFixed(4)}
       </text>
 
-      <text x={L - 6} y={ddTop + 3} textAnchor="end" fontSize="9" fill="#f87171">回撤</text>
+      <text x={L - 5} y={ddTop + 3} textAnchor="end" fontSize={FS_S} fill="#f87171">回撤</text>
       <path d={ddArea} fill="#fecaca" opacity={0.55} />
       <path d={dds.map((v, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${dy(v).toFixed(1)}`).join(' ')}
         fill="none" stroke="#ef4444" strokeWidth={1} opacity={0.8} />
       <line x1={L} y1={ddTop} x2={W - R} y2={ddTop} stroke="#e5e7eb" />
-      <text x={W - R} y={ddTop + 11} textAnchor="end" fontSize="9" fill="#ef4444">
+      <text x={W - R} y={ddTop + 11} textAnchor="end" fontSize={FS_S} fill="#ef4444">
         最深 {(ddMin * 100).toFixed(2)}%
       </text>
 
       {ticks.map((i, k) => (
-        <text key={i} x={x(i)} y={H - 2} textAnchor={k === 0 ? 'start' : k === 2 ? 'end' : 'middle'} fontSize="10" fill="#9ca3af">
+        <text key={i} x={x(i)} y={H - 2} textAnchor={k === 0 ? 'start' : k === 2 ? 'end' : 'middle'} fontSize={FS} fill="#9ca3af">
           {rows[i].date.slice(5)}
         </text>
       ))}
 
       <g>
         <line x1={L} y1={T - 4} x2={L + 16} y2={T - 4} stroke="#2563eb" strokeWidth={2} />
-        <text x={L + 20} y={T - 1} fontSize="10" fill="#6b7280">策略净值</text>
+        <text x={L + 20} y={T - 1} fontSize={FS} fill="#6b7280">策略净值</text>
         {hasBm && (
           <>
             <line x1={L + 76} y1={T - 4} x2={L + 92} y2={T - 4} stroke="#cbd5e1" strokeWidth={2} strokeDasharray="4 3" />
-            <text x={L + 96} y={T - 1} fontSize="10" fill="#6b7280">基准 · {benchmarkName}</text>
+            <text x={L + 96} y={T - 1} fontSize={FS} fill="#6b7280">基准 · {benchmarkName}</text>
           </>
         )}
       </g>
@@ -208,9 +224,9 @@ const NavChart: React.FC<{ rows: PaperNav[]; benchmarkName: string }> = ({ rows,
 const StatCard: React.FC<{ label: string; value: string; tone?: 'up' | 'down' | 'neutral'; hint?: string }> = ({ label, value, tone = 'neutral', hint }) => {
   const color = tone === 'up' ? 'text-red-600' : tone === 'down' ? 'text-green-600' : 'text-gray-900'
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 md:p-4">
       <div className="text-xs text-gray-500">{label}</div>
-      <div className={`text-xl font-bold mt-1 ${color}`}>{value}</div>
+      <div className={`text-lg md:text-xl font-bold mt-1 ${color}`}>{value}</div>
       {hint && <div className="text-[11px] text-gray-400 mt-0.5 truncate">{hint}</div>}
     </div>
   )
@@ -378,10 +394,10 @@ const PaperTrading: React.FC = () => {
   const notStarted = !!(account?.inception && account.inception > new Date().toISOString().slice(0, 10))
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {/* 账户头部 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-5">
+        <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-start md:justify-between md:gap-3">
           <div className="min-w-0">
             <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
               <Briefcase className="h-5 w-5 text-blue-600" />
@@ -399,7 +415,7 @@ const PaperTrading: React.FC = () => {
             </h1>
             <p className="text-sm text-gray-500 mt-1 leading-relaxed">{displayMandate(account?.mandate)}</p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 shrink-0">
             {accounts.length > 1 && (
               <select
                 value={activeId ?? ''}
@@ -437,7 +453,7 @@ const PaperTrading: React.FC = () => {
       )}
 
       {/* 净值曲线 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-5">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2">
           <h2 className="text-sm font-bold text-gray-800 flex items-center gap-1.5 shrink-0 whitespace-nowrap">
             <Activity className="h-4 w-4 text-blue-600" />净值与回撤
@@ -458,8 +474,8 @@ const PaperTrading: React.FC = () => {
       </div>
 
       {/* 当前持仓 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <div className="flex items-center justify-between mb-3">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 mb-3 md:items-center">
           <h2 className="text-sm font-bold text-gray-800">
             持仓 <span className="text-xs font-normal text-gray-400">{stockPositions.length} 只 · {stats?.latestDate}</span>
           </h2>
@@ -472,7 +488,8 @@ const PaperTrading: React.FC = () => {
         {stockPositions.length === 0 ? (
           <div className="text-sm text-gray-400 py-4 text-center">空仓（均为现金）</div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-gray-500 border-b border-gray-100">
@@ -512,7 +529,7 @@ const PaperTrading: React.FC = () => {
                     <td className="text-right text-gray-500 text-xs">
                       {p.pe === null || p.pe === undefined ? '--' : p.pe.toFixed(1)}
                       {p.pe_percent !== null && p.pe_percent !== undefined && (
-                        <span className="text-gray-400 ml-1">({(p.pe_percent * 100).toFixed(0)}%)</span>
+                        <span className="text-gray-400 ml-1">({pePct(p.pe_percent)}%)</span>
                       )}
                     </td>
                     <td className="text-center">
@@ -527,20 +544,70 @@ const PaperTrading: React.FC = () => {
               </tbody>
             </table>
           </div>
+            {/* 移动端卡片：九列在 390 宽下每列不足 40px，必然折行重叠 */}
+            <div className="md:hidden space-y-3">
+              {stockPositions.map(p => {
+                const pnl = p.pnl
+                return (
+                  <div key={p.code} className="rounded-xl border border-gray-100 p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-[10px] leading-4 px-1 rounded shrink-0 ${
+                            kindOf(p.code) === 'etf' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-700'
+                          }`}>
+                            {kindOf(p.code) === 'etf' ? 'ETF' : '股票'}
+                          </span>
+                          <Link to={detailPath(p.code)} className="text-[15px] font-medium text-gray-800 truncate">
+                            {p.name || p.code}
+                          </Link>
+                        </div>
+                        <div className="text-[11px] text-gray-400 mt-0.5">{p.code}</div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className={`text-[15px] font-semibold ${(pnl ?? 0) >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {pnl === null || pnl === undefined ? '--' : signedPct(pnl)}
+                        </div>
+                        <div className="text-[10px] text-gray-400 mt-0.5">浮盈</div>
+                      </div>
+                    </div>
+                    <div className="mt-2 grid grid-cols-3 gap-y-1 text-[11px] text-gray-500">
+                      <span>市值 <span className="text-gray-800 font-medium">{money(p.market_value)}</span></span>
+                      <span className="text-center">权重 {pct(p.weight, 1)}</span>
+                      <span className="text-right">{(p.shares ?? 0).toLocaleString()} 股</span>
+                      <span>成本 {p.avg_cost?.toFixed(priceDigits(p.code)) ?? '--'}</span>
+                      <span className="text-center">收盘 {p.close?.toFixed(priceDigits(p.code)) ?? '--'}</span>
+                      <span className="text-right">
+                        PE {p.pe === null || p.pe === undefined ? '--' : p.pe.toFixed(1)}
+                        {pePct(p.pe_percent) !== null && ` (${pePct(p.pe_percent)}%)`}
+                      </span>
+                    </div>
+                    {p.action && (
+                      <div className="mt-2">
+                        <span className={`text-[11px] px-1.5 py-0.5 rounded ${ACTION_STYLE[p.action] || 'bg-gray-100 text-gray-600'}`}>
+                          {p.action}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </>
         )}
       </div>
 
       {/* 当日决策：mandate 是「日终决策 → 次日开盘成交」，所以决策本身值得单独看 */}
       {decisions.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-5">
           <h2 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1.5">
             <BrainCircuit className="h-4 w-4 text-violet-600" />
             决策记录 <span className="text-xs font-normal text-gray-400">{stats?.latestDate}</span>
           </h2>
           <ul className="space-y-2">
             {decisions.map(p => (
-              <li key={p.code} className="text-sm flex gap-2">
-                <span className="text-gray-700 font-medium shrink-0 w-24 truncate">{p.name || p.code}</span>
+              <li key={p.code} className="text-sm flex flex-col gap-0.5 md:flex-row md:gap-2">
+                <span className="text-gray-700 font-medium shrink-0 md:w-24 truncate">{p.name || p.code}</span>
                 <span className="text-gray-600 leading-relaxed">{p.decision}</span>
               </li>
             ))}
@@ -549,14 +616,15 @@ const PaperTrading: React.FC = () => {
       )}
 
       {/* 成交记录 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-5">
         <h2 className="text-sm font-bold text-gray-800 mb-3">
           成交记录 <span className="text-xs font-normal text-gray-400">最近 {trades.length} 笔</span>
         </h2>
         {trades.length === 0 ? (
           <div className="text-sm text-gray-400 py-4 text-center">尚无成交</div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-gray-500 border-b border-gray-100">
@@ -604,6 +672,42 @@ const PaperTrading: React.FC = () => {
               </tbody>
             </table>
           </div>
+            {/* 移动端卡片：成交记录九列，价格/数量/金额在窄屏必然挤成一团 */}
+            <div className="md:hidden space-y-3">
+              {trades.map(t => {
+                const isBuy = /buy|买/i.test(t.side)
+                return (
+                  <div key={t.id} className="rounded-xl border border-gray-100 p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className={`inline-flex items-center gap-0.5 text-xs font-medium shrink-0 ${isBuy ? 'text-red-600' : 'text-green-600'}`}>
+                          {isBuy ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                          {isBuy ? '买入' : '卖出'}
+                        </span>
+                        <span className="text-[11px] text-gray-400 shrink-0">{t.trade_date}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-800 shrink-0">{money(t.amount)}</span>
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-1.5 min-w-0">
+                      <span className={`text-[10px] leading-4 px-1 rounded shrink-0 ${
+                        kindOf(t.code) === 'etf' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-700'
+                      }`}>
+                        {kindOf(t.code) === 'etf' ? 'ETF' : '股票'}
+                      </span>
+                      <span className="text-[13px] text-gray-800 truncate">{t.name || t.code}</span>
+                      <span className="text-[11px] text-gray-400 shrink-0">{t.code}</span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-500">
+                      <span>{t.price?.toFixed(priceDigits(t.code)) ?? '--'} × {(t.shares ?? 0).toLocaleString()} 股</span>
+                      <span>费后现金 {money(t.cash_after)}</span>
+                      {t.signal_date && <span>信号日 {t.signal_date}</span>}
+                    </div>
+                    {t.reason && <p className="mt-1.5 text-[11px] text-gray-500 leading-relaxed">{t.reason}</p>}
+                  </div>
+                )
+              })}
+            </div>
+          </>
         )}
       </div>
     </div>

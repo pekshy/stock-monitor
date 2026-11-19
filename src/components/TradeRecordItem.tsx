@@ -116,15 +116,15 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
   const returnInfo = getReturnDisplay()
 
   return (
-    <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-      <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+    <div className="flex items-start gap-2 md:gap-3 p-2.5 md:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+      <div className={`flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center ${
         isBuy ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
       }`}>
         {isBuy ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <span className={`text-xs font-semibold px-2 py-0.5 rounded ${isBuy ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
             {isBuy ? '买入' : '卖出'}
           </span>
@@ -137,7 +137,7 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
           {isBuy && effectiveIsOpen && <span className="text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">持仓中</span>}
         </div>
 
-        <div className="flex items-center gap-4 mt-1 text-sm flex-wrap">
+        <div className="flex items-center gap-x-3 gap-y-0.5 mt-1 text-sm flex-wrap">
           <span className="text-gray-700">
             总额：<span className="font-semibold">¥{record.amount.toLocaleString()}</span>
           </span>
@@ -175,11 +175,11 @@ export const TradeRecordItem: React.FC<TradeRecordItemProps> = ({
         {isBuy && effectiveIsOpen && onSell && (
           <button
             onClick={() => onSell(record)}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-sm font-semibold text-white hover:text-green-600 bg-green-500 hover:bg-green-50 border border-green-200 rounded transition-colors"
+            className="flex items-center gap-1 px-2 py-1.5 text-sm font-semibold text-white hover:text-green-600 bg-green-500 hover:bg-green-50 border border-green-200 rounded whitespace-nowrap transition-colors"
             title="卖出"
           >
             <ArrowDownRight className="h-3.5 w-3.5" />
-            <span>卖出</span>
+            <span className="hidden sm:inline">卖出</span>
           </button>
         )}
         <button

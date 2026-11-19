@@ -361,15 +361,15 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <h2 className="text-lg font-bold text-gray-900 whitespace-nowrap">
           交易记录
         </h2>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setFilter('all')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2.5 md:px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                 filter === 'all'
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -379,7 +379,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
             </button>
             <button
               onClick={() => setFilter('etf')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2.5 md:px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                 filter === 'etf'
                   ? 'bg-white text-purple-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -389,7 +389,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
             </button>
             <button
               onClick={() => setFilter('stock')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2.5 md:px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                 filter === 'stock'
                   ? 'bg-white text-green-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -400,7 +400,7 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
           </div>
           <button
             onClick={handleAdd}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 md:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg whitespace-nowrap shrink-0 transition-colors"
           >
             <Plus className="h-4 w-4" />
             添加交易
@@ -445,18 +445,18 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
         </div>
 
         {/* 总览数据 */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-3 mb-4">
           <div className="bg-white rounded-lg p-3">
             <div className="text-xs text-gray-500 mb-1">持仓市值</div>
-            <div className="text-lg font-bold text-gray-900">¥{portfolioSummary.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+            <div className="text-base md:text-lg font-bold text-gray-900">¥{portfolioSummary.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
           </div>
           <div className="bg-white rounded-lg p-3">
             <div className="text-xs text-gray-500 mb-1">投入成本</div>
-            <div className="text-lg font-bold text-gray-900">¥{portfolioSummary.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+            <div className="text-base md:text-lg font-bold text-gray-900">¥{portfolioSummary.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
           </div>
           <div className="bg-white rounded-lg p-3">
             <div className="text-xs text-gray-500 mb-1">当前持仓损益</div>
-            <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.unrealizedProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <div className={`text-base md:text-lg font-bold flex flex-wrap items-center gap-x-1 ${portfolioSummary.unrealizedProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
               {portfolioSummary.unrealizedProfitLoss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
               {portfolioSummary.unrealizedProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.unrealizedProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
               <span className="text-xs">({portfolioSummary.unrealizedProfitLoss >= 0 ? '+' : ''}{portfolioSummary.totalProfitLossPct.toFixed(2)}%)</span>
@@ -464,13 +464,13 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
           </div>
           <div className="bg-white rounded-lg p-3">
             <div className="text-xs text-gray-500 mb-1">已清仓损益</div>
-            <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.realizedProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <div className={`text-base md:text-lg font-bold flex flex-wrap items-center gap-x-1 ${portfolioSummary.realizedProfitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
               {portfolioSummary.realizedProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.realizedProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </div>
           </div>
           <div className="bg-white rounded-lg p-3">
             <div className="text-xs text-gray-500 mb-1">总收益率（vs本金）</div>
-            <div className={`text-lg font-bold flex items-center gap-1 ${portfolioSummary.returnOnPrincipal >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <div className={`text-base md:text-lg font-bold flex flex-wrap items-center gap-x-1 ${portfolioSummary.returnOnPrincipal >= 0 ? 'text-red-600' : 'text-green-600'}`}>
               {portfolioSummary.returnOnPrincipal >= 0 ? '+' : ''}{portfolioSummary.returnOnPrincipal.toFixed(2)}%
               <span className="text-xs whitespace-nowrap">
                 ({portfolioSummary.totalProfitLoss >= 0 ? '+' : ''}¥{portfolioSummary.totalProfitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })})
@@ -507,8 +507,8 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
           </div>
         </div>
 
-        {/* 各持仓明细 */}
-        <div className="overflow-x-auto">
+        {/* 各持仓明细：桌面五列表格，移动端改卡片（名称 + 三个信号徽章在 390 宽会被挤成竖排） */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-gray-500 border-b border-gray-200">
@@ -555,6 +555,47 @@ export const UnifiedTradeBoard: React.FC = memo(() => {
               })}
             </tbody>
           </table>
+        </div>
+
+        <div className="md:hidden divide-y divide-gray-100">
+          {portfolioSummary.positions.map((p, i) => {
+            const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6']
+            return (
+              <div key={p.symbol} className="py-2.5 first:pt-0.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: colors[i % colors.length] }} />
+                    <span className="text-sm font-medium text-gray-700 truncate">{p.name}</span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className={`text-sm font-semibold ${p.profitLoss >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      {p.profitLoss >= 0 ? '+' : ''}¥{p.profitLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </div>
+                    <div className={`text-[11px] ${p.profitLossPct >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      {p.profitLossPct >= 0 ? '+' : ''}{p.profitLossPct.toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-1 flex items-center gap-1 flex-wrap">
+                  {isEtfCode(p.symbol) && (
+                    <>
+                      {getTrendSignalBadge(etfSignalMap.get(p.symbol)?.trend_signal)}
+                      {getTechSignalBadge(etfSignalMap.get(p.symbol)?.tech_action)}
+                      {getMomentumBadge(p.symbol)}
+                      {!etfSignalMap.get(p.symbol)?.trend_signal &&
+                       !etfSignalMap.get(p.symbol)?.tech_action &&
+                       !momentumBySymbolMap.has(p.symbol) && (
+                        <span className="text-[11px] text-gray-400">暂无指标</span>
+                      )}
+                    </>
+                  )}
+                  <span className="text-[11px] text-gray-500 ml-auto">
+                    投入 ¥{p.cost.toLocaleString(undefined, { maximumFractionDigits: 0 })} · 占比 {p.ratio.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
