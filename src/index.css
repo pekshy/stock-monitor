@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  /* 防止 iOS 横屏/旋转时字号被自动放大 */
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -9,4 +14,24 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 阻止移动端整页橡皮筋回弹，避免固定底栏错位 */
+  overscroll-behavior-y: contain;
+}
+
+/* 去掉移动端 300ms 点击延迟 */
+button,
+a,
+[role='button'] {
+  touch-action: manipulation;
+}
+
+/* 数字统一等宽，表格与卡片里的价格/涨跌不会因字宽跳动 */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 「更多」弹层上滑动画（仅移动端使用） */
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }

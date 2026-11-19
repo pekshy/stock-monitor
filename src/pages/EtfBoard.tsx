@@ -179,11 +179,20 @@ const EtfListOnly: React.FC = memo(() => {
     )
   }
 
+  // 移动端卡片与桌面表格共用同一份列表，避免两套筛选逻辑出现分歧
+  const displayEtfs = signalFilter !== 'all' || showAll
+    ? [...filteredBuyEtfs, ...filteredSellEtfs, ...filteredWatchEtfs]
+    : [...filteredBuyEtfs, ...filteredSellEtfs]
+
   return (
     <div className="space-y-6">
       {/* 动量评分策略选出的ETF */}
+      {/*
+        动量评分策略：10 列评分表在 390px 下无法成立，移动端整体隐藏（< md）。
+        评分信息在移动端通过「关注ETF」卡片上的动量评分体现。
+      */}
       {momentumData && momentumData.signals.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="hidden md:block bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-purple-500" />
@@ -287,17 +296,17 @@ const EtfListOnly: React.FC = memo(() => {
       )}
 
       {/* ETF列表 */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+      <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 flex-wrap">
             <Target className="h-5 w-5 text-green-500" />
             关注ETF列表
             <span className="text-sm font-normal text-gray-500">
               （{[[filteredBuyEtfs.length, '买入'], [filteredSellEtfs.length, '卖出'], [filteredWatchEtfs.length, '观望']].filter(([n]) => Number(n) > 0).map(([n, label]) => `${n}${label}`).join('、')}{searchText.trim() && ` · 共${filteredBuyEtfs.length + filteredSellEtfs.length + filteredWatchEtfs.length}条`}）
             </span>
           </h2>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden shrink-0">
               <button
                 onClick={() => setSignalFilter('all')}
                 className={`px-3 py-1.5 text-sm transition-colors ${
@@ -360,21 +369,122 @@ const EtfListOnly: React.FC = memo(() => {
               <Star className={`h-3.5 w-3.5 ${focusFilter === 'focused' ? 'fill-current' : ''}`} />
               重点跟踪
             </button>
-            <div className="relative">
+            <div className="relative flex-1 md:flex-none min-w-[130px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 placeholder="搜索名称或代码"
-                className="pl-9 pr-3 py-1.5 w-48 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="pl-9 pr-3 py-1.5 w-full md:w-48 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
               />
             </div>
           </div>
         </div>
         {etfs.length > 0 ? (
           <>
-            <div className="overflow-x-auto">
+            {/* ===== 移动端：卡片列表（< md）。11 列表格在 390px 下必然溢出 ===== */}
+            <div className="md:hidden space-y-2">
+              {displayEtfs.map((etf) => {
+                const d = etf.latest_daily
+                const mom = momentumBySymbol.get(etf.symbol)
+                const dir = etf.latest_signal ? resolveTechDirection(etf.latest_signal) : null
+                return (
+                  <div
+                    key={etf.symbol}
+                    onClick={() => navigate(`/etf/${etf.symbol}`)}
+                    className="rounded-xl border border-gray-200 p-3 active:bg-gray-50"
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <span className="font-semibold text-gray-900 text-[15px] truncate">
+                            {etf.name || etf.symbol}
+                          </span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleFocus(etf.symbol) }}
+                            className={`shrink-0 p-1 -my-1 ${
+                              etf.is_focused ? 'text-yellow-500' : 'text-gray-300'
+                            }`}
+                            aria-label={etf.is_focused ? '取消重点跟踪' : '设为重点跟踪'}
+                          >
+                            <Star className={`h-3.5 w-3.5 ${etf.is_focused ? 'fill-current' : ''}`} />
+                          </button>
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-gray-500 truncate">
+                          {etf.symbol}
+                          {etf.tracking_index_name && ` · ${etf.tracking_index_name}`}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-[17px] font-semibold text-gray-900 tnum leading-tight">
+                          {d?.close != null ? d.close.toFixed(3) : '--'}
+                        </div>
+                        <div className={`mt-0.5 text-[12px] font-semibold tnum ${getChangeColor(d?.change_pct)}`}>
+                          {formatPercent(d?.change_pct)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5 grid grid-cols-3 gap-1">
+                      <div>
+                        <div className="text-[10px] text-gray-400 leading-none">5日涨跌</div>
+                        <div className={`mt-1 text-[12px] font-medium tnum leading-none ${getChangeColor(d?.change_5d)}`}>
+                          {formatPercent(d?.change_5d)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-gray-400 leading-none">价格分位</div>
+                        <div className="mt-1 text-[12px] font-medium text-gray-700 tnum leading-none">
+                          {d?.close_percentile_6m != null ? `${(d.close_percentile_6m * 100).toFixed(1)}%` : '--'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-gray-400 leading-none">量能分位</div>
+                        <div className="mt-1 text-[12px] font-medium text-gray-700 tnum leading-none">
+                          {d?.volume_percentile_6m != null ? `${(d.volume_percentile_6m * 100).toFixed(1)}%` : '--'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center gap-1.5 flex-wrap">
+                      {etf.latest_trend_signal && (
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                          etf.latest_trend_signal.toUpperCase() === 'BUY' ? 'bg-red-100 text-red-600' :
+                          etf.latest_trend_signal.toUpperCase() === 'SELL' ? 'bg-green-100 text-green-600' :
+                          'bg-blue-100 text-blue-600'
+                        }`}>
+                          {etf.latest_trend_signal.toUpperCase() === 'BUY' ? '买入' :
+                           etf.latest_trend_signal.toUpperCase() === 'SELL' ? '卖出' : '观望'}
+                        </span>
+                      )}
+                      {dir && (
+                        <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold ${getActionColor(etf.latest_signal)}`}>
+                          <Target className="h-2.5 w-2.5" />
+                          {formatTechDirection(dir)}
+                        </span>
+                      )}
+                      <span className="ml-auto text-[11px] text-gray-500">
+                        动量{' '}
+                        {mom?.final_score != null ? (
+                          <b className={`font-semibold tnum ${mom.final_score >= 0 ? 'text-red-600' : 'text-gray-700'}`}>
+                            {mom.final_score.toFixed(2)}
+                          </b>
+                        ) : '--'}
+                        {mom?.final_score != null && mom.prev_score != null && Math.abs(mom.final_score - mom.prev_score) >= 0.001 && (
+                          <b className={`ml-1 font-medium tnum ${mom.final_score - mom.prev_score > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                            {mom.final_score - mom.prev_score > 0 ? '+' : ''}{(mom.final_score - mom.prev_score).toFixed(2)}
+                          </b>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ===== 桌面端：11 列表格（≥ md） ===== */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
               <thead>
                 <tr className="border-b-2 border-gray-200">

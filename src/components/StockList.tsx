@@ -64,7 +64,71 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
 
   return (
     <div>
-      <div className="overflow-x-auto">
+      {/* ===== 移动端：卡片列表（< md）。10 列表格在 390px 下必然溢出，改成一卡一支 ===== */}
+      <div className="md:hidden -mx-1">
+        {pagedStocks.map((stock) => {
+          const q = stock.latest_quote
+          const v = stock.latest_valuation
+          const cap = v?.total_market_cap
+          return (
+            <div
+              key={stock.stock_code}
+              onClick={() => navigate(`/company/${stock.stock_code}`)}
+              className="mx-1 mb-2 px-3 py-3 bg-white rounded-xl border border-gray-200 active:bg-gray-50"
+            >
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-gray-900 text-[15px] leading-tight truncate">
+                    {stock.stock_name}
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-gray-500 tnum">
+                    {stock.stock_code}
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-[17px] font-semibold text-gray-900 tnum leading-tight">
+                    {formatPrice(q?.close_price)}
+                  </div>
+                  <div className={`mt-0.5 text-[12px] font-semibold tnum ${getChangeColor(q?.pct_change)}`}>
+                    {formatPercent(q?.pct_change)}
+                  </div>
+                </div>
+              </div>
+
+              {/* 四个周期涨跌 */}
+              <div className="mt-2.5 grid grid-cols-4 gap-1">
+                {([
+                  ['1日', q?.pct_change],
+                  ['5日', q?.pct_change_5d],
+                  ['20日', q?.pct_change_20d],
+                  ['60日', q?.pct_change_60d],
+                ] as const).map(([label, val]) => (
+                  <div key={label} className="min-w-0">
+                    <div className="text-[10px] text-gray-400 leading-none">{label}</div>
+                    <div className={`mt-1 text-[12px] font-medium tnum leading-none ${getChangeColor(val)}`}>
+                      {formatPercent(val)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 估值 */}
+              <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center gap-3 text-[11px] text-gray-500">
+                <span>PE <b className="font-medium text-gray-700 tnum">{formatValuation(v?.pe_ttm)}</b></span>
+                <span>PB <b className="font-medium text-gray-700 tnum">
+                  {v?.pb != null && v.pb > 0 ? formatValuation(v.pb) : '--'}
+                </b></span>
+                <span className="ml-auto">市值 <b className="font-medium text-gray-700 tnum">
+                  {cap == null ? '--' : formatMarketCapInYi(cap, getMarketType(stock.stock_code))}
+                </b></span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* ===== 桌面端：表格（≥ md，与原实现一致） ===== */}
+      <div className="hidden md:block overflow-x-auto">
       <table className="w-full">
         <thead>
           <tr className="border-b-2 border-gray-200">
@@ -136,7 +200,29 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
       </div>
 
       {stocks.length > pageSize && (
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+        <>
+          {/* 移动端分页：只保留上一页 / 页码 / 下一页 */}
+          <div className="md:hidden flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100">
+            <span className="text-xs text-gray-500 tnum">第 {currentPage} / {totalPages} 页</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 active:bg-gray-100 disabled:text-gray-300 disabled:border-gray-100"
+              >
+                上一页
+              </button>
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 active:bg-gray-100 disabled:text-gray-300 disabled:border-gray-100"
+              >
+                下一页
+              </button>
+            </div>
+          </div>
+
+          <div className="hidden md:flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
           <div className="text-sm text-gray-500">
             共 {stocks.length} 条，第 {currentPage} / {totalPages} 页
           </div>
@@ -176,6 +262,7 @@ const StockList: React.FC<StockListProps> = ({ stocks }) => {
             </button>
           </div>
         </div>
+        </>
       )}
     </div>
   )

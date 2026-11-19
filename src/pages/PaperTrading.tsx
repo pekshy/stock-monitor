@@ -110,6 +110,14 @@ const ACTION_STYLE: Record<string, string> = {
   观察: 'bg-blue-50 text-blue-600',
 }
 
+/**
+ * 对比基准。paper_nav.benchmark 里存的是该 ETF 的收盘价，不是指数点位——
+ * 已与 etf_daily_data 逐日校验（2026-10-23 4.178 / 10-26 4.179 / 10-27 4.123 全部一致）。
+ * 账户表暂无 benchmark 字段，这里先固定；若将来写入端换标的，同步改此处。
+ */
+const BENCHMARK = { code: '510300', name: '沪深300ETF' }
+const BENCHMARK_LABEL = `${BENCHMARK.name} ${BENCHMARK.code}`
+
 /** 净值曲线：上 2/3 策略与基准，下 1/3 回撤 */
 const NavChart: React.FC<{ rows: PaperNav[]; benchmarkName: string }> = ({ rows, benchmarkName }) => {
   if (rows.length < 2) {
@@ -189,7 +197,7 @@ const NavChart: React.FC<{ rows: PaperNav[]; benchmarkName: string }> = ({ rows,
         {hasBm && (
           <>
             <line x1={L + 76} y1={T - 4} x2={L + 92} y2={T - 4} stroke="#cbd5e1" strokeWidth={2} strokeDasharray="4 3" />
-            <text x={L + 96} y={T - 1} fontSize="10" fill="#6b7280">{benchmarkName}</text>
+            <text x={L + 96} y={T - 1} fontSize="10" fill="#6b7280">基准 · {benchmarkName}</text>
           </>
         )}
       </g>
@@ -401,8 +409,11 @@ const PaperTrading: React.FC = () => {
                 {accounts.map(a => <option key={a.id} value={a.id}>{a.label || a.id}</option>)}
               </select>
             )}
-            <span className="text-xs text-gray-400">
-              起始 {account?.inception || '—'} · 初始 {money(account?.initial_capital)}
+            {/* 起始日取首个净值记录日，而非 account.inception。
+                inception=2026-10-26 是委托生效日，但净值曲线锚定在 10-23（空仓、nav=1）的基准日，
+                累计收益与 alpha 的分母都是后者；显示 inception 会多算一个空仓日。 */}
+            <span className="text-xs text-gray-400" title="首个净值记录日（建仓前基准日），累计收益以此为分母">
+              起始 {navs[0]?.date || account?.inception || '—'} · 初始 {money(account?.initial_capital)}
             </span>
           </div>
         </div>
@@ -420,20 +431,25 @@ const PaperTrading: React.FC = () => {
             label="超额收益"
             value={stats.alpha === null ? '--' : signedPct(stats.alpha)}
             tone={(stats.alpha ?? 0) >= 0 ? 'up' : 'down'}
-            hint={stats.bmTotal === null ? '基准缺失' : `基准 ${signedPct(stats.bmTotal)}`}
+            hint={stats.bmTotal === null ? '基准缺失' : `${BENCHMARK.code} 同期 ${signedPct(stats.bmTotal)}`}
           />
         </div>
       )}
 
       {/* 净值曲线 */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2">
+          <h2 className="text-sm font-bold text-gray-800 flex items-center gap-1.5 shrink-0 whitespace-nowrap">
             <Activity className="h-4 w-4 text-blue-600" />净值与回撤
           </h2>
-          <span className="text-xs text-gray-400">{navs.length} 个交易日</span>
+          <span className="text-xs text-gray-400 flex items-center gap-3 shrink-0">
+            <span>{navs.length} 个交易日</span>
+            <Link to={`/etf/${BENCHMARK.code}`} className="text-blue-600 hover:underline">
+              基准 {BENCHMARK_LABEL} ↗
+            </Link>
+          </span>
         </div>
-        <NavChart rows={navs} benchmarkName="基准" />
+        <NavChart rows={navs} benchmarkName={BENCHMARK_LABEL} />
         {navs.length === 1 && (
           <p className="text-xs text-gray-400 mt-1">
             当前仅有初始记录（{navs[0]?.date}，净值 1.0000），首个交易日后开始形成曲线。

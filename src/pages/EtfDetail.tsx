@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus, Star, BarChart3, Lock } from 'lucide-react'
+import { ArrowLeft, ArrowRight, TrendingUp, MessageSquare, Plus, Star, BarChart3, Lock, ChevronDown } from 'lucide-react'
 import { useEtfContext } from '../context/EtfContext'
 import { useEtfDetailData } from '../hooks/useEtfDetailData'
 import {
@@ -23,13 +23,44 @@ import { useEtfNotesBySymbol } from '../hooks/useEtfNotes'
 import { useTradeRecords } from '../hooks/useTradeRecords'
 import { useAuth } from '../context/AuthContext'
 import { usePersistentState } from '../hooks/usePersistentState'
+import { useNarrow } from '../hooks/useNarrow'
 import { NoteItem } from '../components/NoteItem'
 import { NoteModal, type TradeAction, type NoteModalInitialValues } from '../components/NoteModal'
 import { TradeRecordItem } from '../components/TradeRecordItem'
 import { TradeModal } from '../components/TradeModal'
 import { SellConfirmModal } from '../components/SellConfirmModal'
 
+/**
+ * 移动端图表折叠条：K 线常驻，下方三张图默认收起。
+ * 只在 < md 渲染（桌面端三张图继续平铺，折叠交互不出现）。
+ */
+const ChartFold: React.FC<{
+  title: string
+  summary: string
+  open: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}> = ({ title, summary, open, onToggle, children }) => (
+  <div className="border-t border-gray-100">
+    <button
+      onClick={onToggle}
+      className="w-full flex items-center gap-2 py-3 text-left active:bg-gray-50"
+      aria-expanded={open}
+    >
+      <span className="text-sm font-medium text-gray-700 shrink-0">{title}</span>
+      <span className="ml-auto min-w-0 text-xs text-gray-500 tnum truncate">{summary}</span>
+      <ChevronDown className={`h-4 w-4 text-gray-400 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+    </button>
+    {open && <div className="pb-2">{children}</div>}
+  </div>
+)
+
 const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators[]; signals: EtfClawSignal[]; butterworthFit: ButterworthFit[]; tradeRecords: TradeRecord[] }> = ({ dailyData, indicators, signals, butterworthFit, tradeRecords }) => {
+  // 移动端只画最近 120 个交易日：600 多根 K 线塞进 390px，每根不到 0.7px，形态完全无法判读。
+  // 桌面端保持全量，宽的画布才需要全历史。
+  const narrow = useNarrow()
+  const viewData = narrow ? dailyData.slice(0, 120) : dailyData
+
   const indicatorMap = new Map(indicators.map(d => [d.trade_date, d]))
   const signalMap = new Map<string, EtfClawSignal>()
   signals.forEach(sig => {
@@ -47,7 +78,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   butterworthFit.forEach(f => fitMap.set(f.trade_date, f))
   
   const chartData = useMemo(() => {
-    const reversed = [...dailyData].reverse()
+    const reversed = [...viewData].reverse()
     return reversed.map((d, i) => {
       const indicator = indicatorMap.get(d.trade_date)
       const signal = signalMap.get(d.trade_date)
@@ -93,19 +124,24 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
         changePct,
       }
     })
-  }, [dailyData, indicators, signals, butterworthFit, tradeRecords])
+  }, [viewData, indicators, signals, butterworthFit, tradeRecords])
 
   if (chartData.length === 0) {
     return <div className="flex items-center justify-center min-h-[300px] text-gray-500 text-sm">暂无数据</div>
   }
 
-  const prices = chartData.flatMap(d => [
-    d.high,
-    d.low,
-    ...(d.fitted != null ? [d.fitted] : [])
-  ])
-  const minPrice = Math.min(...prices)
-  const maxPrice = Math.max(...prices)
+  // Y 轴只按真实 K 线（high/low）定尺度；拟合值仅在同量级时参与，
+  // 否则早期拟合的发散值会把轴拉到 0.8–2.1，K 线被压成底部一条。
+  let minPrice = Math.min(...chartData.map(d => d.low))
+  let maxPrice = Math.max(...chartData.map(d => d.high))
+  const span = Math.max(maxPrice - minPrice, 1e-6)
+  const fitInRange = chartData
+    .map(d => d.fitted)
+    .filter((v): v is number => v != null && v > minPrice - span * 0.5 && v < maxPrice + span * 0.5)
+  if (fitInRange.length > 0) {
+    minPrice = Math.min(minPrice, ...fitInRange)
+    maxPrice = Math.max(maxPrice, ...fitInRange)
+  }
   const padding = (maxPrice - minPrice) * 0.1
 
   const CustomBar = ({ x, y, width, height, payload }: any) => {
@@ -201,7 +237,7 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
   }
 
   return (
-    <div className="h-[380px]">
+    <div className="h-[260px] md:h-[380px]">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart 
           data={chartData} 
@@ -431,20 +467,28 @@ const MainChart: React.FC<{ dailyData: EtfDailyData[]; indicators: EtfIndicators
               )
             }}
           />
-          <Legend wrapperStyle={{ fontSize: 11 }} payload={[
-            { value: 'MA5', type: 'line', color: '#f59e0b' },
-            { value: 'MA10', type: 'line', color: '#8b5cf6' },
-            { value: 'MA20', type: 'line', color: '#06b6d4' },
-            { value: 'MA60', type: 'line', color: '#ec4899' },
-            { value: '拟合值', type: 'line', color: '#c4b5fd' },
-          ]} />
+          <Legend wrapperStyle={{ fontSize: 11 }} payload={
+            narrow
+              ? [
+                  { value: 'MA5', type: 'line', color: '#f59e0b' },
+                  { value: 'MA20', type: 'line', color: '#06b6d4' },
+                  { value: '拟合值', type: 'line', color: '#c4b5fd' },
+                ]
+              : [
+                  { value: 'MA5', type: 'line', color: '#f59e0b' },
+                  { value: 'MA10', type: 'line', color: '#8b5cf6' },
+                  { value: 'MA20', type: 'line', color: '#06b6d4' },
+                  { value: 'MA60', type: 'line', color: '#ec4899' },
+                  { value: '拟合值', type: 'line', color: '#c4b5fd' },
+                ]
+          } />
           
           <Bar dataKey="value" barSize={5} shape={<CustomBar />} name="K线" legendType="none" />
           
           <Line type="monotone" dataKey="ma5" stroke="#f59e0b" dot={false} strokeWidth={1} name="MA5" />
-          <Line type="monotone" dataKey="ma10" stroke="#8b5cf6" dot={false} strokeWidth={1} name="MA10" />
+          <Line type="monotone" dataKey="ma10" stroke="#8b5cf6" dot={false} strokeWidth={1} name="MA10" hide={narrow} />
           <Line type="monotone" dataKey="ma20" stroke="#06b6d4" dot={false} strokeWidth={1} name="MA20" />
-          <Line type="monotone" dataKey="ma60" stroke="#ec4899" dot={false} strokeWidth={1} name="MA60" />
+          <Line type="monotone" dataKey="ma60" stroke="#ec4899" dot={false} strokeWidth={1} name="MA60" hide={narrow} />
           
           {/* Butterworth 拟合曲线 */}
           <Line type="monotone" dataKey="fitted" stroke="#c4b5fd" dot={false} strokeWidth={1} name="拟合值" legendType="none" connectNulls={true} />
@@ -483,6 +527,7 @@ const amountPercentile6m = (
 const fmtAmount = (v: number) => (v >= 10000 ? (v / 10000).toFixed(2) + '亿' : v.toFixed(0) + '万')
 
 const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
+  const narrow = useNarrow()
   const chartData = useMemo(() => {
     return [...data].reverse().map(d => ({
       date: formatDate(d.trade_date),
@@ -527,7 +572,7 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
           <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
-            <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 10000).toFixed(0) + '万'} />
+            <YAxis width={narrow ? 44 : 60} tick={{ fontSize: 10 }} tickFormatter={(v) => (v / 10000).toFixed(0) + '万'} />
             <Tooltip
               contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(229, 231, 235, 0.6)', borderRadius: '8px', fontSize: 12, backdropFilter: 'blur(2px)' }}
               wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
@@ -722,6 +767,42 @@ const EtfDetail: React.FC = () => {
     return momentumSignals.find(s => s.trade_date === latestDate && s.symbol === code) || null
   }, [momentumSignals, code])
 
+  // 动量评分的 5 日变化：只取最近 5 个交易日，与「5日涨跌」同窗口。
+  // 价格是水平面、动量是斜率，两者背离时最值得看（如价格反弹但动量继续恶化）。
+  const momentum5d = useMemo(() => {
+    if (momentumHistory.length < 5) return null
+    const a = momentumHistory[0]?.final_score
+    const b = momentumHistory[4]?.final_score
+    if (a == null || b == null) return null
+    return a - b
+  }, [momentumHistory])
+
+  // 移动端图表折叠状态（可多个同时展开）；桌面端不使用
+  const [openCharts, setOpenCharts] = useState<string[]>([])
+  const toggleChart = (k: string) => setOpenCharts(prev => prev.includes(k) ? prev.filter(x => x !== k) : [...prev, k])
+
+  // 折叠条右侧的一句话摘要：收起时也能看到读数，不用展开才知道值
+  const foldSummaries = useMemo(() => {
+    const d = dailyData[0]
+    const volBase = d?.volume != null ? `${(d.volume / 1e8).toFixed(2)} 亿份` : '--'
+    const volPct = d?.volume_percentile_6m != null ? ` · 分位 ${(d.volume_percentile_6m * 100).toFixed(1)}%` : ''
+
+    const fit = butterworthFit[0]
+    let fitText = '--'
+    if (fit?.fitted != null) {
+      const close = d?.close
+      const dev = close != null && fit.fitted ? ((close - fit.fitted) / fit.fitted) * 100 : null
+      fitText = `${fit.fitted.toFixed(3)}${dev != null ? ` · 偏离 ${dev > 0 ? '+' : ''}${dev.toFixed(1)}%` : ''}`
+    }
+
+    const mom = momentumSignal?.final_score
+    const momText = mom != null
+      ? `${mom.toFixed(2)}${momentum5d != null ? ` · 5日${momentum5d < 0 ? '降' : '升'} ${Math.abs(momentum5d).toFixed(2)}` : ''}`
+      : '--'
+
+    return { vol: `${volBase}${volPct}`, fit: fitText, mom: momText }
+  }, [dailyData, butterworthFit, momentumSignal, momentum5d])
+
   // 读取与关注ETF列表页相同的持久化筛选条件（sessionStorage），保证上翻下翻顺序一致
   const [searchText] = usePersistentState('etf_filter_searchText', '')
   const [focusFilter] = usePersistentState<'all' | 'focused'>('etf_filter_focusFilter', 'all')
@@ -856,8 +937,9 @@ const EtfDetail: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="flex items-start justify-between">
-          <div>
+        {/* 移动端纵向排列（名称在上、价格在下），避免右侧价格被长指数名挤出视口 */}
+        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
             <h1 className="text-xl font-bold text-gray-900 flex items-center gap-1">
               {etf.name || etf.symbol}
               <button
@@ -880,8 +962,8 @@ const EtfDetail: React.FC = () => {
               <div className="text-xs text-gray-500 mt-0.5">跟踪: {etf.tracking_index_name}</div>
             )}
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="text-left md:text-right shrink-0">
+            <div className="text-2xl font-bold text-gray-900 tnum">
               {latestDaily?.close != null ? latestDaily.close.toFixed(3) : '--'}
             </div>
             {latestDaily?.change_pct != null && (
@@ -901,18 +983,18 @@ const EtfDetail: React.FC = () => {
           const hasMomentum = !!momentumSignal
           if (!hasPE && !hasPB && !hasChange5d && !hasClosePercentile && !hasVolumePercentile && !hasMomentum) return null
           return (
-            <div className="flex flex-wrap gap-4 mt-3 pt-3 border-t border-gray-100">
+            <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-100 md:flex md:flex-wrap md:gap-4">
               {hasChange5d && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">5日涨跌</span>
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 md:flex-nowrap md:items-center md:gap-2">
+                  <span className="w-full md:w-auto text-xs text-gray-500">5日涨跌</span>
                   <span className={`text-sm font-semibold ${getChangeColor(latestDaily!.change_5d)}`}>
                     {formatPercent(latestDaily!.change_5d)}
                   </span>
                 </div>
               )}
               {hasClosePercentile && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">价格分位</span>
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 md:flex-nowrap md:items-center md:gap-2">
+                  <span className="w-full md:w-auto text-xs text-gray-500">价格分位</span>
                   <span className={`text-sm font-semibold ${
                     latestDaily!.close_percentile_6m! * 100 <= 30 ? 'text-green-600' :
                     latestDaily!.close_percentile_6m! * 100 >= 70 ? 'text-red-600' :
@@ -923,8 +1005,8 @@ const EtfDetail: React.FC = () => {
                 </div>
               )}
               {hasVolumePercentile && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">量能分位</span>
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 md:flex-nowrap md:items-center md:gap-2">
+                  <span className="w-full md:w-auto text-xs text-gray-500">量能分位</span>
                   <span className={`text-sm font-semibold ${
                     latestDaily!.volume_percentile_6m! * 100 <= 30 ? 'text-green-600' :
                     latestDaily!.volume_percentile_6m! * 100 >= 70 ? 'text-red-600' :
@@ -935,8 +1017,8 @@ const EtfDetail: React.FC = () => {
                 </div>
               )}
               {hasPE && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">PE</span>
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 md:flex-nowrap md:items-center md:gap-2">
+                  <span className="w-full md:w-auto text-xs text-gray-500">PE</span>
                   <span className="text-sm font-semibold text-gray-900">{v!.pe!.toFixed(2)}</span>
                   {v!.pe_percent != null && (
                     <span className={`text-xs px-1.5 py-0.5 rounded ${
@@ -950,8 +1032,8 @@ const EtfDetail: React.FC = () => {
                 </div>
               )}
               {hasPB && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">PB</span>
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 md:flex-nowrap md:items-center md:gap-2">
+                  <span className="w-full md:w-auto text-xs text-gray-500">PB</span>
                   <span className="text-sm font-semibold text-gray-900">{v!.pb!.toFixed(2)}</span>
                   {v!.pb_percent != null && (
                     <span className={`text-xs px-1.5 py-0.5 rounded ${
@@ -965,8 +1047,8 @@ const EtfDetail: React.FC = () => {
                 </div>
               )}
               {hasMomentum && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">动量评分</span>
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 md:flex-nowrap md:items-center md:gap-2">
+                  <span className="w-full md:w-auto text-xs text-gray-500">动量评分<span className="md:hidden"> 5日</span></span>
                   <span className={`text-sm font-semibold ${
                     momentumSignal!.final_score != null && momentumSignal!.final_score >= 0
                       ? 'text-purple-600'
@@ -974,8 +1056,15 @@ const EtfDetail: React.FC = () => {
                   }`}>
                     {momentumSignal!.final_score != null ? momentumSignal!.final_score.toFixed(2) : '--'}
                   </span>
+                  {momentum5d != null && Math.abs(momentum5d) >= 0.005 && (
+                    <span className={`md:hidden text-xs font-semibold tnum ${
+                      momentum5d > 0 ? 'text-red-500' : 'text-green-500'
+                    }`}>
+                      {momentum5d > 0 ? '+' : ''}{momentum5d.toFixed(2)}
+                    </span>
+                  )}
                   {momentumSignal!.rank != null && (
-                    <span className="text-xs text-gray-500">排名 #{momentumSignal!.rank}</span>
+                    <span className="hidden md:inline text-xs text-gray-500">排名 #{momentumSignal!.rank}</span>
                   )}
                   {momentumSignal!.selected === true && (
                     <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">入选</span>
@@ -991,9 +1080,10 @@ const EtfDetail: React.FC = () => {
         <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
           <TrendingUp className="h-4 w-4" />
           K线走势
+          <span className="md:hidden text-xs font-normal text-gray-400">近 120 日</span>
         </h2>
         {detailLoading ? (
-          <div className="flex items-center justify-center h-[380px]">
+          <div className="flex items-center justify-center h-[260px] md:h-[380px]">
             <div className="flex flex-col items-center gap-2">
               <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
               <span className="text-sm text-gray-500">加载中...</span>
@@ -1008,17 +1098,51 @@ const EtfDetail: React.FC = () => {
               butterworthFit={butterworthFit}
               tradeRecords={tradeRecords}
             />
-            <DerivativeChart butterworthFit={butterworthFit} />
-            <VolumeChart data={dailyData} />
-            {momentumHistory.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <h3 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                  <BarChart3 className="h-3.5 w-3.5" />
-                  动量评分走势（近3个月）
-                </h3>
-                <MomentumScoreChart data={momentumHistory} />
-              </div>
-            )}
+
+            {/* 移动端：K 线常驻，其余三张图折叠（一次只展开一张时不挤压 K 线） */}
+            <div className="md:hidden mt-1">
+              <ChartFold
+                title="成交量"
+                summary={foldSummaries.vol}
+                open={openCharts.includes('vol')}
+                onToggle={() => toggleChart('vol')}
+              >
+                <VolumeChart data={dailyData} />
+              </ChartFold>
+              <ChartFold
+                title="拟合值"
+                summary={foldSummaries.fit}
+                open={openCharts.includes('fit')}
+                onToggle={() => toggleChart('fit')}
+              >
+                <DerivativeChart butterworthFit={butterworthFit} />
+              </ChartFold>
+              {momentumHistory.length > 0 && (
+                <ChartFold
+                  title="动量评分"
+                  summary={foldSummaries.mom}
+                  open={openCharts.includes('mom')}
+                  onToggle={() => toggleChart('mom')}
+                >
+                  <MomentumScoreChart data={momentumHistory} />
+                </ChartFold>
+              )}
+            </div>
+
+            {/* 桌面端：三张图保持原有平铺 */}
+            <div className="hidden md:block">
+              <DerivativeChart butterworthFit={butterworthFit} />
+              <VolumeChart data={dailyData} />
+              {momentumHistory.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                    <BarChart3 className="h-3.5 w-3.5" />
+                    动量评分走势（近3个月）
+                  </h3>
+                  <MomentumScoreChart data={momentumHistory} />
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

@@ -3,6 +3,7 @@ import { StockProvider } from './context/StockContext'
 import { EtfProvider } from './context/EtfContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Header from './components/Header'
+import MobileTabBar from './components/MobileTabBar'
 import LoginGate from './components/LoginGate'
 import Home from './pages/Home'
 import IndustryDetail from './pages/IndustryDetail'
@@ -41,7 +42,8 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {/* pb 在移动端给底部 Tab Bar（56px + 安全区）让位，md 以上恢复原间距 */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-[92px] md:pb-4">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/stocks" element={<Home />} />
@@ -62,6 +64,7 @@ function AppContent() {
           <Route path="/paper" element={<PaperTrading />} />
         </Routes>
       </main>
+      <MobileTabBar />
     </div>
   )
 }

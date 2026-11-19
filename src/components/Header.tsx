@@ -1,10 +1,12 @@
-import React, { useState, useMemo, FormEvent } from 'react'
+import React, { useState, FormEvent } from 'react'
 import { TrendingUp, LogOut, LogIn, Lock, Eye, EyeOff, X, AlertCircle, BarChart3, Layers, Wallet, FlaskConical, Globe2, Target } from 'lucide-react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useActiveSection } from '../hooks/useActiveSection'
 
 /**
- * 全局导航：四个板块的唯一定义处。
+ * 全局导航：六个板块的唯一定义处（桌面端）。
+ * 移动端 < md 改用底部 MobileTabBar，此导航隐藏。
  * 板块切换统一走这里，页面内部不再各自维护一套 tab。
  */
 const NAV_ITEMS = [
@@ -15,29 +17,6 @@ const NAV_ITEMS = [
   { key: 'macro', label: '宏观', to: '/macro', Icon: Globe2 },
   { key: 'paper', label: '模拟盘', to: '/paper', Icon: Target },
 ] as const
-
-type NavKey = typeof NAV_ITEMS[number]['key']
-
-/**
- * 当前所处板块，与 Home 的 getActiveTab 保持同一口径：
- * `/` 默认落交易板块，所以「股票」入口必须指向 /stocks，
- * 否则点「股票」会落到交易页。
- */
-function useActiveSection(): NavKey {
-  const { pathname, search } = useLocation()
-  return useMemo(() => {
-    if (pathname.startsWith('/research')) return 'research'
-    if (pathname.startsWith('/macro')) return 'macro'
-    if (pathname.startsWith('/paper')) return 'paper'
-    if (pathname.startsWith('/etf')) return 'etf'
-    // 个股/行业详情页归属「股票」
-    if (pathname.startsWith('/company/') || pathname.startsWith('/stock/') || pathname.startsWith('/industry/')) return 'stock'
-    if (pathname === '/stocks') return 'stock'
-    if (pathname === '/etf') return 'etf'
-    if (new URLSearchParams(search).get('tab') === 'trade') return 'trade'
-    return 'trade'
-  }, [pathname, search])
-}
 
 const Header: React.FC = () => {
   const { isAuthenticated, login, logout, loginOpen, openLogin, closeLogin } = useAuth()
@@ -78,8 +57,8 @@ const Header: React.FC = () => {
             <h1 className="text-lg font-bold whitespace-nowrap">涛哥投研工作室</h1>
           </Link>
 
-          {/* 全局导航：小屏换行到第二行，大屏与 Logo 同行 */}
-          <nav className="order-3 lg:order-2 w-full lg:w-auto flex items-center gap-0.5 overflow-x-auto rounded-xl bg-white/10 ring-1 ring-white/15 p-1">
+          {/* 全局导航：< md 隐藏，改用底部 MobileTabBar；≥ md 换行到第二行，≥ lg 与 Logo 同行 */}
+          <nav className="hidden md:flex order-3 lg:order-2 w-full lg:w-auto items-center gap-0.5 overflow-x-auto rounded-xl bg-white/10 ring-1 ring-white/15 p-1">
             {NAV_ITEMS.map(({ key, label, to, Icon }) => {
               const on = activeSection === key
               return (
@@ -126,11 +105,11 @@ const Header: React.FC = () => {
       {/* 行内登录弹窗（公开页面上不打断浏览） */}
       {showLogin && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-0 sm:px-4"
           onClick={() => setShowLogin(false)}
         >
           <div
-            className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6"
+            className="w-full max-w-sm max-h-[88vh] overflow-y-auto bg-white rounded-t-2xl sm:rounded-2xl shadow-xl p-6 pb-[calc(24px+env(safe-area-inset-bottom))] sm:pb-6"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center gap-2 mb-4">

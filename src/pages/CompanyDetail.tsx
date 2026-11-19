@@ -91,8 +91,9 @@ const CompanyDetail: React.FC = () => {
   const cur = currencyOf(company)
   /** 市值/估值的币种：行情的 currency 更准（含 JPY/HKD/EUR 等），缺失时才按代码推断 */
   const capCur = company.liveCurrency ?? currencyOfCode(company.code) ?? (cur === 'USD' ? 'USD' : 'CNY')
-  /** 营收来自企业档案，币种跟随上市地（财报以本币计价） */
-  const revCur = currencyOfCode(company.code) ?? (cur === 'USD' ? 'USD' : 'CNY')
+  /** 营收来自企业档案，池内统一按人民币录入（港股财报本就是人民币报表，海外非美标的目前无 rev），仅美股用美元。
+      注意不能用 currencyOfCode：它会按 .HK 判成 HKD，把人民币数值标成港币。 */
+  const revCur = cur === 'USD' ? 'USD' : 'CNY'
 
   /**
    * 上市企业指标卡：市值/PE/PB 只认 research_quotes 的实时值，
@@ -117,8 +118,8 @@ const CompanyDetail: React.FC = () => {
 
   return (
     <div>
-      {/* 头部 */}
-      <div className="flex items-center gap-3 mb-4">
+      {/* 头部：窄屏允许换行，否则名称+代码+徽章+按钮会把价格顶出视口 */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4 md:flex-nowrap">
         <button
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/research'))}
           className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50"
@@ -232,12 +233,23 @@ const CompanyDetail: React.FC = () => {
             </div>
           </>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Metric label="估值" value={fmtCap(company.valuation, "CNY")} hint="人民币亿元" />
-            <Metric label="最近融资" value={fmtDate(company.lastFunding)} />
-            <Metric label="轮次" value={company.round || '—'} />
-            <Metric label="赛道" value={trackLabel} />
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Metric label="估值" value={fmtCap(company.valuation, "CNY")} hint="人民币亿元" />
+              <Metric label="最近融资" value={fmtDate(company.lastFunding)} />
+              <Metric label="轮次" value={company.round || '—'} />
+              <Metric label="赛道" value={trackLabel} />
+            </div>
+            {/* 未上市企业的工商档案：只有补齐了字段才渲染，避免空行 */}
+            {Boolean(company.foundingDate) && (
+              <div className="mt-3 pt-2.5 border-t border-gray-50 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-gray-400">
+                <span>成立 {String(company.foundingDate)}</span>
+                {Boolean(company.registeredCapital) && <span>注册资本 {String(company.registeredCapital)}</span>}
+                {Boolean(company.hq) && <span>总部 {String(company.hq).split('（')[0]}</span>}
+                {Boolean(company.patents) && <span>{String(company.patents)}</span>}
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { FileText, Zap, StickyNote, RefreshCw, CloudOff, ChevronRight, TrendingUp, Flame, Building2 } from 'lucide-react'
+import { FileText, Zap, StickyNote, RefreshCw, CloudOff, ChevronRight, ChevronDown, TrendingUp, Flame, Building2, Layers, X } from 'lucide-react'
 import { INDUSTRY_DATA, TREE, isGrouped, treeLeaves, type TreeStage, type TreeLeaf } from '../research/data'
 import { useIntel, useCloudCompanies, parseList, type CloudNote, type CompanyRecord } from '../research/api'
 import { fmtDate } from '../research/format'
@@ -66,10 +66,10 @@ const HeatBar: React.FC<{ label: string; value: number; note?: string }> = ({ la
   )
 }
 
-/** 软筛选：环节/细分层级下，未标注 seg/sub 的条目仍可见 */
+/** 软筛选：环节/细分层级下，未标注 seg/sub 的条目仍可见；未标注行业的条目也一律可见，避免归属缺失导致彻底不可见 */
 function softMatch(itemIndustry: string | null, itemSeg: string | null, itemSub: string | null,
                    industry: string | null, seg: string | null, sub: string | null): boolean {
-  if (industry && itemIndustry !== industry) return false
+  if (industry && itemIndustry && itemIndustry !== industry) return false
   if (seg) {
     if (itemSeg && itemSeg !== seg) return false
     if (sub && itemSub && itemSub !== sub) return false
@@ -132,6 +132,8 @@ const ResearchHome: React.FC = () => {
   })
   const [expandedSeg, setExpandedSeg] = useState<string | null>(() => searchParams.get('seg'))
   const [expandedStage, setExpandedStage] = useState<string | null>(() => searchParams.get('stage'))
+  // 移动端：产业链树以全屏抽屉呈现（桌面端始终显示在左侧栏，不受此状态影响）
+  const [treeOpen, setTreeOpen] = useState(false)
 
   // 切换层级时清下级选择
   const pickIndustry = (id: string | null) => {
@@ -146,6 +148,8 @@ const ResearchHome: React.FC = () => {
   const pickSeg = (id: string | null) => {
     // 点击环节：右侧始终切换到该环节范围（清 stage/sub）；再次点击同一环节仅切换子列表展开/收起
     if (!id) { patchParams({ seg: null, stage: null, sub: null }); setExpandedSeg(null); setExpandedStage(null); return }
+    // 移动端选中即收起抽屉（桌面端 treeOpen 恒为 false，此处为无操作）
+    setTreeOpen(false)
     patchParams({ seg: id, stage: null, sub: null })
     setExpandedSeg(e => (seg === id ? (e === id ? null : id) : id))
     setExpandedStage(null)
@@ -153,10 +157,11 @@ const ResearchHome: React.FC = () => {
   const pickStage = (id: string | null) => {
     // 点击工艺阶段（仅带中间层的环节，如半导体设备）：右侧切到该阶段范围（清 sub）；再次点击仅切换设备种类展开/收起
     if (!id) { patchParams({ stage: null, sub: null }); setExpandedStage(null); return }
+    setTreeOpen(false)
     patchParams({ stage: id, sub: null })
     setExpandedStage(e => (stage === id ? (e === id ? null : id) : id))
   }
-  const pickSub = (name: string) => patchParams({ sub: name, mt: 'companies' })
+  const pickSub = (name: string) => { setTreeOpen(false); patchParams({ sub: name, mt: 'companies' }) }
 
   useEffect(() => { document.title = '行业研究 · 涛哥投研工作室' }, [])
 
@@ -198,16 +203,21 @@ const ResearchHome: React.FC = () => {
       分支顺序不可调换：sub > stage > 环节，保证细分精确名单不被阶段的并集覆盖。 */
   const scopePool = useMemo(() => {
     let list = cloudCompanies
-    if (industry) list = list.filter(c => c.industry === industry)
     if (seg && sub) {
+      // 细分名单是权威口径，此时不再按行业过滤：一家公司记录只有一个 industry/seg，
+      // 但可能被挂到别的行业节点下（光迅科技归量子、东山精密归 PCB、芯速联归半导体设计），
+      // 先按行业卡会把它们从名单里误杀，导致左侧显示 13 家、右侧只剩 9 家。
       const names = subInfo?.companies ?? []
       list = list.filter(c => names.includes(c.name))
-    } else if (seg && stageInfo) {
-      // 阶段级：该阶段下全部设备种类企业并集去重（同一家公司可出现在多个设备种类里，如新凯来）
-      const names = new Set(stageInfo.leaves.flatMap(l => l.companies ?? []))
-      list = list.filter(c => names.has(c.name))
-    } else if (seg) {
-      list = list.filter(c => (segKeys ? !!c.seg && segKeys.has(c.seg) : c.seg === seg))
+    } else {
+      if (industry) list = list.filter(c => c.industry === industry)
+      if (seg && stageInfo) {
+        // 阶段级：该阶段下全部设备种类企业并集去重（同一家公司可出现在多个设备种类里，如新凯来）
+        const names = new Set(stageInfo.leaves.flatMap(l => l.companies ?? []))
+        list = list.filter(c => names.has(c.name))
+      } else if (seg) {
+        list = list.filter(c => (segKeys ? !!c.seg && segKeys.has(c.seg) : c.seg === seg))
+      }
     }
     return list
   }, [cloudCompanies, industry, seg, stage, sub, subInfo, stageInfo, segKeys])
@@ -267,104 +277,70 @@ const ResearchHome: React.FC = () => {
   ].filter(Boolean).join(' · ')
 
   return (
-    <div className="flex gap-4">
-      {/* 左侧产业链目录树：行业 → 环节 → 细分 */}
-      <aside className="w-60 shrink-0">
+    <div className="flex flex-col md:flex-row gap-4">
+      {/* 移动端：当前路径条，点开全屏产业链抽屉 */}
+      <button
+        type="button"
+        onClick={() => setTreeOpen(true)}
+        className="md:hidden sticky top-0 z-20 flex items-center gap-2 w-full px-3 py-2.5 bg-white rounded-xl border border-gray-100 shadow-sm text-left"
+      >
+        <Layers className="h-4 w-4 text-blue-600 shrink-0" />
+        <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
+          <span className="text-gray-400">{segInfo?.industryName || '全部行业'}</span>
+          {segInfo?.seg && <span className="text-gray-400"> › </span>}
+          {segInfo?.seg && <b className="font-medium">{segInfo.seg.name}</b>}
+          {stageInfo && <span className="text-gray-400"> › {stageInfo.name}</span>}
+        </span>
+        <span className="shrink-0 text-xs text-blue-600">切换</span>
+        <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" />
+      </button>
+
+      {/* 桌面端：左侧产业链目录树常驻（行业 → 环节 → 细分） */}
+      <aside className="hidden md:block w-60 shrink-0">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-4">
           <div className="px-4 py-3 border-b border-gray-100">
             <div className="text-sm font-bold text-gray-800">产业链图谱</div>
             <div className="text-xs text-gray-400 mt-0.5">行业 → 环节 → 细分</div>
           </div>
-          {/* 高度随视口自适应：减去顶栏与卡片标题，尽量一屏放下全部行业，超长时才滚动 */}
-          <nav className="py-1 max-h-[calc(100vh-5rem)] overflow-y-auto text-sm">
-            {Object.entries(INDUSTRY_DATA).map(([id, ind]) => (
-              <div key={id}>
-                <button
-                  onClick={() => pickIndustry(id)}
-                  className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${industry === id ? 'text-blue-700 font-semibold bg-blue-50' : 'text-gray-700'}`}
-                >
-                  <span>{ind.name}</span>
-                  <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
-                </button>
-                {expandedInds.includes(id) && (
-                  <div className="bg-gray-50/60">
-                    {ind.segs.map(s => {
-                      const segVal = TREE[s.id]
-                      const grouped = isGrouped(segVal)
-                      const stages = grouped ? (segVal as TreeStage[]) : []
-                      const subs = grouped ? [] : ((segVal as TreeLeaf[]) ?? [])
-                      return (
-                        <div key={s.id}>
-                          <button
-                            onClick={() => pickSeg(s.id)}
-                            className={`w-full text-left pl-8 pr-4 py-1.5 text-[13px] hover:bg-gray-100 flex items-center justify-between ${seg === s.id ? 'text-blue-700 font-medium' : 'text-gray-600'}`}
-                          >
-                            <span className="truncate">{s.name}</span>
-                            <span className="shrink-0 flex items-center gap-1.5">
-                              {s.heat && <span className="text-[11px] text-gray-400">{s.heat}</span>}
-                              {grouped && stages.length > 0 && <span className="text-[10px] text-gray-300">{stages.length} 工艺阶段</span>}
-                              {!grouped && subs.length > 0 && <span className="text-[10px] text-gray-300">{subs.length} 细分</span>}
-                            </span>
-                          </button>
-                          {/* 第三级：带「工艺阶段」中间层的环节（如半导体设备），先列阶段再列设备种类 */}
-                          {expandedSeg === s.id && grouped && (
-                            <div className="bg-gray-50">
-                              {stages.map(st => (
-                                <div key={st.id}>
-                                  <button
-                                    onClick={() => pickStage(st.id)}
-                                    className={`w-full text-left pl-11 pr-4 py-1 text-xs hover:bg-gray-100 flex items-center gap-1.5 ${stage === st.id ? 'text-blue-700 font-semibold' : 'text-gray-600'}`}
-                                    title={st.desc || st.name}
-                                  >
-                                    <span className="truncate">{st.name}</span>
-                                    <span className="shrink-0 text-gray-300 ml-auto">{st.leaves.length}</span>
-                                  </button>
-                                  {/* 第四级：设备种类（阶段展开时展示，点击直达该设备种类的企业名单） */}
-                                  {expandedStage === st.id && st.leaves.length > 0 && (
-                                    <div className="bg-gray-100/70">
-                                      {st.leaves.map(sb => (
-                                        <button
-                                          key={sb.name}
-                                          onClick={() => pickSub(sb.name)}
-                                          className={`w-full text-left pl-16 pr-4 py-1 text-xs hover:bg-gray-200/60 flex items-center gap-1.5 ${sub === sb.name ? 'text-blue-700 font-medium' : 'text-gray-500'}`}
-                                          title={sb.desc || sb.name}
-                                        >
-                                          <span className="truncate">{sb.name}</span>
-                                          {sb.companies?.length ? <span className="shrink-0 text-gray-400 ml-auto">{sb.companies.length}</span> : null}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          {/* 第三级：无中间层的环节，直接列细分（原行为） */}
-                          {expandedSeg === s.id && !grouped && subs.length > 0 && (
-                            <div className="bg-gray-50">
-                              {subs.map(sb => (
-                                <button
-                                  key={sb.name}
-                                  onClick={() => pickSub(sb.name)}
-                                  className={`w-full text-left pl-12 pr-4 py-1 text-xs hover:bg-gray-100 flex items-center gap-1.5 ${sub === sb.name ? 'text-blue-700 font-medium' : 'text-gray-500'}`}
-                                  title={sb.desc || sb.name}
-                                >
-                                  <span className="truncate">{sb.name}</span>
-                                  {sb.companies?.length ? <span className="shrink-0 text-gray-300 ml-auto">{sb.companies.length}</span> : null}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            ))}
-          </nav>
+          <IndustryTree
+            navClass="py-1 max-h-[calc(100vh-5rem)] overflow-y-auto text-sm"
+            industry={industry} seg={seg} stage={stage} sub={sub}
+            expandedInds={expandedInds} expandedSeg={expandedSeg} expandedStage={expandedStage}
+            pickIndustry={pickIndustry} pickSeg={pickSeg} pickStage={pickStage} pickSub={pickSub}
+          />
         </div>
       </aside>
+
+      {/* 移动端：全屏抽屉（选中环节后自动关闭） */}
+      {treeOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-white flex flex-col">
+          <div className="flex items-center gap-2 h-14 px-4 border-b border-gray-100 shrink-0">
+            <Layers className="h-4 w-4 text-blue-600" />
+            <span className="font-semibold text-gray-900">产业链图谱</span>
+            <button
+              onClick={() => setTreeOpen(false)}
+              className="ml-auto p-2 -mr-2 text-gray-400 active:text-gray-600"
+              aria-label="关闭"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <IndustryTree
+            navClass="py-1 overflow-y-auto text-sm flex-1"
+            industry={industry} seg={seg} stage={stage} sub={sub}
+            expandedInds={expandedInds} expandedSeg={expandedSeg} expandedStage={expandedStage}
+            pickIndustry={pickIndustry} pickSeg={pickSeg} pickStage={pickStage} pickSub={pickSub}
+          />
+          <div className="shrink-0 px-4 pt-2 pb-[calc(12px+env(safe-area-inset-bottom))] border-t border-gray-100">
+            <button
+              onClick={() => setTreeOpen(false)}
+              className="w-full h-11 rounded-xl bg-gray-100 text-gray-700 text-sm font-medium active:bg-gray-200"
+            >
+              收起
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 右侧：顶层两分页（行业情报 / 企业名单）——口径与原工作台一致 */}
       <div className="flex-1 min-w-0">
@@ -457,18 +433,18 @@ const ResearchHome: React.FC = () => {
           </div>
         )}
 
-        {/* 顶层 tab：行业情报 / 研究笔记 / 企业名单 */}
-        <div className="flex items-center gap-1 mb-3">
+        {/* 顶层 tab：行业情报 / 研究笔记 / 企业名单（投资机构在桌面端保留） */}
+        <div className="flex items-center gap-1 mb-3 overflow-x-auto md:overflow-visible">
           <button
             onClick={() => patchParams({ mt: 'intel' })}
-            className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+            className={`shrink-0 px-4 py-2 text-sm rounded-lg transition-colors ${
               mainTab === 'intel' ? 'bg-blue-600 text-white font-medium shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-100 shadow-sm'}`}
           >行业情报</button>
           <button
             onClick={() => patchParams({ mt: 'companies' })}
             className={`px-4 py-2 text-sm rounded-lg transition-colors ${
               mainTab === 'companies' ? 'bg-blue-600 text-white font-medium shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-100 shadow-sm'}`}
-          >企业名单<span className="text-xs opacity-70"> · {scopeLabel} {scopePool.length} 家</span></button>
+          >企业名单<span className="hidden md:inline text-xs opacity-70"> · {scopeLabel} {scopePool.length} 家</span></button>
           <button
             onClick={() => patchParams({ mt: 'notes' })}
             className={`px-4 py-2 text-sm rounded-lg transition-colors flex items-center gap-1.5 ${
@@ -479,7 +455,7 @@ const ResearchHome: React.FC = () => {
           </button>
           <Link
             to="/research/investors"
-            className="ml-auto px-4 py-2 text-sm rounded-lg transition-colors flex items-center gap-1.5 bg-white text-gray-600 hover:bg-gray-50 border border-gray-100 shadow-sm"
+            className="hidden md:flex ml-auto px-4 py-2 text-sm rounded-lg transition-colors items-center gap-1.5 bg-white text-gray-600 hover:bg-gray-50 border border-gray-100 shadow-sm"
             title="按机构维度统计半导体领域的投资版图"
           >
             <Building2 className="h-3.5 w-3.5" />投资机构
@@ -593,5 +569,108 @@ const ResearchHome: React.FC = () => {
     </div>
   )
 }
+
+const IndustryTree: React.FC<{
+  navClass: string
+  industry: string | null
+  seg: string | null
+  stage: string | null
+  sub: string | null
+  expandedInds: string[]
+  expandedSeg: string | null
+  expandedStage: string | null
+  pickIndustry: (id: string | null) => void
+  pickSeg: (id: string | null) => void
+  pickStage: (id: string | null) => void
+  pickSub: (name: string) => void
+}> = ({ navClass, industry, seg, stage, sub, expandedInds, expandedSeg, expandedStage, pickIndustry, pickSeg, pickStage, pickSub }) => (
+  <nav className={navClass}>
+            {Object.entries(INDUSTRY_DATA).map(([id, ind]) => (
+              <div key={id}>
+                <button
+                  onClick={() => pickIndustry(id)}
+                  className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${industry === id ? 'text-blue-700 font-semibold bg-blue-50' : 'text-gray-700'}`}
+                >
+                  <span>{ind.name}</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
+                </button>
+                {expandedInds.includes(id) && (
+                  <div className="bg-gray-50/60">
+                    {ind.segs.map(s => {
+                      const segVal = TREE[s.id]
+                      const grouped = isGrouped(segVal)
+                      const stages = grouped ? (segVal as TreeStage[]) : []
+                      const subs = grouped ? [] : ((segVal as TreeLeaf[]) ?? [])
+                      return (
+                        <div key={s.id}>
+                          <button
+                            onClick={() => pickSeg(s.id)}
+                            className={`w-full text-left pl-8 pr-4 py-1.5 text-[13px] hover:bg-gray-100 flex items-center justify-between ${seg === s.id ? 'text-blue-700 font-medium' : 'text-gray-600'}`}
+                          >
+                            <span className="truncate">{s.name}</span>
+                            <span className="shrink-0 flex items-center gap-1.5">
+                              {s.heat && <span className="text-[11px] text-gray-400">{s.heat}</span>}
+                              {grouped && stages.length > 0 && <span className="text-[10px] text-gray-300">{stages.length} 工艺阶段</span>}
+                              {!grouped && subs.length > 0 && <span className="text-[10px] text-gray-300">{subs.length} 细分</span>}
+                            </span>
+                          </button>
+                          {/* 第三级：带「工艺阶段」中间层的环节（如半导体设备），先列阶段再列设备种类 */}
+                          {expandedSeg === s.id && grouped && (
+                            <div className="bg-gray-50">
+                              {stages.map(st => (
+                                <div key={st.id}>
+                                  <button
+                                    onClick={() => pickStage(st.id)}
+                                    className={`w-full text-left pl-11 pr-4 py-1 text-xs hover:bg-gray-100 flex items-center gap-1.5 ${stage === st.id ? 'text-blue-700 font-semibold' : 'text-gray-600'}`}
+                                    title={st.desc || st.name}
+                                  >
+                                    <span className="truncate">{st.name}</span>
+                                    <span className="shrink-0 text-gray-300 ml-auto">{st.leaves.length}</span>
+                                  </button>
+                                  {/* 第四级：设备种类（阶段展开时展示，点击直达该设备种类的企业名单） */}
+                                  {expandedStage === st.id && st.leaves.length > 0 && (
+                                    <div className="bg-gray-100/70">
+                                      {st.leaves.map(sb => (
+                                        <button
+                                          key={sb.name}
+                                          onClick={() => pickSub(sb.name)}
+                                          className={`w-full text-left pl-16 pr-4 py-1 text-xs hover:bg-gray-200/60 flex items-center gap-1.5 ${sub === sb.name ? 'text-blue-700 font-medium' : 'text-gray-500'}`}
+                                          title={sb.desc || sb.name}
+                                        >
+                                          <span className="truncate">{sb.name}</span>
+                                          {sb.companies?.length ? <span className="shrink-0 text-gray-400 ml-auto">{sb.companies.length}</span> : null}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* 第三级：无中间层的环节，直接列细分（原行为） */}
+                          {expandedSeg === s.id && !grouped && subs.length > 0 && (
+                            <div className="bg-gray-50">
+                              {subs.map(sb => (
+                                <button
+                                  key={sb.name}
+                                  onClick={() => pickSub(sb.name)}
+                                  className={`w-full text-left pl-12 pr-4 py-1 text-xs hover:bg-gray-100 flex items-center gap-1.5 ${sub === sb.name ? 'text-blue-700 font-medium' : 'text-gray-500'}`}
+                                  title={sb.desc || sb.name}
+                                >
+                                  <span className="truncate">{sb.name}</span>
+                                  {sb.companies?.length ? <span className="shrink-0 text-gray-300 ml-auto">{sb.companies.length}</span> : null}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+  </nav>
+)
 
 export default ResearchHome

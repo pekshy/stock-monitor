@@ -886,9 +886,9 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
   filteredStocks
 }) => {
   return (
-    <div className="space-y-8">
-      {/* 行业概览 */}
-      <div className="bg-white rounded-xl shadow-md p-6">
+    <div className="flex flex-col gap-6 md:gap-8">
+      {/* 行业概览：移动端排在股票列表之后（进 /stocks 先看行情，再看行业汇总） */}
+      <div className="order-2 md:order-1 bg-white rounded-xl shadow-md p-4 md:p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-blue-600" />
           行业汇总
@@ -900,10 +900,10 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="flex flex-wrap items-center gap-4 justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">股票列表</h2>
-          <div className="flex flex-wrap gap-3 items-center">
+      <div className="order-1 md:order-2 space-y-3 md:space-y-6">
+        <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-4">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900">股票列表</h2>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
             <select
               value={selectedIndustry1}
               onChange={(e) => {
@@ -911,7 +911,7 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
                 setSelectedIndustry2('all')
                 setSelectedMarket('all')
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="px-2.5 md:px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {industry1Options.map(industry => (
                 <option key={industry} value={industry}>
@@ -925,7 +925,7 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
                 setSelectedIndustry2(e.target.value)
                 setSelectedMarket('all')
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="px-2.5 md:px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {industry2Options.map(industry => (
                 <option key={industry} value={industry}>
@@ -936,7 +936,7 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
             <select
               value={selectedMarket}
               onChange={(e) => setSelectedMarket(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="px-2.5 md:px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {marketOptions.map(market => (
                 <option key={market} value={market}>
@@ -946,7 +946,7 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
             </select>
             <button
               onClick={resetFilters}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+              className="px-2.5 md:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm md:text-base hover:bg-gray-100 transition-colors"
             >
               重置
             </button>
@@ -955,7 +955,7 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
                 <button
                   key={period}
                   onClick={() => setSortPeriod(period)}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-2.5 md:px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     sortPeriod === period
                       ? 'bg-white text-primary shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
@@ -967,7 +967,7 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
             </div>
             <button
               onClick={() => setSortOrder(sortOrder === 'change_desc' ? 'change_asc' : 'change_desc')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              className={`px-2.5 md:px-4 py-2 rounded-lg text-sm md:text-base transition-colors ${
                 sortOrder === 'change_desc'
                   ? 'bg-red-100 text-red-700'
                   : 'bg-green-100 text-green-700'
@@ -978,7 +978,7 @@ const StockBoardContent: React.FC<StockBoardContentProps> = memo(({
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="bg-white rounded-xl shadow-md p-0 md:p-6">
           <StockList stocks={filteredStocks} />
         </div>
       </div>
