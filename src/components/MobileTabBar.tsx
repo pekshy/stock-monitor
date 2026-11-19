@@ -7,7 +7,7 @@ import { useActiveSection, type NavKey } from '../hooks/useActiveSection'
  * 移动端底部导航（< md 显示）。
  *
  * 桌面端六个板块在窄屏放不下，且第五、六项会被裁掉而没有任何提示，
- * 因此移动端改成 5 个 tab：常用四项 + 「更多」弹层（宏观 / 模拟盘）。
+ * 因此移动端改成 5 个 tab：常用四项 + 「更多」弹层（股票 / 模拟盘）。
  *
  * 高度 56px，配合 App.tsx 的 `pb-[76px] md:pb-4` 与安全区内边距使用。
  */
@@ -22,12 +22,12 @@ type TabItem = {
 const TABS: TabItem[] = [
   { key: 'trade', label: '交易', to: '/', Icon: Wallet },
   { key: 'etf', label: 'ETF', to: '/etf', Icon: Layers },
-  { key: 'stock', label: '股票', to: '/stocks', Icon: BarChart3 },
+  { key: 'macro', label: '宏观', to: '/macro', Icon: Globe2 },
   { key: 'research', label: '研究', to: '/research', Icon: FlaskConical },
 ]
 
 const MORE_ITEMS: { key: NavKey; label: string; to: string; desc: string; Icon: React.ComponentType<{ className?: string }> }[] = [
-  { key: 'macro', label: '宏观', to: '/macro', desc: '市场指标与情绪', Icon: Globe2 },
+  { key: 'stock', label: '股票', to: '/stocks', desc: '行情、估值与自选', Icon: BarChart3 },
   { key: 'paper', label: '模拟盘', to: '/paper', desc: '模拟持仓与收益', Icon: Target },
 ]
 
@@ -37,7 +37,7 @@ const MobileTabBar: React.FC = () => {
   const [moreOpen, setMoreOpen] = useState(false)
 
   // 「更多」里的板块被选中时，tab bar 上的「更多」需要高亮
-  const moreActive = active === 'macro' || active === 'paper'
+  const moreActive = active === 'stock' || active === 'paper'
 
   // 弹层打开时禁止背景滚动
   useEffect(() => {
