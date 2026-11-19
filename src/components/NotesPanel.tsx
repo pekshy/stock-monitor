@@ -41,7 +41,19 @@ const NoteCard: React.FC<{
 }> = ({ note: n, nodeLabel, readOnly, busy, onEdit, onRemove }) => {
   const [expanded, setExpanded] = useState(false)
   const [clamped, setClamped] = useState(false)
-  const bodyRef = useRef<HTMLParagraphElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  /** 正文按空行拆段；段首为「一、」「二、」这类序号时识别为小标题并加粗 */
+  const paragraphs = useMemo(() => {
+    return (n.body || '').split(/\n{2,}/).filter(p => p.trim()).map(para => {
+      const lines = para.split('\n')
+      const isHead = /^[一二三四五六七八九十]+、/.test(lines[0].trim()) && lines.length > 1
+      return {
+        head: isHead ? lines[0].trim() : null,
+        text: (isHead ? lines.slice(1) : lines).join('\n'),
+      }
+    })
+  }, [n.body])
 
   // 挂载/内容变化时测量是否溢出 2 行（scrollHeight 高于单行高 ×2 即算超长）
   React.useEffect(() => {
@@ -85,12 +97,21 @@ const NoteCard: React.FC<{
       )}
       {n.body && (
         <>
-          <p
+          <div
             ref={bodyRef}
-            className={`mt-0.5 text-[13px] text-gray-600 leading-relaxed pl-[76px] whitespace-pre-wrap ${expanded ? '' : 'line-clamp-2'}`}
+            className={`mt-0.5 text-[13px] text-gray-600 leading-relaxed pl-[76px] ${expanded ? '' : 'line-clamp-2'}`}
           >
-            {n.body}
-          </p>
+            {expanded ? (
+              paragraphs.map((p, i) => (
+                <div key={i} className={i ? 'mt-2.5' : ''}>
+                  {p.head && <div className="font-semibold text-gray-800">{p.head}</div>}
+                  {p.text && <div className="whitespace-pre-wrap">{p.text}</div>}
+                </div>
+              ))
+            ) : (
+              <span className="whitespace-pre-wrap">{n.body}</span>
+            )}
+          </div>
           {clamped && (
             <button
               onClick={() => setExpanded(e => !e)}
