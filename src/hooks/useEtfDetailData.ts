@@ -26,7 +26,7 @@ function getDateMonthsAgo(months: number): string {
 }
 
 /**
- * 按需加载单个ETF的历史数据（用于详情页，最近6个月）
+ * 按需加载单个ETF的历史数据（用于详情页，最近 1 年 ≈ 243 个交易日）
  * 只查询需要的列以减少数据传输量
  */
 export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
@@ -62,7 +62,7 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
         setLoading(true)
         setError(null)
 
-        const sixMonthsAgo = getDateMonthsAgo(6)
+        const oneYearAgo = getDateMonthsAgo(12)
         const threeMonthsAgo = getDateMonthsAgo(3)
 
         // 只查询需要的列，减少数据传输量
@@ -71,25 +71,25 @@ export function useEtfDetailData(symbol: string | undefined): EtfDetailData {
             .from('etf_daily_data')
             .select('symbol,trade_date,open,high,low,close,volume,amount,change_pct,change_5d,close_percentile_6m,volume_percentile_6m')
             .eq('symbol', symbol)
-            .gte('trade_date', sixMonthsAgo)
+            .gte('trade_date', oneYearAgo)
             .order('trade_date', { ascending: false }),
           supabase
             .from('etf_indicators')
             .select('symbol,trade_date,ma5,ma10,ma20,ma60')
             .eq('symbol', symbol)
-            .gte('trade_date', sixMonthsAgo)
+            .gte('trade_date', oneYearAgo)
             .order('trade_date', { ascending: false }),
           supabase
             .from('etf_claw_signals')
             .select('symbol,trade_date,name,close,action,action_type,signal_score,event_buy_count,event_sell_count,event_buy_signals,event_sell_signals,state_buy_count,state_sell_count,state_buy_signals,state_sell_signals,k,d,j,rsi,macd_hist')
             .eq('symbol', symbol)
-            .gte('trade_date', sixMonthsAgo)
+            .gte('trade_date', oneYearAgo)
             .order('trade_date', { ascending: false }),
           supabase
             .from('etf_butterworth_fit')
             .select('symbol,trade_date,fitted,derivative,trend_signal')
             .eq('symbol', symbol)
-            .gte('trade_date', sixMonthsAgo)
+            .gte('trade_date', oneYearAgo)
             .order('trade_date', { ascending: false }),
           supabase
             .from('etf_momentum_signals')

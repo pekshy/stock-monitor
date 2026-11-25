@@ -64,8 +64,8 @@ const MainChart: React.FC<{
   range: number
   onRangeChange: (v: number) => void
 }> = ({ dailyData, indicators, signals, butterworthFit, tradeRecords, range, onRangeChange }) => {
-  // 移动端只画最近 120 个交易日：600 多根 K 线塞进 390px，每根不到 0.7px，形态完全无法判读。
-  // 桌面端保持全量，宽的画布才需要全历史。
+  // 数据窗口为最近 1 年（约 243 个交易日）。移动端默认画全量、可切 20/60 日细看；
+  // 桌面端画全量，柱宽按样本数自适应，避免 243 根挤在一起互相覆盖。
   const narrow = useNarrow()
   // 窄屏按所选区间取最近 N 个交易日（dailyData 为倒序，slice(0,n) 即最新 n 条）；0 = 全部
   const viewData = narrow ? (range > 0 ? dailyData.slice(0, range) : dailyData) : dailyData
@@ -511,7 +511,7 @@ const MainChart: React.FC<{
                 ]
           } />
           
-          <Bar dataKey="high" barSize={narrow ? Math.max(1, Math.min(10, Math.floor(216 / Math.max(chartData.length, 1)))) : 5} shape={<CustomBar />} name="K线" legendType="none" />
+          <Bar dataKey="high" barSize={barWidth(chartData.length, narrow)} shape={<CustomBar />} name="K线" legendType="none" />
           
           <Line type="monotone" dataKey="ma5" stroke="#f59e0b" dot={false} strokeWidth={1} name="MA5" />
           <Line type="monotone" dataKey="ma10" stroke="#8b5cf6" dot={false} strokeWidth={1} name="MA10" hide={narrow} />
@@ -532,19 +532,32 @@ const MainChart: React.FC<{
 const CHART_RANGES = [
   { value: 20, label: '20日' },
   { value: 60, label: '60日' },
-  { value: 0, label: '全部' },
+  { value: 0, label: '1年' },
 ]
+
+/**
+ * K 线类图表的柱宽。243 根塞进固定宽度时，固定 barSize 会让柱子互相覆盖、
+ * rect 高度失真（曾导致 K 线被压成一条线），因此按样本数反比压缩。
+ */
+const barWidth = (n: number, narrow: boolean, maxW = 10) => {
+  const base = narrow ? 216 : 900
+  return Math.max(1, Math.min(maxW, Math.floor(base / Math.max(n, 1))))
+}
 
 /**
  * 成交额 6 个月分位。
  *
- * 数据窗口已由 useEtfDetailData 限定为近 6 个月，所以这里直接对全部样本排序取位，
- * 不再二次裁剪日期。amount 的单位是「万元」（与 volume 的「手」口径对应）。
+ * 详情页数据窗口已扩到 1 年，这里按日期二次裁剪到近 6 个月，保持「6M 分位」口径不变。
+ * amount 的单位是「万元」（与 volume 的「手」口径对应）。
  */
 const amountPercentile6m = (
   data: EtfDailyData[],
 ): { pct: number; median: number; n: number } | null => {
-  const pts = data.filter(d => d.amount != null && d.amount > 0) as (EtfDailyData & { amount: number })[]
+  // 数据窗口已扩到 1 年，这里仍只取近 6 个月，保持「6M 分位」口径不变
+  const cutoff = new Date()
+  cutoff.setMonth(cutoff.getMonth() - 6)
+  const cut = cutoff.toISOString().slice(0, 10)
+  const pts = data.filter(d => d.amount != null && d.amount > 0 && d.trade_date >= cut) as (EtfDailyData & { amount: number })[]
   if (pts.length < 20) return null
 
   const sorted = [...pts].sort((a, b) => a.trade_date.localeCompare(b.trade_date))
@@ -614,7 +627,7 @@ const VolumeChart: React.FC<{ data: EtfDailyData[] }> = ({ data }) => {
               wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
               formatter={(value: number) => [(value / 10000).toFixed(0) + ' 万份', '成交量']}
             />
-            <Bar dataKey="value" barSize={5} shape={(props: any) => {
+            <Bar dataKey="value" barSize={barWidth(chartData.length, narrow)} shape={(props: any) => {
               const { x, y, width, height, payload } = props
               return (
                 <rect
@@ -708,8 +721,8 @@ const DerivativeChart: React.FC<{ butterworthFit: ButterworthFit[] }> = ({ butte
             }}
           />
           <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
-          <Bar dataKey="positive" stackId="derivative" barSize={4} fill="#ef4444" fillOpacity={0.7} name="上升" />
-          <Bar dataKey="negative" stackId="derivative" barSize={4} fill="#22c55e" fillOpacity={0.7} name="下降" />
+          <Bar dataKey="positive" stackId="derivative" barSize={barWidth(chartData.length, false, 4)} fill="#ef4444" fillOpacity={0.7} name="上升" />
+          <Bar dataKey="negative" stackId="derivative" barSize={barWidth(chartData.length, false, 4)} fill="#22c55e" fillOpacity={0.7} name="下降" />
           <Scatter dataKey="buySignal" fill="#ef4444" shape={BuyShape} name="买入" />
           <Scatter dataKey="sellSignal" fill="#22c55e" shape={SellShape} name="卖出" />
         </ComposedChart>
@@ -1119,7 +1132,7 @@ const EtfDetail: React.FC = () => {
         <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
           <TrendingUp className="h-4 w-4" />
           K线走势
-          <span className="md:hidden text-xs font-normal text-gray-400">{chartRange > 0 ? `近 ${chartRange} 日` : '近 6 个月'}</span>
+          <span className="md:hidden text-xs font-normal text-gray-400">{chartRange > 0 ? `近 ${chartRange} 日` : '近 1 年'}</span>
         </h2>
         {detailLoading ? (
           <div className="flex items-center justify-center h-[260px] md:h-[380px]">
