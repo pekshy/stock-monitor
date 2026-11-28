@@ -50,3 +50,14 @@ UPDATE public.research_companies SET round = 'IPO 终止' WHERE name = '节卡�
 UPDATE public.research_companies SET round = '创业板已受理' WHERE name = '海康机器人';
 UPDATE public.research_companies SET round = '北交所已上市' WHERE name = '中科仪';
 UPDATE public.research_companies SET round = 'IPO 辅导' WHERE name = '长光卫星';
+
+-- 统一两家早期手工录入的 ipo 结构（原为 status/sponsors/raise 口径，前端已做兼容，此处对齐 stage/broker/note）
+UPDATE public.research_companies
+SET data = data || jsonb_build_object('ipo', '{"date": "2026-09-02", "board": "港交所主板 18C", "structure": "已股改；拆除开曼 VIE、注册地迁回境内", "preIpoValuation": "500 亿美元", "stage": "已保密递表（A1）", "broker": ["中金公司", "高盛"], "note": "拟募 30–50 亿美元，目标 2027Q1 挂牌；美银、德银参与；18C 章特专科技公司"}'::jsonb),
+    updated_at = now()
+WHERE name = '月之暗面';
+
+UPDATE public.research_companies
+SET data = data || jsonb_build_object('ipo', '{"stage": "未启动", "structure": "境外平台 Pingu Tech Limited 经华封集芯（北京）科技发展 100% 持股", "preIpoValuation": "未披露（A 轮粗算投后约 45.5 亿元）"}'::jsonb),
+    updated_at = now()
+WHERE name = '华封集芯';

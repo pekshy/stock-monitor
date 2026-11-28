@@ -300,7 +300,7 @@ const CompanyDetail: React.FC = () => {
       )}
 
       {/* 未上市且已启动 IPO：辅导/保荐机构与最新审核节点 */}
-      <IpoCard company={company} />
+      <IpoCard company={company} listed={listed} />
 
       {/* 未上市：融资历史 + 技术/产品动态 */}
       {!listed && !!(company.funding?.length) && (
@@ -434,13 +434,18 @@ const CompanyDetail: React.FC = () => {
  * 投资机构角色标签体系（未上市企业重点关注：谁领投、谁跟投、谁战略投资）
  * 解析与聚合逻辑统一放在 research/investors.ts，供详情页与机构统计视图复用。
  */
-/** IPO 进展：辅导/保荐机构 + 拟上市板块 + 最新审核节点。未上市企业一旦启动上市流程即展示。 */
-function IpoCard({ company }: { company: CompanyRecord }) {
+/** IPO 进展：辅导/保荐机构 + 拟上市板块 + 最新审核节点。仅未上市企业展示。 */
+function IpoCard({ company, listed }: { company: CompanyRecord; listed: boolean }) {
   const ipo = company.ipo
-  if (!ipo || (!ipo.stage && !ipo.broker?.length)) return null
+  if (listed || !ipo) return null
 
-  const stage = ipo.stage ?? ''
-  // 已过会 / 注册生效 / 已上市 → 绿；中止 / 终止 → 灰；辅导阶段 → 琥珀；审核中 → 蓝
+  // 早期手工录入用的是 status / sponsors / raise，这里做一层兼容
+  const stage = ipo.stage ?? ipo.status ?? ''
+  const brokers = ipo.broker?.length ? ipo.broker : (ipo.sponsors ? [ipo.sponsors] : [])
+  const note = ipo.note ?? ipo.raise
+  if (!stage && !brokers.length) return null
+
+  // 已过会 / 注册生效 / 已上市 → 绿；中止 / 终止 → 橙 / 灰；辅导阶段 → 琥珀；审核中 → 蓝
   const tone = /终止|撤回/.test(stage)
     ? 'bg-gray-100 text-gray-500'
     : /中止|暂缓/.test(stage)
@@ -459,13 +464,13 @@ function IpoCard({ company }: { company: CompanyRecord }) {
           {ipo.board && <span className="text-[12px] text-gray-600">拟上市 {ipo.board}</span>}
           {ipo.date && <span className="text-[12px] text-gray-400">{fmtDate(ipo.date)}</span>}
         </div>
-        {!!ipo.broker?.length && (
+        {!!brokers.length && (
           <div className="text-[13px] text-gray-800">
             <span className="text-[11px] text-gray-400 mr-1.5">辅导/保荐</span>
-            {ipo.broker.join('、')}
+            {brokers.join('、')}
           </div>
         )}
-        {ipo.note && <p className="text-[12px] text-gray-500 leading-relaxed">{ipo.note}</p>}
+        {note && <p className="text-[12px] text-gray-500 leading-relaxed">{note}</p>}
       </div>
     </Card>
   )

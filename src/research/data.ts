@@ -74,6 +74,10 @@ export interface ResearchCompany {
     date?: string
     /** 备注：拟募资额、中止原因、更换辅导机构等 */
     note?: string
+    /** 旧记录兼容字段：status / sponsors 为早期手工录入口径 */
+    status?: string
+    sponsors?: string
+    raise?: string
   }
   spark?: (number | string | null)[]
   market?: string
