@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, StickyNote, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp, Star } from 'lucide-react'
+import { ArrowLeft, StickyNote, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp, Star, Landmark } from 'lucide-react'
 import { useCloudCompanies, useIntel, parseList, type CompanyRecord } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, currencyOf } from '../research/format'
 import { fmtCapLive, fmtMultiple, fmtPctLive, pctClass, currencyOfCode, amountUnit } from '../research/quotes'
@@ -299,6 +299,9 @@ const CompanyDetail: React.FC = () => {
         </div>
       )}
 
+      {/* 未上市且已启动 IPO：辅导/保荐机构与最新审核节点 */}
+      <IpoCard company={company} />
+
       {/* 未上市：融资历史 + 技术/产品动态 */}
       {!listed && !!(company.funding?.length) && (
         <Card title="融资历史" icon={<TrendingUp className="h-4 w-4" />} count={company.funding!.length}>
@@ -431,6 +434,43 @@ const CompanyDetail: React.FC = () => {
  * 投资机构角色标签体系（未上市企业重点关注：谁领投、谁跟投、谁战略投资）
  * 解析与聚合逻辑统一放在 research/investors.ts，供详情页与机构统计视图复用。
  */
+/** IPO 进展：辅导/保荐机构 + 拟上市板块 + 最新审核节点。未上市企业一旦启动上市流程即展示。 */
+function IpoCard({ company }: { company: CompanyRecord }) {
+  const ipo = company.ipo
+  if (!ipo || (!ipo.stage && !ipo.broker?.length)) return null
+
+  const stage = ipo.stage ?? ''
+  // 已过会 / 注册生效 / 已上市 → 绿；中止 / 终止 → 灰；辅导阶段 → 琥珀；审核中 → 蓝
+  const tone = /终止|撤回/.test(stage)
+    ? 'bg-gray-100 text-gray-500'
+    : /中止|暂缓/.test(stage)
+      ? 'bg-orange-50 text-orange-700'
+      : /过会|注册|上市/.test(stage)
+        ? 'bg-emerald-50 text-emerald-700'
+        : /辅导/.test(stage)
+          ? 'bg-amber-50 text-amber-700'
+          : 'bg-blue-50 text-blue-700'
+
+  return (
+    <Card title="IPO 进展" icon={<Landmark className="h-4 w-4" />}>
+      <div className="py-2 space-y-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className={`text-[12px] px-2 py-0.5 rounded font-medium ${tone}`}>{stage || '进行中'}</span>
+          {ipo.board && <span className="text-[12px] text-gray-600">拟上市 {ipo.board}</span>}
+          {ipo.date && <span className="text-[12px] text-gray-400">{fmtDate(ipo.date)}</span>}
+        </div>
+        {!!ipo.broker?.length && (
+          <div className="text-[13px] text-gray-800">
+            <span className="text-[11px] text-gray-400 mr-1.5">辅导/保荐</span>
+            {ipo.broker.join('、')}
+          </div>
+        )}
+        {ipo.note && <p className="text-[12px] text-gray-500 leading-relaxed">{ipo.note}</p>}
+      </div>
+    </Card>
+  )
+}
+
 /** 管理层：任职名单按「董事会 / 高级管理层」分组，履历直接展示；另附人事变动历史 */
 function ExecutivesCard({ company, listed }: { company: CompanyRecord; listed: boolean }) {
   const execs = company.executives ?? []

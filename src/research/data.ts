@@ -62,6 +62,19 @@ export interface ResearchCompany {
     /** 持股，如「4,251 万股 · 1.80%」 */
     shares?: string
   }[]
+  /** IPO 进展：已启动 A 股 / 港股上市流程的未上市企业 */
+  ipo?: {
+    /** 最新节点：辅导备案 / 辅导完成 / 已受理 / 已问询 / 已过会 / 注册生效 / 中止 / 终止 / 已上市 */
+    stage?: string
+    /** 拟上市板块，如「科创板」「创业板」「北交所」「港股主板」 */
+    board?: string
+    /** 辅导或保荐机构，联席按顺序列出 */
+    broker?: string[]
+    /** 最新节点日期，如「2026-06-30」 */
+    date?: string
+    /** 备注：拟募资额、中止原因、更换辅导机构等 */
+    note?: string
+  }
   spark?: (number | string | null)[]
   market?: string
   /** 国产替代对标备注（国际巨头用） */
