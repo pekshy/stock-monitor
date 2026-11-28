@@ -523,9 +523,9 @@ ON CONFLICT (name) DO UPDATE SET industry = EXCLUDED.industry, seg = EXCLUDED.se
   listed = EXCLUDED.listed, round = EXCLUDED.round, data = EXCLUDED.data, updated_at = now();
 
 INSERT INTO public.research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data, updated_at)
-VALUES ('剂泰科技', '—', 'pharma', 'pharma-nucleic', true,
+VALUES ('剂泰科技', '7666.HK', 'pharma', 'pharma-nucleic', true,
   '已上市', NULL, NULL, NULL, NULL,
-  '{"rd": null, "rev": null, "seg": "pharma-nucleic", "code": "—", "desc": "用 AI 做 LNP 配方筛选，2026 年在港股 18A 上市，是核酸递送平台的稀缺标的。", "name": "剂泰科技", "tech": [{"date": "2026-07", "title": "港股 18A 上市"}], "gross": null, "round": "已上市", "listed": true, "industry": "pharma", "revGrowth": null, "valuation": null, "latestTech": "AI 辅助脂质纳米颗粒设计，绕开 Arbutus 的 MLV 专利是国产化前提"}'::jsonb, now())
+  '{"rd": null, "rev": null, "seg": "pharma-nucleic", "code": "7666.HK", "desc": "用 AI 做 LNP 配方筛选，2026-05-13 以「全球 AI 药物递送第一股」登陆港交所，是核酸递送平台的稀缺标的。", "name": "剂泰科技", "tech": [{"date": "2026-05", "title": "港股上市（7666.HK）"}], "gross": null, "round": "已上市", "listed": true, "industry": "pharma", "revGrowth": null, "valuation": null, "latestTech": "AI 辅助脂质纳米颗粒设计，绕开 Arbutus 的 MLV 专利是国产化前提"}'::jsonb, now())
 ON CONFLICT (name) DO UPDATE SET industry = EXCLUDED.industry, seg = EXCLUDED.seg,
   listed = EXCLUDED.listed, round = EXCLUDED.round, data = EXCLUDED.data, updated_at = now();
 
@@ -551,9 +551,9 @@ ON CONFLICT (name) DO UPDATE SET industry = EXCLUDED.industry, seg = EXCLUDED.se
   listed = EXCLUDED.listed, round = EXCLUDED.round, data = EXCLUDED.data, updated_at = now();
 
 INSERT INTO public.research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data, updated_at)
-VALUES ('瑞博生物', '—', 'pharma', 'pharma-nucleic', true,
+VALUES ('瑞博生物', '6938.HK', 'pharma', 'pharma-nucleic', true,
   '已上市', NULL, NULL, NULL, NULL,
-  '{"rd": null, "rev": null, "seg": "pharma-nucleic", "code": "—", "desc": "GalNAc 肝靶向小核酸平台，2026 年在港股 18A 上市，是国产小核酸第一股。", "name": "瑞博生物", "tech": [{"date": "2026-08", "title": "港股 18A 上市"}], "gross": null, "round": "已上市", "listed": true, "industry": "pharma", "revGrowth": null, "valuation": null, "latestTech": "从肝靶向向肝外递送延伸，肝外递送决定小核酸的市场天花板"}'::jsonb, now())
+  '{"rd": null, "rev": null, "seg": "pharma-nucleic", "code": "6938.HK", "desc": "GalNAc 肝靶向小核酸平台，2026-08 在港股上市（06938.HK），是国产小核酸第一股。", "name": "瑞博生物", "tech": [{"date": "2026-08", "title": "港股上市（6938.HK）"}], "gross": null, "round": "已上市", "listed": true, "industry": "pharma", "revGrowth": null, "valuation": null, "latestTech": "从肝靶向向肝外递送延伸，肝外递送决定小核酸的市场天花板"}'::jsonb, now())
 ON CONFLICT (name) DO UPDATE SET industry = EXCLUDED.industry, seg = EXCLUDED.seg,
   listed = EXCLUDED.listed, round = EXCLUDED.round, data = EXCLUDED.data, updated_at = now();
 
@@ -586,9 +586,9 @@ ON CONFLICT (name) DO UPDATE SET industry = EXCLUDED.industry, seg = EXCLUDED.se
   listed = EXCLUDED.listed, round = EXCLUDED.round, data = EXCLUDED.data, updated_at = now();
 
 INSERT INTO public.research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data, updated_at)
-VALUES ('银诺医药', '—', 'pharma', 'pharma-nucleic', true,
+VALUES ('银诺医药', '2591.HK', 'pharma', 'pharma-nucleic', true,
   '已上市', NULL, NULL, NULL, NULL,
-  '{"rd": null, "rev": null, "seg": "pharma-nucleic", "code": "—", "desc": "依苏帕格鲁肽（人源化长效 GLP-1）2026 年在港股上市，是国产减重多肽第二梯队。", "name": "银诺医药", "tech": [{"date": "2026-06", "title": "港股上市"}], "gross": null, "round": "已上市", "listed": true, "industry": "pharma", "revGrowth": null, "valuation": null, "latestTech": "减重与糖尿病双适应症，商业化能力是短板"}'::jsonb, now())
+  '{"rd": null, "rev": null, "seg": "pharma-nucleic", "code": "2591.HK", "desc": "依苏帕格鲁肽（人源化长效 GLP-1）2026 年在港股上市（02591.HK），是国产减重多肽第二梯队。", "name": "银诺医药", "tech": [{"date": "2026-06", "title": "港股上市（2591.HK）"}], "gross": null, "round": "已上市", "listed": true, "industry": "pharma", "revGrowth": null, "valuation": null, "latestTech": "减重与糖尿病双适应症，商业化能力是短板"}'::jsonb, now())
 ON CONFLICT (name) DO UPDATE SET industry = EXCLUDED.industry, seg = EXCLUDED.seg,
   listed = EXCLUDED.listed, round = EXCLUDED.round, data = EXCLUDED.data, updated_at = now();
 
@@ -838,9 +838,9 @@ ON CONFLICT (name) DO UPDATE SET industry = EXCLUDED.industry, seg = EXCLUDED.se
   listed = EXCLUDED.listed, round = EXCLUDED.round, data = EXCLUDED.data, updated_at = now();
 
 INSERT INTO public.research_companies (name, code, industry, seg, listed, round, cap, valuation, rev, last_funding, data, updated_at)
-VALUES ('菲鹏生物', '—', 'pharma', 'pharma-upstream', true,
-  '已上市', NULL, NULL, NULL, NULL,
-  '{"rd": null, "rev": null, "seg": "pharma-upstream", "code": "—", "desc": "IVD 原料酶与抗原龙头，是体外诊断上游最完整的国产供应商。", "name": "菲鹏生物", "tech": [{"date": "2026-04", "title": "化学发光原料放量"}], "gross": null, "round": "已上市", "listed": true, "industry": "pharma", "revGrowth": null, "valuation": null, "latestTech": null}'::jsonb, now())
+VALUES ('菲鹏生物', '—', 'pharma', 'pharma-upstream', false,
+  'IPO 已撤回', NULL, NULL, NULL, NULL,
+  '{"rd": null, "rev": null, "seg": "pharma-upstream", "code": "—", "desc": "IVD 原料酶与抗原龙头，是体外诊断上游最完整的国产供应商。2024-02 主动撤回创业板注册申请，至今未挂牌。", "name": "菲鹏生物", "tech": [{"date": "2026-04", "title": "化学发光原料放量"}], "gross": null, "round": "IPO 已撤回", "listed": false, "ipo": {"stage": "终止", "board": "创业板", "date": "2024-02-22", "broker": ["华泰联合证券"], "note": "2024-02-22 公司与华泰联合主动撤回创业板发行注册申请，证监会终止注册程序；未挂牌"}, "industry": "pharma", "revGrowth": null, "valuation": null, "latestTech": null}'::jsonb, now())
 ON CONFLICT (name) DO UPDATE SET industry = EXCLUDED.industry, seg = EXCLUDED.seg,
   listed = EXCLUDED.listed, round = EXCLUDED.round, data = EXCLUDED.data, updated_at = now();
 
