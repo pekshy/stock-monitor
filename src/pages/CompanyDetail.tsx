@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, StickyNote, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp, Star, Landmark } from 'lucide-react'
+import { ArrowLeft, StickyNote, ExternalLink, Layers, ChevronRight, Users, Scale, TrendingUp, Star, Landmark, Box } from 'lucide-react'
 import { useCloudCompanies, useIntel, parseList, type CompanyRecord } from '../research/api'
 import { fmtDate, fmtCap, fmtRev, fmtPct, currencyOf } from '../research/format'
 import { fmtCapLive, fmtMultiple, fmtPctLive, pctClass, currencyOfCode, amountUnit } from '../research/quotes'
@@ -211,6 +211,17 @@ const CompanyDetail: React.FC = () => {
       {/* 核心指标卡 */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4 mb-4">
         {company.desc && <p className="text-[13px] text-gray-600 leading-relaxed mb-3">{company.desc}</p>}
+        {/* 路线/机理长说明：默认收起，避免概览被技术细节撑长 */}
+        {company.descDetail && (
+          <details className="mb-3 group">
+            <summary className="text-[11px] text-blue-600 cursor-pointer select-none hover:text-blue-700 w-fit">
+              技术路线说明
+            </summary>
+            <p className="text-[12.5px] text-gray-500 leading-relaxed mt-2 pl-3 border-l-2 border-gray-100">
+              {company.descDetail}
+            </p>
+          </details>
+        )}
         {listed ? (
           <>
             {liveMetrics.length > 0 && (
@@ -353,13 +364,55 @@ const CompanyDetail: React.FC = () => {
       {!listed && !!(company.tech?.length) && (
         <Card title="技术突破 / 产品动态">
           <div className="space-y-2">
-            {company.tech!.map((t, i) => (
-              <div key={i} className="flex items-baseline gap-3 text-[13px]">
-                <span className="text-gray-400 shrink-0">{fmtDate(t.date)}</span>
-                <span className="text-gray-800">{t.title}</span>
-              </div>
-            ))}
+            {company.tech!.map((t, i) => {
+              // 历史数据里有纯字符串的 tech，统一按「无日期」处理，避免渲染成空行「—」
+              const isStr = typeof t === 'string'
+              const date = isStr ? '' : t.date
+              const title = isStr ? t : t.title
+              return (
+                <div key={i} className="flex items-baseline gap-3 text-[13px]">
+                  {date && <span className="text-gray-400 shrink-0">{fmtDate(date)}</span>}
+                  <span className="text-gray-800">{title}</span>
+                </div>
+              )
+            })}
           </div>
+        </Card>
+      )}
+
+      {/* 产品线 / 客户 / 订单：未上市企业最需要看清「卖什么、卖给谁」 */}
+      {!listed && !!(company.productLine?.length || company.customers || company.orders) && (
+        <Card
+          title="产品与客户"
+          icon={<Box className="h-4 w-4" />}
+          count={company.productLine?.length || undefined}
+        >
+          {!!company.productLine?.length && (
+            <div className="space-y-1.5">
+              {company.productLine.map((p, i) => (
+                <div key={i} className="flex items-baseline gap-2 text-[13px] text-gray-800">
+                  <span className="w-1 h-1 rounded-full bg-gray-300 shrink-0 mt-[7px]" />
+                  <span className="leading-relaxed">{p}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {!!(company.customers || company.orders) && (
+            <div className={`space-y-1.5 ${company.productLine?.length ? 'pt-2.5 mt-2.5 border-t border-gray-100' : ''}`}>
+              {company.customers && (
+                <div className="flex items-baseline gap-2 text-[12.5px]">
+                  <span className="text-[11px] text-gray-400 shrink-0 w-8">客户</span>
+                  <span className="text-gray-600 leading-relaxed">{company.customers}</span>
+                </div>
+              )}
+              {company.orders && (
+                <div className="flex items-baseline gap-2 text-[12.5px]">
+                  <span className="text-[11px] text-gray-400 shrink-0 w-8">订单</span>
+                  <span className="text-gray-600 leading-relaxed">{company.orders}</span>
+                </div>
+              )}
+            </div>
+          )}
         </Card>
       )}
 

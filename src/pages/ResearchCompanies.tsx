@@ -62,20 +62,20 @@ export const CompanyTable: React.FC<{
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-      <div className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-2 border-b border-gray-100 px-3 py-2">
         {tabs.map(t => (
           <button
             key={t.key}
             onClick={() => setFilter(t.key)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+            className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap shrink-0 transition-colors ${
               filter === t.key ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             {t.label} <span className="text-xs text-gray-400">{t.n}</span>
           </button>
         ))}
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto w-full sm:w-auto flex items-center gap-3 min-w-0">
           {quoteDate && (
-            <span className="text-[11px] text-gray-400 whitespace-nowrap" title="市值 / PE / PB 的行情日期">
+            <span className="hidden sm:inline text-[11px] text-gray-400 whitespace-nowrap" title="市值 / PE / PB 的行情日期">
               市值截至 {fmtDate(quoteDate)}
             </span>
           )}
@@ -85,7 +85,7 @@ export const CompanyTable: React.FC<{
               value={q}
               onChange={e => setQ(e.target.value)}
               placeholder="搜索公司 / 代码 / 业务"
-              className="pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 w-52"
+              className="pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 w-full sm:w-52"
             />
           </div>
         </div>
@@ -96,8 +96,8 @@ export const CompanyTable: React.FC<{
           <thead>
             <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
               <th className="px-5 py-2.5 font-medium">公司</th>
-              <th className="px-3 py-2.5 font-medium">轮次</th>
-              <th className="px-3 py-2.5 font-medium text-right">市值 / 估值</th>
+              <th className="px-3 py-2.5 font-medium hidden sm:table-cell">轮次</th>
+              <th className="px-3 py-2.5 font-medium text-right hidden sm:table-cell">市值 / 估值</th>
               <th className="px-5 py-2.5 font-medium">核心竞争力</th>
             </tr>
           </thead>
@@ -212,7 +212,7 @@ const CompanyRow: React.FC<{
 
   return (
     <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
-      <td className="px-5 py-3">
+      <td className="px-5 py-3 whitespace-nowrap">
         <div className="flex items-center gap-1.5">
           {/* 未登录不显示关注星标：既看不到关注状态，也没有可点的入口 */}
           {onToggleWatch && isAuthenticated && (
@@ -236,13 +236,13 @@ const CompanyRow: React.FC<{
           )}
         </div>
       </td>
-      <td className="px-3 py-3">
+      <td className="px-3 py-3 hidden sm:table-cell">
         <span className={`text-xs px-2 py-0.5 rounded-full ${
           listed ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
           {listed ? '已上市' : (c.round || '未上市')}
         </span>
       </td>
-      <td className="px-3 py-3 text-right text-gray-700 tabular-nums whitespace-nowrap">
+      <td className="px-3 py-3 text-right text-gray-700 tabular-nums whitespace-nowrap hidden sm:table-cell">
         {listed
           ? (c.liveCap != null
               ? fmtCapLive(c.liveCap, c.liveCurrency ?? currencyOfCode(c.code) ?? 'CNY')
