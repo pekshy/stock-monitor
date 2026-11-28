@@ -26,6 +26,7 @@ const kindBadge = (kind: string): string => {
     case '观点': return 'bg-purple-50 text-purple-700'
     case '纪要': return 'bg-blue-50 text-blue-700'
     case '研报': return 'bg-green-50 text-green-700'
+    case '周报': return 'bg-rose-50 text-rose-700'
     default: return 'bg-orange-50 text-orange-700'
   }
 }

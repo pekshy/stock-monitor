@@ -1,6 +1,6 @@
 // 研究笔记 · 表单口径（与原工作台 db.py / 页面极简表单一致）
 
-export const NOTE_KINDS = ['观点', '纪要', '资料', '研报'] as const
+export const NOTE_KINDS = ['观点', '纪要', '资料', '研报', '周报'] as const
 export type NoteKind = (typeof NOTE_KINDS)[number]
 export const TITLE_MAX = 40
 
